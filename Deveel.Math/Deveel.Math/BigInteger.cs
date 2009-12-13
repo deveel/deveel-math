@@ -35,7 +35,7 @@ namespace Deveel.Math {
 	/// </para>
 	/// </remarks>
 	[Serializable]
-	public class BigInteger : IComparable<BigInteger>, IConvertible {
+	public class BigInteger : IComparable<BigInteger>, IConvertible, ISerializable {
 
 		/* Fields used for the internal representation. */
 
@@ -115,6 +115,19 @@ namespace Deveel.Math {
 		/** Cache for the hash code. */
 		[NonSerialized]
 		private int hashCode = 0;
+
+		private BigInteger(SerializationInfo info, StreamingContext context) {
+			sign = info.GetInt32("sign");
+			byte[] magn = (byte[]) info.GetValue("magnitude", typeof(byte[]));
+			PutBytesPositiveToIntegers(magn);
+			CutOffLeadingZeroes();
+		}
+
+		void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) {
+			info.AddValue("sign", sign);
+			byte[] magn = Abs().ToByteArray();
+			info.AddValue("magnitude", magn, typeof(byte[]));
+		}
 
 		/**
 		 * Constructs a random non-negative {@code BigInteger} instance in the range
@@ -1561,6 +1574,7 @@ namespace Deveel.Math {
 		}
 		*/
 
+		/*
         [OnSerializing]
         internal void BeforeSerialization(StreamingContext context) {
             _signum = Signum();
@@ -1584,7 +1598,7 @@ namespace Deveel.Math {
 				fixedup = true;
 			}
 		}
-
+		*/
 
 		internal void UnCache() {
 			firstNonzeroDigit = -2;

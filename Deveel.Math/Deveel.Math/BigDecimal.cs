@@ -29,7 +29,7 @@ namespace Deveel.Math {
 	/// of the <see cref="BigDecimal"/> is <see cref="UnscaledValue"/> 10^(-<see cref="Scale"/>).
 	/// </remarks>
 	[Serializable, System.Diagnostics.DebuggerDisplay("{ToStringInternal()}")]
-	public class BigDecimal : IComparable<BigDecimal>, IConvertible {
+	public class BigDecimal : IComparable<BigDecimal>, IConvertible, ISerializable {
 
 		/// <summary>
 		/// The constant zero as a <see cref="BigDecimal"/>.
@@ -3054,6 +3054,7 @@ namespace Deveel.Math {
 			return 32 - Utils.numberOfLeadingZeros(smallValue);
 		}
 
+		/*
 		[OnSerializing]
 		internal void BeforeSerialization(StreamingContext context) {
 			GetUnscaledValue();
@@ -3066,6 +3067,22 @@ namespace Deveel.Math {
 			if (_bitLength < 64) {
 				smallValue = intVal.ToInt64();
 			}
+		}
+		*/
+
+		private BigDecimal(SerializationInfo info, StreamingContext context) {
+			intVal = (BigInteger) info.GetValue("intVal", typeof(BigInteger));
+			_scale = info.GetInt32("scale");
+			_bitLength = intVal.BitLength;
+			if (_bitLength < 64) {
+				smallValue = intVal.ToInt64();
+			}
+		}
+
+		void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) {
+			GetUnscaledValue();
+			info.AddValue("intVal", intVal, typeof(BigInteger));
+			info.AddValue("scale", _scale);
 		}
 
 		#region Implementation of IConvertible
