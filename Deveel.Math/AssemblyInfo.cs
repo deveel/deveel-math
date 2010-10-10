@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Deveel.Math")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("dmath")]
+[assembly: AssemblyDescription("Deveel Math Library")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Deveel")]
 [assembly: AssemblyProduct("Deveel.Math")]
-[assembly: AssemblyCopyright("Copyright © Deveel 2009")]
+[assembly: AssemblyCopyright("Copyright © Deveel 2009-2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
