@@ -33,22 +33,22 @@ namespace Deveel.Math {
 		[TestCase("1231212478987482988429808779810457634781384756794987", 10,
 			"747233429293018787918347987234564568", 10,
 			"1.2313E+41", -37,
-			RoundingMode.Up,
+			5, RoundingMode.Up,
 			Description = "Add two numbers of equal positive scales using MathContext")]
 		[TestCase("1231212478987482988429808779810457634781384756794987", -10,
 			"747233429293018787918347987234564568", -10,
 			"1.2312E+61", -57,
-			RoundingMode.Floor,
+			5, RoundingMode.Floor,
 			Description = "Add two numbers of equal negative scales using MathContext")]
 		[TestCase("1231212478987482988429808779810457634781384756794987", 15,
 			"747233429293018787918347987234564568", -10,
 			"7.47233429416141E+45", -31,
-			RoundingMode.Ceiling,
+			15, RoundingMode.Ceiling,
 			Description = "Add two numbers of different scales using MathContext; the first is positive")]
-		public void AddWithContext(string a, int aScale, string b, int bScale, string c, int cScale, RoundingMode mode) {
+		public void AddWithContext(string a, int aScale, string b, int bScale, string c, int cScale, int precision, RoundingMode mode) {
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
 			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			MathContext mc = new MathContext(5, mode);
+			MathContext mc = new MathContext(precision, mode);
 			BigDecimal result = aNumber.Add(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
