@@ -13,6 +13,6 @@
         <copyright>(c) 2010-2014 Deveel</copyright>
     </metadata>
     <files>
-	    <file src="..\dist\deveel-math.dll" target="lib/net20/Deveel.Math.dll"/>
+	    <file src="..\dist\Deveel.Math.dll" target="lib/net20/Deveel.Math.dll"/>
 	</files>
 </package>
