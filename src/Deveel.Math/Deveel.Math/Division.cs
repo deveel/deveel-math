@@ -480,7 +480,7 @@ namespace Deveel.Math {
 			if (a.sign == 0) {
 				// ZERO hasn't inverse
 				// math.19: BigInteger not invertible
-				throw new ArithmeticException(SR.GetString("math.19"));
+				throw new ArithmeticException(Messages.math19);
 			}
 
 
@@ -545,7 +545,7 @@ namespace Deveel.Math {
 			if (!u.IsOne()) {
 				// in u is stored the gcd
 				// math.19: BigInteger not invertible.
-				throw new ArithmeticException(SR.GetString("math.19"));
+				throw new ArithmeticException(Messages.math19);
 			}
 			if (r.CompareTo(p) >= BigInteger.EQUALS) {
 				Elementary.inplaceSubtract(r, p);
@@ -697,7 +697,7 @@ namespace Deveel.Math {
 				}
 				if (v.Signum() == 0 || u.Signum() == 0) {
 					// math.19: BigInteger not invertible
-					throw new ArithmeticException(SR.GetString("math.19"));
+					throw new ArithmeticException(Messages.math19);
 				}
 			}
 

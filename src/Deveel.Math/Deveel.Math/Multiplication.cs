@@ -438,7 +438,7 @@ namespace Deveel.Math {
 
 			if (byteArraySize > System.Diagnostics.Process.GetCurrentProcess().PeakVirtualMemorySize64) {
 				// math.01=power of ten too big
-				throw new ArithmeticException(SR.GetString("math.01")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math01); //$NON-NLS-1$
 			}
 			if (exp <= Int32.MaxValue) {
 				// To calculate:    5^exp * 2^exp

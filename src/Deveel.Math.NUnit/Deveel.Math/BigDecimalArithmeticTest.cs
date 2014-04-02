@@ -3,20 +3,26 @@
 using NUnit.Framework;
 
 namespace Deveel.Math {
-	/**
- * Class:  java.math.BigDecimal
- * Methods: add, subtract, multiply, divide 
- */
-	[TestFixture]
+	[TestFixture(Description = "Testing operations on BigDecimal class")]
 	public class BigDecimalArithmeticTest {
-		[Test(Description = "Add two numbers of equal positive scales")]
-		public void testAddEqualScalePosPos() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = 10;
-			String b = "747233429293018787918347987234564568";
-			int bScale = 10;
-			String c = "123121247898748373566323807282924555312937.1991359555";
-			int cScale = 10;
+		[TestCase("1231212478987482988429808779810457634781384756794987", 10,
+			"747233429293018787918347987234564568", 10,
+			"123121247898748373566323807282924555312937.1991359555", 10,
+			Description = "Add two numbers of equal positive scales")]
+		[TestCase("1231212478987482988429808779810457634781384756794987", -10,
+			"747233429293018787918347987234564568", -10,
+			"1.231212478987483735663238072829245553129371991359555E+61", -10,
+			Description = "Add two numbers of equal negative scales")]
+		[TestCase("1231212478987482988429808779810457634781384756794987", 15,
+			"747233429293018787918347987234564568", -10,
+			"7472334294161400358170962860775454459810457634.781384756794987", 15,
+			Description = "Add two numbers of different scales; the first is positive")]
+		[TestCase("1231212478987482988429808779810457634781384756794987", -15,
+			"747233429293018787918347987234564568", 10,
+			"1231212478987482988429808779810457634781459480137916301878791834798.7234564568", 10,
+			Description = "Add two numbers of different scales; the first is negative")]
+		[TestCase("0", -15, "0", 10, "0E-10", 10, Description = "Add two zeroes of different scales; the first is negative")]
+		public void Add(string a, int aScale, string b, int bScale, string c, int cScale) {
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
 			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
 			BigDecimal result = aNumber.Add(bNumber);
@@ -24,256 +30,80 @@ namespace Deveel.Math {
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
 		}
 
-		[Test(Description = "Add two numbers of equal positive scales using MathContext")]
-		public void testAddMathContextEqualScalePosPos() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = 10;
-			String b = "747233429293018787918347987234564568";
-			int bScale = 10;
-			String c = "1.2313E+41";
-			int cScale = -37;
+		[TestCase("1231212478987482988429808779810457634781384756794987", 10,
+			"747233429293018787918347987234564568", 10,
+			"1.2313E+41", -37,
+			RoundingMode.Up,
+			Description = "Add two numbers of equal positive scales using MathContext")]
+		[TestCase("1231212478987482988429808779810457634781384756794987", -10,
+			"747233429293018787918347987234564568", -10,
+			"1.2312E+61", -57,
+			RoundingMode.Floor,
+			Description = "Add two numbers of equal negative scales using MathContext")]
+		[TestCase("1231212478987482988429808779810457634781384756794987", 15,
+			"747233429293018787918347987234564568", -10,
+			"7.47233429416141E+45", -31,
+			RoundingMode.Ceiling,
+			Description = "Add two numbers of different scales using MathContext; the first is positive")]
+		public void AddWithContext(string a, int aScale, string b, int bScale, string c, int cScale, RoundingMode mode) {
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
 			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			MathContext mc = new MathContext(5, RoundingMode.Up);
+			MathContext mc = new MathContext(5, mode);
 			BigDecimal result = aNumber.Add(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
 		}
 
-		[Test(Description = "Add two numbers of equal negative scales")]
-		public void testAddEqualScaleNegNeg() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = -10;
-			String b = "747233429293018787918347987234564568";
-			int bScale = -10;
-			String c = "1.231212478987483735663238072829245553129371991359555E+61";
-			int cScale = -10;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal result = aNumber.Add(bNumber);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		[Test(Description = "Add two numbers of equal negative scales using MathContext")]
-		public void testAddMathContextEqualScaleNegNeg() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = -10;
-			String b = "747233429293018787918347987234564568";
-			int bScale = -10;
-			String c = "1.2312E+61";
-			int cScale = -57;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			MathContext mc = new MathContext(5, RoundingMode.Floor);
-			BigDecimal result = aNumber.Add(bNumber, mc);
-			Assert.AreEqual(c, result.ToString(), "incorrect value ");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		[Test(Description = "Add two numbers of different scales; the first is positive")]
-		public void testAddDiffScalePosNeg() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = 15;
-			String b = "747233429293018787918347987234564568";
-			int bScale = -10;
-			String c = "7472334294161400358170962860775454459810457634.781384756794987";
-			int cScale = 15;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal result = aNumber.Add(bNumber);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		[Test(Description = "Add two numbers of different scales using MathContext; the first is positive")]
-		public void testAddMathContextDiffScalePosNeg() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = 15;
-			String b = "747233429293018787918347987234564568";
-			int bScale = -10;
-			String c = "7.47233429416141E+45";
-			int cScale = -31;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			MathContext mc = new MathContext(15, RoundingMode.Ceiling);
-			BigDecimal result = aNumber.Add(bNumber, mc);
-			Assert.AreEqual(c, c.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		/**
-		 * Add two numbers of different scales; the first is negative
-		 */
-		[Test]
-		public void testAddDiffScaleNegPos() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = -15;
-			String b = "747233429293018787918347987234564568";
-			int bScale = 10;
-			String c = "1231212478987482988429808779810457634781459480137916301878791834798.7234564568";
-			int cScale = 10;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal result = aNumber.Add(bNumber);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		/**
-		 * Add two zeroes of different scales; the first is negative
-		 */
-		[Test]
-		public void testAddDiffScaleZeroZero() {
-			String a = "0";
-			int aScale = -15;
-			String b = "0";
-			int bScale = 10;
-			String c = "0E-10";
-			int cScale = 10;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal result = aNumber.Add(bNumber);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		/**
-		 * Subtract two numbers of equal positive scales
-		 */
-		[Test]
-		public void testSubtractEqualScalePosPos() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = 10;
-			String b = "747233429293018787918347987234564568";
-			int bScale = 10;
-			String c = "123121247898748224119637948679166971643339.7522230419";
-			int cScale = 10;
+		[TestCase("1231212478987482988429808779810457634781384756794987", 10,
+			"747233429293018787918347987234564568", 10,
+			"123121247898748224119637948679166971643339.7522230419", 10,
+			Description = "Subtract two numbers of equal positive scales")]
+		[TestCase("1231212478987482988429808779810457634781384756794987", -10,
+			"747233429293018787918347987234564568", -10,
+			"1.231212478987482241196379486791669716433397522230419E+61", -10,
+			Description = "Subtract two numbers of equal negative scales")]
+		[TestCase("1231212478987482988429808779810457634781384756794987", 15,
+			"747233429293018787918347987234564568", -10,
+			"-7472334291698975400195996883915836900189542365.218615243205013", 15,
+			Description = "Subtract two numbers of different scales; the first is positive")]
+		[TestCase("1231212478987482988429808779810457634781384756794987", -15,
+			"747233429293018787918347987234564568", 10,
+			"1231212478987482988429808779810457634781310033452057698121208165201.2765435432", 10,
+			Description = "Subtract two numbers of different scales; the first is negative")]
+		public void Subtract(string a, int aScale, string b, int bScale, string c, int cScale) {
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
 			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
 			BigDecimal result = aNumber.Subtract(bNumber);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
+			Assert.AreEqual(cScale, result.Scale, "incorrect scale");			
 		}
 
-		/**
-		 * Subtract two numbers of equal positive scales using MathContext
-		 */
-		[Test]
-		public void testSubtractMathContextEqualScalePosPos() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = 10;
-			String b = "747233429293018787918347987234564568";
-			int bScale = 10;
-			String c = "1.23121247898749E+41";
-			int cScale = -27;
+		[TestCase("1231212478987482988429808779810457634781384756794987", 10,
+			"747233429293018787918347987234564568", 10,
+			"1.23121247898749E+41", -27,
+			15, RoundingMode.Ceiling,
+			Description = "Subtract two numbers of equal positive scales using MathContext")]
+		[TestCase("1231212478987482988429808779810457634781384756794987", 15,
+			"747233429293018787918347987234564568", -10,
+			"-7.4723342916989754E+45", -29,
+			17, RoundingMode.Down,
+			Description = "Subtract two numbers of different scales using MathContext; the first is positive")]
+		[TestCase("986798656676789766678767876078779810457634781384756794987", -15,
+			"747233429293018787918347987234564568", 40,
+			"9.867986566767897666787678760787798104576347813847567949870000000000000E+71", -2,
+			70, RoundingMode.HalfDown,
+			Description = "Subtract two numbers of different scales using MathContext; the first is negative")]
+		public void SubtractWithContext(string a, int aScale, string b, int bScale, string c, int cScale, int precision, RoundingMode mode) {
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
 			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			MathContext mc = new MathContext(15, RoundingMode.Ceiling);
+			MathContext mc = new MathContext(precision, RoundingMode.Ceiling);
 			BigDecimal result = aNumber.Subtract(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
+			Assert.AreEqual(cScale, result.Scale, "incorrect scale");			
 		}
 
-		/**
-		 * Subtract two numbers of equal negative scales
-		 */
-		[Test]
-		public void testSubtractEqualScaleNegNeg() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = -10;
-			String b = "747233429293018787918347987234564568";
-			int bScale = -10;
-			String c = "1.231212478987482241196379486791669716433397522230419E+61";
-			int cScale = -10;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal result = aNumber.Subtract(bNumber);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		/**
-		 * Subtract two numbers of different scales; the first is positive
-		 */
-		[Test]
-		public void testSubtractDiffScalePosNeg() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = 15;
-			String b = "747233429293018787918347987234564568";
-			int bScale = -10;
-			String c = "-7472334291698975400195996883915836900189542365.218615243205013";
-			int cScale = 15;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal result = aNumber.Subtract(bNumber);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		/**
-		 * Subtract two numbers of different scales using MathContext;
-		 *  the first is positive
-		 */
-		[Test]
-		public void testSubtractMathContextDiffScalePosNeg() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = 15;
-			String b = "747233429293018787918347987234564568";
-			int bScale = -10;
-			String c = "-7.4723342916989754E+45";
-			int cScale = -29;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			MathContext mc = new MathContext(17, RoundingMode.Down);
-			BigDecimal result = aNumber.Subtract(bNumber, mc);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		/**
-		 * Subtract two numbers of different scales; the first is negative
-		 */
-		[Test]
-		public void testSubtractDiffScaleNegPos() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = -15;
-			String b = "747233429293018787918347987234564568";
-			int bScale = 10;
-			String c = "1231212478987482988429808779810457634781310033452057698121208165201.2765435432";
-			int cScale = 10;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal result = aNumber.Subtract(bNumber);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		/**
-		 * Subtract two numbers of different scales using MathContext;
-		 *  the first is negative
-		 */
-		[Test]
-		public void testSubtractMathContextDiffScaleNegPos() {
-			String a = "986798656676789766678767876078779810457634781384756794987";
-			int aScale = -15;
-			String b = "747233429293018787918347987234564568";
-			int bScale = 40;
-			String c = "9.867986566767897666787678760787798104576347813847567949870000000000000E+71";
-			int cScale = -2;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			MathContext mc = new MathContext(70, RoundingMode.HalfDown);
-			BigDecimal result = aNumber.Subtract(bNumber, mc);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		/**
-		 * Multiply two numbers of positive scales
-		 */
-		[Test]
-		public void testMultiplyScalePosPos() {
+		[Test(Description = "Multiply two numbers of positive scales")]
+		public void MultiplyScalePosPos() {
 			String a = "1231212478987482988429808779810457634781384756794987";
 			int aScale = 15;
 			String b = "747233429293018787918347987234564568";
@@ -287,11 +117,8 @@ namespace Deveel.Math {
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
 		}
 
-		/**
-		 * Multiply two numbers of positive scales using MathContext
-		 */
-		[Test]
-		public void testMultiplyMathContextScalePosPos() {
+		[Test(Description = "Multiply two numbers of positive scales using MathContext")]
+		public void MultiplyMathContextScalePosPos() {
 			String a = "97665696756578755423325476545428779810457634781384756794987";
 			int aScale = -25;
 			String b = "87656965586786097685674786576598865";
@@ -306,11 +133,8 @@ namespace Deveel.Math {
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
 		}
 
-		/**
-		 * Multiply two numbers of negative scales
-		 */
-		[Test]
-		public void testMultiplyEqualScaleNegNeg() {
+		[Test(Description = "Multiply two numbers of negative scales")]
+		public void MultiplyEqualScaleNegNeg() {
 			String a = "1231212478987482988429808779810457634781384756794987";
 			int aScale = -15;
 			String b = "747233429293018787918347987234564568";
@@ -324,11 +148,8 @@ namespace Deveel.Math {
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
 		}
 
-		/**
-		 * Multiply two numbers of different scales
-		 */
-		[Test]
-		public void testMultiplyDiffScalePosNeg() {
+		[Test(Description = "Multiply two numbers of different scales")]
+		public void MultiplyDiffScalePosNeg() {
 			String a = "1231212478987482988429808779810457634781384756794987";
 			int aScale = 10;
 			String b = "747233429293018787918347987234564568";
@@ -342,11 +163,8 @@ namespace Deveel.Math {
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
 		}
 
-		/**
-		 * Multiply two numbers of different scales using MathContext
-		 */
-		[Test]
-		public void testMultiplyMathContextDiffScalePosNeg() {
+		[Test(Description = "Multiply two numbers of different scales using MathContext")]
+		public void MultiplyMathContextDiffScalePosNeg() {
 			String a = "987667796597975765768768767866756808779810457634781384756794987";
 			int aScale = 100;
 			String b = "747233429293018787918347987234564568";
@@ -361,11 +179,8 @@ namespace Deveel.Math {
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
 		}
 
-		/**
-		 * Multiply two numbers of different scales
-		 */
-		[Test]
-		public void testMultiplyDiffScaleNegPos() {
+		[Test(Description = "Multiply two numbers of different scales")]
+		public void MultiplyDiffScaleNegPos() {
 			String a = "1231212478987482988429808779810457634781384756794987";
 			int aScale = -15;
 			String b = "747233429293018787918347987234564568";
@@ -379,11 +194,8 @@ namespace Deveel.Math {
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
 		}
 
-		/**
-		 * Multiply two numbers of different scales using MathContext
-		 */
-		[Test]
-		public void testMultiplyMathContextDiffScaleNegPos() {
+		[Test(Description = "Multiply two numbers of different scales using MathContext")]
+		public void MultiplyMathContextDiffScaleNegPos() {
 			String a = "488757458676796558668876576576579097029810457634781384756794987";
 			int aScale = -63;
 			String b = "747233429293018787918347987234564568";
@@ -402,7 +214,7 @@ namespace Deveel.Math {
 		 * pow(int)
 		 */
 		[Test]
-		public void testPow() {
+		public void Pow() {
 			String a = "123121247898748298842980";
 			int aScale = 10;
 			int exp = 10;
@@ -421,7 +233,7 @@ namespace Deveel.Math {
 		 * pow(0)
 		 */
 		[Test]
-		public void testPow0() {
+		public void Pow0() {
 			String a = "123121247898748298842980";
 			int aScale = 10;
 			int exp = 0;
@@ -437,7 +249,7 @@ namespace Deveel.Math {
 		 * ZERO.pow(0)
 		 */
 		[Test]
-		public void testZeroPow0() {
+		public void ZeroPow0() {
 			String c = "1";
 			int cScale = 0;
 			BigDecimal result = BigDecimal.Zero.Pow(0);
@@ -449,7 +261,7 @@ namespace Deveel.Math {
 		 * pow(int, MathContext)
 		 */
 		[Test]
-		public void testPowMathContext() {
+		public void PowMathContext() {
 			String a = "123121247898748298842980";
 			int aScale = 10;
 			int exp = 10;
@@ -466,7 +278,7 @@ namespace Deveel.Math {
 		 * Divide by zero
 		 */
 		[Test]
-		public void testDivideByZero() {
+		public void DivideByZero() {
 			String a = "1231212478987482988429808779810457634781384756794987";
 			int aScale = 15;
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
@@ -483,7 +295,7 @@ namespace Deveel.Math {
 		 * Divide with ROUND_UNNECESSARY
 		 */
 		[Test]
-		public void testDivideExceptionRM() {
+		public void DivideExceptionRM() {
 			String a = "1231212478987482988429808779810457634781384756794987";
 			int aScale = 15;
 			String b = "747233429293018787918347987234564568";
@@ -502,7 +314,7 @@ namespace Deveel.Math {
 		 * Divide with invalid rounding mode
 		 */
 		[Test]
-		public void testDivideExceptionInvalidRM() {
+		public void DivideExceptionInvalidRM() {
 			String a = "1231212478987482988429808779810457634781384756794987";
 			int aScale = 15;
 			String b = "747233429293018787918347987234564568";
@@ -521,7 +333,7 @@ namespace Deveel.Math {
 		 * Divide: local variable exponent is less than zero
 		 */
 		[Test]
-		public void testDivideExpLessZero() {
+		public void DivideExpLessZero() {
 			String a = "1231212478987482988429808779810457634781384756794987";
 			int aScale = 15;
 			String b = "747233429293018787918347987234564568";
@@ -539,7 +351,7 @@ namespace Deveel.Math {
 		 * Divide: local variable exponent is equal to zero
 		 */
 		[Test]
-		public void testDivideExpEqualsZero() {
+		public void DivideExpEqualsZero() {
 			String a = "1231212478987482988429808779810457634781384756794987";
 			int aScale = -15;
 			String b = "747233429293018787918347987234564568";
@@ -557,7 +369,7 @@ namespace Deveel.Math {
 		 * Divide: local variable exponent is greater than zero
 		 */
 		[Test]
-		public void testDivideExpGreaterZero() {
+		public void DivideExpGreaterZero() {
 			String a = "1231212478987482988429808779810457634781384756794987";
 			int aScale = -15;
 			String b = "747233429293018787918347987234564568";
@@ -575,7 +387,7 @@ namespace Deveel.Math {
 		 * Divide: remainder is zero
 		 */
 		[Test]
-		public void testDivideRemainderIsZero() {
+		public void DivideRemainderIsZero() {
 			String a = "8311389578904553209874735431110";
 			int aScale = -15;
 			String b = "237468273682987234567849583746";
@@ -593,7 +405,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_UP, result is negative
 		 */
 		[Test]
-		public void testDivideRoundUpNeg() {
+		public void DivideRoundUpNeg() {
 			String a = "-92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -611,7 +423,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_UP, result is positive
 		 */
 		[Test]
-		public void testDivideRoundUpPos() {
+		public void DivideRoundUpPos() {
 			String a = "92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -629,7 +441,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_DOWN, result is negative
 		 */
 		[Test]
-		public void testDivideRoundDownNeg() {
+		public void DivideRoundDownNeg() {
 			String a = "-92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -647,7 +459,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_DOWN, result is positive
 		 */
 		[Test]
-		public void testDivideRoundDownPos() {
+		public void DivideRoundDownPos() {
 			String a = "92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -665,7 +477,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_FLOOR, result is positive
 		 */
 		[Test]
-		public void testDivideRoundFloorPos() {
+		public void DivideRoundFloorPos() {
 			String a = "92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -683,7 +495,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_FLOOR, result is negative
 		 */
 		[Test]
-		public void testDivideRoundFloorNeg() {
+		public void DivideRoundFloorNeg() {
 			String a = "-92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -701,7 +513,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_CEILING, result is positive
 		 */
 		[Test]
-		public void testDivideRoundCeilingPos() {
+		public void DivideRoundCeilingPos() {
 			String a = "92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -719,7 +531,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_CEILING, result is negative
 		 */
 		[Test]
-		public void testDivideRoundCeilingNeg() {
+		public void DivideRoundCeilingNeg() {
 			String a = "-92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -737,7 +549,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_UP, result is positive; distance = -1
 		 */
 		[Test]
-		public void testDivideRoundHalfUpPos() {
+		public void DivideRoundHalfUpPos() {
 			String a = "92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -755,7 +567,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_UP, result is negative; distance = -1
 		 */
 		[Test]
-		public void testDivideRoundHalfUpNeg() {
+		public void DivideRoundHalfUpNeg() {
 			String a = "-92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -773,7 +585,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_UP, result is positive; distance = 1
 		 */
 		[Test]
-		public void testDivideRoundHalfUpPos1() {
+		public void DivideRoundHalfUpPos1() {
 			String a = "92948782094488478231212478987482988798104576347813847567949855464535634534563456";
 			int aScale = -24;
 			String b = "74723342238476237823754692930187879183479";
@@ -791,7 +603,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_UP, result is negative; distance = 1
 		 */
 		[Test]
-		public void testDivideRoundHalfUpNeg1() {
+		public void DivideRoundHalfUpNeg1() {
 			String a = "-92948782094488478231212478987482988798104576347813847567949855464535634534563456";
 			int aScale = -24;
 			String b = "74723342238476237823754692930187879183479";
@@ -809,7 +621,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_UP, result is negative; equidistant
 		 */
 		[Test]
-		public void testDivideRoundHalfUpNeg2() {
+		public void DivideRoundHalfUpNeg2() {
 			String a = "-37361671119238118911893939591735";
 			int aScale = 10;
 			String b = "74723342238476237823787879183470";
@@ -827,7 +639,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_DOWN, result is positive; distance = -1
 		 */
 		[Test]
-		public void testDivideRoundHalfDownPos() {
+		public void DivideRoundHalfDownPos() {
 			String a = "92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -845,7 +657,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_DOWN, result is negative; distance = -1
 		 */
 		[Test]
-		public void testDivideRoundHalfDownNeg() {
+		public void DivideRoundHalfDownNeg() {
 			String a = "-92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -863,7 +675,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_DOWN, result is positive; distance = 1
 		 */
 		[Test]
-		public void testDivideRoundHalfDownPos1() {
+		public void DivideRoundHalfDownPos1() {
 			String a = "92948782094488478231212478987482988798104576347813847567949855464535634534563456";
 			int aScale = -24;
 			String b = "74723342238476237823754692930187879183479";
@@ -881,7 +693,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_DOWN, result is negative; distance = 1
 		 */
 		[Test]
-		public void testDivideRoundHalfDownNeg1() {
+		public void DivideRoundHalfDownNeg1() {
 			String a = "-92948782094488478231212478987482988798104576347813847567949855464535634534563456";
 			int aScale = -24;
 			String b = "74723342238476237823754692930187879183479";
@@ -899,7 +711,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_UP, result is negative; equidistant
 		 */
 		[Test]
-		public void testDivideRoundHalfDownNeg2() {
+		public void DivideRoundHalfDownNeg2() {
 			String a = "-37361671119238118911893939591735";
 			int aScale = 10;
 			String b = "74723342238476237823787879183470";
@@ -917,7 +729,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_EVEN, result is positive; distance = -1
 		 */
 		[Test]
-		public void testDivideRoundHalfEvenPos() {
+		public void DivideRoundHalfEvenPos() {
 			String a = "92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -935,7 +747,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_EVEN, result is negative; distance = -1
 		 */
 		[Test]
-		public void testDivideRoundHalfEvenNeg() {
+		public void DivideRoundHalfEvenNeg() {
 			String a = "-92948782094488478231212478987482988429808779810457634781384756794987";
 			int aScale = -24;
 			String b = "7472334223847623782375469293018787918347987234564568";
@@ -953,7 +765,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_EVEN, result is positive; distance = 1
 		 */
 		[Test]
-		public void testDivideRoundHalfEvenPos1() {
+		public void DivideRoundHalfEvenPos1() {
 			String a = "92948782094488478231212478987482988798104576347813847567949855464535634534563456";
 			int aScale = -24;
 			String b = "74723342238476237823754692930187879183479";
@@ -971,7 +783,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_EVEN, result is negative; distance = 1
 		 */
 		[Test]
-		public void testDivideRoundHalfEvenNeg1() {
+		public void DivideRoundHalfEvenNeg1() {
 			String a = "-92948782094488478231212478987482988798104576347813847567949855464535634534563456";
 			int aScale = -24;
 			String b = "74723342238476237823754692930187879183479";
@@ -989,7 +801,7 @@ namespace Deveel.Math {
 		 * Divide: rounding mode is ROUND_HALF_EVEN, result is negative; equidistant
 		 */
 		[Test]
-		public void testDivideRoundHalfEvenNeg2() {
+		public void DivideRoundHalfEvenNeg2() {
 			String a = "-37361671119238118911893939591735";
 			int aScale = 10;
 			String b = "74723342238476237823787879183470";
@@ -1007,7 +819,7 @@ namespace Deveel.Math {
 		 * Divide to BigDecimal
 		 */
 		[Test]
-		public void testDivideBigDecimal1() {
+		public void DivideBigDecimal1() {
 			String a = "-37361671119238118911893939591735";
 			int aScale = 10;
 			String b = "74723342238476237823787879183470";
@@ -1025,7 +837,7 @@ namespace Deveel.Math {
 		 * Divide to BigDecimal
 		 */
 		[Test]
-		public void testDivideBigDecimal2() {
+		public void DivideBigDecimal2() {
 			String a = "-37361671119238118911893939591735";
 			int aScale = 10;
 			String b = "74723342238476237823787879183470";
@@ -1043,7 +855,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleRoundingModeUP() {
+		public void DivideBigDecimalScaleRoundingModeUP() {
 			String a = "-37361671119238118911893939591735";
 			int aScale = 10;
 			String b = "74723342238476237823787879183470";
@@ -1062,7 +874,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleRoundingModeDOWN() {
+		public void DivideBigDecimalScaleRoundingModeDOWN() {
 			String a = "-37361671119238118911893939591735";
 			int aScale = 10;
 			String b = "74723342238476237823787879183470";
@@ -1081,7 +893,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleRoundingModeCEILING() {
+		public void DivideBigDecimalScaleRoundingModeCEILING() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 100;
 			String b = "74723342238476237823787879183470";
@@ -1100,7 +912,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleRoundingModeFLOOR() {
+		public void DivideBigDecimalScaleRoundingModeFLOOR() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 100;
 			String b = "74723342238476237823787879183470";
@@ -1119,7 +931,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleRoundingModeHALF_UP() {
+		public void DivideBigDecimalScaleRoundingModeHALF_UP() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = -51;
 			String b = "74723342238476237823787879183470";
@@ -1140,7 +952,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleRoundingModeHALF_DOWN() {
+		public void DivideBigDecimalScaleRoundingModeHALF_DOWN() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 5;
 			String b = "74723342238476237823787879183470";
@@ -1159,7 +971,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleRoundingModeHALF_EVEN() {
+		public void DivideBigDecimalScaleRoundingModeHALF_EVEN() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 5;
 			String b = "74723342238476237823787879183470";
@@ -1178,7 +990,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleMathContextUP() {
+		public void DivideBigDecimalScaleMathContextUP() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 15;
 			String b = "748766876876723342238476237823787879183470";
@@ -1199,7 +1011,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleMathContextDOWN() {
+		public void DivideBigDecimalScaleMathContextDOWN() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 15;
 			String b = "748766876876723342238476237823787879183470";
@@ -1220,7 +1032,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleMathContextCEILING() {
+		public void DivideBigDecimalScaleMathContextCEILING() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 15;
 			String b = "748766876876723342238476237823787879183470";
@@ -1241,7 +1053,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleMathContextFLOOR() {
+		public void DivideBigDecimalScaleMathContextFLOOR() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 15;
 			String b = "748766876876723342238476237823787879183470";
@@ -1262,7 +1074,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleMathContextHALF_UP() {
+		public void DivideBigDecimalScaleMathContextHALF_UP() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1283,7 +1095,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleMathContextHALF_DOWN() {
+		public void DivideBigDecimalScaleMathContextHALF_DOWN() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1304,7 +1116,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testDivideBigDecimalScaleMathContextHALF_EVEN() {
+		public void DivideBigDecimalScaleMathContextHALF_EVEN() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1325,10 +1137,10 @@ namespace Deveel.Math {
 		/**
 		 * BigDecimal.divide with a scale that's too large
 		 * 
-		 * Regression test for HARMONY-6271
+		 * Regression  for HARMONY-6271
 		 */
 		[Test]
-		public void testDivideLargeScale() {
+		public void DivideLargeScale() {
 			BigDecimal arg1 = new BigDecimal("320.0E+2147483647");
 			BigDecimal arg2 = new BigDecimal("6E-2147483647");
 			try {
@@ -1343,7 +1155,7 @@ namespace Deveel.Math {
 		 * divideToIntegralValue(BigDecimal)
 		 */
 		[Test]
-		public void testDivideToIntegralValue() {
+		public void DivideToIntegralValue() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1361,7 +1173,7 @@ namespace Deveel.Math {
 		 * divideToIntegralValue(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testDivideToIntegralValueMathContextUP() {
+		public void DivideToIntegralValueMathContextUP() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1382,7 +1194,7 @@ namespace Deveel.Math {
 		 * divideToIntegralValue(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testDivideToIntegralValueMathContextDOWN() {
+		public void DivideToIntegralValueMathContextDOWN() {
 			String a = "3736186567876876578956958769675785435673453453653543654354365435675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1403,7 +1215,7 @@ namespace Deveel.Math {
 		 * divideAndRemainder(BigDecimal)
 		 */
 		[Test]
-		public void testDivideAndRemainder1() {
+		public void DivideAndRemainder1() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1425,7 +1237,7 @@ namespace Deveel.Math {
 		 * divideAndRemainder(BigDecimal)
 		 */
 		[Test]
-		public void testDivideAndRemainder2() {
+		public void DivideAndRemainder2() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = -45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1449,7 +1261,7 @@ namespace Deveel.Math {
 		 * divideAndRemainder(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testDivideAndRemainderMathContextUP() {
+		public void DivideAndRemainderMathContextUP() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1474,7 +1286,7 @@ namespace Deveel.Math {
 		 * divideAndRemainder(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testDivideAndRemainderMathContextDOWN() {
+		public void DivideAndRemainderMathContextDOWN() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1499,7 +1311,7 @@ namespace Deveel.Math {
 		 * remainder(BigDecimal)
 		 */
 		[Test]
-		public void testRemainder1() {
+		public void Remainder1() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1517,7 +1329,7 @@ namespace Deveel.Math {
 		 * remainder(BigDecimal)
 		 */
 		[Test]
-		public void testRemainder2() {
+		public void Remainder2() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = -45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1535,7 +1347,7 @@ namespace Deveel.Math {
 		 * remainder(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testRemainderMathContextHALF_UP() {
+		public void RemainderMathContextHALF_UP() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1556,7 +1368,7 @@ namespace Deveel.Math {
 		 * remainder(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testRemainderMathContextHALF_DOWN() {
+		public void RemainderMathContextHALF_DOWN() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = -45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1577,7 +1389,7 @@ namespace Deveel.Math {
 		 * round(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testRoundMathContextHALF_DOWN() {
+		public void RoundMathContextHALF_DOWN() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = -45;
 			int precision = 75;
@@ -1595,7 +1407,7 @@ namespace Deveel.Math {
 		 * round(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void testRoundMathContextHALF_UP() {
+		public void RoundMathContextHALF_UP() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			int precision = 15;
@@ -1613,7 +1425,7 @@ namespace Deveel.Math {
 		 * round(BigDecimal, MathContext) when precision = 0
 		 */
 		[Test]
-		public void testRoundMathContextPrecision0() {
+		public void RoundMathContextPrecision0() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			int precision = 0;
@@ -1631,7 +1443,7 @@ namespace Deveel.Math {
 		 * ulp() of a positive BigDecimal
 		 */
 		[Test]
-		public void testUlpPos() {
+		public void UlpPos() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = -45;
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
@@ -1646,7 +1458,7 @@ namespace Deveel.Math {
 		 * ulp() of a negative BigDecimal
 		 */
 		[Test]
-		public void testUlpNeg() {
+		public void UlpNeg() {
 			String a = "-3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
@@ -1661,7 +1473,7 @@ namespace Deveel.Math {
 		 * ulp() of a negative BigDecimal
 		 */
 		[Test]
-		public void testUlpZero() {
+		public void UlpZero() {
 			String a = "0";
 			int aScale = 2;
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);

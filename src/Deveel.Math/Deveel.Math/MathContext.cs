@@ -117,7 +117,7 @@ namespace Deveel.Math {
 		public MathContext(int precision, RoundingMode roundingMode) {
 			if (precision < 0) {
 				// math.0C=Digits < 0
-				throw new ArgumentException(SR.GetString("math.0C")); //$NON-NLS-1$
+				throw new ArgumentException(Messages.math0C); //$NON-NLS-1$
 			}
 			this.precision = precision;
 			this.roundingMode = roundingMode;
@@ -145,7 +145,7 @@ namespace Deveel.Math {
 
 			if ((charVal.Length < 27) || (charVal.Length > 45)) {
 				// math.0E=bad string format
-				throw new ArgumentException(SR.GetString("math.0E")); //$NON-NLS-1$
+				throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
 			}
 			// Parsing "precision=" String
 			for (i = 0; (i < chPrecision.Length) && (charVal[i] == chPrecision[i]); i++) {
@@ -154,13 +154,13 @@ namespace Deveel.Math {
 
 			if (i < chPrecision.Length) {
 				// math.0E=bad string format
-				throw new ArgumentException(SR.GetString("math.0E")); //$NON-NLS-1$
+				throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
 			}
 			// Parsing the value for "precision="...
             digit = CharHelper.toDigit(charVal[i], 10);
 			if (digit == -1) {
 				// math.0E=bad string format
-				throw new ArgumentException(SR.GetString("math.0E")); //$NON-NLS-1$
+				throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
 			}
 			this.precision = this.precision * 10 + digit;
 			i++;
@@ -175,13 +175,13 @@ namespace Deveel.Math {
 					}
 					// It isn't  a valid digit, and isn't a white space
 					// math.0E=bad string format
-					throw new ArgumentException(SR.GetString("math.0E")); //$NON-NLS-1$
+					throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
 				}
 				// Accumulating the value parsed
 				this.precision = this.precision * 10 + digit;
 				if (this.precision < 0) {
 					// math.0E=bad string format
-					throw new ArgumentException(SR.GetString("math.0E")); //$NON-NLS-1$
+					throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
 				}
 				i++;
 			} while (true);
@@ -193,7 +193,7 @@ namespace Deveel.Math {
 
 			if (j < chRoundingMode.Length) {
 				// math.0E=bad string format
-				throw new ArgumentException(SR.GetString("math.0E")); //$NON-NLS-1$
+				throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
 			}
 			// Parsing the value for "roundingMode"...
 			this.roundingMode = (RoundingMode)Enum.Parse(typeof(RoundingMode), new string(charVal, i, charVal.Length - i), true);

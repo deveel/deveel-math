@@ -317,7 +317,7 @@ namespace Deveel.Math {
 				_scale = (int)newScale;
 				if (newScale != _scale) {
 					// math.02=Scale out of range.
-					throw new FormatException(SR.GetString("math.02")); //$NON-NLS-1$
+					throw new FormatException(Messages.math02); //$NON-NLS-1$
 				}
 			}
 			// Parsing the unscaled value
@@ -464,7 +464,7 @@ namespace Deveel.Math {
 		public BigDecimal(double val) {
 			if (Double.IsInfinity(val) || Double.IsNaN(val)) {
 				// math.03=Infinity or NaN
-				throw new FormatException(SR.GetString("math03")); //$NON-NLS-1$
+				throw new FormatException(Messages.math03); //$NON-NLS-1$
 			}
 			long bits = BitConverter.DoubleToInt64Bits(val); // IEEE-754
 
@@ -805,7 +805,7 @@ namespace Deveel.Math {
 		public static BigDecimal ValueOf(double val) {
 			if (Double.IsInfinity(val) || Double.IsNaN(val)) {
 				// math.03=Infinity or NaN
-				throw new FormatException(SR.GetString("math.03")); //$NON-NLS-1$
+				throw new FormatException(Messages.math03); //$NON-NLS-1$
 			}
 			return new BigDecimal(Convert.ToString(val));
 		}
@@ -1109,7 +1109,7 @@ namespace Deveel.Math {
 			// Let be: this = [u1,s1]  and  divisor = [u2,s2]
 			if (divisor.isZero()) {
 				// math.04=Division by zero
-				throw new ArithmeticException(SR.GetString("math.04")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math04); //$NON-NLS-1$
 			}
 
 			long diffScale = ((long)_scale - divisor._scale) - scale;
@@ -1276,7 +1276,7 @@ namespace Deveel.Math {
 
 			if (divisor.isZero()) {
 				// math.04=Division by zero
-				throw new ArithmeticException(SR.GetString("math.04")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math04); //$NON-NLS-1$
 			}
 			if (p.Signum() == 0) {
 				return GetZeroScaledBy(diffScale);
@@ -1307,7 +1307,7 @@ namespace Deveel.Math {
 			// If  abs(q) != 1  then the quotient is periodic
 			if (!q.Abs().Equals(BigInteger.One)) {
 				// math.05=Non-terminating decimal expansion; no exact representable decimal result.
-				throw new ArithmeticException(SR.GetString("math.05")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math05); //$NON-NLS-1$
 			}
 			// The sign of the is fixed and the quotient will be saved in 'p'
 			if (q.Signum() < 0) {
@@ -1420,7 +1420,7 @@ namespace Deveel.Math {
 
 			if (divisor.isZero()) {
 				// math.04=Division by zero
-				throw new ArithmeticException(SR.GetString("math.04")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math04); //$NON-NLS-1$
 			}
 			if ((divisor.AproxPrecision() + newScale > this.AproxPrecision() + 1L)
 			|| (this.isZero())) {
@@ -1530,7 +1530,7 @@ namespace Deveel.Math {
 					if (compRemDiv > 0) {
 						// The quotient won't fit in 'mc.precision()' digits
 						// math.06=Division impossible
-						throw new ArithmeticException(SR.GetString("math.06")); //$NON-NLS-1$
+						throw new ArithmeticException(Messages.math06); //$NON-NLS-1$
 					}
 				}
 			}
@@ -1564,7 +1564,7 @@ namespace Deveel.Math {
 			// To check if the result fit in 'mc.precision()' digits
 			if (resultPrecision > mcPrecision) {
 				// math.06=Division impossible
-				throw new ArithmeticException(SR.GetString("math.06")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math06); //$NON-NLS-1$
 			}
 			integralValue._scale = ToIntScale(newScale);
 			integralValue.SetUnscaledValue(strippedBI);
@@ -1691,7 +1691,7 @@ namespace Deveel.Math {
 			}
 			if ((n < 0) || (n > 999999999)) {
 				// math.07=Invalid Operation
-				throw new ArithmeticException(SR.GetString("math.07")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math07); //$NON-NLS-1$
 			}
 			long newScale = _scale * (long)n;
 			// Let be: this = [u,s]   so:  this^n = [u^n, s*n]
@@ -1731,7 +1731,7 @@ namespace Deveel.Math {
 			if ((m > 999999999) || ((mcPrecision == 0) && (n < 0))
 					|| ((mcPrecision > 0) && (elength > mcPrecision))) {
 				// math.07=Invalid Operation
-				throw new ArithmeticException(SR.GetString("math.07")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math07); //$NON-NLS-1$
 			}
 			if (mcPrecision > 0) {
 				newPrecision = new MathContext(mcPrecision + elength + 1,
@@ -2491,13 +2491,13 @@ namespace Deveel.Math {
 				// An optimization before do a heavy division
 				if ((_scale > AproxPrecision()) || (_scale > GetUnscaledValue().LowestSetBit)) {
 					// math.08=Rounding necessary
-					throw new ArithmeticException(SR.GetString("math.08")); //$NON-NLS-1$
+					throw new ArithmeticException(Messages.math08); //$NON-NLS-1$
 				}
 				integerAndFraction = GetUnscaledValue().DivideAndRemainder(Multiplication.powerOf10(_scale));
 				if (integerAndFraction[1].Signum() != 0) {
 					// It exists a non-zero fractional part 
 					// math.08=Rounding necessary
-					throw new ArithmeticException(SR.GetString("math.08")); //$NON-NLS-1$
+					throw new ArithmeticException(Messages.math08); //$NON-NLS-1$
 				}
 				return integerAndFraction[0];
 			}
@@ -2881,7 +2881,7 @@ namespace Deveel.Math {
 				case RoundingMode.Unnecessary:
 					if (fraction != 0) {
 						// math.08=Rounding necessary
-						throw new ArithmeticException(SR.GetString("math.08")); //$NON-NLS-1$
+						throw new ArithmeticException(Messages.math08); //$NON-NLS-1$
 					}
 					break;
 				case RoundingMode.Up:
@@ -2937,7 +2937,7 @@ namespace Deveel.Math {
 				return bigInteger.ToInt64();
 			}
 			// math.08=Rounding necessary
-			throw new ArithmeticException(SR.GetString("math.08")); //$NON-NLS-1$
+			throw new ArithmeticException(Messages.math08); //$NON-NLS-1$
 		}
 
 		/**
@@ -2967,10 +2967,10 @@ namespace Deveel.Math {
 		private static int ToIntScale(long longScale) {
 			if (longScale < Int32.MinValue) {
 				// math.09=Overflow
-				throw new ArithmeticException(SR.GetString("math.09")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math09); //$NON-NLS-1$
 			} else if (longScale > Int32.MaxValue) {
 				// math.0A=Underflow
-				throw new ArithmeticException(SR.GetString("math.0A")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math0A); //$NON-NLS-1$
 			} else {
 				return (int)longScale;
 			}

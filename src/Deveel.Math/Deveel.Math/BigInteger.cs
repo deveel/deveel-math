@@ -143,7 +143,7 @@ namespace Deveel.Math {
 		public BigInteger(int numBits, Random rnd) {
 			if (numBits < 0) {
 				// math.1B=numBits must be non-negative
-				throw new ArgumentException(SR.GetString("math.1B")); //$NON-NLS-1$
+				throw new ArgumentException(Messages.math1B); //$NON-NLS-1$
 			}
 			if (numBits == 0) {
 				sign = 0;
@@ -179,7 +179,7 @@ namespace Deveel.Math {
 		public BigInteger(int bitLength, int certainty, Random rnd) {
 			if (bitLength < 2) {
 				// math.1C=bitLength < 2
-				throw new ArithmeticException(SR.GetString("math.1C")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math1C); //$NON-NLS-1$
 			}
 			BigInteger me = Primality.consBigInteger(bitLength, certainty, rnd);
 			sign = me.sign;
@@ -229,11 +229,11 @@ namespace Deveel.Math {
             if ((radix < CharHelper.MIN_RADIX) || (radix > CharHelper.MAX_RADIX))
             {
 				// math.11=Radix out of range
-				throw new FormatException(SR.GetString("math.11")); //$NON-NLS-1$
+				throw new FormatException(Messages.math11); //$NON-NLS-1$
 			}
 			if (val.Length == 0) {
 				// math.12=Zero length BigInteger
-				throw new FormatException(SR.GetString("math.12")); //$NON-NLS-1$
+				throw new FormatException(Messages.math12); //$NON-NLS-1$
 			}
 			SetFromString(this, val, radix);
 		}
@@ -262,13 +262,13 @@ namespace Deveel.Math {
 			}
 			if ((signum < -1) || (signum > 1)) {
 				// math.13=Invalid signum value
-				throw new FormatException(SR.GetString("math.13")); //$NON-NLS-1$
+				throw new FormatException(Messages.math13); //$NON-NLS-1$
 			}
 			if (signum == 0) {
 				foreach (byte element in magnitude) {
 					if (element != 0) {
 						// math.14=signum-magnitude mismatch
-						throw new FormatException(SR.GetString("math.14")); //$NON-NLS-1$
+						throw new FormatException(Messages.math14); //$NON-NLS-1$
 					}
 				}
 			}
@@ -299,7 +299,7 @@ namespace Deveel.Math {
 		public BigInteger(byte[] val) {
 			if (val.Length == 0) {
 				// math.12=Zero length BigInteger
-				throw new FormatException(SR.GetString("math.12")); //$NON-NLS-1$
+				throw new FormatException(Messages.math12); //$NON-NLS-1$
 			}
 			if (val[0] > sbyte.MaxValue) {
 				sign = -1;
@@ -666,7 +666,7 @@ namespace Deveel.Math {
 			}
 			if (n < 0) {
 				// math.15=Negative bit address
-				throw new ArithmeticException(SR.GetString("math.15")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math15); //$NON-NLS-1$
 			}
 			int intCount = n >> 5;
 			if (intCount >= numberLength) {
@@ -746,7 +746,7 @@ namespace Deveel.Math {
 		public BigInteger FlipBit(int n) {
 			if (n < 0) {
 				// math.15=Negative bit address
-				throw new ArithmeticException(SR.GetString("math.15")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math15); //$NON-NLS-1$
 			}
 			return BitLevel.flipBit(this, n);
 		}
@@ -1116,7 +1116,7 @@ namespace Deveel.Math {
 		public BigInteger Pow(int exp) {
 			if (exp < 0) {
 				// math.16=Negative exponent
-				throw new ArithmeticException(SR.GetString("math.16")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math16); //$NON-NLS-1$
 			}
 			if (exp == 0) {
 				return One;
@@ -1154,7 +1154,7 @@ namespace Deveel.Math {
 			int divisorSign = divisor.sign;
 			if (divisorSign == 0) {
 				// math.17=BigInteger divide by zero
-				throw new ArithmeticException(SR.GetString("math.17")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math17); //$NON-NLS-1$
 			}
 			int divisorLen = divisor.numberLength;
 			int[] divisorDigits = divisor.digits;
@@ -1198,7 +1198,7 @@ namespace Deveel.Math {
 		public BigInteger Divide(BigInteger divisor) {
 			if (divisor.sign == 0) {
 				// math.17=BigInteger divide by zero
-				throw new ArithmeticException(SR.GetString("math.17")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math17); //$NON-NLS-1$
 			}
 			int divisorSign = divisor.sign;
 			if (divisor.IsOne()) {
@@ -1254,7 +1254,7 @@ namespace Deveel.Math {
 		public BigInteger Remainder(BigInteger divisor) {
 			if (divisor.sign == 0) {
 				// math.17=BigInteger divide by zero
-				throw new ArithmeticException(SR.GetString("math.17")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math17); //$NON-NLS-1$
 			}
 			int thisLen = numberLength;
 			int divisorLen = divisor.numberLength;
@@ -1295,12 +1295,12 @@ namespace Deveel.Math {
 		public BigInteger ModInverse(BigInteger m) {
 			if (m.sign <= 0) {
 				// math.18=BigInteger: modulus not positive
-				throw new ArithmeticException(SR.GetString("math.18")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math18); //$NON-NLS-1$
 			}
 			// If both are even, no inverse exists
 			if (!(TestBit(0) || m.TestBit(0))) {
 				// math.19=BigInteger not invertible.
-				throw new ArithmeticException(SR.GetString("math.19")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math19); //$NON-NLS-1$
 			}
 			if (m.IsOne()) {
 				return Zero;
@@ -1310,7 +1310,7 @@ namespace Deveel.Math {
 			BigInteger res = Division.modInverseMontgomery(Abs().Mod(m), m);
 			if (res.sign == 0) {
 				// math.19=BigInteger not invertible.
-				throw new ArithmeticException(SR.GetString("math.19")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math19); //$NON-NLS-1$
 			}
 
 			res = ((sign < 0) ? m.Subtract(res) : res);
@@ -1340,7 +1340,7 @@ namespace Deveel.Math {
 		public BigInteger ModPow(BigInteger exponent, BigInteger m) {
 			if (m.sign <= 0) {
 				// math.18=BigInteger: modulus not positive
-				throw new ArithmeticException(SR.GetString("math.18")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math18); //$NON-NLS-1$
 			}
 			BigInteger b = this;
 
@@ -1383,7 +1383,7 @@ namespace Deveel.Math {
 		public BigInteger Mod(BigInteger m) {
 			if (m.sign <= 0) {
 				// math.18=BigInteger: modulus not positive
-				throw new ArithmeticException(SR.GetString("math.18")); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math18); //$NON-NLS-1$
 			}
 			BigInteger rem = Remainder(m);
 			return ((rem.sign < 0) ? rem.Add(m) : rem);
@@ -1417,7 +1417,7 @@ namespace Deveel.Math {
 		public BigInteger NextProbablePrime() {
 			if (sign < 0) {
 				// math.1A=start < 0: {0}
-				throw new ArithmeticException(SR.GetString("math.1A", this)); //$NON-NLS-1$
+				throw new ArithmeticException(String.Format(Messages.math1A, this)); //$NON-NLS-1$
 			}
 			return Primality.nextProbablePrime(this);
 		}

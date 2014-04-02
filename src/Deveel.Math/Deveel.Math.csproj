@@ -61,7 +61,6 @@
     <Compile Include="Deveel.Math\Elementary.cs" />
     <Compile Include="Deveel.Math\Logical.cs" />
     <Compile Include="Deveel.Math\MathContext.cs" />
-    <Compile Include="Deveel.Math\SR.cs" />
     <Compile Include="Deveel.Math\Multiplication.cs" />
     <Compile Include="Deveel.Math\Primality.cs" />
     <Compile Include="Deveel.Math\RoundingMode.cs" />
