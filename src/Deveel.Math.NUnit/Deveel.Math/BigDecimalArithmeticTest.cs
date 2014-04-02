@@ -283,12 +283,7 @@ namespace Deveel.Math {
 			int aScale = 15;
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
 			BigDecimal bNumber = BigDecimal.ValueOf(0L);
-			try {
-				aNumber.Divide(bNumber);
-				Assert.Fail("ArithmeticException has not been caught");
-			} catch (ArithmeticException e) {
-				Assert.AreEqual("Division by zero", e.Message, "Improper exception message");
-			}
+			Assert.Throws<ArithmeticException>(() => aNumber.Divide(bNumber), "ArithmeticException has not been caught");
 		}
 
 		/**
@@ -321,12 +316,7 @@ namespace Deveel.Math {
 			int bScale = 10;
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
 			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			try {
-				aNumber.Divide(bNumber, 100);
-				Assert.Fail("ArgumentException has not been caught");
-			} catch (ArgumentException e) {
-				Assert.AreEqual("Invalid rounding mode", e.Message, "Improper exception message");
-			}
+			Assert.Throws<ArgumentException>(() => aNumber.Divide(bNumber, 100));
 		}
 
 		/**

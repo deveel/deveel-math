@@ -204,4 +204,7 @@
   <data name="math1C" xml:space="preserve">
     <value>bitLength &lt; 2</value>
   </data>
+  <data name="String1" xml:space="preserve">
+    <value />
+  </data>
 </root>

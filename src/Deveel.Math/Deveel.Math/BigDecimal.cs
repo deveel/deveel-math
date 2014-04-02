@@ -1218,6 +1218,9 @@ namespace Deveel.Math {
 		 *             necessary according to the scale of this.
 		 */
 		public BigDecimal Divide(BigDecimal divisor, int roundingMode) {
+			if (!Enum.IsDefined(typeof(RoundingMode), roundingMode))
+				throw new ArgumentException();
+
 			return Divide(divisor, _scale, (RoundingMode)roundingMode);
 		}
 

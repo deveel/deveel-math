@@ -65,7 +65,9 @@
     <Compile Include="Deveel.Math\Primality.cs" />
     <Compile Include="Deveel.Math\RoundingMode.cs" />
     <Compile Include="Deveel.Math\Utils.cs" />
-    <Compile Include="Deveel.Math\Messages.Designer.cs">
+    <Compile Include="Messages.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
       <DependentUpon>Messages.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,10 +76,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Deveel.Math\Messages.resx">
+    <EmbeddedResource Include="Messages.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Messages1.Designer.cs</LastGenOutput>
-      <CustomToolNamespace>Deveel.Math</CustomToolNamespace>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
