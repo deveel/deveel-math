@@ -27,17 +27,12 @@ namespace Deveel.Math {
  * <li>xor</li>
  * </ul>
  */
-	class Logical {
-
-		/** Just to denote that this class can't be instantiated. */
-
-		private Logical() { }
-
+	static class Logical {
 
 		/** @see BigInteger#not() */
 
-		internal static BigInteger not(BigInteger val) {
-			if (val.sign == 0) {
+		public static BigInteger Not(BigInteger val) {
+			if (val.Sign == 0) {
 				return BigInteger.MinusOne;
 			}
 			if (val.Equals(BigInteger.MinusOne)) {
@@ -46,42 +41,42 @@ namespace Deveel.Math {
 			int[] resDigits = new int[val.numberLength + 1];
 			int i;
 
-			if (val.sign > 0) {
+			if (val.Sign > 0) {
 				// ~val = -val + 1
-				if (val.digits[val.numberLength - 1] != -1) {
-					for (i = 0; val.digits[i] == -1; i++) {
+				if (val.Digits[val.numberLength - 1] != -1) {
+					for (i = 0; val.Digits[i] == -1; i++) {
 						;
 					}
 				} else {
-					for (i = 0; (i < val.numberLength) && (val.digits[i] == -1); i++) {
+					for (i = 0; (i < val.numberLength) && (val.Digits[i] == -1); i++) {
 						;
 					}
 					if (i == val.numberLength) {
 						resDigits[i] = 1;
-						return new BigInteger(-val.sign, i + 1, resDigits);
+						return new BigInteger(-val.Sign, i + 1, resDigits);
 					}
 				}
 				// Here a carry 1 was generated
 			} else {// (val.sign < 0)
 				// ~val = -val - 1
-				for (i = 0; val.digits[i] == 0; i++) {
+				for (i = 0; val.Digits[i] == 0; i++) {
 					resDigits[i] = -1;
 				}
 				// Here a borrow -1 was generated
 			}
 			// Now, the carry/borrow can be absorbed
-			resDigits[i] = val.digits[i] + val.sign;
+			resDigits[i] = val.Digits[i] + val.Sign;
 			// Copying the remaining unchanged digit
 			for (i++; i < val.numberLength; i++) {
-				resDigits[i] = val.digits[i];
+				resDigits[i] = val.Digits[i];
 			}
-			return new BigInteger(-val.sign, i, resDigits);
+			return new BigInteger(-val.Sign, i, resDigits);
 		}
 
 		/** @see BigInteger#and(BigInteger) */
 
-		internal static BigInteger and(BigInteger val, BigInteger that) {
-			if (that.sign == 0 || val.sign == 0) {
+		public static BigInteger And(BigInteger val, BigInteger that) {
+			if (that.Sign == 0 || val.Sign == 0) {
 				return BigInteger.Zero;
 			}
 			if (that.Equals(BigInteger.MinusOne)) {
@@ -91,25 +86,25 @@ namespace Deveel.Math {
 				return that;
 			}
 
-			if (val.sign > 0) {
-				if (that.sign > 0) {
-					return andPositive(val, that);
+			if (val.Sign > 0) {
+				if (that.Sign > 0) {
+					return AndPositive(val, that);
 				} else {
-					return andDiffSigns(val, that);
+					return AndDiffSigns(val, that);
 				}
 			} else {
-				if (that.sign > 0) {
-					return andDiffSigns(that, val);
+				if (that.Sign > 0) {
+					return AndDiffSigns(that, val);
 				} else if (val.numberLength > that.numberLength) {
-					return andNegative(val, that);
+					return AndNegative(val, that);
 				} else {
-					return andNegative(that, val);
+					return AndNegative(that, val);
 				}
 			}
 		}
 
 		/** @return sign = 1, magnitude = val.magnitude & that.magnitude*/
-		static BigInteger andPositive(BigInteger val, BigInteger that) {
+		private static BigInteger AndPositive(BigInteger val, BigInteger that) {
 			// PRE: both arguments are positive
 			int resLength = System.Math.Min(val.numberLength, that.numberLength);
 			int i = System.Math.Max(val.FirstNonzeroDigit, that.FirstNonzeroDigit);
@@ -120,7 +115,7 @@ namespace Deveel.Math {
 
 			int[] resDigits = new int[resLength];
 			for (; i < resLength; i++) {
-				resDigits[i] = val.digits[i] & that.digits[i];
+				resDigits[i] = val.Digits[i] & that.Digits[i];
 			}
 
 			BigInteger result = new BigInteger(1, resLength, resDigits);
@@ -129,7 +124,7 @@ namespace Deveel.Math {
 		}
 
 		/** @return sign = positive.magnitude & magnitude = -negative.magnitude */
-		static BigInteger andDiffSigns(BigInteger positive, BigInteger negative) {
+		private static BigInteger AndDiffSigns(BigInteger positive, BigInteger negative) {
 			// PRE: positive is positive and negative is negative
 			int iPos = positive.FirstNonzeroDigit;
 			int iNeg = negative.FirstNonzeroDigit;
@@ -145,18 +140,18 @@ namespace Deveel.Math {
 			// Must start from max(iPos, iNeg)
 			int i = System.Math.Max(iPos, iNeg);
 			if (i == iNeg) {
-				resDigits[i] = -negative.digits[i] & positive.digits[i];
+				resDigits[i] = -negative.Digits[i] & positive.Digits[i];
 				i++;
 			}
 			int limit = System.Math.Min(negative.numberLength, positive.numberLength);
 			for (; i < limit; i++) {
-				resDigits[i] = ~negative.digits[i] & positive.digits[i];
+				resDigits[i] = ~negative.Digits[i] & positive.Digits[i];
 			}
 			// if the negative was shorter must copy the remaining digits
 			// from positive
 			if (i >= negative.numberLength) {
 				for (; i < positive.numberLength; i++) {
-					resDigits[i] = positive.digits[i];
+					resDigits[i] = positive.Digits[i];
 				}
 			} // else positive ended and must "copy" virtual 0's, do nothing then
 
@@ -166,7 +161,7 @@ namespace Deveel.Math {
 		}
 
 		/** @return sign = -1, magnitude = -(-longer.magnitude & -shorter.magnitude)*/
-		static BigInteger andNegative(BigInteger longer, BigInteger shorter) {
+		private static BigInteger AndNegative(BigInteger longer, BigInteger shorter) {
 			// PRE: longer and shorter are negative
 			// PRE: longer has at least as many digits as shorter
 			int iLonger = longer.FirstNonzeroDigit;
@@ -182,18 +177,18 @@ namespace Deveel.Math {
 			int i = System.Math.Max(iShorter, iLonger);
 			int digit;
 			if (iShorter > iLonger) {
-				digit = -shorter.digits[i] & ~longer.digits[i];
+				digit = -shorter.Digits[i] & ~longer.Digits[i];
 			} else if (iShorter < iLonger) {
-				digit = ~shorter.digits[i] & -longer.digits[i];
+				digit = ~shorter.Digits[i] & -longer.Digits[i];
 			} else {
-				digit = -shorter.digits[i] & -longer.digits[i];
+				digit = -shorter.Digits[i] & -longer.Digits[i];
 			}
 			if (digit == 0) {
-				for (i++; i < shorter.numberLength && (digit = ~(longer.digits[i] | shorter.digits[i])) == 0; i++)
+				for (i++; i < shorter.numberLength && (digit = ~(longer.Digits[i] | shorter.Digits[i])) == 0; i++)
 					;  // digit = ~longer.digits[i] & ~shorter.digits[i]
 				if (digit == 0) {
 					// shorter has only the remaining virtual sign bits
-					for (; i < longer.numberLength && (digit = ~longer.digits[i]) == 0; i++)
+					for (; i < longer.numberLength && (digit = ~longer.Digits[i]) == 0; i++)
 						;
 					if (digit == 0) {
 						resLength = longer.numberLength + 1;
@@ -209,11 +204,11 @@ namespace Deveel.Math {
 			resDigits[i] = -digit;
 			for (i++; i < shorter.numberLength; i++) {
 				// resDigits[i] = ~(~longer.digits[i] & ~shorter.digits[i];)
-				resDigits[i] = longer.digits[i] | shorter.digits[i];
+				resDigits[i] = longer.Digits[i] | shorter.Digits[i];
 			}
 			// shorter has only the remaining virtual sign bits
 			for (; i < longer.numberLength; i++) {
-				resDigits[i] = longer.digits[i];
+				resDigits[i] = longer.Digits[i];
 			}
 
 			BigInteger result = new BigInteger(-1, resLength, resDigits);
@@ -222,11 +217,11 @@ namespace Deveel.Math {
 
 		/** @see BigInteger#andNot(BigInteger) */
 
-		internal static BigInteger andNot(BigInteger val, BigInteger that) {
-			if (that.sign == 0) {
+		public static BigInteger AndNot(BigInteger val, BigInteger that) {
+			if (that.Sign == 0) {
 				return val;
 			}
-			if (val.sign == 0) {
+			if (val.Sign == 0) {
 				return BigInteger.Zero;
 			}
 			if (val.Equals(BigInteger.MinusOne)) {
@@ -238,33 +233,33 @@ namespace Deveel.Math {
 
 			//if val == that, return 0
 
-			if (val.sign > 0) {
-				if (that.sign > 0) {
-					return andNotPositive(val, that);
+			if (val.Sign > 0) {
+				if (that.Sign > 0) {
+					return AndNotPositive(val, that);
 				} else {
-					return andNotPositiveNegative(val, that);
+					return AndNotPositiveNegative(val, that);
 				}
 			} else {
-				if (that.sign > 0) {
-					return andNotNegativePositive(val, that);
+				if (that.Sign > 0) {
+					return AndNotNegativePositive(val, that);
 				} else {
-					return andNotNegative(val, that);
+					return AndNotNegative(val, that);
 				}
 			}
 		}
 
 		/** @return sign = 1, magnitude = val.magnitude & ~that.magnitude*/
-		static BigInteger andNotPositive(BigInteger val, BigInteger that) {
+		private static BigInteger AndNotPositive(BigInteger val, BigInteger that) {
 			// PRE: both arguments are positive
 			int[] resDigits = new int[val.numberLength];
 
 			int limit = System.Math.Min(val.numberLength, that.numberLength);
 			int i;
 			for (i = val.FirstNonzeroDigit; i < limit; i++) {
-				resDigits[i] = val.digits[i] & ~that.digits[i];
+				resDigits[i] = val.Digits[i] & ~that.Digits[i];
 			}
 			for (; i < val.numberLength; i++) {
-				resDigits[i] = val.digits[i];
+				resDigits[i] = val.Digits[i];
 			}
 
 			BigInteger result = new BigInteger(1, val.numberLength, resDigits);
@@ -273,7 +268,7 @@ namespace Deveel.Math {
 		}
 
 		/** @return sign = 1, magnitude = positive.magnitude & ~(-negative.magnitude)*/
-		static BigInteger andNotPositiveNegative(BigInteger positive, BigInteger negative) {
+		private static BigInteger AndNotPositiveNegative(BigInteger positive, BigInteger negative) {
 			// PRE: positive > 0 && negative < 0
 			int iNeg = negative.FirstNonzeroDigit;
 			int iPos = positive.FirstNonzeroDigit;
@@ -289,15 +284,15 @@ namespace Deveel.Math {
 			int i = iPos;
 			for (; i < iNeg; i++) {
 				// resDigits[i] = positive.digits[i] & -1 (~0)
-				resDigits[i] = positive.digits[i];
+				resDigits[i] = positive.Digits[i];
 			}
 			if (i == iNeg) {
-				resDigits[i] = positive.digits[i] & (negative.digits[i] - 1);
+				resDigits[i] = positive.Digits[i] & (negative.Digits[i] - 1);
 				i++;
 			}
 			for (; i < resLength; i++) {
 				// resDigits[i] = positive.digits[i] & ~(~negative.digits[i]);
-				resDigits[i] = positive.digits[i] & negative.digits[i];
+				resDigits[i] = positive.Digits[i] & negative.Digits[i];
 			}
 
 			BigInteger result = new BigInteger(1, resLength, resDigits);
@@ -306,7 +301,7 @@ namespace Deveel.Math {
 		}
 
 		/** @return sign = -1, magnitude = -(-negative.magnitude & ~positive.magnitude)*/
-		static BigInteger andNotNegativePositive(BigInteger negative, BigInteger positive) {
+		private static BigInteger AndNotNegativePositive(BigInteger negative, BigInteger positive) {
 			// PRE: negative < 0 && positive > 0
 			int resLength;
 			int[] resDigits;
@@ -328,25 +323,25 @@ namespace Deveel.Math {
 				for (; i < limit; i++) {
 					// 1st case:  resDigits [i] = -(-negative.digits[i] & (~0))
 					// otherwise: resDigits[i] = ~(~negative.digits[i] & ~0)  ;
-					resDigits[i] = negative.digits[i];
+					resDigits[i] = negative.Digits[i];
 				}
 				if (i == negative.numberLength) {
 					for (i = iPos; i < positive.numberLength; i++) {
 						// resDigits[i] = ~(~positive.digits[i] & -1);
-						resDigits[i] = positive.digits[i];
+						resDigits[i] = positive.Digits[i];
 					}
 				}
 			} else {
-				digit = -negative.digits[i] & ~positive.digits[i];
+				digit = -negative.Digits[i] & ~positive.Digits[i];
 				if (digit == 0) {
 					limit = System.Math.Min(positive.numberLength, negative.numberLength);
-					for (i++; i < limit && (digit = ~(negative.digits[i] | positive.digits[i])) == 0; i++)
+					for (i++; i < limit && (digit = ~(negative.Digits[i] | positive.Digits[i])) == 0; i++)
 						; // digit = ~negative.digits[i] & ~positive.digits[i]
 					if (digit == 0) {
 						// the shorter has only the remaining virtual sign bits
-						for (; i < positive.numberLength && (digit = ~positive.digits[i]) == 0; i++)
+						for (; i < positive.numberLength && (digit = ~positive.Digits[i]) == 0; i++)
 							; // digit = -1 & ~positive.digits[i]
-						for (; i < negative.numberLength && (digit = ~negative.digits[i]) == 0; i++)
+						for (; i < negative.numberLength && (digit = ~negative.Digits[i]) == 0; i++)
 							; // digit = ~negative.digits[i] & ~0
 						if (digit == 0) {
 							resLength++;
@@ -365,14 +360,14 @@ namespace Deveel.Math {
 			limit = System.Math.Min(positive.numberLength, negative.numberLength);
 			for (; i < limit; i++) {
 				//resDigits[i] = ~(~negative.digits[i] & ~positive.digits[i]);
-				resDigits[i] = negative.digits[i] | positive.digits[i];
+				resDigits[i] = negative.Digits[i] | positive.Digits[i];
 			}
 			// Actually one of the next two cycles will be executed
 			for (; i < negative.numberLength; i++) {
-				resDigits[i] = negative.digits[i];
+				resDigits[i] = negative.Digits[i];
 			}
 			for (; i < positive.numberLength; i++) {
-				resDigits[i] = positive.digits[i];
+				resDigits[i] = positive.Digits[i];
 			}
 
 			BigInteger result = new BigInteger(-1, resLength, resDigits);
@@ -380,7 +375,7 @@ namespace Deveel.Math {
 		}
 
 		/** @return sign = 1, magnitude = -val.magnitude & ~(-that.magnitude)*/
-		static BigInteger andNotNegative(BigInteger val, BigInteger that) {
+		private static BigInteger AndNotNegative(BigInteger val, BigInteger that) {
 			// PRE: val < 0 && that < 0
 			int iVal = val.FirstNonzeroDigit;
 			int iThat = that.FirstNonzeroDigit;
@@ -395,11 +390,11 @@ namespace Deveel.Math {
 			int i = iVal;
 			if (iVal < iThat) {
 				// resDigits[i] = -val.digits[i] & -1;
-				resDigits[i] = -val.digits[i];
+				resDigits[i] = -val.Digits[i];
 				limit = System.Math.Min(val.numberLength, iThat);
 				for (i++; i < limit; i++) {
 					// resDigits[i] = ~val.digits[i] & -1;
-					resDigits[i] = ~val.digits[i];
+					resDigits[i] = ~val.Digits[i];
 				}
 				if (i == val.numberLength) {
 					for (; i < iThat; i++) {
@@ -407,27 +402,27 @@ namespace Deveel.Math {
 						resDigits[i] = -1;
 					}
 					// resDigits[i] = -1 & ~-that.digits[i];
-					resDigits[i] = that.digits[i] - 1;
+					resDigits[i] = that.Digits[i] - 1;
 				} else {
 					// resDigits[i] = ~val.digits[i] & ~-that.digits[i];
-					resDigits[i] = ~val.digits[i] & (that.digits[i] - 1);
+					resDigits[i] = ~val.Digits[i] & (that.Digits[i] - 1);
 				}
 			} else if (iThat < iVal) {
 				// resDigits[i] = -val.digits[i] & ~~that.digits[i];
-				resDigits[i] = -val.digits[i] & that.digits[i];
+				resDigits[i] = -val.Digits[i] & that.Digits[i];
 			} else {
 				// resDigits[i] = -val.digits[i] & ~-that.digits[i];
-				resDigits[i] = -val.digits[i] & (that.digits[i] - 1);
+				resDigits[i] = -val.Digits[i] & (that.Digits[i] - 1);
 			}
 
 			limit = System.Math.Min(val.numberLength, that.numberLength);
 			for (i++; i < limit; i++) {
 				// resDigits[i] = ~val.digits[i] & ~~that.digits[i];
-				resDigits[i] = ~val.digits[i] & that.digits[i];
+				resDigits[i] = ~val.Digits[i] & that.Digits[i];
 			}
 			for (; i < that.numberLength; i++) {
 				// resDigits[i] = -1 & ~~that.digits[i];
-				resDigits[i] = that.digits[i];
+				resDigits[i] = that.Digits[i];
 			}
 
 			BigInteger result = new BigInteger(1, resLength, resDigits);
@@ -437,40 +432,40 @@ namespace Deveel.Math {
 
 		/** @see BigInteger#or(BigInteger) */
 
-		internal static BigInteger or(BigInteger val, BigInteger that) {
+		public static BigInteger Or(BigInteger val, BigInteger that) {
 			if (that.Equals(BigInteger.MinusOne) || val.Equals(BigInteger.MinusOne)) {
 				return BigInteger.MinusOne;
 			}
-			if (that.sign == 0) {
+			if (that.Sign == 0) {
 				return val;
 			}
-			if (val.sign == 0) {
+			if (val.Sign == 0) {
 				return that;
 			}
 
-			if (val.sign > 0) {
-				if (that.sign > 0) {
+			if (val.Sign > 0) {
+				if (that.Sign > 0) {
 					if (val.numberLength > that.numberLength) {
-						return orPositive(val, that);
+						return OrPositive(val, that);
 					} else {
-						return orPositive(that, val);
+						return OrPositive(that, val);
 					}
 				} else {
-					return orDiffSigns(val, that);
+					return OrDiffSigns(val, that);
 				}
 			} else {
-				if (that.sign > 0) {
-					return orDiffSigns(that, val);
+				if (that.Sign > 0) {
+					return OrDiffSigns(that, val);
 				} else if (that.FirstNonzeroDigit > val.FirstNonzeroDigit) {
-					return orNegative(that, val);
+					return OrNegative(that, val);
 				} else {
-					return orNegative(val, that);
+					return OrNegative(val, that);
 				}
 			}
 		}
 
 		/** @return sign = 1, magnitude = longer.magnitude | shorter.magnitude*/
-		static BigInteger orPositive(BigInteger longer, BigInteger shorter) {
+		private static BigInteger OrPositive(BigInteger longer, BigInteger shorter) {
 			// PRE: longer and shorter are positive;
 			// PRE: longer has at least as many digits as shorter
 			int resLength = longer.numberLength;
@@ -478,10 +473,10 @@ namespace Deveel.Math {
 
 			int i = System.Math.Min(longer.FirstNonzeroDigit, shorter.FirstNonzeroDigit);
 			for (i = 0; i < shorter.numberLength; i++) {
-				resDigits[i] = longer.digits[i] | shorter.digits[i];
+				resDigits[i] = longer.Digits[i] | shorter.Digits[i];
 			}
 			for (; i < resLength; i++) {
-				resDigits[i] = longer.digits[i];
+				resDigits[i] = longer.Digits[i];
 			}
 
 			BigInteger result = new BigInteger(1, resLength, resDigits);
@@ -489,7 +484,7 @@ namespace Deveel.Math {
 		}
 
 		/** @return sign = -1, magnitude = -(-val.magnitude | -that.magnitude) */
-		static BigInteger orNegative(BigInteger val, BigInteger that) {
+		private static BigInteger OrNegative(BigInteger val, BigInteger that) {
 			// PRE: val and that are negative;
 			// PRE: val has at least as many trailing zeros digits as that
 			int iThat = that.FirstNonzeroDigit;
@@ -507,17 +502,17 @@ namespace Deveel.Math {
 
 			//Looking for the first non-zero digit of the result
 			if (iThat == iVal) {
-				resDigits[iVal] = -(-val.digits[iVal] | -that.digits[iVal]);
+				resDigits[iVal] = -(-val.Digits[iVal] | -that.Digits[iVal]);
 				i = iVal;
 			} else {
 				for (i = iThat; i < iVal; i++) {
-					resDigits[i] = that.digits[i];
+					resDigits[i] = that.Digits[i];
 				}
-				resDigits[i] = that.digits[i] & (val.digits[i] - 1);
+				resDigits[i] = that.Digits[i] & (val.Digits[i] - 1);
 			}
 
 			for (i++; i < resLength; i++) {
-				resDigits[i] = val.digits[i] & that.digits[i];
+				resDigits[i] = val.Digits[i] & that.Digits[i];
 			}
 
 			BigInteger result = new BigInteger(-1, resLength, resDigits);
@@ -526,7 +521,7 @@ namespace Deveel.Math {
 		}
 
 		/** @return sign = -1, magnitude = -(positive.magnitude | -negative.magnitude) */
-		static BigInteger orDiffSigns(BigInteger positive, BigInteger negative) {
+		private static BigInteger OrDiffSigns(BigInteger positive, BigInteger negative) {
 			// Jumping over the least significant zero bits
 			int iNeg = negative.FirstNonzeroDigit;
 			int iPos = positive.FirstNonzeroDigit;
@@ -545,39 +540,39 @@ namespace Deveel.Math {
 				// We know for sure that this will
 				// be the first non zero digit in the result
 				for (i = iNeg; i < iPos; i++) {
-					resDigits[i] = negative.digits[i];
+					resDigits[i] = negative.Digits[i];
 				}
 			} else if (iPos < iNeg) {
 				i = iPos;
-				resDigits[i] = -positive.digits[i];
+				resDigits[i] = -positive.Digits[i];
 				limit = System.Math.Min(positive.numberLength, iNeg);
 				for (i++; i < limit; i++) {
-					resDigits[i] = ~positive.digits[i];
+					resDigits[i] = ~positive.Digits[i];
 				}
 				if (i != positive.numberLength) {
-					resDigits[i] = ~(-negative.digits[i] | positive.digits[i]);
+					resDigits[i] = ~(-negative.Digits[i] | positive.Digits[i]);
 				} else {
 					for (; i < iNeg; i++) {
 						resDigits[i] = -1;
 					}
 					// resDigits[i] = ~(-negative.digits[i] | 0);
-					resDigits[i] = negative.digits[i] - 1;
+					resDigits[i] = negative.Digits[i] - 1;
 				}
 				i++;
 			} else {// iNeg == iPos
 				// Applying two complement to negative and to result
 				i = iPos;
-				resDigits[i] = -(-negative.digits[i] | positive.digits[i]);
+				resDigits[i] = -(-negative.Digits[i] | positive.Digits[i]);
 				i++;
 			}
 			limit = System.Math.Min(negative.numberLength, positive.numberLength);
 			for (; i < limit; i++) {
 				// Applying two complement to negative and to result
 				// resDigits[i] = ~(~negative.digits[i] | positive.digits[i] );
-				resDigits[i] = negative.digits[i] & ~positive.digits[i];
+				resDigits[i] = negative.Digits[i] & ~positive.Digits[i];
 			}
 			for (; i < negative.numberLength; i++) {
-				resDigits[i] = negative.digits[i];
+				resDigits[i] = negative.Digits[i];
 			}
 
 			BigInteger result = new BigInteger(-1, resLength, resDigits);
@@ -587,11 +582,11 @@ namespace Deveel.Math {
 
 		/** @see BigInteger#xor(BigInteger) */
 
-		internal static BigInteger xor(BigInteger val, BigInteger that) {
-			if (that.sign == 0) {
+		public static BigInteger Xor(BigInteger val, BigInteger that) {
+			if (that.Sign == 0) {
 				return val;
 			}
-			if (val.sign == 0) {
+			if (val.Sign == 0) {
 				return that;
 			}
 			if (that.Equals(BigInteger.MinusOne)) {
@@ -601,39 +596,39 @@ namespace Deveel.Math {
 				return that.Not();
 			}
 
-			if (val.sign > 0) {
-				if (that.sign > 0) {
+			if (val.Sign > 0) {
+				if (that.Sign > 0) {
 					if (val.numberLength > that.numberLength) {
-						return xorPositive(val, that);
+						return XorPositive(val, that);
 					} else {
-						return xorPositive(that, val);
+						return XorPositive(that, val);
 					}
 				} else {
-					return xorDiffSigns(val, that);
+					return XorDiffSigns(val, that);
 				}
 			} else {
-				if (that.sign > 0) {
-					return xorDiffSigns(that, val);
+				if (that.Sign > 0) {
+					return XorDiffSigns(that, val);
 				} else if (that.FirstNonzeroDigit > val.FirstNonzeroDigit) {
-					return xorNegative(that, val);
+					return XorNegative(that, val);
 				} else {
-					return xorNegative(val, that);
+					return XorNegative(val, that);
 				}
 			}
 		}
 
 		/** @return sign = 0, magnitude = longer.magnitude | shorter.magnitude */
-		static BigInteger xorPositive(BigInteger longer, BigInteger shorter) {
+		private static BigInteger XorPositive(BigInteger longer, BigInteger shorter) {
 			// PRE: longer and shorter are positive;
 			// PRE: longer has at least as many digits as shorter
 			int resLength = longer.numberLength;
 			int[] resDigits = new int[resLength];
 			int i = System.Math.Min(longer.FirstNonzeroDigit, shorter.FirstNonzeroDigit);
 			for (; i < shorter.numberLength; i++) {
-				resDigits[i] = longer.digits[i] ^ shorter.digits[i];
+				resDigits[i] = longer.Digits[i] ^ shorter.Digits[i];
 			}
 			for (; i < longer.numberLength; i++) {
-				resDigits[i] = longer.digits[i];
+				resDigits[i] = longer.Digits[i];
 			}
 
 			BigInteger result = new BigInteger(1, resLength, resDigits);
@@ -642,7 +637,7 @@ namespace Deveel.Math {
 		}
 
 		/** @return sign = 0, magnitude = -val.magnitude ^ -that.magnitude */
-		static BigInteger xorNegative(BigInteger val, BigInteger that) {
+		private static BigInteger XorNegative(BigInteger val, BigInteger that) {
 			// PRE: val and that are negative
 			// PRE: val has at least as many trailing zero digits as that
 			int resLength = System.Math.Max(val.numberLength, that.numberLength);
@@ -654,12 +649,12 @@ namespace Deveel.Math {
 
 
 			if (iVal == iThat) {
-				resDigits[i] = -val.digits[i] ^ -that.digits[i];
+				resDigits[i] = -val.Digits[i] ^ -that.Digits[i];
 			} else {
-				resDigits[i] = -that.digits[i];
+				resDigits[i] = -that.Digits[i];
 				limit = System.Math.Min(that.numberLength, iVal);
 				for (i++; i < limit; i++) {
-					resDigits[i] = ~that.digits[i];
+					resDigits[i] = ~that.Digits[i];
 				}
 				// Remains digits in that?
 				if (i == that.numberLength) {
@@ -669,9 +664,9 @@ namespace Deveel.Math {
 						resDigits[i] = -1;
 					}
 					//resDigits[i] = -val.digits[i] ^ -1;
-					resDigits[i] = val.digits[i] - 1;
+					resDigits[i] = val.Digits[i] - 1;
 				} else {
-					resDigits[i] = -val.digits[i] ^ ~that.digits[i];
+					resDigits[i] = -val.Digits[i] ^ ~that.Digits[i];
 				}
 			}
 
@@ -679,16 +674,16 @@ namespace Deveel.Math {
 			//Perform ^ between that al val until that ends
 			for (i++; i < limit; i++) {
 				//resDigits[i] = ~val.digits[i] ^ ~that.digits[i];
-				resDigits[i] = val.digits[i] ^ that.digits[i];
+				resDigits[i] = val.Digits[i] ^ that.Digits[i];
 			}
 			//Perform ^ between val digits and -1 until val ends
 			for (; i < val.numberLength; i++) {
 				//resDigits[i] = ~val.digits[i] ^ -1  ;
-				resDigits[i] = val.digits[i];
+				resDigits[i] = val.Digits[i];
 			}
 			for (; i < that.numberLength; i++) {
 				//resDigits[i] = -1 ^ ~that.digits[i] ;
-				resDigits[i] = that.digits[i];
+				resDigits[i] = that.Digits[i];
 			}
 
 			BigInteger result = new BigInteger(1, resLength, resDigits);
@@ -697,7 +692,7 @@ namespace Deveel.Math {
 		}
 
 		/** @return sign = 1, magnitude = -(positive.magnitude ^ -negative.magnitude)*/
-		static BigInteger xorDiffSigns(BigInteger positive, BigInteger negative) {
+		private static BigInteger XorDiffSigns(BigInteger positive, BigInteger negative) {
 			int resLength = System.Math.Max(negative.numberLength, positive.numberLength);
 			int[] resDigits;
 			int iNeg = negative.FirstNonzeroDigit;
@@ -710,35 +705,35 @@ namespace Deveel.Math {
 				resDigits = new int[resLength];
 				i = iNeg;
 				//resDigits[i] = -(-negative.digits[i]);
-				resDigits[i] = negative.digits[i];
+				resDigits[i] = negative.Digits[i];
 				limit = System.Math.Min(negative.numberLength, iPos);
 				//Skip the positive digits while they are zeros
 				for (i++; i < limit; i++) {
 					//resDigits[i] = ~(~negative.digits[i]);
-					resDigits[i] = negative.digits[i];
+					resDigits[i] = negative.Digits[i];
 				}
 				//if the negative has no more elements, must fill the
 				//result with the remaining digits of the positive
 				if (i == negative.numberLength) {
 					for (; i < positive.numberLength; i++) {
 						//resDigits[i] = ~(positive.digits[i] ^ -1) -> ~(~positive.digits[i])
-						resDigits[i] = positive.digits[i];
+						resDigits[i] = positive.Digits[i];
 					}
 				}
 			} else if (iPos < iNeg) {
 				resDigits = new int[resLength];
 				i = iPos;
 				//Applying two complement to the first non-zero digit of the result
-				resDigits[i] = -positive.digits[i];
+				resDigits[i] = -positive.Digits[i];
 				limit = System.Math.Min(positive.numberLength, iNeg);
 				for (i++; i < limit; i++) {
 					//Continue applying two complement the result
-					resDigits[i] = ~positive.digits[i];
+					resDigits[i] = ~positive.Digits[i];
 				}
 				//When the first non-zero digit of the negative is reached, must apply
 				//two complement (arithmetic negation) to it, and then operate
 				if (i == iNeg) {
-					resDigits[i] = ~(positive.digits[i] ^ -negative.digits[i]);
+					resDigits[i] = ~(positive.Digits[i] ^ -negative.Digits[i]);
 					i++;
 				} else {
 					//if the positive has no more elements must fill the remaining digits with
@@ -749,23 +744,23 @@ namespace Deveel.Math {
 					}
 					for (; i < negative.numberLength; i++) {
 						//resDigits[i] = ~(~negative.digits[i] ^ 0)
-						resDigits[i] = negative.digits[i];
+						resDigits[i] = negative.Digits[i];
 					}
 				}
 			} else {
 				int digit;
 				//The first non-zero digit of the positive and negative are the same
 				i = iNeg;
-				digit = positive.digits[i] ^ -negative.digits[i];
+				digit = positive.Digits[i] ^ -negative.Digits[i];
 				if (digit == 0) {
 					limit = System.Math.Min(positive.numberLength, negative.numberLength);
-					for (i++; i < limit && (digit = positive.digits[i] ^ ~negative.digits[i]) == 0; i++)
+					for (i++; i < limit && (digit = positive.Digits[i] ^ ~negative.Digits[i]) == 0; i++)
 						;
 					if (digit == 0) {
 						// shorter has only the remaining virtual sign bits
-						for (; i < positive.numberLength && (digit = ~positive.digits[i]) == 0; i++)
+						for (; i < positive.numberLength && (digit = ~positive.Digits[i]) == 0; i++)
 							;
-						for (; i < negative.numberLength && (digit = ~negative.digits[i]) == 0; i++)
+						for (; i < negative.numberLength && (digit = ~negative.Digits[i]) == 0; i++)
 							;
 						if (digit == 0) {
 							resLength = resLength + 1;
@@ -783,15 +778,15 @@ namespace Deveel.Math {
 
 			limit = System.Math.Min(negative.numberLength, positive.numberLength);
 			for (; i < limit; i++) {
-				resDigits[i] = ~(~negative.digits[i] ^ positive.digits[i]);
+				resDigits[i] = ~(~negative.Digits[i] ^ positive.Digits[i]);
 			}
 			for (; i < positive.numberLength; i++) {
 				// resDigits[i] = ~(positive.digits[i] ^ -1)
-				resDigits[i] = positive.digits[i];
+				resDigits[i] = positive.Digits[i];
 			}
 			for (; i < negative.numberLength; i++) {
 				// resDigits[i] = ~(0 ^ ~negative.digits[i])
-				resDigits[i] = negative.digits[i];
+				resDigits[i] = negative.Digits[i];
 			}
 
 			BigInteger result = new BigInteger(-1, resLength, resDigits);

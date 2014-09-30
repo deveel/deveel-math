@@ -44,34 +44,34 @@ namespace Deveel.Math {
 			return URShift(number, (int)bits);
 		}
 
-		public static int numberOfLeadingZeros(int value) {
+		public static int NumberOfLeadingZeros(int value) {
 			value |= URShift(value, 1);
 			value |= URShift(value, 2);
 			value |= URShift(value, 4);
 			value |= URShift(value, 8);
 			value |= URShift(value, 16);
-			return bitCount(~value);
+			return BitCount(~value);
 		}
 
-		public static int numberOfLeadingZeros(long value) {
+		public static int NumberOfLeadingZeros(long value) {
 			value |= URShift(value, 1);
 			value |= URShift(value, 2);
 			value |= URShift(value, 4);
 			value |= URShift(value, 8);
 			value |= URShift(value, 16);
 			value |= URShift(value, 32);
-			return bitCount(~value);
+			return BitCount(~value);
 		}
 
-		public static int numberOfTrailingZeros(int value) {
-			return bitCount((value & -value) - 1);
+		public static int NumberOfTrailingZeros(int value) {
+			return BitCount((value & -value) - 1);
 		}
 
-		public static int numberOfTrailingZeros(long value) {
-			return bitCount((value & -value) - 1);
+		public static int NumberOfTrailingZeros(long value) {
+			return BitCount((value & -value) - 1);
 		}
 
-		public static int bitCount(int x) {
+		public static int BitCount(int x) {
 			// Successively collapse alternating bit groups into a sum.
 			x = ((x >> 1) & 0x55555555) + (x & 0x55555555);
 			x = ((x >> 2) & 0x33333333) + (x & 0x33333333);
@@ -80,7 +80,7 @@ namespace Deveel.Math {
 			return ((x >> 16) & 0x0000ffff) + (x & 0x0000ffff);
 		}
 
-		public static int bitCount(long x) {
+		public static int BitCount(long x) {
 			// Successively collapse alternating bit groups into a sum.
 			x = ((x >> 1) & 0x5555555555555555L) + (x & 0x5555555555555555L);
 			x = ((x >> 2) & 0x3333333333333333L) + (x & 0x3333333333333333L);
@@ -90,7 +90,7 @@ namespace Deveel.Math {
 			return ((v >> 16) & 0x0000ffff) + (v & 0x0000ffff);
 		}
 
-		public static int highestOneBit(int value) {
+		public static int HighestOneBit(int value) {
 			value |= URShift(value, 1);
 			value |= URShift(value, 2);
 			value |= URShift(value, 4);
@@ -99,7 +99,7 @@ namespace Deveel.Math {
 			return value ^ URShift(value, 1);
 		}
 
-		public static long highestOneBit(long value) {
+		public static long HighestOneBit(long value) {
 			value |= URShift(value, 1);
 			value |= URShift(value, 2);
 			value |= URShift(value, 4);
@@ -109,7 +109,7 @@ namespace Deveel.Math {
 			return value ^ URShift(value, 1);
 		}
 
-        public static long doubleToLong(double d)
+        public static long DoubleToLong(double d)
         {
             if (d != d)
             {

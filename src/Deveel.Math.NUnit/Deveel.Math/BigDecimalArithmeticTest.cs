@@ -5,6 +5,8 @@ using NUnit.Framework;
 namespace Deveel.Math {
 	[TestFixture(Description = "Testing operations on BigDecimal class")]
 	public class BigDecimalArithmeticTest {
+		#region Add
+
 		[TestCase("1231212478987482988429808779810457634781384756794987", 10,
 			"747233429293018787918347987234564568", 10,
 			"123121247898748373566323807282924555312937.1991359555", 10,
@@ -54,6 +56,10 @@ namespace Deveel.Math {
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
 		}
 
+		#endregion
+
+		#region Subtract
+
 		[TestCase("1231212478987482988429808779810457634781384756794987", 10,
 			"747233429293018787918347987234564568", 10,
 			"123121247898748224119637948679166971643339.7522230419", 10,
@@ -102,177 +108,61 @@ namespace Deveel.Math {
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");			
 		}
 
-		[Test(Description = "Multiply two numbers of positive scales")]
-		public void MultiplyScalePosPos() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = 15;
-			String b = "747233429293018787918347987234564568";
-			int bScale = 10;
-			String c = "92000312286217574978643009574114545567010139156902666284589309.1880727173060570190220616";
-			int cScale = 25;
+		#endregion
+
+
+		#region Multiply
+
+		[TestCase("1231212478987482988429808779810457634781384756794987", 15,
+			"747233429293018787918347987234564568", 10,
+			"92000312286217574978643009574114545567010139156902666284589309.1880727173060570190220616", 25)]
+		[TestCase("1231212478987482988429808779810457634781384756794987", -15,
+			"747233429293018787918347987234564568", -10,
+			"9.20003122862175749786430095741145455670101391569026662845893091880727173060570190220616E+111", -25,
+			Description = "Multiply two numbers of negative scales")]
+		[TestCase("1231212478987482988429808779810457634781384756794987", 10,
+			"747233429293018787918347987234564568", -10,
+			"920003122862175749786430095741145455670101391569026662845893091880727173060570190220616", 0,
+			Description = "Multiply two numbers of different scales")]
+		[TestCase("1231212478987482988429808779810457634781384756794987",-15,
+			"747233429293018787918347987234564568", 10,
+			"9.20003122862175749786430095741145455670101391569026662845893091880727173060570190220616E+91", -5,
+			Description = "Multiply two numbers of different scales")]
+		public void Multiply(string a, int aScale, string b, int bScale, string c, int cScale) {
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
 			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
 			BigDecimal result = aNumber.Multiply(bNumber);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
+			Assert.AreEqual(cScale, result.Scale, "incorrect scale");			
 		}
 
-		[Test(Description = "Multiply two numbers of positive scales using MathContext")]
-		public void MultiplyMathContextScalePosPos() {
-			String a = "97665696756578755423325476545428779810457634781384756794987";
-			int aScale = -25;
-			String b = "87656965586786097685674786576598865";
-			int bScale = 10;
-			String c = "8.561078619600910561431314228543672720908E+108";
-			int cScale = -69;
+		[TestCase("97665696756578755423325476545428779810457634781384756794987", -25,
+			"87656965586786097685674786576598865", 10,
+			"8.561078619600910561431314228543672720908E+108", -69,
+			40, RoundingMode.HalfDown,
+			Description = "Multiply two numbers of positive scales using MathContext")]
+		[TestCase("987667796597975765768768767866756808779810457634781384756794987", 100,
+			"747233429293018787918347987234564568", -70,
+			"7.3801839465418518653942222612429081498248509257207477E+68", -16,
+			53, RoundingMode.HalfUp,
+			Description = "Multiply two numbers of different scales using MathContext")]
+		[TestCase("488757458676796558668876576576579097029810457634781384756794987", -63,
+			"747233429293018787918347987234564568", 63,
+			"3.6521591193960361339707130098174381429788164316E+98", -52,
+			47, RoundingMode.HalfUp,
+			Description = "Multiply two numbers of different scales using MathContext")]
+		public void MultiplyWithContext(string a, int aScale, string b, int bScale, string c, int cScale, int precision, RoundingMode roundingMode) {
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
 			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			MathContext mc = new MathContext(40, RoundingMode.HalfDown);
+			MathContext mc = new MathContext(precision, roundingMode);
 			BigDecimal result = aNumber.Multiply(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
+			Assert.AreEqual(cScale, result.Scale, "incorrect scale");			
 		}
 
-		[Test(Description = "Multiply two numbers of negative scales")]
-		public void MultiplyEqualScaleNegNeg() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = -15;
-			String b = "747233429293018787918347987234564568";
-			int bScale = -10;
-			String c = "9.20003122862175749786430095741145455670101391569026662845893091880727173060570190220616E+111";
-			int cScale = -25;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal result = aNumber.Multiply(bNumber);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
+		#endregion
 
-		[Test(Description = "Multiply two numbers of different scales")]
-		public void MultiplyDiffScalePosNeg() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = 10;
-			String b = "747233429293018787918347987234564568";
-			int bScale = -10;
-			String c = "920003122862175749786430095741145455670101391569026662845893091880727173060570190220616";
-			int cScale = 0;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal result = aNumber.Multiply(bNumber);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		[Test(Description = "Multiply two numbers of different scales using MathContext")]
-		public void MultiplyMathContextDiffScalePosNeg() {
-			String a = "987667796597975765768768767866756808779810457634781384756794987";
-			int aScale = 100;
-			String b = "747233429293018787918347987234564568";
-			int bScale = -70;
-			String c = "7.3801839465418518653942222612429081498248509257207477E+68";
-			int cScale = -16;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			MathContext mc = new MathContext(53, RoundingMode.HalfUp);
-			BigDecimal result = aNumber.Multiply(bNumber, mc);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		[Test(Description = "Multiply two numbers of different scales")]
-		public void MultiplyDiffScaleNegPos() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = -15;
-			String b = "747233429293018787918347987234564568";
-			int bScale = 10;
-			String c = "9.20003122862175749786430095741145455670101391569026662845893091880727173060570190220616E+91";
-			int cScale = -5;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal result = aNumber.Multiply(bNumber);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		[Test(Description = "Multiply two numbers of different scales using MathContext")]
-		public void MultiplyMathContextDiffScaleNegPos() {
-			String a = "488757458676796558668876576576579097029810457634781384756794987";
-			int aScale = -63;
-			String b = "747233429293018787918347987234564568";
-			int bScale = 63;
-			String c = "3.6521591193960361339707130098174381429788164316E+98";
-			int cScale = -52;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			MathContext mc = new MathContext(47, RoundingMode.HalfUp);
-			BigDecimal result = aNumber.Multiply(bNumber, mc);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		/**
-		 * pow(int)
-		 */
-		[Test]
-		public void Pow() {
-			String a = "123121247898748298842980";
-			int aScale = 10;
-			int exp = 10;
-			String c = "8004424019039195734129783677098845174704975003788210729597" +
-					   "4875206425711159855030832837132149513512555214958035390490" +
-					   "798520842025826.594316163502809818340013610490541783276343" +
-					   "6514490899700151256484355936102754469438371850240000000000";
-			int cScale = 100;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal result = aNumber.Pow(exp);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		/**
-		 * pow(0)
-		 */
-		[Test]
-		public void Pow0() {
-			String a = "123121247898748298842980";
-			int aScale = 10;
-			int exp = 0;
-			String c = "1";
-			int cScale = 0;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal result = aNumber.Pow(exp);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		/**
-		 * ZERO.pow(0)
-		 */
-		[Test]
-		public void ZeroPow0() {
-			String c = "1";
-			int cScale = 0;
-			BigDecimal result = BigDecimal.Zero.Pow(0);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
-
-		/**
-		 * pow(int, MathContext)
-		 */
-		[Test]
-		public void PowMathContext() {
-			String a = "123121247898748298842980";
-			int aScale = 10;
-			int exp = 10;
-			String c = "8.0044E+130";
-			int cScale = -126;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			MathContext mc = new MathContext(5, RoundingMode.HalfUp);
-			BigDecimal result = aNumber.Pow(exp, mc);
-			Assert.AreEqual(c, result.ToString(), "incorrect value");
-			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
-		}
+		#region Divide
 
 		/**
 		 * Divide by zero
@@ -1216,11 +1106,12 @@ namespace Deveel.Math {
 			int remScale = 70;
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
 			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal[] result = aNumber.DivideAndRemainder(bNumber);
-			Assert.AreEqual(res, result[0].ToString(), "incorrect quotient value");
-			Assert.AreEqual(resScale, result[0].Scale, "incorrect quotient scale");
-			Assert.AreEqual(rem, result[1].ToString(), "incorrect remainder value");
-			Assert.AreEqual(remScale, result[1].Scale, "incorrect remainder scale");
+			BigDecimal remainder;
+			BigDecimal quotient = aNumber.DivideAndRemainder(bNumber, out remainder);
+			Assert.AreEqual(res, quotient.ToString(), "incorrect quotient value");
+			Assert.AreEqual(resScale, quotient.Scale, "incorrect quotient scale");
+			Assert.AreEqual(rem, remainder.ToString(), "incorrect remainder value");
+			Assert.AreEqual(remScale, remainder.Scale, "incorrect remainder scale");
 		}
 
 		/**
@@ -1240,11 +1131,12 @@ namespace Deveel.Math {
 			int remScale = 70;
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
 			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal[] result = aNumber.DivideAndRemainder(bNumber);
-			Assert.AreEqual(res, result[0].ToString(), "incorrect quotient value");
-			Assert.AreEqual(resScale, result[0].Scale, "incorrect quotient scale");
-			Assert.AreEqual(rem, result[1].ToString(), "incorrect remainder value");
-			Assert.AreEqual(remScale, result[1].Scale, "incorrect remainder scale");
+			BigDecimal remainder;
+			BigDecimal quotient = aNumber.DivideAndRemainder(bNumber, out remainder);
+			Assert.AreEqual(res, quotient.ToString(), "incorrect quotient value");
+			Assert.AreEqual(resScale, quotient.Scale, "incorrect quotient scale");
+			Assert.AreEqual(rem, remainder.ToString(), "incorrect remainder value");
+			Assert.AreEqual(remScale, remainder.Scale, "incorrect remainder scale");
 		}
 
 		/**
@@ -1265,11 +1157,12 @@ namespace Deveel.Math {
 			int remScale = 70;
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
 			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal[] result = aNumber.DivideAndRemainder(bNumber, mc);
-			Assert.AreEqual(res, result[0].ToString(), "incorrect quotient value");
-			Assert.AreEqual(resScale, result[0].Scale, "incorrect quotient scale");
-			Assert.AreEqual(rem, result[1].ToString(), "incorrect remainder value");
-			Assert.AreEqual(remScale, result[1].Scale, "incorrect remainder scale");
+			BigDecimal remainder;
+			BigDecimal quotient = aNumber.DivideAndRemainder(bNumber, mc, out remainder);
+			Assert.AreEqual(res, quotient.ToString(), "incorrect quotient value");
+			Assert.AreEqual(resScale, quotient.Scale, "incorrect quotient scale");
+			Assert.AreEqual(rem, remainder.ToString(), "incorrect remainder value");
+			Assert.AreEqual(remScale, remainder.Scale, "incorrect remainder scale");
 		}
 
 		/**
@@ -1290,12 +1183,42 @@ namespace Deveel.Math {
 			int remScale = 45;
 			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
 			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
-			BigDecimal[] result = aNumber.DivideAndRemainder(bNumber, mc);
-			Assert.AreEqual(res, result[0].ToString(), "incorrect quotient value");
-			Assert.AreEqual(resScale, result[0].Scale, "incorrect quotient scale");
-			Assert.AreEqual(rem, result[1].ToString(), "incorrect remainder value");
-			Assert.AreEqual(remScale, result[1].Scale, "incorrect remainder scale");
+			BigDecimal remainder;
+			BigDecimal quotient = aNumber.DivideAndRemainder(bNumber, mc, out remainder);
+			Assert.AreEqual(res, quotient.ToString(), "incorrect quotient value");
+			Assert.AreEqual(resScale, quotient.Scale, "incorrect quotient scale");
+			Assert.AreEqual(rem, remainder.ToString(), "incorrect remainder value");
+			Assert.AreEqual(remScale, remainder.Scale, "incorrect remainder scale");
 		}
+
+		#endregion
+
+		#region Pow
+
+		[TestCase("123121247898748298842980", 10, 10, "8004424019039195734129783677098845174704975003788210729597" +
+					   "4875206425711159855030832837132149513512555214958035390490" +
+					   "798520842025826.594316163502809818340013610490541783276343" +
+					   "6514490899700151256484355936102754469438371850240000000000", 100,
+					   Description = "Pow(n) operation")]
+		[TestCase("123121247898748298842980", 10, 0, "1", 0, Description = "Pow(0)")]
+		[TestCase("0", 0, 0, "1", 0, Description = "Zero.Pow(0)")]
+		public void Pow(string a, int aScale, int exp, string c, int cScale) {
+			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
+			BigDecimal result = aNumber.Pow(exp);
+			Assert.AreEqual(c, result.ToString(), "incorrect value");
+			Assert.AreEqual(cScale, result.Scale, "incorrect scale");			
+		}
+
+		[TestCase("123121247898748298842980", 10, 10, "8.0044E+130", -126, 5, RoundingMode.HalfUp)]
+		public void PowWithContext(string a, int aScale, int exp, string c, int cScale, int precision, RoundingMode roundingMode) {
+			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
+			MathContext mc = new MathContext(precision, roundingMode);
+			BigDecimal result = aNumber.Pow(exp, mc);
+			Assert.AreEqual(c, result.ToString(), "incorrect value");
+			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
+		}
+
+		#endregion
 
 		/**
 		 * remainder(BigDecimal)

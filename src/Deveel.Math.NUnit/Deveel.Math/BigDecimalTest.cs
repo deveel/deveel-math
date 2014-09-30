@@ -618,11 +618,11 @@ namespace Deveel.Math {
 		[Test]
 		public void test_signum() {
 			BigDecimal sign = new BigDecimal(123E-104);
-			Assert.IsTrue(sign.Signum() == 1, "123E-104 is not positive in signum()");
+			Assert.IsTrue(sign.Sign == 1, "123E-104 is not positive in signum()");
 			sign = new BigDecimal("-1234.3959");
-			Assert.IsTrue(sign.Signum() == -1, "-1234.3959 is not negative in signum()");
+			Assert.IsTrue(sign.Sign == -1, "-1234.3959 is not negative in signum()");
 			sign = new BigDecimal(000D);
-			Assert.IsTrue(sign.Signum() == 0, "000D is not zero in signum()");
+			Assert.IsTrue(sign.Sign == 0, "000D is not zero in signum()");
 		}
 
 		/**

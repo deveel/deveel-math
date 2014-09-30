@@ -19,22 +19,18 @@ namespace Deveel.Math {
 	/**
  * Static library that provides all multiplication of {@link BigInteger} methods.
  */
-	class Multiplication {
-
-		/** Just to denote that this class can't be instantiated. */
-		private Multiplication() { }
-
+	static class Multiplication {
 		/**
 		 * Break point in digits (number of {@code int} elements)
 		 * between Karatsuba and Pencil and Paper multiply.
 		 */
-		static readonly int whenUseKaratsuba = 63; // an heuristic value
+		private const int WhenUseKaratsuba = 63; // an heuristic value
 
 		/**
 		 * An array with powers of ten that fit in the type {@code int}.
 		 * ({@code 10^0,10^1,...,10^9})
 		 */
-		static readonly int[] tenPows = {
+		static readonly int[] TenPows = {
         1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
     };
 
@@ -42,7 +38,7 @@ namespace Deveel.Math {
 		 * An array with powers of five that fit in the type {@code int}.
 		 * ({@code 5^0,5^1,...,5^13})
 		 */
-		static readonly int[] fivePows = {
+		static readonly int[] FivePows = {
         1, 5, 25, 125, 625, 3125, 15625, 78125, 390625,
         1953125, 9765625, 48828125, 244140625, 1220703125
     };
@@ -51,13 +47,13 @@ namespace Deveel.Math {
 		 * An array with the first powers of ten in {@code BigInteger} version.
 		 * ({@code 10^0,10^1,...,10^31})
 		 */
-		internal static readonly BigInteger[] bigTenPows = new BigInteger[32];
+		public static readonly BigInteger[] BigTenPows = new BigInteger[32];
 
 		/**
 		 * An array with the first powers of five in {@code BigInteger} version.
 		 * ({@code 5^0,5^1,...,5^31})
 		 */
-		internal static readonly BigInteger[] bigFivePows = new BigInteger[32];
+		public static readonly BigInteger[] BigFivePows = new BigInteger[32];
 
 
 
@@ -66,13 +62,13 @@ namespace Deveel.Math {
 			long fivePow = 1L;
 
 			for (i = 0; i <= 18; i++) {
-				bigFivePows[i] = BigInteger.ValueOf(fivePow);
-				bigTenPows[i] = BigInteger.ValueOf(fivePow << i);
+				BigFivePows[i] = BigInteger.ValueOf(fivePow);
+				BigTenPows[i] = BigInteger.ValueOf(fivePow << i);
 				fivePow *= 5;
 			}
-			for (; i < bigTenPows.Length; i++) {
-				bigFivePows[i] = bigFivePows[i - 1].Multiply(bigFivePows[1]);
-				bigTenPows[i] = bigTenPows[i - 1].Multiply(BigInteger.Ten);
+			for (; i < BigTenPows.Length; i++) {
+				BigFivePows[i] = BigFivePows[i - 1].Multiply(BigFivePows[1]);
+				BigTenPows[i] = BigTenPows[i - 1].Multiply(BigInteger.Ten);
 			}
 		}
 
@@ -81,8 +77,8 @@ namespace Deveel.Math {
 		 * @see BigInteger#multiply(BigInteger)
 		 */
 
-		internal static BigInteger multiply(BigInteger x, BigInteger y) {
-			return karatsuba(x, y);
+		public static BigInteger Multiply(BigInteger x, BigInteger y) {
+			return Karatsuba(x, y);
 		}
 
 		/**
@@ -101,15 +97,15 @@ namespace Deveel.Math {
 		 * @return {@code op1 * op2}
 		 * @see #multiply(BigInteger, BigInteger)
 		 */
-		static BigInteger karatsuba(BigInteger op1, BigInteger op2) {
+		private static BigInteger Karatsuba(BigInteger op1, BigInteger op2) {
 			BigInteger temp;
 			if (op2.numberLength > op1.numberLength) {
 				temp = op1;
 				op1 = op2;
 				op2 = temp;
 			}
-			if (op2.numberLength < whenUseKaratsuba) {
-				return multiplyPAP(op1, op2);
+			if (op2.numberLength < WhenUseKaratsuba) {
+				return MultiplyPap(op1, op2);
 			}
 			/*  Karatsuba:  u = u1*B + u0
 			 *              v = v1*B + v0
@@ -122,9 +118,9 @@ namespace Deveel.Math {
 			BigInteger lowerOp1 = op1.Subtract(upperOp1.ShiftLeft(ndiv2));
 			BigInteger lowerOp2 = op2.Subtract(upperOp2.ShiftLeft(ndiv2));
 
-			BigInteger upper = karatsuba(upperOp1, upperOp2);
-			BigInteger lower = karatsuba(lowerOp1, lowerOp2);
-			BigInteger middle = karatsuba(upperOp1.Subtract(lowerOp1),
+			BigInteger upper = Karatsuba(upperOp1, upperOp2);
+			BigInteger lower = Karatsuba(lowerOp1, lowerOp2);
+			BigInteger middle = Karatsuba(upperOp1.Subtract(lowerOp1),
 					lowerOp2.Subtract(upperOp2));
 			middle = middle.Add(upper).Add(lower);
 			middle = middle.ShiftLeft(ndiv2);
@@ -220,46 +216,46 @@ namespace Deveel.Math {
 		 * @param op2 second factor of the multiplication {@code  op2 >= 0}
 		 * @return a {@code BigInteger} of value {@code  op1 * op2}
 		 */
-		static BigInteger multiplyPAP(BigInteger a, BigInteger b) {
+		private static BigInteger MultiplyPap(BigInteger a, BigInteger b) {
 			// PRE: a >= b
 			int aLen = a.numberLength;
 			int bLen = b.numberLength;
 			int resLength = aLen + bLen;
-			int resSign = (a.sign != b.sign) ? -1 : 1;
+			int resSign = (a.Sign != b.Sign) ? -1 : 1;
 			// A special case when both numbers don't exceed int
 			if (resLength == 2) {
-				long val = unsignedMultAddAdd(a.digits[0], b.digits[0], 0, 0);
+				long val = UnsignedMultAddAdd(a.Digits[0], b.Digits[0], 0, 0);
 				int valueLo = (int)val;
 				int valueHi = (int)Utils.URShift(val, 32);
 				return ((valueHi == 0)
 				? new BigInteger(resSign, valueLo)
 				: new BigInteger(resSign, 2, new int[] { valueLo, valueHi }));
 			}
-			int[] aDigits = a.digits;
-			int[] bDigits = b.digits;
+			int[] aDigits = a.Digits;
+			int[] bDigits = b.Digits;
 			int[] resDigits = new int[resLength];
 			// Common case
-			multArraysPAP(aDigits, aLen, bDigits, bLen, resDigits);
+			MultArraysPap(aDigits, aLen, bDigits, bLen, resDigits);
 			BigInteger result = new BigInteger(resSign, resLength, resDigits);
 			result.CutOffLeadingZeroes();
 			return result;
 		}
 
-		internal static void multArraysPAP(int[] aDigits, int aLen, int[] bDigits, int bLen, int[] resDigits) {
+		public static void MultArraysPap(int[] aDigits, int aLen, int[] bDigits, int bLen, int[] resDigits) {
 			if (aLen == 0 || bLen == 0) return;
 
 			if (aLen == 1) {
-				resDigits[bLen] = multiplyByInt(resDigits, bDigits, bLen, aDigits[0]);
+				resDigits[bLen] = MultiplyByInt(resDigits, bDigits, bLen, aDigits[0]);
 			} else if (bLen == 1) {
-				resDigits[aLen] = multiplyByInt(resDigits, aDigits, aLen, bDigits[0]);
+				resDigits[aLen] = MultiplyByInt(resDigits, aDigits, aLen, bDigits[0]);
 			} else {
-				multPAP(aDigits, bDigits, resDigits, aLen, bLen);
+				MultPap(aDigits, bDigits, resDigits, aLen, bLen);
 			}
 		}
 
-		static void multPAP(int[] a, int[] b, int[] t, int aLen, int bLen) {
+		private static void MultPap(int[] a, int[] b, int[] t, int aLen, int bLen) {
 			if (a == b && aLen == bLen) {
-				square(a, aLen, t);
+				Square(a, aLen, t);
 				return;
 			}
 
@@ -267,7 +263,7 @@ namespace Deveel.Math {
 				long carry = 0;
 				int aI = a[i];
 				for (int j = 0; j < bLen; j++) {
-					carry = unsignedMultAddAdd(aI, b[j], t[i + j], (int)carry);
+					carry = UnsignedMultAddAdd(aI, b[j], t[i + j], (int)carry);
 					t[i + j] = (int)carry;
 					carry = Utils.URShift(carry, 32);
 				}
@@ -283,10 +279,10 @@ namespace Deveel.Math {
 		 * @param factor the multiplier
 		 * @return the top digit of production
 		 */
-		private static int multiplyByInt(int[] res, int[] a, int aSize, int factor) {
+		private static int MultiplyByInt(int[] res, int[] a, int aSize, int factor) {
 			long carry = 0;
 			for (int i = 0; i < aSize; i++) {
-				carry = unsignedMultAddAdd(a[i], factor, (int)carry, 0);
+				carry = UnsignedMultAddAdd(a[i], factor, (int)carry, 0);
 				res[i] = (int)carry;
 				carry = Utils.URShift(carry, 32);
 			}
@@ -301,8 +297,8 @@ namespace Deveel.Math {
 		 * @param factor the multiplier
 		 * @return the top digit of production
 		 */
-		internal static int multiplyByInt(int[] a, int aSize, int factor) {
-			return multiplyByInt(a, a, aSize, factor);
+		public static int MultiplyByInt(int[] a, int aSize, int factor) {
+			return MultiplyByInt(a, a, aSize, factor);
 		}
 
 		/**
@@ -311,16 +307,16 @@ namespace Deveel.Math {
 		 * @param factor a positive {@code int} number
 		 * @return {@code val * factor}
 		 */
-		internal static BigInteger multiplyByPositiveInt(BigInteger val, int factor) {
-			int resSign = val.sign;
+		public static BigInteger MultiplyByPositiveInt(BigInteger val, int factor) {
+			int resSign = val.Sign;
 			if (resSign == 0) {
 				return BigInteger.Zero;
 			}
 			int aNumberLength = val.numberLength;
-			int[] aDigits = val.digits;
+			int[] aDigits = val.Digits;
 
 			if (aNumberLength == 1) {
-				long res = unsignedMultAddAdd(aDigits[0], factor, 0, 0);
+				long res = UnsignedMultAddAdd(aDigits[0], factor, 0, 0);
 				int resLo = (int)res;
 				int resHi = (int)Utils.URShift(res, 32);
 				return ((resHi == 0)
@@ -331,13 +327,13 @@ namespace Deveel.Math {
 			int resLength = aNumberLength + 1;
 			int[] resDigits = new int[resLength];
 
-			resDigits[aNumberLength] = multiplyByInt(resDigits, aDigits, aNumberLength, factor);
+			resDigits[aNumberLength] = MultiplyByInt(resDigits, aDigits, aNumberLength, factor);
 			BigInteger result = new BigInteger(resSign, resLength, resDigits);
 			result.CutOffLeadingZeroes();
 			return result;
 		}
 
-		internal static BigInteger pow(BigInteger b, int exponent) {
+		public static BigInteger Pow(BigInteger b, int exponent) {
 			// PRE: exp > 0
 			BigInteger res = BigInteger.One;
 			BigInteger acc = b;
@@ -352,7 +348,7 @@ namespace Deveel.Math {
 				if (acc.numberLength == 1) {
 					acc = acc.Multiply(acc); // square
 				} else {
-					acc = new BigInteger(1, square(acc.digits, acc.numberLength, new int[acc.numberLength << 1]));
+					acc = new BigInteger(1, Square(acc.Digits, acc.numberLength, new int[acc.numberLength << 1]));
 				}
 			}
 			// exponent == 1, multiply one more time
@@ -365,24 +361,24 @@ namespace Deveel.Math {
 		 *  @param a The number to square.
 		 *  @param aLen The length of the number to square.
 		 */
-		static int[] square(int[] a, int aLen, int[] res) {
+		private static int[] Square(int[] a, int aLen, int[] res) {
 			long carry;
 
 			for (int i = 0; i < aLen; i++) {
 				carry = 0;
 				for (int j = i + 1; j < aLen; j++) {
-					carry = unsignedMultAddAdd(a[i], a[j], res[i + j], (int)carry);
+					carry = UnsignedMultAddAdd(a[i], a[j], res[i + j], (int)carry);
 					res[i + j] = (int)carry;
 					carry = Utils.URShift(carry, 32);
 				}
 				res[i + aLen] = (int)carry;
 			}
 
-			BitLevel.shiftLeftOneBit(res, res, aLen << 1);
+			BitLevel.ShiftLeftOneBit(res, res, aLen << 1);
 
 			carry = 0;
 			for (int i = 0, index = 0; i < aLen; i++, index++) {
-				carry = unsignedMultAddAdd(a[i], a[i], res[index], (int)carry);
+				carry = UnsignedMultAddAdd(a[i], a[i], res[index], (int)carry);
 				res[index] = (int)carry;
 				carry = Utils.URShift(carry, 32);
 				index++;
@@ -400,11 +396,11 @@ namespace Deveel.Math {
 		 * @param exp a positive {@code long} exponent
 		 * @return {@code val * 10<sup>exp</sup>}
 		 */
-		internal static BigInteger multiplyByTenPow(BigInteger val, long exp) {
+		public static BigInteger MultiplyByTenPow(BigInteger val, long exp) {
 			// PRE: exp >= 0
-			return ((exp < tenPows.Length)
-			? multiplyByPositiveInt(val, tenPows[(int)exp])
-			: val.Multiply(powerOf10(exp)));
+			return ((exp < TenPows.Length)
+			? MultiplyByPositiveInt(val, TenPows[(int)exp])
+			: val.Multiply(PowerOf10(exp)));
 		}
 
 		/**
@@ -415,19 +411,19 @@ namespace Deveel.Math {
 		 * @return a {@code BigInteger} with value {@code 10<sup>exp</sup>}.
 		 */
 
-		internal static BigInteger powerOf10(long exp) {
+		public static BigInteger PowerOf10(long exp) {
 			// PRE: exp >= 0
 			int intExp = (int)exp;
 			// "SMALL POWERS"
-			if (exp < bigTenPows.Length) {
+			if (exp < BigTenPows.Length) {
 				// The largest power that fit in 'long' type
-				return bigTenPows[intExp];
+				return BigTenPows[intExp];
 			} else if (exp <= 50) {
 				// To calculate:    10^exp
 				return BigInteger.Ten.Pow(intExp);
 			} else if (exp <= 1000) {
 				// To calculate:    5^exp * 2^exp
-				return bigFivePows[1].Pow(intExp).ShiftLeft(intExp);
+				return BigFivePows[1].Pow(intExp).ShiftLeft(intExp);
 			}
 			// "LARGE POWERS"
 			/*
@@ -442,7 +438,7 @@ namespace Deveel.Math {
 			}
 			if (exp <= Int32.MaxValue) {
 				// To calculate:    5^exp * 2^exp
-				return bigFivePows[1].Pow(intExp).ShiftLeft(intExp);
+				return BigFivePows[1].Pow(intExp).ShiftLeft(intExp);
 			}
 			/*
 			 * "HUGE POWERS"
@@ -451,7 +447,7 @@ namespace Deveel.Math {
 			 * big.
 			 */
 			// To calculate:    5^exp
-			BigInteger powerOfFive = bigFivePows[1].Pow(Int32.MaxValue);
+			BigInteger powerOfFive = BigFivePows[1].Pow(Int32.MaxValue);
 			BigInteger res = powerOfFive;
 			long longExp = exp - Int32.MaxValue;
 
@@ -460,7 +456,7 @@ namespace Deveel.Math {
 				res = res.Multiply(powerOfFive);
 				longExp -= Int32.MaxValue;
 			}
-			res = res.Multiply(bigFivePows[1].Pow(intExp));
+			res = res.Multiply(BigFivePows[1].Pow(intExp));
 			// To calculate:    5^exp << exp
 			res = res.ShiftLeft(Int32.MaxValue);
 			longExp = exp - Int32.MaxValue;
@@ -480,14 +476,14 @@ namespace Deveel.Math {
 		 * @return {@code val * 5<sup>exp</sup>}
 		 */
 
-		internal static BigInteger multiplyByFivePow(BigInteger val, int exp) {
+		public static BigInteger MultiplyByFivePow(BigInteger val, int exp) {
 			// PRE: exp >= 0
-			if (exp < fivePows.Length) {
-				return multiplyByPositiveInt(val, fivePows[exp]);
-			} else if (exp < bigFivePows.Length) {
-				return val.Multiply(bigFivePows[exp]);
+			if (exp < FivePows.Length) {
+				return MultiplyByPositiveInt(val, FivePows[exp]);
+			} else if (exp < BigFivePows.Length) {
+				return val.Multiply(BigFivePows[exp]);
 			} else {// Large powers of five
-				return val.Multiply(bigFivePows[1].Pow(exp));
+				return val.Multiply(BigFivePows[1].Pow(exp));
 			}
 		}
 
@@ -506,7 +502,7 @@ namespace Deveel.Math {
 		 * @return value of expression
 		 */
 
-		internal static long unsignedMultAddAdd(int a, int b, int c, int d) {
+		public static long UnsignedMultAddAdd(int a, int b, int c, int d) {
 			return (a & 0xFFFFFFFFL) * (b & 0xFFFFFFFFL) + (c & 0xFFFFFFFFL) + (d & 0xFFFFFFFFL);
 		}
 

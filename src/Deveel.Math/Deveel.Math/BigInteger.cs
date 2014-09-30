@@ -35,7 +35,7 @@ namespace Deveel.Math {
 	/// </para>
 	/// </remarks>
 	[Serializable]
-	public class BigInteger : IComparable<BigInteger>, IConvertible, ISerializable {
+	public class BigInteger : IComparable<BigInteger>, IConvertible, ISerializable, IEquatable<BigInteger> {
 
 		/* Fields used for the internal representation. */
 
@@ -50,16 +50,16 @@ namespace Deveel.Math {
 		 * The magnitude array may be longer than strictly necessary, which results
 		 * in additional trailing zeros.
 		 */
-		[NonSerialized]
-		internal int[] digits;
+		[NonSerialized] 
+		private int[] digits;
 
 		/** The length of this in measured in ints. Can be less than digits.length(). */
 		[NonSerialized]
 		internal int numberLength;
 
 		/** The sign of this. */
-		[NonSerialized]
-		internal int sign;
+		[NonSerialized] 
+		private int sign;
 
 		/**
 		 * The {@code BigInteger} constant 0.
@@ -105,12 +105,6 @@ namespace Deveel.Math {
 
 		[NonSerialized]
 		private int firstNonzeroDigit = -2;
-
-		/** sign field, used for serialization. */
-		private int _signum;
-
-		/** absolute value field, used for serialization */
-		private byte[] magnitude;
 
 		/** Cache for the hash code. */
 		[NonSerialized]
@@ -181,7 +175,7 @@ namespace Deveel.Math {
 				// math.1C=bitLength < 2
 				throw new ArithmeticException(Messages.math1C); //$NON-NLS-1$
 			}
-			BigInteger me = Primality.consBigInteger(bitLength, certainty, rnd);
+			BigInteger me = Primality.ConsBigInteger(bitLength, certainty, rnd);
 			sign = me.sign;
 			numberLength = me.numberLength;
 			digits = me.digits;
@@ -515,7 +509,7 @@ namespace Deveel.Math {
 			for (int substrStart = startChar; substrStart < endChar; substrStart = substrEnd, substrEnd = substrStart
 					+ charsPerInt) {
 				int bigRadixDigit = Convert.ToInt32(val.Substring(substrStart, substrEnd - substrStart), radix);
-				newDigit = Multiplication.multiplyByInt(digits, digitIndex, bigRadix);
+				newDigit = Multiplication.MultiplyByInt(digits, digitIndex, bigRadix);
 				newDigit += Elementary.inplaceAdd(digits, digitIndex, bigRadixDigit);
 				digits[digitIndex++] = newDigit;
 			}
@@ -578,8 +572,10 @@ namespace Deveel.Math {
 		 *         {@code 0} if {@code this == 0},
 		 *         {@code 1} if {@code this > 0}.
 		 */
-		public int Signum() {
-			return sign;
+
+		public int Sign {
+			get { return sign; }
+			internal set { sign = value; }
 		}
 
 		/**
@@ -599,7 +595,7 @@ namespace Deveel.Math {
 			if ((n == 0) || (sign == 0)) {
 				return this;
 			}
-			return ((n > 0) ? BitLevel.shiftRight(this, n) : BitLevel.shiftLeft(
+			return ((n > 0) ? BitLevel.ShiftRight(this, n) : BitLevel.ShiftLeft(
 					this, -n));
 		}
 
@@ -621,11 +617,11 @@ namespace Deveel.Math {
 			if ((n == 0) || (sign == 0)) {
 				return this;
 			}
-			return ((n > 0) ? BitLevel.shiftLeft(this, n) : BitLevel.shiftRight(this, -n));
+			return ((n > 0) ? BitLevel.ShiftLeft(this, n) : BitLevel.ShiftRight(this, -n));
 		}
 
 		internal BigInteger ShiftLeftOneBit() {
-			return (sign == 0) ? this : BitLevel.shiftLeftOneBit(this);
+			return (sign == 0) ? this : BitLevel.ShiftLeftOneBit(this);
 		}
 
 		/**
@@ -644,7 +640,7 @@ namespace Deveel.Math {
 		 */
 
 		public int BitLength {
-			get { return BitLevel.bitLength(this); }
+			get { return BitLevel.BitLength(this); }
 		}
 
 		/**
@@ -703,7 +699,7 @@ namespace Deveel.Math {
 		 */
 		public BigInteger SetBit(int n) {
 			if (!TestBit(n)) {
-				return BitLevel.flipBit(this, n);
+				return BitLevel.FlipBit(this, n);
 			}
 			return this;
 		}
@@ -724,7 +720,7 @@ namespace Deveel.Math {
 		 */
 		public BigInteger ClearBit(int n) {
 			if (TestBit(n)) {
-				return BitLevel.flipBit(this, n);
+				return BitLevel.FlipBit(this, n);
 			}
 			return this;
 		}
@@ -748,7 +744,7 @@ namespace Deveel.Math {
 				// math.15=Negative bit address
 				throw new ArithmeticException(Messages.math15); //$NON-NLS-1$
 			}
-			return BitLevel.flipBit(this, n);
+			return BitLevel.FlipBit(this, n);
 		}
 
 		/**
@@ -769,7 +765,7 @@ namespace Deveel.Math {
 				}
 				// (sign != 0) implies that exists some non zero digit
 				int i = FirstNonzeroDigit;
-				return ((i << 5) + Utils.numberOfTrailingZeros(digits[i]));
+				return ((i << 5) + Utils.NumberOfTrailingZeros(digits[i]));
 			}
 		}
 
@@ -790,7 +786,7 @@ namespace Deveel.Math {
 		 *         differ from the sign bit
 		 */
 		public int BitCount {
-			get { return BitLevel.bitCount(this); }
+			get { return BitLevel.BitCount(this); }
 		}
 
 		/**
@@ -803,7 +799,7 @@ namespace Deveel.Math {
 		 * @return {@code ~this}.
 		 */
 		public BigInteger Not() {
-			return Logical.not(this);
+			return Logical.Not(this);
 		}
 
 		/// <summary>
@@ -822,7 +818,7 @@ namespace Deveel.Math {
 		/// If <paramref name="val"/> is <c>null</c>.
 		/// </exception>
 		public BigInteger And(BigInteger val) {
-			return Logical.and(this, val);
+			return Logical.And(this, val);
 		}
 
 		/**
@@ -838,7 +834,7 @@ namespace Deveel.Math {
 		 *             if {@code val == null}.
 		 */
 		public BigInteger Or(BigInteger val) {
-			return Logical.or(this, val);
+			return Logical.Or(this, val);
 		}
 
 		/**
@@ -854,7 +850,7 @@ namespace Deveel.Math {
 		 *             if {@code val == null}
 		 */
 		public BigInteger XOr(BigInteger val) {
-			return Logical.xor(this, val);
+			return Logical.Xor(this, val);
 		}
 
 		/**
@@ -872,7 +868,7 @@ namespace Deveel.Math {
 		 *             if {@code val == null}.
 		 */
 		public BigInteger AndNot(BigInteger val) {
-			return Logical.andNot(this, val);
+			return Logical.AndNot(this, val);
 		}
 
 		/**
@@ -924,7 +920,7 @@ namespace Deveel.Math {
 		 * @return this {@code BigInteger} as a double value
 		 */
 		public double ToDouble() {
-			return Conversion.bigInteger2Double(this);
+			return Conversion.BigInteger2Double(this);
 		}
 
 		/**
@@ -1007,16 +1003,21 @@ namespace Deveel.Math {
 		 * @return true if {@code x} is a BigInteger and {@code this == x},
 		 *          {@code false} otherwise.
 		 */
-		public override bool Equals(Object x) {
-			if (this == x) {
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(this, obj))
 				return true;
-			}
-			if (x is BigInteger) {
-				BigInteger x1 = (BigInteger)x;
-				return sign == x1.sign && numberLength == x1.numberLength
-						&& EqualsArrays(x1.digits);
-			}
-			return false;
+			if (!(obj is BigInteger))
+				return false;
+			return Equals((BigInteger)obj);
+		}
+
+		public bool Equals(BigInteger other) {
+			if (other == null)
+				return false;
+
+			return sign == other.sign &&
+			       numberLength == other.numberLength &&
+			       EqualsArrays(other.digits);
 		}
 
 		bool EqualsArrays(int[] b) {
@@ -1034,7 +1035,7 @@ namespace Deveel.Math {
 		 * @return a string representation of {@code this} in decimal form.
 		 */
 		public override String ToString() {
-			return Conversion.toDecimalScaledString(this, 0);
+			return Conversion.ToDecimalScaledString(this, 0);
 		}
 
 		/**
@@ -1049,7 +1050,7 @@ namespace Deveel.Math {
 		 * @return a string representation of this with radix 10.
 		 */
 		public String ToString(int radix) {
-			return Conversion.bigInteger2String(this, radix);
+			return Conversion.BigInteger2String(this, radix);
 		}
 
 		/**
@@ -1064,12 +1065,12 @@ namespace Deveel.Math {
 		 *             if {@code val == null}.
 		 */
 		public BigInteger Gcd(BigInteger val) {
-			BigInteger val1 = this.Abs();
+			BigInteger val1 = Abs();
 			BigInteger val2 = val.Abs();
 			// To avoid a possible division by zero
-			if (val1.Signum() == 0) {
+			if (val1.Sign == 0) {
 				return val2;
-			} else if (val2.Signum() == 0) {
+			} else if (val2.Sign == 0) {
 				return val1;
 			}
 
@@ -1077,10 +1078,10 @@ namespace Deveel.Math {
 			// (op2.bitLength() < 64) and (op1.bitLength() < 64)
 			if (((val1.numberLength == 1) || ((val1.numberLength == 2) && (val1.digits[1] > 0)))
 					&& (val2.numberLength == 1 || (val2.numberLength == 2 && val2.digits[1] > 0))) {
-				return BigInteger.ValueOf(Division.gcdBinary(val1.ToInt64(), val2.ToInt64()));
+				return BigInteger.ValueOf(Division.GcdBinary(val1.ToInt64(), val2.ToInt64()));
 			}
 
-			return Division.gcdBinary(val1.Copy(), val2.Copy());
+			return Division.GcdBinary(val1.Copy(), val2.Copy());
 
 		}
 
@@ -1101,7 +1102,7 @@ namespace Deveel.Math {
 			if (sign == 0) {
 				return Zero;
 			}
-			return Multiplication.multiply(this, val);
+			return Multiplication.Multiply(this, val);
 		}
 
 		/**
@@ -1133,7 +1134,7 @@ namespace Deveel.Math {
 				}
 				return GetPowerOfTwo(x * exp).Multiply(this.ShiftRight(x).Pow(exp));
 			}
-			return Multiplication.pow(this, exp);
+			return Multiplication.Pow(this, exp);
 		}
 
 		/**
@@ -1150,7 +1151,7 @@ namespace Deveel.Math {
 		 * @see #divide
 		 * @see #remainder
 		 */
-		public BigInteger[] DivideAndRemainder(BigInteger divisor) {
+		public BigInteger DivideAndRemainder(BigInteger divisor, out BigInteger remainder) {
 			int divisorSign = divisor.sign;
 			if (divisorSign == 0) {
 				// math.17=BigInteger divide by zero
@@ -1159,29 +1160,33 @@ namespace Deveel.Math {
 			int divisorLen = divisor.numberLength;
 			int[] divisorDigits = divisor.digits;
 			if (divisorLen == 1) {
-				return Division.divideAndRemainderByInteger(this, divisorDigits[0],
-						divisorSign);
+				var values = Division.DivideAndRemainderByInteger(this, divisorDigits[0], divisorSign);
+				remainder = values[1];
+				return values[0];
 			}
-			// res[0] is a quotient and res[1] is a remainder:
+
 			int[] thisDigits = digits;
 			int thisLen = numberLength;
 			int cmp = (thisLen != divisorLen) ? ((thisLen > divisorLen) ? 1 : -1)
 					: Elementary.compareArrays(thisDigits, divisorDigits, thisLen);
 			if (cmp < 0) {
-				return new BigInteger[] { Zero, this };
+				remainder = this;
+				return Zero;
 			}
 			int thisSign = sign;
 			int quotientLength = thisLen - divisorLen + 1;
 			int remainderLength = divisorLen;
 			int quotientSign = ((thisSign == divisorSign) ? 1 : -1);
 			int[] quotientDigits = new int[quotientLength];
-			int[] remainderDigits = Division.divide(quotientDigits, quotientLength,
+			int[] remainderDigits = Division.Divide(quotientDigits, quotientLength,
 					thisDigits, thisLen, divisorDigits, divisorLen);
-			BigInteger result0 = new BigInteger(quotientSign, quotientLength, quotientDigits);
-			BigInteger result1 = new BigInteger(thisSign, remainderLength, remainderDigits);
-			result0.CutOffLeadingZeroes();
-			result1.CutOffLeadingZeroes();
-			return new BigInteger[] { result0, result1 };
+
+			var quotient = new BigInteger(quotientSign, quotientLength, quotientDigits);
+			remainder = new BigInteger(thisSign, remainderLength, remainderDigits);
+			quotient.CutOffLeadingZeroes();
+			remainder.CutOffLeadingZeroes();
+
+			return quotient;
 		}
 
 		/**
@@ -1227,10 +1232,10 @@ namespace Deveel.Math {
 			int[] resDigits = new int[resLength];
 			int resSign = ((thisSign == divisorSign) ? 1 : -1);
 			if (divisorLen == 1) {
-				Division.divideArrayByInt(resDigits, digits, thisLen,
+				Division.DivideArrayByInt(resDigits, digits, thisLen,
 						divisor.digits[0]);
 			} else {
-				Division.divide(resDigits, resLength, digits, thisLen,
+				Division.Divide(resDigits, resLength, digits, thisLen,
 						divisor.digits, divisorLen);
 			}
 			BigInteger result = new BigInteger(resSign, resLength, resDigits);
@@ -1265,11 +1270,11 @@ namespace Deveel.Math {
 			int resLength = divisorLen;
 			int[] resDigits = new int[resLength];
 			if (resLength == 1) {
-				resDigits[0] = Division.remainderArrayByInt(digits, thisLen,
+				resDigits[0] = Division.RemainderArrayByInt(digits, thisLen,
 						divisor.digits[0]);
 			} else {
 				int qLen = thisLen - divisorLen + 1;
-				resDigits = Division.divide(null, qLen, digits, thisLen,
+				resDigits = Division.Divide(null, qLen, digits, thisLen,
 						divisor.digits, divisorLen);
 			}
 			BigInteger result = new BigInteger(sign, resLength, resDigits);
@@ -1307,7 +1312,7 @@ namespace Deveel.Math {
 			}
 
 			// From now on: (m > 1)
-			BigInteger res = Division.modInverseMontgomery(Abs().Mod(m), m);
+			BigInteger res = Division.ModInverseMontgomery(Abs().Mod(m), m);
 			if (res.sign == 0) {
 				// math.19=BigInteger not invertible.
 				throw new ArithmeticException(Messages.math19); //$NON-NLS-1$
@@ -1355,8 +1360,8 @@ namespace Deveel.Math {
 				exponent = exponent.Negate();
 			}
 			// From now on: (m > 0) and (exponent >= 0)
-			BigInteger res = (m.TestBit(0)) ? Division.oddModPow(b.Abs(),
-					exponent, m) : Division.evenModPow(b.Abs(), exponent, m);
+			BigInteger res = (m.TestBit(0)) ? Division.OddModPow(b.Abs(),
+					exponent, m) : Division.EvenModPow(b.Abs(), exponent, m);
 			if ((b.sign < 0) && exponent.TestBit(0)) {
 				// -b^e mod m == ((-1 mod m) * (b^e mod m)) mod m
 				res = m.Subtract(BigInteger.One).Multiply(res).Mod(m);
@@ -1402,7 +1407,7 @@ namespace Deveel.Math {
 		 *         otherwise.
 		 */
 		public bool IsProbablePrime(int certainty) {
-			return Primality.isProbablePrime(Abs(), certainty);
+			return Primality.IsProbablePrime(Abs(), certainty);
 		}
 
 		/**
@@ -1419,7 +1424,7 @@ namespace Deveel.Math {
 				// math.1A=start < 0: {0}
 				throw new ArithmeticException(String.Format(Messages.math1A, this)); //$NON-NLS-1$
 			}
-			return Primality.nextProbablePrime(this);
+			return Primality.NextProbablePrime(this);
 		}
 
 		/**
@@ -1549,6 +1554,10 @@ namespace Deveel.Math {
 			}
 		}
 
+		internal int[] Digits {
+			get { return digits; }
+		}
+
 		/*
 		 * Returns a copy of the current instance to achieve immutability
 		 */
@@ -1558,47 +1567,6 @@ namespace Deveel.Math {
 			Array.Copy(digits, 0, copyDigits, 0, numberLength);
 			return new BigInteger(sign, numberLength, copyDigits);
 		}
-
-		/*
-		private void readObject(ObjectInputStream input) {
-			input.defaultReadObject();
-			sign = signum;
-			putBytesPositiveToIntegers(magnitude);
-			cutOffLeadingZeroes();
-		}
-
-		private void writeObject(ObjectOutputStream output) {
-			signum = signum();
-			magnitude = abs().toByteArray();
-			output.defaultWriteObject();
-		}
-		*/
-
-		/*
-        [OnSerializing]
-        internal void BeforeSerialization(StreamingContext context) {
-            _signum = Signum();
-            magnitude = Abs().ToByteArray();
-        }
-
-        // Apparently Deserialization event raising can happen in random order
-        // so the parent class must ensure that the children class is properly deserialized.
-        // We cannot use OnDeserializing because the object is not fully functional yet.
-        [NonSerialized]
-        bool fixedup = false;
-
-
-
-		[OnDeserialized]
-		internal void AfterDeserialization(StreamingContext context) {
-			if (!fixedup) {
-				sign = _signum;
-				PutBytesPositiveToIntegers(magnitude);
-				CutOffLeadingZeroes();
-				fixedup = true;
-			}
-		}
-		*/
 
 		internal void UnCache() {
 			firstNonzeroDigit = -2;

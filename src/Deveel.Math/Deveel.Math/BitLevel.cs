@@ -17,35 +17,39 @@ using System;
 
 namespace Deveel.Math {
 	/**
- * Static library that provides all the <b>bit level</b> operations for
- * {@link BigInteger}. The operations are:
+ *  The operations are:
  * <ul type="circle">
- * <li>Left Shifting</li>
- * <li>Right Shifting</li>
- * <li>Bit clearing</li>
- * <li>Bit setting</li>
  * <li>Bit counting</li>
  * <li>Bit testing</li>
  * <li>Getting of the lowest bit set</li>
  * </ul>
- * All operations are provided in immutable way, and some in both mutable and
- * immutable.
+ * 
  */
-	class BitLevel {
 
-		/** Just to denote that this class can't be instantiated. */
-		private BitLevel() { }
-
-		/** @see BigInteger#bitLength() */
-
-		internal static int bitLength(BigInteger val) {
-			if (val.sign == 0) {
+	/// <summary>
+	/// Static library that provides all the <b>bit level</b> operations for <see cref="BigInteger"/>.
+	/// </summary>
+	/// <remarks>
+	/// The operations are:
+	/// <list type="buller">
+	/// <item><see cref="BigInteger.ShiftLeft">Left Shifting</see></item>
+	/// <item><see cref="BigInteger.ShiftRight">Right Shifting</see></item>
+	/// <item><see cref="BigInteger.ClearBit">Bit Clearing</see></item>
+	/// <item><see cref="BigInteger.SetBit">Bit Setting</see></item>
+	/// </list>
+	/// <para>
+	/// All operations are provided in immutable way, and some in both mutable and immutable.
+	/// </para>
+	/// </remarks>
+	internal static class BitLevel {
+		public static int BitLength(BigInteger val) {
+			if (val.Sign == 0) {
 				return 0;
 			}
 			int bLength = (val.numberLength << 5);
-			int highDigit = val.digits[val.numberLength - 1];
+			int highDigit = val.Digits[val.numberLength - 1];
 
-			if (val.sign < 0) {
+			if (val.Sign < 0) {
 				int i = val.FirstNonzeroDigit;
 				// We reduce the problem to the positive case.
 				if (i == val.numberLength - 1) {
@@ -53,29 +57,29 @@ namespace Deveel.Math {
 				}
 			}
 			// Subtracting all sign bits
-			bLength -= Utils.numberOfLeadingZeros(highDigit);
+			bLength -= Utils.NumberOfLeadingZeros(highDigit);
 			return bLength;
 		}
 
-		/** @see BigInteger#bitCount() */
-
-		internal static int bitCount(BigInteger val) {
+		public static int BitCount(BigInteger val) {
 			int bCount = 0;
 
-			if (val.sign == 0) {
+			if (val.Sign == 0) {
 				return 0;
 			}
 
-			int i = val.FirstNonzeroDigit; ;
-			if (val.sign > 0) {
+			int i = val.FirstNonzeroDigit;
+			;
+			if (val.Sign > 0) {
 				for (; i < val.numberLength; i++) {
-					bCount += Utils.bitCount(val.digits[i]);
+					bCount += Utils.BitCount(val.Digits[i]);
 				}
-			} else {// (sign < 0)
+			} else {
+// (sign < 0)
 				// this digit absorbs the carry
-				bCount += Utils.bitCount(-val.digits[i]);
+				bCount += Utils.BitCount(-val.Digits[i]);
 				for (i++; i < val.numberLength; i++) {
-					bCount += Utils.bitCount(~val.digits[i]);
+					bCount += Utils.BitCount(~val.Digits[i]);
 				}
 				// We take the complement sum:
 				bCount = (val.numberLength << 5) - bCount;
@@ -83,22 +87,26 @@ namespace Deveel.Math {
 			return bCount;
 		}
 
-		/**
-		 * Performs a fast bit testing for positive numbers. The bit to to be tested
-		 * must be in the range {@code [0, val.bitLength()-1]}
-		 */
-		internal static bool testBit(BigInteger val, int n) {
+		/// <summary>
+		/// Performs a fast bit testing for positive numbers.
+		/// </summary>
+		/// <remarks>
+		/// The bit to to be tested must be in the range <c>[0, val.BitLength - 1]</c>
+		/// </remarks>
+		public static bool TestBit(BigInteger val, int n) {
 			// PRE: 0 <= n < val.bitLength()
-			return ((val.digits[n >> 5] & (1 << (n & 31))) != 0);
+			return ((val.Digits[n >> 5] & (1 << (n & 31))) != 0);
 		}
 
-		/**
-		 * Check if there are 1s in the lowest bits of this BigInteger
-		 * 
-		 * @param numberOfBits the number of the lowest bits to check
-		 * @return false if all bits are 0s, true otherwise
-		 */
-		internal static bool nonZeroDroppedBits(int numberOfBits, int[] digits) {
+		/// <summary>
+		/// Check if there are 1s in the lowest bits of this <see cref="BigInteger"/>
+		/// </summary>
+		/// <param name="numberOfBits">The number of the lowest bits to check</param>
+		/// <param name="digits">The digital representation of the integer</param>
+		/// <returns>
+		/// Return false if all bits are zeros, true otherwise
+		/// </returns>
+		public static bool NonZeroDroppedBits(int numberOfBits, int[] digits) {
 			int intCount = numberOfBits >> 5;
 			int bitCount = numberOfBits & 31;
 			int i;
@@ -109,29 +117,33 @@ namespace Deveel.Math {
 			return ((i != intCount) || (digits[i] << (32 - bitCount) != 0));
 		}
 
-		/** @see BigInteger#shiftLeft(int) */
-		internal static BigInteger shiftLeft(BigInteger source, int count) {
+		public static BigInteger ShiftLeft(BigInteger source, int count) {
 			int intCount = count >> 5;
 			count &= 31; // %= 32
 			int resLength = source.numberLength + intCount + ((count == 0) ? 0 : 1);
 			int[] resDigits = new int[resLength];
 
-			shiftLeft(resDigits, source.digits, intCount, count);
-			BigInteger result = new BigInteger(source.sign, resLength, resDigits);
+			ShiftLeft(resDigits, source.Digits, intCount, count);
+			var result = new BigInteger(source.Sign, resLength, resDigits);
 			result.CutOffLeadingZeroes();
 			return result;
 		}
 
-		/**
-		 * Performs {@code val <<= count}.
-		 */
 		// val should have enough place (and one digit more)
-		internal static void inplaceShiftLeft(BigInteger val, int count) {
+
+		/// <summary>
+		/// Performs <c>val &lt;&lt;= count<c></c>.
+		/// </summary>
+		/// <param name="val"></param>
+		/// <param name="count"></param>
+		public static void InplaceShiftLeft(BigInteger val, int count) {
 			int intCount = count >> 5; // count of integers
 			val.numberLength += intCount
-					+ (Utils.numberOfLeadingZeros(val.digits[val.numberLength - 1])
-					- (count & 31) >= 0 ? 0 : 1);
-			shiftLeft(val.digits, val.digits, intCount, count & 31);
+			                    + (Utils.NumberOfLeadingZeros(val.Digits[val.numberLength - 1])
+			                       - (count & 31) >= 0
+				                    ? 0
+				                    : 1);
+			ShiftLeft(val.Digits, val.Digits, intCount, count & 31);
 			val.CutOffLeadingZeroes();
 			val.UnCache();
 		}
@@ -145,7 +157,8 @@ namespace Deveel.Math {
 		 * @param intCount the shift distance in integers
 		 * @param count an additional shift distance in bits
 		 */
-		internal static void shiftLeft(int[] result, int[] source, int intCount, int count) {
+
+		public static void ShiftLeft(int[] result, int[] source, int intCount, int count) {
 			if (count == 0) {
 				Array.Copy(source, 0, result, intCount, result.Length - intCount);
 			} else {
@@ -175,7 +188,8 @@ namespace Deveel.Math {
 		 * @param srcLen the length of {@code source}; may be less than {@code
 		 *      source.length}
 		 */
-		internal static void shiftLeftOneBit(int[] result, int[] source, int srcLen) {
+
+		public static void ShiftLeftOneBit(int[] result, int[] source, int srcLen) {
 			int carry = 0;
 			for (int i = 0; i < srcLen; i++) {
 				int val = source[i];
@@ -187,37 +201,38 @@ namespace Deveel.Math {
 			}
 		}
 
-		internal static BigInteger shiftLeftOneBit(BigInteger source) {
+		public static BigInteger ShiftLeftOneBit(BigInteger source) {
 			int srcLen = source.numberLength;
 			int resLen = srcLen + 1;
 			int[] resDigits = new int[resLen];
-			shiftLeftOneBit(resDigits, source.digits, srcLen);
-			BigInteger result = new BigInteger(source.sign, resLen, resDigits);
+			ShiftLeftOneBit(resDigits, source.Digits, srcLen);
+			BigInteger result = new BigInteger(source.Sign, resLen, resDigits);
 			result.CutOffLeadingZeroes();
 			return result;
 		}
 
 		/** @see BigInteger#shiftRight(int) */
-		internal static BigInteger shiftRight(BigInteger source, int count) {
+
+		public static BigInteger ShiftRight(BigInteger source, int count) {
 			int intCount = count >> 5; // count of integers
 			count &= 31; // count of remaining bits
 			if (intCount >= source.numberLength) {
-				return ((source.sign < 0) ? BigInteger.MinusOne : BigInteger.Zero);
+				return ((source.Sign < 0) ? BigInteger.MinusOne : BigInteger.Zero);
 			}
 			int i;
 			int resLength = source.numberLength - intCount;
 			int[] resDigits = new int[resLength + 1];
 
-			shiftRight(resDigits, resLength, source.digits, intCount, count);
-			if (source.sign < 0) {
+			ShiftRight(resDigits, resLength, source.Digits, intCount, count);
+			if (source.Sign < 0) {
 				// Checking if the dropped bits are zeros (the remainder equals to
 				// 0)
-				for (i = 0; (i < intCount) && (source.digits[i] == 0); i++) {
+				for (i = 0; (i < intCount) && (source.Digits[i] == 0); i++) {
 					;
 				}
 				// If the remainder is not zero, add 1 to the result
 				if ((i < intCount)
-						|| ((count > 0) && ((source.digits[i] << (32 - count)) != 0))) {
+				    || ((count > 0) && ((source.Digits[i] << (32 - count)) != 0))) {
 					for (i = 0; (i < resLength) && (resDigits[i] == -1); i++) {
 						resDigits[i] = 0;
 					}
@@ -227,7 +242,7 @@ namespace Deveel.Math {
 					resDigits[i]++;
 				}
 			}
-			BigInteger result = new BigInteger(source.sign, resLength, resDigits);
+			BigInteger result = new BigInteger(source.Sign, resLength, resDigits);
 			result.CutOffLeadingZeroes();
 			return result;
 		}
@@ -235,23 +250,24 @@ namespace Deveel.Math {
 		/**
 		 * Performs {@code val >>= count} where {@code val} is a positive number.
 		 */
-		internal static void inplaceShiftRight(BigInteger val, int count) {
-			int sign = val.Signum();
-			if (count == 0 || val.Signum() == 0)
+
+		public static void InplaceShiftRight(BigInteger val, int count) {
+			int sign = val.Sign;
+			if (count == 0 || val.Sign == 0)
 				return;
 			int intCount = count >> 5; // count of integers
 			val.numberLength -= intCount;
-			if (!shiftRight(val.digits, val.numberLength, val.digits, intCount, count & 31)
-					&& sign < 0) {
+			if (!ShiftRight(val.Digits, val.numberLength, val.Digits, intCount, count & 31)
+			    && sign < 0) {
 				// remainder not zero: add one to the result
 				int i;
-				for (i = 0; (i < val.numberLength) && (val.digits[i] == -1); i++) {
-					val.digits[i] = 0;
+				for (i = 0; (i < val.numberLength) && (val.Digits[i] == -1); i++) {
+					val.Digits[i] = 0;
 				}
 				if (i == val.numberLength) {
 					val.numberLength++;
 				}
-				val.digits[i]++;
+				val.Digits[i]++;
 			}
 			val.CutOffLeadingZeroes();
 			val.UnCache();
@@ -273,7 +289,8 @@ namespace Deveel.Math {
 		 *            the number of bits to be shifted
 		 * @return dropped bit's are all zero (i.e. remaider is zero)
 		 */
-		internal static bool shiftRight(int[] result, int resultLen, int[] source, int intCount, int count) {
+
+		public static bool ShiftRight(int[] result, int resultLen, int[] source, int intCount, int count) {
 			int i;
 			bool allZero = true;
 			for (i = 0; i < intCount; i++)
@@ -287,7 +304,7 @@ namespace Deveel.Math {
 				allZero &= (source[i] << leftShiftCount) == 0;
 				for (i = 0; i < resultLen - 1; i++) {
 					result[i] = Utils.URShift(source[i + intCount], count) |
-								(source[i + intCount + 1] << leftShiftCount);
+					            (source[i + intCount + 1] << leftShiftCount);
 				}
 				result[i] = Utils.URShift(source[i + intCount], count);
 				i++;
@@ -303,8 +320,9 @@ namespace Deveel.Math {
 		 * @param intCount: the index of the element of the digits array where the operation will be performed
 		 * @param bitNumber: the bit's position in the intCount element
 		 */
-		internal static BigInteger flipBit(BigInteger val, int n) {
-			int resSign = (val.sign == 0) ? 1 : val.sign;
+
+		public static BigInteger FlipBit(BigInteger val, int n) {
+			int resSign = (val.Sign == 0) ? 1 : val.Sign;
 			int intCount = n >> 5;
 			int bitN = n & 31;
 			int resLength = System.Math.Max(intCount + 1, val.numberLength) + 1;
@@ -312,9 +330,9 @@ namespace Deveel.Math {
 			int i;
 
 			int bitNumber = 1 << bitN;
-			Array.Copy(val.digits, 0, resDigits, 0, val.numberLength);
+			Array.Copy(val.Digits, 0, resDigits, 0, val.numberLength);
 
-			if (val.sign < 0) {
+			if (val.Sign < 0) {
 				if (intCount >= val.numberLength) {
 					resDigits[intCount] = bitNumber;
 				} else {
@@ -339,7 +357,8 @@ namespace Deveel.Math {
 						}
 					}
 				}
-			} else {//case where val is positive
+			} else {
+//case where val is positive
 				resDigits[intCount] ^= bitNumber;
 			}
 			BigInteger result = new BigInteger(resSign, resLength, resDigits);

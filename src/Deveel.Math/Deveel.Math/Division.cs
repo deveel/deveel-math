@@ -1,4 +1,4 @@
-// 
+﻿// 
 //  Copyright 2009  Deveel
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,8 +37,8 @@ namespace Deveel.Math {
  * </li>
  *</ul>
  */
-	class Division {
 
+	internal static class Division {
 		/**
 		 * Divides the array 'a' by the array 'b' and gets the quotient and the
 		 * remainder. Implements the Knuth's division algorithm. See D. Knuth, The
@@ -53,8 +53,8 @@ namespace Deveel.Math {
 		 * @param bLength the divisor's length
 		 * @return the remainder
 		 */
-		internal static int[] divide(int[] quot, int quotLength, int[] a, int aLength, int[] b, int bLength) {
 
+		public static int[] Divide(int[] quot, int quotLength, int[] a, int aLength, int[] b, int bLength) {
 			int[] normA = new int[aLength + 1]; // the normalized dividend
 			// an extra byte is needed for correct shift
 			int[] normB = new int[bLength + 1]; // the normalized divisor;
@@ -63,10 +63,10 @@ namespace Deveel.Math {
 			 * Step D1: normalize a and b and put the results to a1 and b1 the
 			 * normalized divisor's first digit must be >= 2^31
 			 */
-			int divisorShift = Utils.numberOfLeadingZeros(b[bLength - 1]);
+			int divisorShift = Utils.NumberOfLeadingZeros(b[bLength - 1]);
 			if (divisorShift != 0) {
-				BitLevel.shiftLeft(normB, b, 0, divisorShift);
-				BitLevel.shiftLeft(normA, a, 0, divisorShift);
+				BitLevel.ShiftLeft(normB, b, 0, divisorShift);
+				BitLevel.ShiftLeft(normA, a, 0, divisorShift);
 			} else {
 				Array.Copy(a, 0, normA, 0, aLength);
 				Array.Copy(b, 0, normB, 0, bLength);
@@ -84,9 +84,9 @@ namespace Deveel.Math {
 					guessDigit = -1;
 				} else {
 					long product = (((normA[j] & 0xffffffffL) << 32) + (normA[j - 1] & 0xffffffffL));
-					long res = Division.divideLongByInt(product, firstDivisorDigit);
-					guessDigit = (int)res; // the quotient of divideLongByInt
-					int rem = (int)(res >> 32); // the remainder of
+					long res = Division.DivideLongByInt(product, firstDivisorDigit);
+					guessDigit = (int) res; // the quotient of divideLongByInt
+					int rem = (int) (res >> 32); // the remainder of
 					// divideLongByInt
 					// decrease guessDigit by 1 while leftHand > rightHand
 					if (guessDigit != 0) {
@@ -97,31 +97,29 @@ namespace Deveel.Math {
 						// below
 						do {
 							guessDigit--;
-							if (rOverflowed) {
+							if (rOverflowed)
 								break;
-							}
 							// leftHand always fits in an unsigned long
 							leftHand = (guessDigit & 0xffffffffL)
-									* (normB[normBLength - 2] & 0xffffffffL);
+							           *(normB[normBLength - 2] & 0xffffffffL);
 							/*
 							 * rightHand can overflow; in this case the loop
 							 * condition will be true in the next step of the loop
 							 */
-							rightHand = ((long)rem << 32)
-									+ (normA[j - 2] & 0xffffffffL);
+							rightHand = ((long) rem << 32)
+							            + (normA[j - 2] & 0xffffffffL);
 							long longR = (rem & 0xffffffffL)
-									+ (firstDivisorDigit & 0xffffffffL);
+							             + (firstDivisorDigit & 0xffffffffL);
 							/*
 							 * checks that longR does not fit in an unsigned int;
 							 * this ensures that rightHand will overflow unsigned
 							 * long in the next step
 							 */
-							if (Utils.numberOfLeadingZeros((int)Utils.URShift(longR, 32)) < 32) {
+							if (Utils.NumberOfLeadingZeros((int) Utils.URShift(longR, 32)) < 32)
 								rOverflowed = true;
-							} else {
-								rem = (int)longR;
-							}
-                                                    } while ((leftHand ^ Int64.MinValue) > (rightHand ^ Int64.MinValue));
+							else
+								rem = (int) longR;
+						} while ((leftHand ^ Int64.MinValue) > (rightHand ^ Int64.MinValue));
 
 						//} while ((leftHand ^ Int64.MaxValue) > (rightHand ^ Int64.MaxValue));
 						// while (((leftHand ^ 0x8000000000000000L) > (rightHand ^ 0x8000000000000000L))) ;
@@ -130,7 +128,7 @@ namespace Deveel.Math {
 				// Step D4: multiply normB by guessDigit and subtract the production
 				// from normA.
 				if (guessDigit != 0) {
-					int borrow = Division.multiplyAndSubtract(normA, j - normBLength, normB, normBLength, guessDigit);
+					int borrow = Division.MultiplyAndSubtract(normA, j - normBLength, normB, normBLength, guessDigit);
 					// Step D5: check the borrow
 					if (borrow != 0) {
 						// Step D6: compensating addition
@@ -138,15 +136,14 @@ namespace Deveel.Math {
 						long carry = 0;
 						for (int k = 0; k < normBLength; k++) {
 							carry += (normA[j - normBLength + k] & 0xffffffffL)
-									+ (normB[k] & 0xffffffffL);
-							normA[j - normBLength + k] = (int)carry;
+							         + (normB[k] & 0xffffffffL);
+							normA[j - normBLength + k] = (int) carry;
 							carry = Utils.URShift(carry, 32);
 						}
 					}
 				}
-				if (quot != null) {
+				if (quot != null)
 					quot[i] = guessDigit;
-				}
 				// Step D7
 				j--;
 				i--;
@@ -156,7 +153,7 @@ namespace Deveel.Math {
 			 */
 			if (divisorShift != 0) {
 				// reuse normB
-				BitLevel.shiftRight(normB, normBLength, normA, 0, divisorShift);
+				BitLevel.ShiftRight(normB, normBLength, normA, 0, divisorShift);
 				return normB;
 			}
 			Array.Copy(normA, 0, normB, 0, bLength);
@@ -174,7 +171,7 @@ namespace Deveel.Math {
 		 * @return remainder
 		 */
 
-		internal static int divideArrayByInt(int[] dest, int[] src, int srcLength, int divisor) {
+		public static int DivideArrayByInt(int[] dest, int[] src, int srcLength, int divisor) {
 			long rem = 0;
 			long bLong = divisor & 0xffffffffL;
 
@@ -182,8 +179,8 @@ namespace Deveel.Math {
 				long temp = (rem << 32) | (src[i] & 0xffffffffL);
 				long quot;
 				if (temp >= 0) {
-					quot = (temp / bLong);
-					rem = (temp % bLong);
+					quot = (temp/bLong);
+					rem = (temp%bLong);
 				} else {
 					/*
 					 * make the dividend positive shifting it right by 1 bit then
@@ -191,15 +188,15 @@ namespace Deveel.Math {
 					 */
 					long aPos = Utils.URShift(temp, 1);
 					long bPos = Utils.URShift(divisor, 1);
-					quot = aPos / bPos;
-					rem = aPos % bPos;
+					quot = aPos/bPos;
+					rem = aPos%bPos;
 					// double the remainder and add 1 if a is odd
 					rem = (rem << 1) + (temp & 1);
 					if ((divisor & 1) != 0) {
 						// the divisor is odd
-						if (quot <= rem) {
+						if (quot <= rem)
 							rem -= quot;
-						} else {
+						else {
 							if (quot - rem <= bLong) {
 								rem += bLong - quot;
 								quot -= 1;
@@ -210,9 +207,9 @@ namespace Deveel.Math {
 						}
 					}
 				}
-				dest[i] = (int)(quot & 0xffffffffL);
+				dest[i] = (int) (quot & 0xffffffffL);
 			}
-			return (int)rem;
+			return (int) rem;
 		}
 
 		/**
@@ -225,16 +222,15 @@ namespace Deveel.Math {
 		 * @return remainder
 		 */
 
-		internal static int remainderArrayByInt(int[] src, int srcLength, int divisor) {
-
+		public static int RemainderArrayByInt(int[] src, int srcLength, int divisor) {
 			long result = 0;
 
 			for (int i = srcLength - 1; i >= 0; i--) {
 				long temp = (result << 32) + (src[i] & 0xffffffffL);
-				long res = divideLongByInt(temp, divisor);
-				result = (int)(res >> 32);
+				long res = DivideLongByInt(temp, divisor);
+				result = (int) (res >> 32);
 			}
-			return (int)result;
+			return (int) result;
 		}
 
 		/**
@@ -246,9 +242,8 @@ namespace Deveel.Math {
 		 * @return divide % divisor
 		 */
 
-		internal static int remainder(BigInteger dividend, int divisor) {
-			return remainderArrayByInt(dividend.digits, dividend.numberLength,
-					divisor);
+		public static int Remainder(BigInteger dividend, int divisor) {
+			return RemainderArrayByInt(dividend.Digits, dividend.numberLength, divisor);
 		}
 
 		/**
@@ -260,14 +255,15 @@ namespace Deveel.Math {
 		 * @return the long value containing the unsigned integer remainder in the
 		 *         left half and the unsigned integer quotient in the right half
 		 */
-		static long divideLongByInt(long a, int b) {
+
+		private static long DivideLongByInt(long a, int b) {
 			long quot;
 			long rem;
 			long bLong = b & 0xffffffffL;
 
 			if (a >= 0) {
-				quot = (a / bLong);
-				rem = (a % bLong);
+				quot = (a/bLong);
+				rem = (a%bLong);
 			} else {
 				/*
 				 * Make the dividend positive shifting it right by 1 bit then get
@@ -275,14 +271,15 @@ namespace Deveel.Math {
 				 */
 				long aPos = Utils.URShift(a, 1);
 				long bPos = Utils.URShift(b, 1);
-				quot = aPos / bPos;
-				rem = aPos % bPos;
+				quot = aPos/bPos;
+				rem = aPos%bPos;
 				// double the remainder and add 1 if a is odd
 				rem = (rem << 1) + (a & 1);
-				if ((b & 1) != 0) { // the divisor is odd
-					if (quot <= rem) {
+				if ((b & 1) != 0) {
+					// the divisor is odd
+					if (quot <= rem)
 						rem -= quot;
-					} else {
+					else {
 						if (quot - rem <= bLong) {
 							rem += bLong - quot;
 							quot -= 1;
@@ -303,38 +300,43 @@ namespace Deveel.Math {
 		 * @return an array of the form {@code [quotient, remainder]}.
 		 */
 
-		internal static BigInteger[] divideAndRemainderByInteger(BigInteger val,
-				int divisor, int divisorSign) {
+		public static BigInteger[] DivideAndRemainderByInteger(BigInteger val, int divisor, int divisorSign) {
 			// res[0] is a quotient and res[1] is a remainder:
-			int[] valDigits = val.digits;
+			int[] valDigits = val.Digits;
 			int valLen = val.numberLength;
-			int valSign = val.sign;
+			int valSign = val.Sign;
 			if (valLen == 1) {
 				long a = (valDigits[0] & 0xffffffffL);
 				long b = (divisor & 0xffffffffL);
-				long quo = a / b;
-				long rem = a % b;
-				if (valSign != divisorSign) {
+				long quo = a/b;
+				long rem = a%b;
+				if (valSign != divisorSign)
 					quo = -quo;
-				}
-				if (valSign < 0) {
+				if (valSign < 0)
 					rem = -rem;
-				}
-				return new BigInteger[] { BigInteger.ValueOf(quo),
-                    BigInteger.ValueOf(rem) };
+				return new BigInteger[] {
+					BigInteger.ValueOf(quo),
+					BigInteger.ValueOf(rem)
+				};
 			}
 			int quotientLength = valLen;
 			int quotientSign = ((valSign == divisorSign) ? 1 : -1);
 			int[] quotientDigits = new int[quotientLength];
 			int[] remainderDigits;
-			remainderDigits = new int[] { Division.divideArrayByInt(
-                quotientDigits, valDigits, valLen, divisor) };
-			BigInteger result0 = new BigInteger(quotientSign, quotientLength,
-					quotientDigits);
+			remainderDigits = new int[] {
+				Division.DivideArrayByInt(
+					quotientDigits,
+					valDigits,
+					valLen,
+					divisor)
+			};
+			BigInteger result0 = new BigInteger(quotientSign,
+				quotientLength,
+				quotientDigits);
 			BigInteger result1 = new BigInteger(valSign, 1, remainderDigits);
 			result0.CutOffLeadingZeroes();
 			result1.CutOffLeadingZeroes();
-			return new BigInteger[] { result0, result1 };
+			return new BigInteger[] {result0, result1};
 		}
 
 		/**
@@ -348,21 +350,22 @@ namespace Deveel.Math {
 		 * @param c the multiplier of b
 		 * @return the carry element of subtraction
 		 */
-		internal static int multiplyAndSubtract(int[] a, int start, int[] b, int bLen, int c) {
+
+		public static int MultiplyAndSubtract(int[] a, int start, int[] b, int bLen, int c) {
 			long carry0 = 0;
 			long carry1 = 0;
 
 			for (int i = 0; i < bLen; i++) {
-				carry0 = Multiplication.unsignedMultAddAdd(b[i], c, (int)carry0, 0);
+				carry0 = Multiplication.UnsignedMultAddAdd(b[i], c, (int) carry0, 0);
 				carry1 = (a[start + i] & 0xffffffffL) - (carry0 & 0xffffffffL) + carry1;
-				a[start + i] = (int)carry1;
+				a[start + i] = (int) carry1;
 				carry1 >>= 32; // -1 or 0
 				carry0 = Utils.URShift(carry0, 32);
 			}
 
 			carry1 = (a[start + bLen] & 0xffffffffL) - carry0 + carry1;
-			a[start + bLen] = (int)carry1;
-			return (int)(carry1 >> 32); // -1 or 0
+			a[start + bLen] = (int) carry1;
+			return (int) (carry1 >> 32); // -1 or 0
 		}
 
 		/**
@@ -376,7 +379,8 @@ namespace Deveel.Math {
 		 * @see BigInteger#gcd(BigInteger)
 		 * @return {@code GCD(op1, op2)}
 		 */
-		internal static BigInteger gcdBinary(BigInteger op1, BigInteger op2) {
+
+		public static BigInteger GcdBinary(BigInteger op1, BigInteger op2) {
 			// PRE: (op1 > 0) and (op2 > 0)
 
 			/*
@@ -387,8 +391,8 @@ namespace Deveel.Math {
 			int lsb2 = op2.LowestSetBit;
 			int pow2Count = System.Math.Min(lsb1, lsb2);
 
-			BitLevel.inplaceShiftRight(op1, lsb1);
-			BitLevel.inplaceShiftRight(op2, lsb2);
+			BitLevel.InplaceShiftRight(op1, lsb1);
+			BitLevel.InplaceShiftRight(op2, lsb2);
 
 			BigInteger swap;
 			// I want op2 > op1
@@ -398,37 +402,36 @@ namespace Deveel.Math {
 				op2 = swap;
 			}
 
-			do { // INV: op2 >= op1 && both are odd unless op1 = 0
+			do {
+				// INV: op2 >= op1 && both are odd unless op1 = 0
 
 				// Optimization for small operands
 				// (op2.bitLength() < 64) implies by INV (op1.bitLength() < 64)
 				if ((op2.numberLength == 1)
-				|| ((op2.numberLength == 2) && (op2.digits[1] > 0))) {
-					op2 = BigInteger.ValueOf(Division.gcdBinary(op1.ToInt64(),
-							op2.ToInt64()));
+				    || ((op2.numberLength == 2) && (op2.Digits[1] > 0))) {
+					op2 = BigInteger.ValueOf(Division.GcdBinary(op1.ToInt64(),
+						op2.ToInt64()));
 					break;
 				}
 
 				// Implements one step of the Euclidean algorithm
 				// To reduce one operand if it's much smaller than the other one
-				if (op2.numberLength > op1.numberLength * 1.2) {
+				if (op2.numberLength > op1.numberLength*1.2) {
 					op2 = op2.Remainder(op1);
-					if (op2.Signum() != 0) {
-						BitLevel.inplaceShiftRight(op2, op2.LowestSetBit);
-					}
+					if (op2.Sign != 0)
+						BitLevel.InplaceShiftRight(op2, op2.LowestSetBit);
 				} else {
-
 					// Use Knuth's algorithm of successive subtract and shifting
 					do {
 						Elementary.inplaceSubtract(op2, op1); // both are odd
-						BitLevel.inplaceShiftRight(op2, op2.LowestSetBit); // op2 is even
+						BitLevel.InplaceShiftRight(op2, op2.LowestSetBit); // op2 is even
 					} while (op2.CompareTo(op1) >= BigInteger.EQUALS);
 				}
 				// now op1 >= op2
 				swap = op2;
 				op2 = op1;
 				op1 = swap;
-			} while (op1.sign != 0);
+			} while (op1.Sign != 0);
 			return op2.ShiftLeft(pow2Count);
 		}
 
@@ -444,60 +447,55 @@ namespace Deveel.Math {
 		 * @see #gcdBinary(BigInteger, BigInteger)
 		 * @return <code>GCD(op1, op2)</code>
 		 */
-		internal static long gcdBinary(long op1, long op2) {
+
+		public static long GcdBinary(long op1, long op2) {
 			// PRE: (op1 > 0) and (op2 > 0)
-			int lsb1 = Utils.numberOfTrailingZeros(op1);
-			int lsb2 = Utils.numberOfTrailingZeros(op2);
+			int lsb1 = Utils.NumberOfTrailingZeros(op1);
+			int lsb2 = Utils.NumberOfTrailingZeros(op2);
 			int pow2Count = System.Math.Min(lsb1, lsb2);
 
-			if (lsb1 != 0) {
+			if (lsb1 != 0)
 				op1 = Utils.URShift(op1, lsb1);
-			}
-			if (lsb2 != 0) {
+			if (lsb2 != 0)
 				op2 = Utils.URShift(op2, lsb2);
-			}
 			do {
 				if (op1 >= op2) {
 					op1 -= op2;
-					op1 = Utils.URShift(op1, Utils.numberOfTrailingZeros(op1));
+					op1 = Utils.URShift(op1, Utils.NumberOfTrailingZeros(op1));
 				} else {
 					op2 -= op1;
-					op2 = Utils.URShift(op2, Utils.numberOfTrailingZeros(op2));
+					op2 = Utils.URShift(op2, Utils.NumberOfTrailingZeros(op2));
 				}
 			} while (op1 != 0);
 			return (op2 << pow2Count);
 		}
 
-
-
-
 		/**
 		 * Calculates a.modInverse(p) Based on: Savas, E; Koc, C "The Montgomery Modular
 		 * Inverse - Revised"
 		 */
-		internal static BigInteger modInverseMontgomery(BigInteger a, BigInteger p) {
 
-			if (a.sign == 0) {
+		public static BigInteger ModInverseMontgomery(BigInteger a, BigInteger p) {
+			if (a.Sign == 0) {
 				// ZERO hasn't inverse
 				// math.19: BigInteger not invertible
 				throw new ArithmeticException(Messages.math19);
 			}
 
-
 			if (!p.TestBit(0)) {
 				// montgomery inverse require even modulo
-				return modInverseLorencz(a, p);
+				return ModInverseLorencz(a, p);
 			}
 
-			int m = p.numberLength * 32;
+			int m = p.numberLength*32;
 			// PRE: a \in [1, p - 1]
 			BigInteger u, v, r, s;
-			u = p.Copy();  // make copy to use inplace method
+			u = p.Copy(); // make copy to use inplace method
 			v = a.Copy();
 			int max = System.Math.Max(v.numberLength, u.numberLength);
 			r = new BigInteger(1, 1, new int[max + 1]);
 			s = new BigInteger(1, 1, new int[max + 1]);
-			s.digits[0] = 1;
+			s.Digits[0] = 1;
 			// s == 1 && v == 0
 
 			int k = 0;
@@ -507,38 +505,38 @@ namespace Deveel.Math {
 			int toShift;
 
 			if (lsbu > lsbv) {
-				BitLevel.inplaceShiftRight(u, lsbu);
-				BitLevel.inplaceShiftRight(v, lsbv);
-				BitLevel.inplaceShiftLeft(r, lsbv);
+				BitLevel.InplaceShiftRight(u, lsbu);
+				BitLevel.InplaceShiftRight(v, lsbv);
+				BitLevel.InplaceShiftLeft(r, lsbv);
 				k += lsbu - lsbv;
 			} else {
-				BitLevel.inplaceShiftRight(u, lsbu);
-				BitLevel.inplaceShiftRight(v, lsbv);
-				BitLevel.inplaceShiftLeft(s, lsbu);
+				BitLevel.InplaceShiftRight(u, lsbu);
+				BitLevel.InplaceShiftRight(v, lsbv);
+				BitLevel.InplaceShiftLeft(s, lsbu);
 				k += lsbv - lsbu;
 			}
 
-			r.sign = 1;
-			while (v.Signum() > 0) {
+			r.Sign = 1;
+			while (v.Sign > 0) {
 				// INV v >= 0, u >= 0, v odd, u odd (except last iteration when v is even (0))
 
 				while (u.CompareTo(v) > BigInteger.EQUALS) {
 					Elementary.inplaceSubtract(u, v);
 					toShift = u.LowestSetBit;
-					BitLevel.inplaceShiftRight(u, toShift);
+					BitLevel.InplaceShiftRight(u, toShift);
 					Elementary.inplaceAdd(r, s);
-					BitLevel.inplaceShiftLeft(s, toShift);
+					BitLevel.InplaceShiftLeft(s, toShift);
 					k += toShift;
 				}
 
 				while (u.CompareTo(v) <= BigInteger.EQUALS) {
 					Elementary.inplaceSubtract(v, u);
-					if (v.Signum() == 0)
+					if (v.Sign == 0)
 						break;
 					toShift = v.LowestSetBit;
-					BitLevel.inplaceShiftRight(v, toShift);
+					BitLevel.InplaceShiftRight(v, toShift);
 					Elementary.inplaceAdd(s, r);
-					BitLevel.inplaceShiftLeft(r, toShift);
+					BitLevel.InplaceShiftLeft(r, toShift);
 					k += toShift;
 				}
 			}
@@ -547,51 +545,50 @@ namespace Deveel.Math {
 				// math.19: BigInteger not invertible.
 				throw new ArithmeticException(Messages.math19);
 			}
-			if (r.CompareTo(p) >= BigInteger.EQUALS) {
+			if (r.CompareTo(p) >= BigInteger.EQUALS)
 				Elementary.inplaceSubtract(r, p);
-			}
 
 			r = p.Subtract(r);
 
 			// Have pair: ((BigInteger)r, (Integer)k) where r == a^(-1) * 2^k mod (module)		
-			int n1 = calcN(p);
+			int n1 = CalcN(p);
 			if (k > m) {
-				r = monPro(r, BigInteger.One, p, n1);
+				r = MonPro(r, BigInteger.One, p, n1);
 				k = k - m;
 			}
 
-			r = monPro(r, BigInteger.GetPowerOfTwo(m - k), p, n1);
+			r = MonPro(r, BigInteger.GetPowerOfTwo(m - k), p, n1);
 			return r;
 		}
 
 		/**
 		 * Calculate the first digit of the inverse
 		 */
-		private static int calcN(BigInteger a) {
-			long m0 = a.digits[0] & 0xFFFFFFFFL;
+
+		private static int CalcN(BigInteger a) {
+			long m0 = a.Digits[0] & 0xFFFFFFFFL;
 			long n2 = 1L; // this is a'[0]
 			long powerOfTwo = 2L;
 			do {
-				if (((m0 * n2) & powerOfTwo) != 0) {
+				if (((m0*n2) & powerOfTwo) != 0)
 					n2 |= powerOfTwo;
-				}
 				powerOfTwo <<= 1;
 			} while (powerOfTwo < 0x100000000L);
 			n2 = -n2;
-			return (int)(n2 & 0xFFFFFFFFL);
+			return (int) (n2 & 0xFFFFFFFFL);
 		}
 
 		/**
 		 * @return bi == abs(2^exp)
 		 */
-		private static bool isPowerOfTwo(BigInteger bi, int exp) {
+
+		public static bool IsPowerOfTwo(BigInteger bi, int exp) {
 			bool result = false;
 			result = (exp >> 5 == bi.numberLength - 1)
-			&& (bi.digits[bi.numberLength - 1] == 1 << (exp & 31));
+			         && (bi.Digits[bi.numberLength - 1] == 1 << (exp & 31));
 			if (result) {
-				for (int i = 0; result && i < bi.numberLength - 1; i++) {
-					result = bi.digits[i] == 0;
-				}
+				for (int i = 0; result && i < bi.numberLength - 1; i++)
+					result = bi.Digits[i] == 0;
 			}
 			return result;
 		}
@@ -604,9 +601,10 @@ namespace Deveel.Math {
 		 * @param n
 		 * @return
 		 */
-		private static int howManyIterations(BigInteger bi, int n) {
+
+		private static int HowManyIterations(BigInteger bi, int n) {
 			int i = n - 1;
-			if (bi.sign > 0) {
+			if (bi.Sign > 0) {
 				while (!bi.TestBit(i))
 					i--;
 				return n - 1 - i;
@@ -615,7 +613,6 @@ namespace Deveel.Math {
 					i--;
 				return n - 1 - System.Math.Max(i, bi.LowestSetBit);
 			}
-
 		}
 
 		/**
@@ -625,60 +622,58 @@ namespace Deveel.Math {
 		 *
 		 * @return a^(-1) mod m
 		 */
-		static BigInteger modInverseLorencz(BigInteger a, BigInteger modulo) {
+
+		private static BigInteger ModInverseLorencz(BigInteger a, BigInteger modulo) {
 			// PRE: a is coprime with modulo, a < modulo
 
 			int max = System.Math.Max(a.numberLength, modulo.numberLength);
 			int[] uDigits = new int[max + 1]; // enough place to make all the inplace operation
 			int[] vDigits = new int[max + 1];
-			Array.Copy(modulo.digits, 0, uDigits, 0, modulo.numberLength);
-			Array.Copy(a.digits, 0, vDigits, 0, a.numberLength);
-			BigInteger u = new BigInteger(modulo.sign, modulo.numberLength,
-					uDigits);
-			BigInteger v = new BigInteger(a.sign, a.numberLength, vDigits);
+			Array.Copy(modulo.Digits, 0, uDigits, 0, modulo.numberLength);
+			Array.Copy(a.Digits, 0, vDigits, 0, a.numberLength);
+			BigInteger u = new BigInteger(modulo.Sign,
+				modulo.numberLength,
+				uDigits);
+			BigInteger v = new BigInteger(a.Sign, a.numberLength, vDigits);
 
 			BigInteger r = new BigInteger(0, 1, new int[max + 1]); // BigInteger.ZERO;
 			BigInteger s = new BigInteger(1, 1, new int[max + 1]);
-			s.digits[0] = 1;
+			s.Digits[0] = 1;
 			// r == 0 && s == 1, but with enough place
 
 			int coefU = 0, coefV = 0;
 			int n = modulo.BitLength;
 			int k;
-			while (!isPowerOfTwo(u, coefU) && !isPowerOfTwo(v, coefV)) {
-
+			while (!IsPowerOfTwo(u, coefU) && !IsPowerOfTwo(v, coefV)) {
 				// modification of original algorithm: I calculate how many times the algorithm will enter in the same branch of if
-				k = howManyIterations(u, n);
+				k = HowManyIterations(u, n);
 
 				if (k != 0) {
-					BitLevel.inplaceShiftLeft(u, k);
-					if (coefU >= coefV) {
-						BitLevel.inplaceShiftLeft(r, k);
-					} else {
-						BitLevel.inplaceShiftRight(s, System.Math.Min(coefV - coefU, k));
-						if (k - (coefV - coefU) > 0) {
-							BitLevel.inplaceShiftLeft(r, k - coefV + coefU);
-						}
+					BitLevel.InplaceShiftLeft(u, k);
+					if (coefU >= coefV)
+						BitLevel.InplaceShiftLeft(r, k);
+					else {
+						BitLevel.InplaceShiftRight(s, System.Math.Min(coefV - coefU, k));
+						if (k - (coefV - coefU) > 0)
+							BitLevel.InplaceShiftLeft(r, k - coefV + coefU);
 					}
 					coefU += k;
 				}
 
-				k = howManyIterations(v, n);
+				k = HowManyIterations(v, n);
 				if (k != 0) {
-					BitLevel.inplaceShiftLeft(v, k);
-					if (coefV >= coefU) {
-						BitLevel.inplaceShiftLeft(s, k);
-					} else {
-						BitLevel.inplaceShiftRight(r, System.Math.Min(coefU - coefV, k));
-						if (k - (coefU - coefV) > 0) {
-							BitLevel.inplaceShiftLeft(s, k - coefU + coefV);
-						}
+					BitLevel.InplaceShiftLeft(v, k);
+					if (coefV >= coefU)
+						BitLevel.InplaceShiftLeft(s, k);
+					else {
+						BitLevel.InplaceShiftRight(r, System.Math.Min(coefU - coefV, k));
+						if (k - (coefU - coefV) > 0)
+							BitLevel.InplaceShiftLeft(s, k - coefU + coefV);
 					}
 					coefV += k;
-
 				}
 
-				if (u.Signum() == v.Signum()) {
+				if (u.Sign == v.Sign) {
 					if (coefU <= coefV) {
 						Elementary.completeInPlaceSubtract(u, v);
 						Elementary.completeInPlaceSubtract(r, s);
@@ -695,38 +690,35 @@ namespace Deveel.Math {
 						Elementary.completeInPlaceAdd(s, r);
 					}
 				}
-				if (v.Signum() == 0 || u.Signum() == 0) {
+				if (v.Sign == 0 || u.Sign == 0) {
 					// math.19: BigInteger not invertible
 					throw new ArithmeticException(Messages.math19);
 				}
 			}
 
-			if (isPowerOfTwo(v, coefV)) {
+			if (IsPowerOfTwo(v, coefV)) {
 				r = s;
-				if (v.Signum() != u.Signum())
+				if (v.Sign != u.Sign)
 					u = u.Negate();
 			}
 			if (u.TestBit(n)) {
-				if (r.Signum() < 0) {
+				if (r.Sign < 0)
 					r = r.Negate();
-				} else {
+				else
 					r = modulo.Subtract(r);
-				}
 			}
-			if (r.Signum() < 0) {
+			if (r.Sign < 0)
 				r = r.Add(modulo);
-			}
 
 			return r;
 		}
 
-		static BigInteger squareAndMultiply(BigInteger x2, BigInteger a2, BigInteger exponent, BigInteger modulus, int n2) {
+		private static BigInteger SquareAndMultiply(BigInteger x2, BigInteger a2, BigInteger exponent, BigInteger modulus, int n2) {
 			BigInteger res = x2;
 			for (int i = exponent.BitLength - 1; i >= 0; i--) {
-				res = monPro(res, res, modulus, n2);
-				if (BitLevel.testBit(exponent, i)) {
-					res = monPro(res, a2, modulus, n2);
-				}
+				res = MonPro(res, res, modulus, n2);
+				if (BitLevel.TestBit(exponent, i))
+					res = MonPro(res, a2, modulus, n2);
 			}
 			return res;
 		}
@@ -737,7 +729,8 @@ namespace Deveel.Math {
 		 *@see #oddModPow(BigInteger, BigInteger,
 		 *                           BigInteger)
 		 */
-		static BigInteger slidingWindow(BigInteger x2, BigInteger a2, BigInteger exponent, BigInteger modulus, int n2) {
+
+		private static BigInteger SlidingWindow(BigInteger x2, BigInteger a2, BigInteger exponent, BigInteger modulus, int n2) {
 			// fill odd low pows of a2
 			BigInteger[] pows = new BigInteger[8];
 			BigInteger res = x2;
@@ -746,35 +739,31 @@ namespace Deveel.Math {
 			int acc3;
 			pows[0] = a2;
 
-			x3 = monPro(a2, a2, modulus, n2);
-			for (int i = 1; i <= 7; i++) {
-				pows[i] = monPro(pows[i - 1], x3, modulus, n2);
-			}
+			x3 = MonPro(a2, a2, modulus, n2);
+			for (int i = 1; i <= 7; i++)
+				pows[i] = MonPro(pows[i - 1], x3, modulus, n2);
 
 			for (int i = exponent.BitLength - 1; i >= 0; i--) {
-				if (BitLevel.testBit(exponent, i)) {
+				if (BitLevel.TestBit(exponent, i)) {
 					lowexp = 1;
 					acc3 = i;
 
 					for (int j = System.Math.Max(i - 3, 0); j <= i - 1; j++) {
-						if (BitLevel.testBit(exponent, j)) {
+						if (BitLevel.TestBit(exponent, j)) {
 							if (j < acc3) {
 								acc3 = j;
 								lowexp = (lowexp << (i - j)) ^ 1;
-							} else {
+							} else
 								lowexp = lowexp ^ (1 << (j - acc3));
-							}
 						}
 					}
 
-					for (int j = acc3; j <= i; j++) {
-						res = monPro(res, res, modulus, n2);
-					}
-					res = monPro(pows[(lowexp - 1) >> 1], res, modulus, n2);
+					for (int j = acc3; j <= i; j++)
+						res = MonPro(res, res, modulus, n2);
+					res = MonPro(pows[(lowexp - 1) >> 1], res, modulus, n2);
 					i = acc3;
-				} else {
-					res = monPro(res, res, modulus, n2);
-				}
+				} else
+					res = MonPro(res, res, modulus, n2);
 			}
 			return res;
 		}
@@ -791,8 +780,9 @@ namespace Deveel.Math {
 		 *                      int)
 		 */
 
-		internal static BigInteger oddModPow(BigInteger b, BigInteger exponent,
-				BigInteger modulus) {
+		public static BigInteger OddModPow(BigInteger b,
+			BigInteger exponent,
+			BigInteger modulus) {
 			// PRE: (base > 0), (exponent > 0), (modulus > 0) and (odd modulus)
 			int k = (modulus.numberLength << 5); // r = 2^k
 			// n-residue of base [base * r (mod modulus)]
@@ -802,14 +792,13 @@ namespace Deveel.Math {
 			BigInteger res;
 			// Compute (modulus[0]^(-1)) (mod 2^32) for odd modulus
 
-			int n2 = calcN(modulus);
-			if (modulus.numberLength == 1) {
-				res = squareAndMultiply(x2, a2, exponent, modulus, n2);
-			} else {
-				res = slidingWindow(x2, a2, exponent, modulus, n2);
-			}
+			int n2 = CalcN(modulus);
+			if (modulus.numberLength == 1)
+				res = SquareAndMultiply(x2, a2, exponent, modulus, n2);
+			else
+				res = SlidingWindow(x2, a2, exponent, modulus, n2);
 
-			return monPro(res, BigInteger.One, modulus, n2);
+			return MonPro(res, BigInteger.One, modulus, n2);
 		}
 
 		/**
@@ -823,26 +812,26 @@ namespace Deveel.Math {
 		 * @see BigInteger#modPow(BigInteger, BigInteger)
 		 */
 
-		internal static BigInteger evenModPow(BigInteger b, BigInteger exponent,
-				BigInteger modulus) {
+		public static BigInteger EvenModPow(BigInteger b,
+			BigInteger exponent,
+			BigInteger modulus) {
 			// PRE: (base > 0), (exponent > 0), (modulus > 0) and (modulus even)
 			// STEP 1: Obtain the factorization 'modulus'= q * 2^j.
 			int j = modulus.LowestSetBit;
 			BigInteger q = modulus.ShiftRight(j);
 
 			// STEP 2: Compute x1 := base^exponent (mod q).
-			BigInteger x1 = oddModPow(b, exponent, q);
+			BigInteger x1 = OddModPow(b, exponent, q);
 
 			// STEP 3: Compute x2 := base^exponent (mod 2^j).
-			BigInteger x2 = pow2ModPow(b, exponent, j);
+			BigInteger x2 = Pow2ModPow(b, exponent, j);
 
 			// STEP 4: Compute q^(-1) (mod 2^j) and y := (x2-x1) * q^(-1) (mod 2^j)
-			BigInteger qInv = modPow2Inverse(q, j);
+			BigInteger qInv = ModPow2Inverse(q, j);
 			BigInteger y = (x2.Subtract(x1)).Multiply(qInv);
-			inplaceModPow2(y, j);
-			if (y.sign < 0) {
+			InplaceModPow2(y, j);
+			if (y.Sign < 0)
 				y = y.Add(BigInteger.GetPowerOfTwo(j));
-			}
 			// STEP 5: Compute and return: x1 + q * y
 			return x1.Add(q.Multiply(y));
 		}
@@ -853,7 +842,8 @@ namespace Deveel.Math {
 		 * @return {@code base<sup>exponent</sup> mod (2<sup>j</sup>)}.
 		 * @see BigInteger#modPow(BigInteger, BigInteger)
 		 */
-		static BigInteger pow2ModPow(BigInteger b, BigInteger exponent, int j) {
+
+		private static BigInteger Pow2ModPow(BigInteger b, BigInteger exponent, int j) {
 			// PRE: (base > 0), (exponent > 0) and (j > 0)
 			BigInteger res = BigInteger.One;
 			BigInteger e = exponent.Copy();
@@ -863,51 +853,48 @@ namespace Deveel.Math {
 			 * If 'base' is odd then it's coprime with 2^j and phi(2^j) = 2^(j-1);
 			 * so we can reduce reduce the exponent (mod 2^(j-1)).
 			 */
-			if (b.TestBit(0)) {
-				inplaceModPow2(e, j - 1);
-			}
-			inplaceModPow2(baseMod2toN, j);
+			if (b.TestBit(0))
+				InplaceModPow2(e, j - 1);
+			InplaceModPow2(baseMod2toN, j);
 
 			for (int i = e.BitLength - 1; i >= 0; i--) {
 				res2 = res.Copy();
-				inplaceModPow2(res2, j);
+				InplaceModPow2(res2, j);
 				res = res.Multiply(res2);
-				if (BitLevel.testBit(e, i)) {
+				if (BitLevel.TestBit(e, i)) {
 					res = res.Multiply(baseMod2toN);
-					inplaceModPow2(res, j);
+					InplaceModPow2(res, j);
 				}
 			}
-			inplaceModPow2(res, j);
+			InplaceModPow2(res, j);
 			return res;
 		}
 
-		private static void monReduction(int[] res, BigInteger modulus, int n2) {
-
+		private static void MonReduction(int[] res, BigInteger modulus, int n2) {
 			/* res + m*modulus_digits */
-			int[] modulus_digits = modulus.digits;
+			int[] modulusDigits = modulus.Digits;
 			int modulusLen = modulus.numberLength;
 			long outerCarry = 0;
 
 			for (int i = 0; i < modulusLen; i++) {
 				long innnerCarry = 0;
-				int m = (int)Multiplication.unsignedMultAddAdd(res[i], n2, 0, 0);
+				int m = (int) Multiplication.UnsignedMultAddAdd(res[i], n2, 0, 0);
 				for (int j = 0; j < modulusLen; j++) {
-					innnerCarry = Multiplication.unsignedMultAddAdd(m, modulus_digits[j], res[i + j], (int)innnerCarry);
-					res[i + j] = (int)innnerCarry;
+					innnerCarry = Multiplication.UnsignedMultAddAdd(m, modulusDigits[j], res[i + j], (int) innnerCarry);
+					res[i + j] = (int) innnerCarry;
 					innnerCarry = Utils.URShift(innnerCarry, 32);
 				}
 
 				outerCarry += (res[i + modulusLen] & 0xFFFFFFFFL) + innnerCarry;
-				res[i + modulusLen] = (int)outerCarry;
+				res[i + modulusLen] = (int) outerCarry;
 				outerCarry = Utils.URShift(outerCarry, 32);
 			}
 
-			res[modulusLen << 1] = (int)outerCarry;
+			res[modulusLen << 1] = (int) outerCarry;
 
 			/* res / r  */
-			for (int j = 0; j < modulusLen + 1; j++) {
+			for (int j = 0; j < modulusLen + 1; j++)
 				res[j] = res[j + modulusLen];
-			}
 		}
 
 		/**
@@ -923,14 +910,17 @@ namespace Deveel.Math {
 		 *                  Multiplication Algorithms"
 		 * @see #modPowOdd(BigInteger, BigInteger, BigInteger)
 		 */
-		static BigInteger monPro(BigInteger a, BigInteger b, BigInteger modulus, int n2) {
+
+		private static BigInteger MonPro(BigInteger a, BigInteger b, BigInteger modulus, int n2) {
 			int modulusLen = modulus.numberLength;
 			int[] res = new int[(modulusLen << 1) + 1];
-			Multiplication.multArraysPAP(a.digits, System.Math.Min(modulusLen, a.numberLength),
-										  b.digits, System.Math.Min(modulusLen, b.numberLength), res);
-			monReduction(res, modulus, n2);
-			return finalSubtraction(res, modulus);
-
+			Multiplication.MultArraysPap(a.Digits,
+				System.Math.Min(modulusLen, a.numberLength),
+				b.Digits,
+				System.Math.Min(modulusLen, b.numberLength),
+				res);
+			MonReduction(res, modulus, n2);
+			return FinalSubtraction(res, modulus);
 		}
 
 		/**
@@ -938,13 +928,13 @@ namespace Deveel.Math {
 		 * @see monPro(BigInteger, BigInteger, BigInteger, long)
 		 * @see monSquare(BigInteger, BigInteger, long)
 		 */
-		static BigInteger finalSubtraction(int[] res, BigInteger modulus) {
 
+		private static BigInteger FinalSubtraction(int[] res, BigInteger modulus) {
 			// skipping leading zeros
 			int modulusLen = modulus.numberLength;
 			bool doSub = res[modulusLen] != 0;
 			if (!doSub) {
-				int[] modulusDigits = modulus.digits;
+				int[] modulusDigits = modulus.Digits;
 				doSub = true;
 				for (int i = modulusLen - 1; i >= 0; i--) {
 					if (res[i] != modulusDigits[i]) {
@@ -957,9 +947,8 @@ namespace Deveel.Math {
 			BigInteger result = new BigInteger(1, modulusLen + 1, res);
 
 			// if (res >= modulusDigits) compute (res - modulusDigits)
-			if (doSub) {
+			if (doSub)
 				Elementary.inplaceSubtract(result, modulus);
-			}
 
 			result.CutOffLeadingZeroes();
 			return result;
@@ -970,17 +959,18 @@ namespace Deveel.Math {
 		 * @param n the exponent by which 2 is raised.
 		 * @return {@code x<sup>-1</sup> (mod 2<sup>n</sup>)}.
 		 */
-		static BigInteger modPow2Inverse(BigInteger x, int n) {
+
+		private static BigInteger ModPow2Inverse(BigInteger x, int n) {
 			// PRE: (x > 0), (x is odd), and (n > 0)
 			BigInteger y = new BigInteger(1, new int[1 << n]);
 			y.numberLength = 1;
-			y.digits[0] = 1;
-			y.sign = 1;
+			y.Digits[0] = 1;
+			y.Sign = 1;
 
 			for (int i = 1; i < n; i++) {
-				if (BitLevel.testBit(x.Multiply(y), i)) {
+				if (BitLevel.TestBit(x.Multiply(y), i)) {
 					// Adding 2^i to y (setting the i-th bit)
-					y.digits[i >> 5] |= (1 << (i & 31));
+					y.Digits[i >> 5] |= (1 << (i & 31));
 				}
 			}
 			return y;
@@ -992,17 +982,17 @@ namespace Deveel.Math {
 		 * @param x a positive number, it will store the result.
 		 * @param n a positive exponent of {@code 2}.
 		 */
-		internal static void inplaceModPow2(BigInteger x, int n) {
+
+		public static void InplaceModPow2(BigInteger x, int n) {
 			// PRE: (x > 0) and (n >= 0)
 			int fd = n >> 5;
 			int leadingZeros;
 
-			if ((x.numberLength < fd) || (x.BitLength <= n)) {
+			if ((x.numberLength < fd) || (x.BitLength <= n))
 				return;
-			}
 			leadingZeros = 32 - (n & 31);
 			x.numberLength = fd + 1;
-			x.digits[fd] &= (leadingZeros < 32) ? (Utils.URShift(-1, leadingZeros)) : 0;
+			x.Digits[fd] &= (leadingZeros < 32) ? (Utils.URShift(-1, leadingZeros)) : 0;
 			x.CutOffLeadingZeroes();
 		}
 	}

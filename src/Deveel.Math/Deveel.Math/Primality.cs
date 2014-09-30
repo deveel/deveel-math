@@ -20,10 +20,7 @@ namespace Deveel.Math {
 	/**
 	 * Provides primality probabilistic methods.
 	 */
-	class Primality {
-
-		/** Just to denote that this class can't be instantiated. */
-		private Primality() { }
+	static class Primality {
 
 		/** All prime numbers with bit length lesser than 10 bits. */
 		private static readonly int[] primes = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
@@ -95,7 +92,7 @@ namespace Deveel.Math {
 		 * @see #millerRabin(BigInteger, int)
 		 */
 
-		internal static BigInteger nextProbablePrime(BigInteger n) {
+		public static BigInteger NextProbablePrime(BigInteger n) {
 			// PRE: n >= 0
 			int i, j;
 			int certainty;
@@ -105,9 +102,9 @@ namespace Deveel.Math {
 			BigInteger startPoint;
 			BigInteger probPrime;
 			// If n < "last prime of table" searches next prime in the table
-			if ((n.numberLength == 1) && (n.digits[0] >= 0)
-					&& (n.digits[0] < primes[primes.Length - 1])) {
-				for (i = 0; n.digits[0] >= primes[i]; i++) {
+			if ((n.numberLength == 1) && (n.Digits[0] >= 0)
+					&& (n.Digits[0] < primes[primes.Length - 1])) {
+				for (i = 0; n.Digits[0] >= primes[i]; i++) {
 					;
 				}
 				return BIprimes[i];
@@ -118,12 +115,12 @@ namespace Deveel.Math {
 			 */
 			startPoint = new BigInteger(1, n.numberLength,
 					new int[n.numberLength + 1]);
-			Array.Copy(n.digits, 0, startPoint.digits, 0, n.numberLength);
+			Array.Copy(n.Digits, 0, startPoint.Digits, 0, n.numberLength);
 			// To fix N to the "next odd number"
 			if (n.TestBit(0)) {
 				Elementary.inplaceAdd(startPoint, 2);
 			} else {
-				startPoint.digits[0] |= 1;
+				startPoint.Digits[0] |= 1;
 			}
 			// To set the improved certainly of Miller-Rabin
 			j = startPoint.BitLength;
@@ -132,7 +129,7 @@ namespace Deveel.Math {
 			}
 			// To calculate modules: N mod p1, N mod p2, ... for first primes.
 			for (i = 0; i < primes.Length; i++) {
-				modules[i] = Division.remainder(startPoint, primes[i]) - gapSize;
+				modules[i] = Division.Remainder(startPoint, primes[i]) - gapSize;
 			}
 			while (true) {
 				// At this point, all numbers in the gap are initialized as
@@ -156,7 +153,7 @@ namespace Deveel.Math {
 						probPrime = startPoint.Copy();
 						Elementary.inplaceAdd(probPrime, j);
 
-						if (millerRabin(probPrime, certainty)) {
+						if (MillerRabin(probPrime, certainty)) {
 							return probPrime;
 						}
 					}
@@ -173,7 +170,7 @@ namespace Deveel.Math {
 		 * @see #isProbablePrime(BigInteger, int)
 		 */
 
-		internal static BigInteger consBigInteger(int bitLength, int certainty, Random rnd) {
+		public static BigInteger ConsBigInteger(int bitLength, int certainty, Random rnd) {
         // PRE: bitLength >= 2;
         // For small numbers get a random prime from the prime table
         if (bitLength <= 10) {
@@ -187,15 +184,15 @@ namespace Deveel.Math {
         last--;
         do {// To fill the array with random integers
             for (int i = 0; i < n.numberLength; i++) {
-                n.digits[i] = rnd.Next();
+                n.Digits[i] = rnd.Next();
             }
             // To fix to the correct bitLength
             // n.digits[last] |= 0x80000000;
-			n.digits[last] |= Int32.MinValue;
-            n.digits[last] = Utils.URShift(n.digits[last], shiftCount);
+			n.Digits[last] |= Int32.MinValue;
+            n.Digits[last] = Utils.URShift(n.Digits[last], shiftCount);
             // To create an odd number
-            n.digits[0] |= 1;
-        } while (!isProbablePrime(n, certainty));
+            n.Digits[0] |= 1;
+        } while (!IsProbablePrime(n, certainty));
         return n;
     }
 
@@ -205,9 +202,9 @@ namespace Deveel.Math {
 		 * @ar.org.fitc.ref Optimizations: "A. Menezes - Handbook of applied
 		 *                  Cryptography, Chapter 4".
 		 */
-		internal static bool isProbablePrime(BigInteger n, int certainty) {
+		public static bool IsProbablePrime(BigInteger n, int certainty) {
 			// PRE: n >= 0;
-			if ((certainty <= 0) || ((n.numberLength == 1) && (n.digits[0] == 2))) {
+			if ((certainty <= 0) || ((n.numberLength == 1) && (n.Digits[0] == 2))) {
 				return true;
 			}
 			// To discard all even numbers
@@ -215,12 +212,12 @@ namespace Deveel.Math {
 				return false;
 			}
 			// To check if 'n' exists in the table (it fit in 10 bits)
-			if ((n.numberLength == 1) && ((n.digits[0] & 0XFFFFFC00) == 0)) {
-				return (Array.BinarySearch(primes, n.digits[0]) >= 0);
+			if ((n.numberLength == 1) && ((n.Digits[0] & 0XFFFFFC00) == 0)) {
+				return (Array.BinarySearch(primes, n.Digits[0]) >= 0);
 			}
 			// To check if 'n' is divisible by some prime of the table
 			for (int j = 1; j < primes.Length; j++) {
-				if (Division.remainderArrayByInt(n.digits, n.numberLength, primes[j]) == 0) {
+				if (Division.RemainderArrayByInt(n.Digits, n.numberLength, primes[j]) == 0) {
 					return false;
 				}
 			}
@@ -233,7 +230,7 @@ namespace Deveel.Math {
 			}
 			certainty = System.Math.Min(i, 1 + ((certainty - 1) >> 1));
 
-			return millerRabin(n, certainty);
+			return MillerRabin(n, certainty);
 		}
 
 		/**
@@ -246,7 +243,7 @@ namespace Deveel.Math {
 		 * @ar.org.fitc.ref "D. Knuth, The Art of Computer Programming Vo.2, Section
 		 *                  4.5.4., Algorithm P"
 		 */
-		private static bool millerRabin(BigInteger n, int t) {
+		private static bool MillerRabin(BigInteger n, int t) {
 			// PRE: n >= 0, t >= 0
 			BigInteger x; // x := UNIFORM{2...n-1}
 			BigInteger y; // y := x^(q * 2^j) mod n
@@ -268,7 +265,7 @@ namespace Deveel.Math {
                      */
 					do {
 						x = new BigInteger(bitLength, rnd);
-					} while ((x.CompareTo(n) >= BigInteger.EQUALS) || (x.sign == 0)
+					} while ((x.CompareTo(n) >= BigInteger.EQUALS) || (x.Sign == 0)
 							|| x.IsOne());
 				}
 				y = x.ModPow(q, n);

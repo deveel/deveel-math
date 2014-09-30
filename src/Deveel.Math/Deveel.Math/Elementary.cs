@@ -56,8 +56,8 @@ namespace Deveel.Math {
 		internal static BigInteger add(BigInteger op1, BigInteger op2) {
 			int[] resDigits;
 			int resSign;
-			int op1Sign = op1.sign;
-			int op2Sign = op2.sign;
+			int op1Sign = op1.Sign;
+			int op2Sign = op2.Sign;
 
 			if (op1Sign == 0) {
 				return op2;
@@ -69,8 +69,8 @@ namespace Deveel.Math {
 			int op2Len = op2.numberLength;
 
 			if (op1Len + op2Len == 2) {
-				long a = (op1.digits[0] & 0xFFFFFFFFL);
-				long b = (op2.digits[0] & 0xFFFFFFFFL);
+				long a = (op1.Digits[0] & 0xFFFFFFFFL);
+				long b = (op2.Digits[0] & 0xFFFFFFFFL);
 				long res;
 				int valueLo;
 				int valueHi;
@@ -91,15 +91,15 @@ namespace Deveel.Math {
 				resSign = op1Sign;
 				// an augend should not be shorter than addend
 				resDigits = (op1Len >= op2Len)
-				            	? add(op1.digits, op1Len,
-				            	      op2.digits, op2Len)
-				            	: add(op2.digits, op2Len, op1.digits,
+				            	? add(op1.Digits, op1Len,
+				            	      op2.Digits, op2Len)
+				            	: add(op2.Digits, op2Len, op1.Digits,
 				            	      op1Len);
 			} else {
 				// signs are different
 				int cmp = ((op1Len != op2Len)
 				           	? ((op1Len > op2Len) ? 1 : -1)
-				           	: compareArrays(op1.digits, op2.digits, op1Len));
+				           	: compareArrays(op1.Digits, op2.Digits, op1Len));
 
 				if (cmp == BigInteger.EQUALS) {
 					return BigInteger.Zero;
@@ -107,10 +107,10 @@ namespace Deveel.Math {
 				// a minuend should not be shorter than subtrahend
 				if (cmp == BigInteger.GREATER) {
 					resSign = op1Sign;
-					resDigits = subtract(op1.digits, op1Len, op2.digits, op2Len);
+					resDigits = subtract(op1.Digits, op1Len, op2.Digits, op2Len);
 				} else {
 					resSign = op2Sign;
-					resDigits = subtract(op2.digits, op2Len, op1.digits, op1Len);
+					resDigits = subtract(op2.Digits, op2Len, op1.Digits, op1Len);
 				}
 			}
 			BigInteger result = new BigInteger(resSign, resDigits.Length, resDigits);
@@ -162,8 +162,8 @@ namespace Deveel.Math {
 		internal static BigInteger subtract(BigInteger op1, BigInteger op2) {
 			int resSign;
 			int[] resDigits;
-			int op1Sign = op1.sign;
-			int op2Sign = op2.sign;
+			int op1Sign = op1.Sign;
+			int op2Sign = op2.Sign;
 
 			if (op2Sign == 0) {
 				return op1;
@@ -174,8 +174,8 @@ namespace Deveel.Math {
 			int op1Len = op1.numberLength;
 			int op2Len = op2.numberLength;
 			if (op1Len + op2Len == 2) {
-				long a = (op1.digits[0] & 0xFFFFFFFFL);
-				long b = (op2.digits[0] & 0xFFFFFFFFL);
+				long a = (op1.Digits[0] & 0xFFFFFFFFL);
+				long b = (op2.Digits[0] & 0xFFFFFFFFL);
 				if (op1Sign < 0) {
 					a = -a;
 				}
@@ -185,12 +185,12 @@ namespace Deveel.Math {
 				return BigInteger.ValueOf(a - b);
 			}
 			int cmp = ((op1Len != op2Len) ? ((op1Len > op2Len) ? 1 : -1)
-					: Elementary.compareArrays(op1.digits, op2.digits, op1Len));
+					: Elementary.compareArrays(op1.Digits, op2.Digits, op1Len));
 
 			if (cmp == BigInteger.LESS) {
 				resSign = -op2Sign;
-				resDigits = (op1Sign == op2Sign) ? subtract(op2.digits, op2Len,
-						op1.digits, op1Len) : add(op2.digits, op2Len, op1.digits,
+				resDigits = (op1Sign == op2Sign) ? subtract(op2.Digits, op2Len,
+						op1.Digits, op1Len) : add(op2.Digits, op2Len, op1.Digits,
 						op1Len);
 			} else {
 				resSign = op1Sign;
@@ -198,9 +198,9 @@ namespace Deveel.Math {
 					if (cmp == BigInteger.EQUALS) {
 						return BigInteger.Zero;
 					}
-					resDigits = subtract(op1.digits, op1Len, op2.digits, op2Len);
+					resDigits = subtract(op1.Digits, op1Len, op2.Digits, op2Len);
 				} else {
-					resDigits = add(op1.digits, op1Len, op2.digits, op2Len);
+					resDigits = add(op1.Digits, op1Len, op2.Digits, op2Len);
 				}
 			}
 			BigInteger res = new BigInteger(resSign, resDigits.Length, resDigits);
@@ -253,9 +253,9 @@ namespace Deveel.Math {
 		 */
 		internal static void inplaceAdd(BigInteger op1, BigInteger op2) {
 			// PRE: op1 >= op2 > 0
-			add(op1.digits, op1.digits, op1.numberLength, op2.digits,
+			add(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
 					op2.numberLength);
-			op1.numberLength = System.Math.Min(System.Math.Max(op1.numberLength, op2.numberLength) + 1, op1.digits.Length);
+			op1.numberLength = System.Math.Min(System.Math.Max(op1.numberLength, op2.numberLength) + 1, op1.Digits.Length);
 			op1.CutOffLeadingZeroes();
 			op1.UnCache();
 		}
@@ -281,9 +281,9 @@ namespace Deveel.Math {
 		 * possible carry.
 		 */
 		internal static void inplaceAdd(BigInteger op1, int addend) {
-			int carry = inplaceAdd(op1.digits, op1.numberLength, addend);
+			int carry = inplaceAdd(op1.Digits, op1.numberLength, addend);
 			if (carry == 1) {
-				op1.digits[op1.numberLength] = 1;
+				op1.Digits[op1.numberLength] = 1;
 				op1.numberLength++;
 			}
 			op1.UnCache();
@@ -301,7 +301,7 @@ namespace Deveel.Math {
 		 */
 		internal static void inplaceSubtract(BigInteger op1, BigInteger op2) {
 			// PRE: op1 >= op2 > 0
-			subtract(op1.digits, op1.digits, op1.numberLength, op2.digits,
+			subtract(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
 					op2.numberLength);
 			op1.CutOffLeadingZeroes();
 			op1.UnCache();
@@ -364,24 +364,24 @@ namespace Deveel.Math {
 		 */
 		internal static void completeInPlaceSubtract(BigInteger op1, BigInteger op2) {
 			int resultSign = op1.CompareTo(op2);
-			if (op1.sign == 0) {
-				Array.Copy(op2.digits, 0, op1.digits, 0, op2.numberLength);
-				op1.sign = -op2.sign;
-			} else if (op1.sign != op2.sign) {
-				add(op1.digits, op1.digits, op1.numberLength, op2.digits,
+			if (op1.Sign == 0) {
+				Array.Copy(op2.Digits, 0, op1.Digits, 0, op2.numberLength);
+				op1.Sign = -op2.Sign;
+			} else if (op1.Sign != op2.Sign) {
+				add(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
 					op2.numberLength);
-				op1.sign = resultSign;
+				op1.Sign = resultSign;
 			} else {
-				int sign = unsignedArraysCompare(op1.digits,
-						op2.digits, op1.numberLength, op2.numberLength);
+				int sign = unsignedArraysCompare(op1.Digits,
+						op2.Digits, op1.numberLength, op2.numberLength);
 				if (sign > 0) {
-					subtract(op1.digits, op1.digits, op1.numberLength, op2.digits,
+					subtract(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
 							op2.numberLength);	// op1 = op1 - op2
 					// op1.sign remains equal
 				} else {
-					inverseSubtract(op1.digits, op1.digits, op1.numberLength,
-							op2.digits, op2.numberLength);	// op1 = op2 - op1
-					op1.sign = -op1.sign;
+					inverseSubtract(op1.Digits, op1.Digits, op1.numberLength,
+							op2.Digits, op2.numberLength);	// op1 = op2 - op1
+					op1.Sign = -op1.Sign;
 				}
 			}
 			op1.numberLength = System.Math.Max(op1.numberLength, op2.numberLength) + 1;
@@ -396,23 +396,23 @@ namespace Deveel.Math {
 		 * @param op2 any number
 		 */
 		internal static void completeInPlaceAdd(BigInteger op1, BigInteger op2) {
-			if (op1.sign == 0)
-				Array.Copy(op2.digits, 0, op1.digits, 0, op2.numberLength);
-			else if (op2.sign == 0)
+			if (op1.Sign == 0)
+				Array.Copy(op2.Digits, 0, op1.Digits, 0, op2.numberLength);
+			else if (op2.Sign == 0)
 				return;
-			else if (op1.sign == op2.sign)
-				add(op1.digits, op1.digits, op1.numberLength, op2.digits,
+			else if (op1.Sign == op2.Sign)
+				add(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
 						op2.numberLength);
 			else {
-				int sign = unsignedArraysCompare(op1.digits,
-						op2.digits, op1.numberLength, op2.numberLength);
+				int sign = unsignedArraysCompare(op1.Digits,
+						op2.Digits, op1.numberLength, op2.numberLength);
 				if (sign > 0)
-					subtract(op1.digits, op1.digits, op1.numberLength, op2.digits,
+					subtract(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
 							op2.numberLength);
 				else {
-					inverseSubtract(op1.digits, op1.digits, op1.numberLength,
-							op2.digits, op2.numberLength);
-					op1.sign = -op1.sign;
+					inverseSubtract(op1.Digits, op1.Digits, op1.numberLength,
+							op2.Digits, op2.numberLength);
+					op1.Sign = -op1.Sign;
 				}
 			}
 			op1.numberLength = System.Math.Max(op1.numberLength, op2.numberLength) + 1;

@@ -21,11 +21,7 @@ namespace Deveel.Math {
 	 * Static library that provides {@link BigInteger} base conversion from/to any
 	 * integer represented in an {@link java.lang.String} Object.
 	 */
-	class Conversion {
-
-		/** Just to denote that this class can't be instantiated */
-		private Conversion() { }
-
+	static class Conversion {
 		/**
 		 * Holds the maximal exponent for each radix, so that radix<sup>digitFitInInt[radix]</sup>
 		 * fit in an {@code int} (32 bits).
@@ -52,10 +48,10 @@ namespace Deveel.Math {
 
 		/** @see BigInteger#ToString(int) */
 
-		internal static string bigInteger2String(BigInteger val, int radix) {
-			int sign = val.sign;
+		public static string BigInteger2String(BigInteger val, int radix) {
+			int sign = val.Sign;
 			int numberLength = val.numberLength;
-			int[] digits = val.digits;
+			int[] digits = val.Digits;
 
 			if (sign == 0) {
 				return "0"; //$NON-NLS-1$
@@ -93,7 +89,7 @@ namespace Deveel.Math {
 				while (true) {
 					// divide the array of digits by bigRadix and convert remainders
 					// to CharHelpers collecting them in the char array
-					resDigit = Division.divideArrayByInt(temp, temp, tempLen, bigRadix);
+					resDigit = Division.DivideArrayByInt(temp, temp, tempLen, bigRadix);
 					int previous = currentChar;
 					do {
                         result[--currentChar] = CharHelper.forDigit(
@@ -136,10 +132,10 @@ namespace Deveel.Math {
 		 * @see BigInteger#ToString()
 		 * @see BigDecimal#ToString()
 		 */
-		internal static String toDecimalScaledString(BigInteger val, int scale) {
-			int sign = val.sign;
+		public static String ToDecimalScaledString(BigInteger val, int scale) {
+			int sign = val.Sign;
 			int numberLength = val.numberLength;
-			int[] digits = val.digits;
+			int[] digits = val.Digits;
 			int resLengthInChars;
 			int currentChar;
 			char[] result;
@@ -212,7 +208,7 @@ namespace Deveel.Math {
 					for (int i1 = tempLen - 1; i1 >= 0; i1--) {
 						long temp1 = (result11 << 32)
 								+ (temp[i1] & 0xFFFFFFFFL);
-						long res = divideLongByBillion(temp1);
+						long res = DivideLongByBillion(temp1);
 						temp[i1] = (int)res;
 						result11 = (int)(res >> 32);
 					}
@@ -297,7 +293,7 @@ namespace Deveel.Math {
 		}
 
 		/* can process only 32-bit numbers */
-		internal static String toDecimalScaledString(long value, int scale) {
+		public static String ToDecimalScaledString(long value, int scale) {
 			int resLengthInChars;
 			int currentChar;
 			char[] result;
@@ -394,7 +390,7 @@ namespace Deveel.Math {
 			return result1.ToString();
 		}
 
-		static long divideLongByBillion(long a) {
+		public static long DivideLongByBillion(long a) {
 			long quot;
 			long rem;
 
@@ -419,15 +415,15 @@ namespace Deveel.Math {
 
 		/** @see BigInteger#ToDouble() */
 
-		internal static double bigInteger2Double(BigInteger val) {
+		public static double BigInteger2Double(BigInteger val) {
 			// val.bitLength() < 64
 			if ((val.numberLength < 2)
-					|| ((val.numberLength == 2) && (val.digits[1] > 0))) {
+					|| ((val.numberLength == 2) && (val.Digits[1] > 0))) {
 				return val.ToInt64();
 			}
 			// val.bitLength() >= 33 * 32 > 1024
 			if (val.numberLength > 32) {
-				return ((val.sign > 0) ? Double.PositiveInfinity
+				return ((val.Sign > 0) ? Double.PositiveInfinity
 						: Double.NegativeInfinity);
 			}
 			int bitLen = val.Abs().BitLength;
@@ -442,22 +438,22 @@ namespace Deveel.Math {
 			long mantissa = lVal & 0x1FFFFFFFFFFFFFL;
 			if (exponent == 1023) {
 				if (mantissa == 0X1FFFFFFFFFFFFFL) {
-					return ((val.sign > 0) ? Double.PositiveInfinity
+					return ((val.Sign > 0) ? Double.PositiveInfinity
 							: Double.NegativeInfinity);
 				}
 				if (mantissa == 0x1FFFFFFFFFFFFEL) {
-					return ((val.sign > 0) ? Double.MaxValue : -Double.MaxValue);
+					return ((val.Sign > 0) ? Double.MaxValue : -Double.MaxValue);
 				}
 			}
 			// Round the mantissa
 			if (((mantissa & 1) == 1)
-					&& (((mantissa & 2) == 2) || BitLevel.nonZeroDroppedBits(delta,
-							val.digits))) {
+					&& (((mantissa & 2) == 2) || BitLevel.NonZeroDroppedBits(delta,
+							val.Digits))) {
 				mantissa += 2;
 			}
 			mantissa >>= 1; // drop the rounding bit
 			// long resSign = (val.sign < 0) ? 0x8000000000000000L : 0;
-            long resSign = (val.sign < 0) ? Int64.MinValue : 0;
+            long resSign = (val.Sign < 0) ? Int64.MinValue : 0;
 			exponent = ((1023 + exponent) << 52) & 0x7FF0000000000000L;
 			long result = resSign | exponent | mantissa;
 			return BitConverter.Int64BitsToDouble(result);

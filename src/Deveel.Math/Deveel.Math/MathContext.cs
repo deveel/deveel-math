@@ -14,6 +14,7 @@
 //    limitations under the License.
 
 using System;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace Deveel.Math {
@@ -23,97 +24,86 @@ namespace Deveel.Math {
 	/// provided by class <see cref="BigDecimal"/>.
 	/// </summary>
 	[Serializable]
-	public sealed class MathContext {
+	public sealed class MathContext : IEquatable<MathContext> {
 
-		/**
-		 * A {@code MathContext} which corresponds to the IEEE 754r quadruple
-		 * decimal precision format: 34 digit precision and
-		 * {@link RoundingMode#HALF_EVEN} rounding.
-		 */
+		/// <summary>
+		/// A <see cref="MathContext"/> which corresponds to the IEEE 754r quadruple decimal precision 
+		/// format: 34 digit precision and <see cref="Deveel.Math.RoundingMode.HalfEven"/> rounding.
+		/// </summary>
 		public static readonly MathContext Decimal128 = new MathContext(34, RoundingMode.HalfEven);
 
-		/**
-		 * A {@code MathContext} which corresponds to the IEEE 754r single decimal
-		 * precision format: 7 digit precision and {@link RoundingMode#HALF_EVEN}
-		 * rounding.
-		 */
+		/// <summary>
+		/// A <see cref="MathContext"/> which corresponds to the IEEE 754r single decimal precision 
+		/// format: 7 digit precision and <see cref="Deveel.Math.RoundingMode.HalfEven"/> rounding.
+		/// </summary>
 		public static readonly MathContext Decimal32 = new MathContext(7, RoundingMode.HalfEven);
 
-		/**
-		 * A {@code MathContext} which corresponds to the IEEE 754r double decimal
-		 * precision format: 16 digit precision and {@link RoundingMode#HALF_EVEN}
-		 * rounding.
-		 */
+		/// <summary>
+		/// A <see cref="MathContext"/> which corresponds to the IEEE 754r double decimal precision 
+		/// format: 16 digit precision and <see cref="Deveel.Math.RoundingMode.HalfEven"/> rounding.
+		/// </summary>
 		public static readonly MathContext Decimal64 = new MathContext(16, RoundingMode.HalfEven);
 
-		/**
-		 * A {@code MathContext} for unlimited precision with
-		 * {@link RoundingMode#HALF_UP} rounding.
-		 */
+		/// <summary>
+		/// A <see cref="MathContext"/> for unlimited precision with <see cref="Deveel.Math.RoundingMode.HalfUp"/> rounding.
+		/// </summary>
 		public static readonly MathContext Unlimited = new MathContext(0, RoundingMode.HalfUp);
 
-		/**
-		 * The number of digits to be used for an operation; results are rounded to
-		 * this precision.
-		 */
+		/// <summary>
+		/// The number of digits to be used for an operation; results are rounded to this precision.
+		/// </summary>
 		private readonly int precision;
 
-		/**
-		 * A {@code RoundingMode} object which specifies the algorithm to be used
-		 * for rounding.
-		 */
+		/// <summary>
+		/// A <see cref="RoundingMode"/> object which specifies the algorithm to be used for rounding.
+		/// </summary>
 		private readonly RoundingMode roundingMode;
 
-		/**
-		 * An array of {@code char} containing: {@code
-		 * 'p','r','e','c','i','s','i','o','n','='}. It's used to improve the
-		 * methods related to {@code String} conversion.
-		 *
-		 * @see #MathContext(String)
-		 * @see #ToString()
-		 */
+		/// <summary>
+		/// An array of <see cref="char"/> containing: <c>'p','r','e','c','i','s','i','o','n','='</c>. 
+		/// It's used to improve the methods related to <see cref="string"/> conversion.
+		/// </summary>
+		/// <seealso cref="MathContext(string)"/>
+		/// <seealso cref="ToString"/>
 		private static readonly char[] chPrecision = {'p', 'r', 'e', 'c', 'i', 's', 'i', 'o', 'n', '='};
 
-		/**
-		 * An array of {@code char} containing: {@code
-		 * 'r','o','u','n','d','i','n','g','M','o','d','e','='}. It's used to
-		 * improve the methods related to {@code String} conversion.
-		 *
-		 * @see #MathContext(String)
-		 * @see #ToString()
-		 */
+		/// <summary>
+		/// An array of <see cref="char"/> containing: <c>'r','o','u','n','d','i','n','g','M','o','d','e','='</c>. 
+		/// It's used to improve the methods related to <see cref="string"/> conversion.
+		/// </summary>
+		/// <seealso cref="MathContext(string)"/>
+		/// <seealso cref="ToString"/>
 		private static readonly char[] chRoundingMode = {'r', 'o', 'u', 'n', 'd', 'i', 'n', 'g', 'M', 'o', 'd', 'e', '='};
 
-		/**
-		 * Constructs a new {@code MathContext} with the specified precision and
-		 * with the rounding mode {@link RoundingMode#HALF_UP HALF_UP}. If the
-		 * precision passed is zero, then this implies that the computations have to
-		 * be performed exact, the rounding mode in this case is irrelevant.
-		 *
-		 * @param precision
-		 *            the precision for the new {@code MathContext}.
-		 * @throws IllegalArgumentException
-		 *             if {@code precision < 0}.
-		 */
+		/// <summary>
+		/// Constructs a new <see cref="MathContext"/> with the specified precision and with the 
+		/// rounding mode <see cref="Deveel.Math.RoundingMode.HalfUp"/>.
+		/// </summary>
+		/// <param name="precision">The precision for the new context.</param>
+		/// <remarks>
+		/// If the precision passed is zero, then this implies that the computations have to 
+		/// be performed exact, the rounding mode in this case is irrelevant.
+		/// </remarks>
+		/// <exception cref="ArgumentException">
+		/// If <paramref name="precision"/> is smaller than zero.
+		/// </exception>
 		public MathContext(int precision)
 			: this(precision, RoundingMode.HalfUp) {
 		}
 
-		/**
-		 * Constructs a new {@code MathContext} with the specified precision and
-		 * with the specified rounding mode. If the precision passed is zero, then
-		 * this implies that the computations have to be performed exact, the
-		 * rounding mode in this case is irrelevant.
-		 *
-		 * @param precision
-		 *            the precision for the new {@code MathContext}.
-		 * @param roundingMode
-		 *            the rounding mode for the new {@code MathContext}.
-		 * @throws IllegalArgumentException
-		 *             if {@code precision < 0}.
-		 * @throws NullPointerException
-		 *             if {@code roundingMode} is {@code null}.
-		 */
+		/// <summary>
+		///  Constructs a new <see cref="MathContext"/> with the specified precision and with the 
+		/// specified rounding mode.
+		/// </summary>
+		/// <param name="precision">The precision for the new context.</param>
+		/// <param name="roundingMode">The rounding mode for the new context.</param>
+		/// <remarks>
+		/// If the precision passed is zero, then this implies that the computations have to 
+		/// be performed exact, the rounding mode in this case is irrelevant.
+		/// </remarks>
+		/// <exception cref="ArgumentException">
+		/// If <paramref name="precision"/> is smaller than zero.
+		/// </exception>
 		public MathContext(int precision, RoundingMode roundingMode) {
 			if (precision < 0) {
 				// math.0C=Digits < 0
@@ -123,20 +113,23 @@ namespace Deveel.Math {
 			this.roundingMode = roundingMode;
 		}
 
-		/**
-		 * Constructs a new {@code MathContext} from a string. The string has to
-		 * specify the precision and the rounding mode to be used and has to follow
-		 * the following syntax: "precision=&lt;precision&gt; roundingMode=&lt;roundingMode&gt;"
-		 * This is the same form as the one returned by the {@link #ToString}
-		 * method.
-		 *
-		 * @param val
-		 *            a string describing the precision and rounding mode for the
-		 *            new {@code MathContext}.
-		 * @throws IllegalArgumentException
-		 *             if the string is not in the correct format or if the
-		 *             precision specified is < 0.
-		 */
+		/// <summary>
+		/// Constructs a new <see cref="MathContext"/> from a string.
+		/// </summary>
+		/// <param name="val">
+		/// A string describing the precision and rounding mode for the new context.
+		/// </param>
+		/// <remarks>
+		/// The string has to specify the precision and the rounding mode to be used and has to 
+		/// follow the following syntax: "precision=&lt;precision&gt; roundingMode=&lt;roundingMode&gt;".<br/>
+		/// This is the same form as the one returned by the <see cref="ToString"/> method.
+		/// </remarks>
+		/// <exception cref="FormatException">
+		/// Thrown if the given string is in an incorrect format.
+		/// </exception>
+		/// <exception cref="ArgumentException">
+		/// If the precision value parsed from the string is less than zero.
+		/// </exception>
 		public MathContext(String val) {
 			char[] charVal = val.ToCharArray();
 			int i; // Index of charVal
@@ -145,7 +138,7 @@ namespace Deveel.Math {
 
 			if ((charVal.Length < 27) || (charVal.Length > 45)) {
 				// math.0E=bad string format
-				throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
+				throw new FormatException(Messages.math0E); //$NON-NLS-1$
 			}
 			// Parsing "precision=" String
 			for (i = 0; (i < chPrecision.Length) && (charVal[i] == chPrecision[i]); i++) {
@@ -154,15 +147,16 @@ namespace Deveel.Math {
 
 			if (i < chPrecision.Length) {
 				// math.0E=bad string format
-				throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
+				throw new FormatException(Messages.math0E); //$NON-NLS-1$
 			}
 			// Parsing the value for "precision="...
             digit = CharHelper.toDigit(charVal[i], 10);
 			if (digit == -1) {
 				// math.0E=bad string format
-				throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
+				throw new FormatException(Messages.math0E); //$NON-NLS-1$
 			}
-			this.precision = this.precision * 10 + digit;
+			
+			precision = precision * 10 + digit;
 			i++;
 
 			do {
@@ -178,8 +172,8 @@ namespace Deveel.Math {
 					throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
 				}
 				// Accumulating the value parsed
-				this.precision = this.precision * 10 + digit;
-				if (this.precision < 0) {
+				precision = precision * 10 + digit;
+				if (precision < 0) {
 					// math.0E=bad string format
 					throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
 				}
@@ -193,86 +187,62 @@ namespace Deveel.Math {
 
 			if (j < chRoundingMode.Length) {
 				// math.0E=bad string format
-				throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
+				throw new FormatException(Messages.math0E); //$NON-NLS-1$
 			}
 			// Parsing the value for "roundingMode"...
-			this.roundingMode = (RoundingMode)Enum.Parse(typeof(RoundingMode), new string(charVal, i, charVal.Length - i), true);
+			roundingMode = (RoundingMode)Enum.Parse(typeof(RoundingMode), new string(charVal, i, charVal.Length - i), true);
 		}
 
-		/* Public Methods */
-
-		/**
-		 * Returns the precision. The precision is the number of digits used for an
-		 * operation. Results are rounded to this precision. The precision is
-		 * guaranteed to be non negative. If the precision is zero, then the
-		 * computations have to be performed exact, results are not rounded in this
-		 * case.
-		 *
-		 * @return the precision.
-		 */
-
+		/// <summary>
+		/// Get the precision of the context.
+		/// </summary>
+		/// <remarks>
+		/// The precision is the number of digits used for an operation. Results are rounded to 
+		/// this precision. The precision is guaranteed to be non negative. If the precision is zero, 
+		/// then the computations have to be performed exact, results are not rounded in this case.
+		/// </remarks>
 		public int Precision {
 			get { return precision; }
 		}
 
-		/**
-		 * Returns the rounding mode. The rounding mode is the strategy to be used
-		 * to round results.
-		 * <p>
-		 * The rounding mode is one of
-		 * {@link RoundingMode#UP},
-		 * {@link RoundingMode#DOWN},
-		 * {@link RoundingMode#CEILING},
-		 * {@link RoundingMode#FLOOR},
-		 * {@link RoundingMode#HALF_UP},
-		 * {@link RoundingMode#HALF_DOWN},
-		 * {@link RoundingMode#HALF_EVEN}, or
-		 * {@link RoundingMode#UNNECESSARY}.
-		 *
-		 * @return the rounding mode.
-		 */
+		/// <summary>
+		/// Gets the rounding mode of the context, that is the strategy used to round results.
+		/// </summary>
+		/// <seealso cref="Deveel.Math.RoundingMode"/>
 		public RoundingMode RoundingMode {
 			get { return roundingMode; }
 		}
 
-		/**
-		 * Returns true if x is a {@code MathContext} with the same precision
-		 * setting and the same rounding mode as this {@code MathContext} instance.
-		 *
-		 * @param x
-		 *            object to be compared.
-		 * @return {@code true} if this {@code MathContext} instance is equal to the
-		 *         {@code x} argument; {@code false} otherwise.
-		 */
-		public override bool Equals(Object x) {
-			return ((x is MathContext) &&
-			        (((MathContext) x).Precision == precision) &&
-			        (((MathContext) x).RoundingMode == roundingMode));
+		public bool Equals(MathContext other) {
+			return (other.precision == precision) &&
+			       (other.roundingMode == roundingMode);
 		}
 
-		/**
-		 * Returns the hash code for this {@code MathContext} instance.
-		 *
-		 * @return the hash code for this {@code MathContext}.
-		 */
+		public override bool Equals(object obj) {
+			if (!(obj is MathContext))
+				return false;
+
+			return Equals((MathContext) obj);
+		}
+
 		public override int GetHashCode() {
 			// Make place for the necessary bits to represent 8 rounding modes
 			return ((precision << 3) | (int)roundingMode);
 		}
 
-		/**
-		 * Returns the string representation for this {@code MathContext} instance.
-		 * The string has the form
-		 * {@code
-		 * "precision=&lt;precision&gt; roundingMode=&lt;roundingMode&gt;"
-		 * } where {@code &lt;precision&gt;} is an integer describing the number
-		 * of digits used for operations and {@code &lt;roundingMode&gt;} is the
-		 * string representation of the rounding mode.
-		 *
-		 * @return a string representation for this {@code MathContext} instance
-		 */
+		/// <summary>
+		/// Returns the string representation for this <see cref="MathContext"/> instance.
+		/// </summary>
+		/// <remarks>
+		/// The string has the form <c>"precision=&lt;precision&gt; roundingMode=&lt;roundingMode&gt;"</c> where 
+		/// <c>&lt;precision&gt;</c> is an integer describing the number of digits used for operations 
+		/// and <c>&lt;roundingMode&gt;</c> is the string representation of the rounding mode.
+		/// </remarks>
+		/// <returns>
+		/// Returns the string that describes the current context.
+		/// </returns>
 		public override string ToString() {
-			StringBuilder sb = new StringBuilder(45);
+			var sb = new StringBuilder(45);
 
 			sb.Append(chPrecision);
 			sb.Append(precision);
@@ -282,28 +252,12 @@ namespace Deveel.Math {
 			return sb.ToString();
 		}
 
-		/**
-		 * Makes checks upon deserialization of a {@code MathContext} instance.
-		 * Checks whether {@code precision >= 0} and {@code roundingMode != null}
-		 *
-		 * @throws StreamCorruptedException
-		 *             if {@code precision < 0}
-		 * @throws StreamCorruptedException
-		 *             if {@code roundingMode == null}
-		 */
-		/*
-		private void readObject(ObjectInputStream s) throws IOException,
-				ClassNotFoundException {
-			s.defaultReadObject();
+		[OnDeserialized]
+		private void OnDeserialized(StreamingContext context) {
 			if (precision < 0) {
 				// math.0F=bad precision value
-				throw new StreamCorruptedException(SR.getString("math.0F")); //$NON-NLS-1$
-			}
-			if (roundingMode == null) {
-				// math.10=null roundingMode
-				throw new StreamCorruptedException(SR.getString("math.10")); //$NON-NLS-1$
+				throw new SerializationException(Messages.math0F); //$NON-NLS-1$
 			}
 		}
-		*/
 	}
 }

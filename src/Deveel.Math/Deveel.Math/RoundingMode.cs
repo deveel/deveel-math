@@ -13,65 +13,56 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-namespace Deveel.Math {
-	public enum RoundingMode {
+using System;
 
-		/**
-		 * Rounding mode where positive values are rounded towards positive infinity
-		 * and negative values towards negative infinity.
-		 * <br>
-		 * Rule: {@code x.round().abs() >= x.abs()}
-		 */
+namespace Deveel.Math {
+	/// <summary>
+	/// Enumerates the possible strategies used to round results.
+	/// </summary>
+	public enum RoundingMode {
+		/// <summary>
+		/// Positive values are rounded towards positive infinity and negative 
+		/// values towards negative infinity. (<c>x.Round().Abs() >= x.Abs()</c>
+		/// </summary>
 		Up = 0,
 
-		/**
-		 * Rounding mode where the values are rounded towards zero.
-		 * <br>
-		 * Rule: {@code x.round().abs() <= x.abs()}
-		 */
+		/// <summary>
+		/// The values are rounded towards zero. (<c>x.Round().Abs() &lt;= x.abs()</c>)
+		/// </summary>
 		Down = 1,
 
-		/**
-		 * Rounding mode to round towards positive infinity. For positive values
-		 * this rounding mode behaves as {@link #UP}, for negative values as
-		 * {@link #DOWN}.
-		 * <br>
-		 * Rule: {@code x.round() >= x}
-		 */
+		/// <summary>
+		/// Rounds towards positive infinity: for positive values this rounding mode behaves 
+		/// as <see cref="Up"/>, for negative values as <see cref="Down"/> (<c>x.round() &gt;= x</c>)
+		/// </summary>
 		Ceiling = 2,
 
-		/**
-		 * Rounding mode to round towards negative infinity. For positive values
-		 * this rounding mode behaves as {@link #DOWN}, for negative values as
-		 * {@link #UP}.
-		 * <br>
-		 * Rule: {@code x.round() <= x}
-		 */
+		/// <summary>
+		/// Rounds towards negative infinity: for positive values this rounding mode behaves 
+		/// as <see cref="Down"/>, for negative values as <see cref="Up"/> (<c>x.Round() &lt;= x</c>).
+		/// </summary>
 		Floor = 3,
 
-		/**
-		 * Rounding mode where values are rounded towards the nearest neighbor. Ties
-		 * are broken by rounding up.
-		 */
+		/// <summary>
+		/// Values are rounded towards the nearest neighbor and ties are broken by rounding up.
+		/// </summary>
 		HalfUp = 4,
 
-		/**
-		 * Rounding mode where values are rounded towards the nearest neighbor. Ties
-		 * are broken by rounding down.
-		 */
+		/// <summary>
+		/// Values are rounded towards the nearest neighbor and ties are broken by rounding down.
+		/// </summary>
 		HalfDown = 5,
 
-		/**
-		 * Rounding mode where values are rounded towards the nearest neighbor. Ties
-		 * are broken by rounding to the even neighbor.
-		 */
+		/// <summary>
+		/// Values are rounded towards the nearest neighbor and ties are broken by rounding to the 
+		/// even neighbor.
+		/// </summary>
 		HalfEven = 6,
 
-		/**
-		 * Rounding mode where the rounding operations throws an ArithmeticException
-		 * for the case that rounding is necessary, i.e. for the case that the value
-		 * cannot be represented exactly.
-		 */
+		/// <summary>
+		/// The rounding operations throws an <see cref="ArithmeticException"/> for the case that rounding 
+		/// is necessary (i.e. for the case that the value cannot be represented exactly)
+		/// </summary>
 		Unnecessary = 7
 	}
 }

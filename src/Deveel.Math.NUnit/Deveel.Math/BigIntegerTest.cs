@@ -374,10 +374,10 @@ namespace Deveel.Math {
 		 */
 		[Test]
 		public void test_signum() {
-			Assert.IsTrue(two.Signum() == 1, "Wrong positive signum");
-			Assert.IsTrue(zero.Signum() == 0, "Wrong zero signum");
-			Assert.IsTrue(zero.Negate().Signum() == 0, "Wrong neg zero signum");
-			Assert.IsTrue(two.Negate().Signum() == -1, "Wrong neg signum");
+			Assert.IsTrue(two.Sign == 1, "Wrong positive signum");
+			Assert.IsTrue(zero.Sign == 0, "Wrong zero signum");
+			Assert.IsTrue(zero.Negate().Sign == 0, "Wrong neg zero signum");
+			Assert.IsTrue(two.Negate().Sign == -1, "Wrong neg signum");
 		}
 
 		/**
@@ -463,19 +463,19 @@ namespace Deveel.Math {
 				BigInteger b = BigInteger.Zero.SetBit(i);
 				Assert.IsTrue(a.Equals(b), "a==b");
 				a = a.ShiftLeft(1);
-				Assert.IsTrue(a.Signum() >= 0, "a non-neg");
+				Assert.IsTrue(a.Sign >= 0, "a non-neg");
 
 				BigInteger d = bi3.ShiftRight(i);
 				Assert.IsTrue(c.Equals(d), "c==d");
 				c = c.ShiftRight(1);
 				Assert.IsTrue(d.Divide(two).Equals(c), ">>1 == /2");
-				Assert.IsTrue(c.Signum() >= 0, "c non-neg");
+				Assert.IsTrue(c.Sign >= 0, "c non-neg");
 
 				BigInteger f = E.ShiftRight(i);
 				Assert.IsTrue(e.Equals(f), "e==f");
 				e = e.ShiftRight(1);
 				Assert.IsTrue(f.Subtract(one).Divide(two).Equals(e), ">>1 == /2");
-				Assert.IsTrue(e.Signum() == -1, "e negative");
+				Assert.IsTrue(e.Sign == -1, "e negative");
 
 				Assert.IsTrue(b.ShiftRight(i).Equals(one), "b >> i");
 				Assert.IsTrue(b.ShiftRight(i + 1).Equals(zero), "b >> i+1");
@@ -507,14 +507,14 @@ namespace Deveel.Math {
 				Assert.IsTrue(a.ShiftRight(i).Equals(bi3), "a >> i == bi3");
 				a = a.ShiftLeft(1);
 				Assert.IsTrue(b.Multiply(two).Equals(a), "<<1 == *2");
-				Assert.IsTrue(a.Signum() >= 0, "a non-neg");
+				Assert.IsTrue(a.Sign >= 0, "a non-neg");
 				Assert.IsTrue(a.BitCount == b.BitCount, "a.bitCount==b.bitCount");
 
 				BigInteger d = minusOne.ShiftLeft(i);
 				Assert.IsTrue(c.Equals(d), "c==d");
 				c = c.ShiftLeft(1);
 				Assert.IsTrue(d.Multiply(two).Equals(c), "<<1 == *2 negative");
-				Assert.IsTrue(c.Signum() == -1, "c negative");
+				Assert.IsTrue(c.Sign == -1, "c negative");
 				Assert.IsTrue(d.ShiftRight(i).Equals(minusOne), "d >> i == minusOne");
 			}
 		}
@@ -670,29 +670,12 @@ namespace Deveel.Math {
 		 */
 		[Test]
 		public void test_divideAndRemainderLjava_math_BigInteger() {
-			try {
-				largePos.DivideAndRemainder(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
+			BigInteger remainder;
 
-			try {
-				bi1.DivideAndRemainder(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
-
-			try {
-				bi3.Negate().DivideAndRemainder(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
-
-			try {
-				zero.DivideAndRemainder(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
+			Assert.Throws<ArithmeticException>(() => largePos.DivideAndRemainder(zero, out remainder));
+			Assert.Throws<ArithmeticException>(() => bi1.DivideAndRemainder(zero, out remainder));
+			Assert.Throws<ArithmeticException>(() => bi3.Negate().DivideAndRemainder(zero, out remainder));
+			Assert.Throws<ArithmeticException>(() => zero.DivideAndRemainder(zero, out remainder));
 		}
 
 		/**
@@ -860,14 +843,15 @@ namespace Deveel.Math {
 		private void testDiv(BigInteger i1, BigInteger i2) {
 			BigInteger q = i1.Divide(i2);
 			BigInteger r = i1.Remainder(i2);
-			BigInteger[] temp = i1.DivideAndRemainder(i2);
+			BigInteger remainder;
+			BigInteger quotient = i1.DivideAndRemainder(i2, out remainder);
 
-			Assert.IsTrue(q.Equals(temp[0]), "divide and divideAndRemainder do not agree");
-			Assert.IsTrue(r.Equals(temp[1]), "remainder and divideAndRemainder do not agree");
-			Assert.IsTrue(q.Signum() != 0 || q.Equals(zero), "signum and equals(zero) do not agree on quotient");
-			Assert.IsTrue(r.Signum() != 0 || r.Equals(zero), "signum and equals(zero) do not agree on remainder");
-			Assert.IsTrue(q.Signum() == 0 || q.Signum() == i1.Signum() * i2.Signum(), "wrong sign on quotient");
-			Assert.IsTrue(r.Signum() == 0 || r.Signum() == i1.Signum(), "wrong sign on remainder");
+			Assert.IsTrue(q.Equals(quotient), "Divide and DivideAndRemainder do not agree");
+			Assert.IsTrue(r.Equals(remainder), "Remainder and DivideAndRemainder do not agree");
+			Assert.IsTrue(q.Sign != 0 || q.Equals(zero), "signum and equals(zero) do not agree on quotient");
+			Assert.IsTrue(r.Sign != 0 || r.Equals(zero), "signum and equals(zero) do not agree on remainder");
+			Assert.IsTrue(q.Sign == 0 || q.Sign == i1.Sign * i2.Sign, "wrong sign on quotient");
+			Assert.IsTrue(r.Sign == 0 || r.Sign == i1.Sign, "wrong sign on remainder");
 			Assert.IsTrue(r.Abs().CompareTo(i2.Abs()) < 0, "remainder out of range");
 			Assert.IsTrue(q.Abs().Add(one).Multiply(i2.Abs()).CompareTo(i1.Abs()) > 0, "quotient too small");
 			Assert.IsTrue(q.Abs().Multiply(i2.Abs()).CompareTo(i1.Abs()) <= 0, "quotient too large");
@@ -876,12 +860,12 @@ namespace Deveel.Math {
 			Assert.IsTrue(a.Equals(i1), "(a/b)*b+(a%b) != a");
 			try {
 				BigInteger mod = i1.Mod(i2);
-				Assert.IsTrue(mod.Signum() >= 0, "mod is negative");
+				Assert.IsTrue(mod.Sign >= 0, "mod is negative");
 				Assert.IsTrue(mod.Abs().CompareTo(i2.Abs()) < 0, "mod out of range");
-				Assert.IsTrue(r.Signum() < 0 || r.Equals(mod), "positive remainder == mod");
-				Assert.IsTrue(r.Signum() >= 0 || r.Equals(mod.Subtract(i2)), "negative remainder == mod - divisor");
+				Assert.IsTrue(r.Sign < 0 || r.Equals(mod), "positive remainder == mod");
+				Assert.IsTrue(r.Sign >= 0 || r.Equals(mod.Subtract(i2)), "negative remainder == mod - divisor");
 			} catch (ArithmeticException e) {
-				Assert.IsTrue(i2.Signum() <= 0, "mod fails on negative divisor only");
+				Assert.IsTrue(i2.Sign <= 0, "mod fails on negative divisor only");
 			}
 		}
 
