@@ -5,3 +5,13 @@ This is the port of the Java Math library implemented by the Apache Harmony fram
 In fact the native .NET support for decimal numbers appear to be limited in several contexts, leading some independent developments of the support within applications.
 
 Tha aim of this library is to provide .NET developers with a powerful instrument to handle operations on very big numbers, keeping performances and reliability under control.
+
+
+How to Install It
+==================
+
+From the NuGet Package Management console, select the project where the library will be installed and type the following command
+
+```
+PM> Install-Package dmath
+```
