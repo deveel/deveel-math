@@ -824,22 +824,6 @@ namespace Deveel.Math {
 			Assert.AreEqual(BigInteger.Zero, bi.AndNot(BigInteger.Zero));
 		}
 
-		[Test]
-		public void testClone() {
-			// Regression test for HARMONY-1770
-			MyBigInteger myBigInteger = new MyBigInteger("12345");
-			myBigInteger = (MyBigInteger)myBigInteger.Clone();
-		}
-
-		class MyBigInteger : BigInteger, ICloneable {
-			public MyBigInteger(String val)
-				: base(val) {
-			}
-			public Object Clone() {
-				return base.MemberwiseClone();
-			}
-		}
-
 		private void testDiv(BigInteger i1, BigInteger i2) {
 			BigInteger q = i1.Divide(i2);
 			BigInteger r = i1.Remainder(i2);
