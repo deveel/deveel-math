@@ -1,5 +1,5 @@
 // 
-//  Copyright 2009  Deveel
+//  Copyright 2009-2014  Deveel
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ namespace Deveel.Math {
 	/// </para>
 	/// </remarks>
 	[Serializable]
-	public class BigInteger : IComparable<BigInteger>, IConvertible, ISerializable, IEquatable<BigInteger> {
+	public sealed class BigInteger : IComparable<BigInteger>, IConvertible, ISerializable, IEquatable<BigInteger> {
 
 		/* Fields used for the internal representation. */
 

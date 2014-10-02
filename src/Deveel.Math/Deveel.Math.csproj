@@ -52,17 +52,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Deveel.Math\Bernoulli.cs" />
     <Compile Include="Deveel.Math\BigDecimal.cs" />
     <Compile Include="Deveel.Math\BigInteger.cs" />
+    <Compile Include="Deveel.Math\BigMath.cs" />
     <Compile Include="Deveel.Math\BitLevel.cs" />
     <Compile Include="Deveel.Math\CharHelper.cs" />
     <Compile Include="Deveel.Math\Conversion.cs" />
     <Compile Include="Deveel.Math\Division.cs" />
     <Compile Include="Deveel.Math\Elementary.cs" />
+    <Compile Include="Deveel.Math\Factorial.cs" />
+    <Compile Include="Deveel.Math\IFactor.cs" />
     <Compile Include="Deveel.Math\Logical.cs" />
     <Compile Include="Deveel.Math\MathContext.cs" />
     <Compile Include="Deveel.Math\Multiplication.cs" />
     <Compile Include="Deveel.Math\Primality.cs" />
+    <Compile Include="Deveel.Math\Prime.cs" />
+    <Compile Include="Deveel.Math\Rational.cs" />
     <Compile Include="Deveel.Math\RoundingMode.cs" />
     <Compile Include="Deveel.Math\Utils.cs" />
     <Compile Include="Messages.Designer.cs">
@@ -92,6 +98,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Deveel.Math.licenseheader" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

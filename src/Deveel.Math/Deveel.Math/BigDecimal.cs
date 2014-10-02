@@ -1,5 +1,5 @@
 // 
-//  Copyright 2009  Deveel
+//  Copyright 2009-2014  Deveel
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ namespace Deveel.Math {
 	/// of the <see cref="BigDecimal"/> is <see cref="UnscaledValue"/> 10^(-<see cref="Scale"/>).
 	/// </remarks>
 	[Serializable, System.Diagnostics.DebuggerDisplay("{ToStringInternal()}")]
-	public class BigDecimal : IComparable<BigDecimal>, IConvertible, ISerializable, IEquatable<BigDecimal> {
+	public sealed class BigDecimal : IComparable<BigDecimal>, IConvertible, ISerializable, IEquatable<BigDecimal> {
 
 		/// <summary>
 		/// The constant zero as a <see cref="BigDecimal"/>.
@@ -574,57 +574,57 @@ namespace Deveel.Math {
 		}
 
 		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from a <paramref name="unscaledVal">given unscaled value</paramref> 
+		/// Constructs a new <see cref="BigDecimal"/> instance from a <paramref name="unscaledValue">given unscaled value</paramref> 
 		/// and a given scale.
 		/// </summary>
-		/// <param name="unscaledVal">Represents the unscaled value of the decimal.</param>
+		/// <param name="unscaledValue">Represents the unscaled value of the decimal.</param>
 		/// <param name="scale">The scale of this <see cref="BigDecimal"/></param>
 		/// <remarks>
-		/// The value of this instance is <c><paramref name="unscaledVal"/> 10^(-<paramref name="scale"/>)</c>
+		/// The value of this instance is <c><paramref name="unscaledValue"/> 10^(-<paramref name="scale"/>)</c>
 		/// </remarks>
 		/// <exception cref="ArgumentNullException">
-		/// If <paramref name="unscaledVal"/> is <b>null</b>.
+		/// If <paramref name="unscaledValue"/> is <b>null</b>.
 		/// </exception>
-		public BigDecimal(BigInteger unscaledVal, int scale) {
-			if (unscaledVal == null) {
+		public BigDecimal(BigInteger unscaledValue, int scale) {
+			if (unscaledValue == null) {
 				throw new NullReferenceException();
 			}
 			_scale = scale;
-			SetUnscaledValue(unscaledVal);
+			SetUnscaledValue(unscaledValue);
 		}
 
-		/**
-		 * Constructs a new {@code BigDecimal} instance from a given unscaled value
-		 * {@code unscaledVal} and a given scale. The value of this instance is
-		 * {@code unscaledVal} 10^(-{@code scale}). The result is rounded according
-		 * to the specified math context.
-		 *
-		 * @param unscaledVal
-		 *            {@code BigInteger} representing the unscaled value of this
-		 *            {@code BigDecimal} instance.
-		 * @param scale
-		 *            scale of this {@code BigDecimal} instance.
-		 * @param mc
-		 *            rounding mode and precision for the result of this operation.
-		 * @throws ArithmeticException
-		 *             if {@code mc.precision > 0} and {@code mc.roundingMode ==
-		 *             UNNECESSARY} and the new big decimal cannot be represented
-		 *             within the given precision without rounding.
-		 * @throws NullPointerException
-		 *             if {@code unscaledVal == null}.
-		 */
-		public BigDecimal(BigInteger unscaledVal, int scale, MathContext mc)
-			: this(unscaledVal, scale) {
+		/// <summary>
+		/// Constructs a new <see cref="BigDecimal"/> instance from a <paramref name="unscaledValue">given unscaled 
+		/// value</paramref> and a given scale.
+		/// </summary>
+		/// <param name="unscaledValue">Represents the unscaled value of this big decimal.</param>
+		/// <param name="scale">The scale factor of the decimal.</param>
+		/// <param name="mc">The context used to round the result of the operations.</param>
+		/// <remarks>
+		/// The value of this instance is <c><paramref name="unscaledValue"/> 10^(-<paramref name="scale"/>)</c>. 
+		/// The result is rounded according to the specified math context.
+		/// </remarks>
+		/// <exception cref="ArithmeticException">
+		/// If <see cref="MathContext.Precision"/> is greater than zero, the
+		/// <see cref="MathContext.RoundingMode"/> is set to <see cref="RoundingMode.Unnecessary"/>
+		/// and the decimal cannot be represented within the given precision without rounding.
+		/// </exception>
+		/// <exception cref="ArgumentNullException">
+		/// If the given <paramref name="unscaledValue"/> is null.
+		/// </exception>
+		public BigDecimal(BigInteger unscaledValue, int scale, MathContext mc)
+			: this(unscaledValue, scale) {
 			InplaceRound(mc);
 		}
 
-		/**
-		 * Constructs a new {@code BigDecimal} instance from the given int
-		 * {@code val}. The scale of the result is 0.
-		 *
-		 * @param val
-		 *            int value to be converted to a {@code BigDecimal} instance.
-		 */
+		/// <summary>
+		/// Constructs a new <see cref="BigDecimal"/> instance from the given int 
+		/// <paramref name="val"/>.
+		/// </summary>
+		/// <param name="val">The integer value to convert to a decimal.</param>
+		/// <remarks>
+		/// The scale factor of the result is zero.
+		/// </remarks>
 		public BigDecimal(int val)
 			: this(val, 0) {
 		}
