@@ -30,6 +30,13 @@ namespace Deveel.Math {
 			Assert.IsTrue(big.ToString().Equals("123345.60000"), "the BigDecimal value is not represented properly");
 		}
 
+		[Test]
+		public void TestCompareToNull() {
+			var big = new BigDecimal(123e04);
+			Assert.IsNotNull(big);
+			Assert.IsFalse(big == null);
+		}
+
 		/**
 		 * @tests java.math.BigDecimal#BigDecimal(double)
 		 */
