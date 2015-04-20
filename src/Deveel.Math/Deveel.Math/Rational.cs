@@ -16,7 +16,9 @@
 using System;
 
 namespace Deveel.Math {
+#if !PORTABLE
 	[Serializable]
+#endif
 	public struct Rational : IComparable<Rational>, IComparable, IConvertible {
 		public static readonly BigInteger MaxInt32 = BigInteger.ValueOf(Int32.MaxValue);
 		public static readonly BigInteger MinInt32 = BigInteger.ValueOf(Int32.MinValue);

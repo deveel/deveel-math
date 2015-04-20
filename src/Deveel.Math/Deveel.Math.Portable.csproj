@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Deveel.Math\Bernoulli.cs" />
+    <Compile Include="Deveel.Math\BigComplex.cs" />
     <Compile Include="Deveel.Math\BigDecimal.cs" />
     <Compile Include="Deveel.Math\BigInteger.cs" />
     <Compile Include="Deveel.Math\BigMath.cs" />

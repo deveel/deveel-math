@@ -1400,7 +1400,7 @@ namespace Deveel.Math {
 			var b = new Bernoulli();
 
 			/* 2^(2i) */
-			var fourn = new BigInteger("4");
+			var fourn = BigInteger.Parse("4");
 			/* (2i)! */
 			BigInteger fac = BigInteger.One;
 
