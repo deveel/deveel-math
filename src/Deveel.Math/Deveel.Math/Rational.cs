@@ -16,7 +16,8 @@
 using System;
 
 namespace Deveel.Math {
-	public struct Rational : IComparable<Rational>, IComparable {
+	[Serializable]
+	public struct Rational : IComparable<Rational>, IComparable, IConvertible {
 		public static readonly BigInteger MaxInt32 = BigInteger.ValueOf(Int32.MaxValue);
 		public static readonly BigInteger MinInt32 = BigInteger.ValueOf(Int32.MinValue);
 
@@ -408,6 +409,237 @@ namespace Deveel.Math {
 
 		public override string ToString() {
 			return Denominator.CompareTo(BigInteger.One) != 0 ? Numerator + "/" + Denominator : Numerator.ToString();
+		}
+
+		public byte ToByte() {
+			if (!IsInteger)
+				throw new InvalidCastException();
+
+			var i = Numerator.Abs().ToInt32();
+			if (i > Byte.MaxValue ||
+			    i < Byte.MinValue)
+				throw new InvalidCastException();
+
+			return (byte) i;
+		}
+
+		public sbyte ToSByte() {
+			if (!IsInteger)
+				throw new InvalidCastException();
+
+			var i = Numerator.ToInt32();
+			if (i > SByte.MaxValue ||
+			    i < SByte.MinValue)
+				throw new InvalidCastException();
+
+			return (sbyte) i;
+		}
+
+		public short ToInt16() {
+			var i = ToInt32();
+			if (i > Int16.MaxValue ||
+			    i < Int16.MinValue)
+				throw new InvalidCastException();
+
+			return (short) i;
+		}
+
+		public int ToInt32() {
+			if (!IsInteger)
+				throw new InvalidCastException();
+
+			return Numerator.ToInt32();
+		}
+
+		public long ToInt64() {
+			if (!IsInteger)
+				throw new InvalidCastException();
+
+			return Numerator.ToInt64();
+		}
+
+		public BigInteger ToBigInteger() {
+			if (!IsBigInteger)
+				throw new InvalidCastException();
+
+			return Numerator;
+		}
+
+		TypeCode IConvertible.GetTypeCode() {
+			return TypeCode.Object;
+		}
+
+		bool IConvertible.ToBoolean(IFormatProvider provider) {
+			throw new InvalidCastException();
+		}
+
+		char IConvertible.ToChar(IFormatProvider provider) {
+			throw new InvalidCastException();
+		}
+
+		sbyte IConvertible.ToSByte(IFormatProvider provider) {
+			return ToSByte();
+		}
+
+		byte IConvertible.ToByte(IFormatProvider provider) {
+			return ToByte();
+		}
+
+		short IConvertible.ToInt16(IFormatProvider provider) {
+			return ToInt16();
+		}
+
+		ushort IConvertible.ToUInt16(IFormatProvider provider) {
+			throw new NotImplementedException();
+		}
+
+		int IConvertible.ToInt32(IFormatProvider provider) {
+			return ToInt32();
+		}
+
+		uint IConvertible.ToUInt32(IFormatProvider provider) {
+			throw new NotImplementedException();
+		}
+
+		long IConvertible.ToInt64(IFormatProvider provider) {
+			return ToInt64();
+		}
+
+		ulong IConvertible.ToUInt64(IFormatProvider provider) {
+			throw new NotImplementedException();
+		}
+
+		float IConvertible.ToSingle(IFormatProvider provider) {
+			return ToSingle();
+		}
+
+		double IConvertible.ToDouble(IFormatProvider provider) {
+			return ToDouble();
+		}
+
+		decimal IConvertible.ToDecimal(IFormatProvider provider) {
+			throw new NotImplementedException();
+		}
+
+		DateTime IConvertible.ToDateTime(IFormatProvider provider) {
+			throw new InvalidCastException();
+		}
+
+		string IConvertible.ToString(IFormatProvider provider) {
+			return ToString();
+		}
+
+		object IConvertible.ToType(Type conversionType, IFormatProvider provider) {
+			if (conversionType == typeof (byte))
+				return ToByte();
+			if (conversionType == typeof (sbyte))
+				return ToSByte();
+			if (conversionType == typeof (short))
+				return ToInt16();
+			if (conversionType == typeof (int))
+				return ToInt32();
+			if (conversionType == typeof (long))
+				return ToInt64();
+			if (conversionType == typeof (float))
+				return ToSingle();
+			if (conversionType == typeof (double))
+				return ToDouble();
+
+			if (conversionType == typeof (BigInteger))
+				return ToBigInteger();
+			if (conversionType == typeof (BigDecimal))
+				return ToBigDecimal(MathContext.Decimal128);
+
+			if (conversionType == typeof (string))
+				return ToString();
+
+			throw new InvalidCastException();
+		}
+
+		public static Rational operator +(Rational a, Rational b) {
+			return a.Add(b);
+		}
+
+		public static Rational operator +(Rational a, BigInteger b) {
+			return a.Add(b);
+		}
+
+		public static Rational operator +(Rational a, int b) {
+			return a.Add(b);
+		}
+
+		public static Rational operator -(Rational a, Rational b) {
+			return a.Subtract(b);
+		}
+
+		public static Rational operator -(Rational a, BigInteger b) {
+			return a.Subtract(b);
+		}
+
+		public static Rational operator -(Rational a, int b) {
+			return a.Subtract(b);
+		}
+
+		public static Rational operator *(Rational a, Rational b) {
+			return a.Multiply(b);
+		}
+
+		public static Rational operator *(Rational a, BigInteger b) {
+			return a.Multiply(b);
+		}
+
+		public static Rational operator *(Rational a, int b) {
+			return a.Multiply(b);
+		}
+
+		public static Rational operator /(Rational a, Rational b) {
+			return a.Divide(b);
+		}
+
+		public static Rational operator /(Rational a, BigInteger b) {
+			return a.Divide(b);
+		}
+
+		public static Rational operator /(Rational a, int b) {
+			return a.Divide(b);
+		}
+
+		public static Rational operator -(Rational a) {
+			return a.Negate();
+		}
+
+		public static bool operator ==(Rational a, Rational b) {
+			return a.CompareTo(b) == 0;
+		}
+
+		public static bool operator !=(Rational a, Rational b) {
+			return !(a == b);
+		}
+
+		public static bool operator >(Rational a, Rational b) {
+			return a.CompareTo(b) < 0;
+		}
+
+		public static bool operator <(Rational a, Rational b) {
+			return a.CompareTo(b) > 0;
+		}
+
+		public static bool operator >=(Rational a, Rational b) {
+			var i = a.CompareTo(b);
+			return i < 0 || i == 0;
+		}
+
+		public static bool operator <=(Rational a, Rational b) {
+			var i = a.CompareTo(b);
+			return i > 0 || i == 0;
+		}
+
+		public static Rational operator ++(Rational a) {
+			return a.Add(BigInteger.One);
+		}
+
+		public static Rational operator --(Rational a) {
+			return a.Subtract(BigInteger.One);
 		}
 	}
 }

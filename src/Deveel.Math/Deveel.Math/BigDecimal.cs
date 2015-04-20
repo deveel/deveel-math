@@ -2041,6 +2041,12 @@ namespace Deveel.Math {
 		}
 
 		public bool Equals(BigDecimal other) {
+			if (ReferenceEquals(this, other))
+				return true;
+
+			if (other == null)
+				return false;
+
 			return other._scale == _scale
 				   && (_bitLength < 64 ? (other.smallValue == smallValue)
 					: intVal.Equals(other.intVal));			

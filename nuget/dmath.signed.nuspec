@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>dmath-signed</id>
+        <version>1.0.0</version>
+        <title>Deveel Math (Signed)</title>
+        <authors>Antonello Provenzano</authors>
+        <owners>antonello</owners>
+        <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</licenseUrl>
+        <projectUrl>http://github.com/deveel/deveel-math</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Deveel Math is the port to .NET/Mono of the Apache Harmony Math component, that is used to handle operations on big numbers in a fast and secure way. This package is signed with a secure key.</description>
+        <copyright>(c) 2010-2014 Deveel</copyright>
+    </metadata>
+    <files>
+	    <file src="..\dist\signed\Deveel.Math.dll" target="lib/net20/Deveel.Math.dll"/>
+	</files>
+</package>
