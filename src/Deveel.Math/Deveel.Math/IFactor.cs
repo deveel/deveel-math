@@ -26,7 +26,7 @@ namespace Deveel.Math {
 		public static readonly IFactor Zero = new IFactor(0);
 
 		public IFactor(int number) {
-			Number = new BigInteger("" + number);
+			Number = BigInteger.Parse("" + number);
 			primeexp = new List<int>();
 
 			if (number > 1) {

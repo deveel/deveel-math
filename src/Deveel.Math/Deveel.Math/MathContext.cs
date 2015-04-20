@@ -23,7 +23,9 @@ namespace Deveel.Math {
 	/// mode and digit precision for the numerical operations 
 	/// provided by class <see cref="BigDecimal"/>.
 	/// </summary>
+#if !PORTABLE
 	[Serializable]
+#endif
 	public sealed class MathContext : IEquatable<MathContext> {
 
 		/// <summary>

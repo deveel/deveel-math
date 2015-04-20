@@ -412,60 +412,58 @@ namespace Deveel.Math {
 		 */
 
 		public static BigInteger PowerOf10(long exp) {
-			// PRE: exp >= 0
-			int intExp = (int)exp;
-			// "SMALL POWERS"
-			if (exp < BigTenPows.Length) {
-				// The largest power that fit in 'long' type
-				return BigTenPows[intExp];
-			} else if (exp <= 50) {
-				// To calculate:    10^exp
-				return BigInteger.Ten.Pow(intExp);
-			} else if (exp <= 1000) {
-				// To calculate:    5^exp * 2^exp
-				return BigFivePows[1].Pow(intExp).ShiftLeft(intExp);
-			}
-			// "LARGE POWERS"
-			/*
-			 * To check if there is free memory to allocate a BigInteger of the
-			 * estimated size, measured in bytes: 1 + [exp / log10(2)]
-			 */
-			long byteArraySize = 1 + (long)(exp / 2.4082399653118496);
+			try {
+				// PRE: exp >= 0
+				int intExp = (int)exp;
+				// "SMALL POWERS"
+				if (exp < BigTenPows.Length)
 
-			if (byteArraySize > System.Diagnostics.Process.GetCurrentProcess().PeakVirtualMemorySize64) {
+					// The largest power that fit in 'long' type
+					return BigTenPows[intExp];
+				if (exp <= 50) {
+					// To calculate:    10^exp
+					return BigInteger.Ten.Pow(intExp);
+				} else if (exp <= 1000) {
+					// To calculate:    5^exp * 2^exp
+					return BigFivePows[1].Pow(intExp).ShiftLeft(intExp);
+				}
+
+				if (exp <= Int32.MaxValue) {
+					// To calculate:    5^exp * 2^exp
+					return BigFivePows[1].Pow(intExp).ShiftLeft(intExp);
+				}
+				/*
+				 * "HUGE POWERS"
+				 * 
+				 * This branch probably won't be executed since the power of ten is too
+				 * big.
+				 */
+				// To calculate:    5^exp
+				BigInteger powerOfFive = BigFivePows[1].Pow(Int32.MaxValue);
+				BigInteger res = powerOfFive;
+				long longExp = exp - Int32.MaxValue;
+
+				intExp = (int)(exp % Int32.MaxValue);
+				while (longExp > Int32.MaxValue) {
+					res = res.Multiply(powerOfFive);
+					longExp -= Int32.MaxValue;
+				}
+				res = res.Multiply(BigFivePows[1].Pow(intExp));
+				// To calculate:    5^exp << exp
+				res = res.ShiftLeft(Int32.MaxValue);
+				longExp = exp - Int32.MaxValue;
+				while (longExp > Int32.MaxValue) {
+					res = res.ShiftLeft(Int32.MaxValue);
+					longExp -= Int32.MaxValue;
+				}
+				res = res.ShiftLeft(intExp);
+				return res;
+
+			} catch (OutOfMemoryException) {
+				// "LARGE POWERS"
 				// math.01=power of ten too big
 				throw new ArithmeticException(Messages.math01); //$NON-NLS-1$
 			}
-			if (exp <= Int32.MaxValue) {
-				// To calculate:    5^exp * 2^exp
-				return BigFivePows[1].Pow(intExp).ShiftLeft(intExp);
-			}
-			/*
-			 * "HUGE POWERS"
-			 * 
-			 * This branch probably won't be executed since the power of ten is too
-			 * big.
-			 */
-			// To calculate:    5^exp
-			BigInteger powerOfFive = BigFivePows[1].Pow(Int32.MaxValue);
-			BigInteger res = powerOfFive;
-			long longExp = exp - Int32.MaxValue;
-
-			intExp = (int)(exp % Int32.MaxValue);
-			while (longExp > Int32.MaxValue) {
-				res = res.Multiply(powerOfFive);
-				longExp -= Int32.MaxValue;
-			}
-			res = res.Multiply(BigFivePows[1].Pow(intExp));
-			// To calculate:    5^exp << exp
-			res = res.ShiftLeft(Int32.MaxValue);
-			longExp = exp - Int32.MaxValue;
-			while (longExp > Int32.MaxValue) {
-				res = res.ShiftLeft(Int32.MaxValue);
-				longExp -= Int32.MaxValue;
-			}
-			res = res.ShiftLeft(intExp);
-			return res;
 		}
 
 		/**

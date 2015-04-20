@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 using NUnit.Framework;
 
@@ -25,8 +26,8 @@ namespace Deveel.Math {
 			Description = "Add two numbers of different scales; the first is negative")]
 		[TestCase("0", -15, "0", 10, "0E-10", 10, Description = "Add two zeroes of different scales; the first is negative")]
 		public void Add(string a, int aScale, string b, int bScale, string c, int cScale) {
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Add(bNumber);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");
@@ -48,8 +49,8 @@ namespace Deveel.Math {
 			15, RoundingMode.Ceiling,
 			Description = "Add two numbers of different scales using MathContext; the first is positive")]
 		public void AddWithContext(string a, int aScale, string b, int bScale, string c, int cScale, int precision, RoundingMode mode) {
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			MathContext mc = new MathContext(precision, mode);
 			BigDecimal result = aNumber.Add(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
@@ -77,8 +78,8 @@ namespace Deveel.Math {
 			"1231212478987482988429808779810457634781310033452057698121208165201.2765435432", 10,
 			Description = "Subtract two numbers of different scales; the first is negative")]
 		public void Subtract(string a, int aScale, string b, int bScale, string c, int cScale) {
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Subtract(bNumber);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");			
@@ -100,8 +101,8 @@ namespace Deveel.Math {
 			70, RoundingMode.HalfDown,
 			Description = "Subtract two numbers of different scales using MathContext; the first is negative")]
 		public void SubtractWithContext(string a, int aScale, string b, int bScale, string c, int cScale, int precision, RoundingMode mode) {
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			MathContext mc = new MathContext(precision, RoundingMode.Ceiling);
 			BigDecimal result = aNumber.Subtract(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
@@ -129,8 +130,8 @@ namespace Deveel.Math {
 			"9.20003122862175749786430095741145455670101391569026662845893091880727173060570190220616E+91", -5,
 			Description = "Multiply two numbers of different scales")]
 		public void Multiply(string a, int aScale, string b, int bScale, string c, int cScale) {
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Multiply(bNumber);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");			
@@ -152,8 +153,8 @@ namespace Deveel.Math {
 			47, RoundingMode.HalfUp,
 			Description = "Multiply two numbers of different scales using MathContext")]
 		public void MultiplyWithContext(string a, int aScale, string b, int bScale, string c, int cScale, int precision, RoundingMode roundingMode) {
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			MathContext mc = new MathContext(precision, roundingMode);
 			BigDecimal result = aNumber.Multiply(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
@@ -171,7 +172,7 @@ namespace Deveel.Math {
 		public void DivideByZero() {
 			String a = "1231212478987482988429808779810457634781384756794987";
 			int aScale = 15;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = BigDecimal.ValueOf(0L);
 			Assert.Throws<ArithmeticException>(() => aNumber.Divide(bNumber), "ArithmeticException has not been caught");
 		}
@@ -185,8 +186,8 @@ namespace Deveel.Math {
 			int aScale = 15;
 			String b = "747233429293018787918347987234564568";
 			int bScale = 10;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			try {
 				aNumber.Divide(bNumber, RoundingMode.Unnecessary);
 				Assert.Fail("ArithmeticException has not been caught");
@@ -204,8 +205,8 @@ namespace Deveel.Math {
 			int aScale = 15;
 			String b = "747233429293018787918347987234564568";
 			int bScale = 10;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			Assert.Throws<ArgumentException>(() => aNumber.Divide(bNumber, 100));
 		}
 
@@ -220,8 +221,8 @@ namespace Deveel.Math {
 			int bScale = 10;
 			String c = "1.64770E+10";
 			int resScale = -5;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Ceiling);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -238,8 +239,8 @@ namespace Deveel.Math {
 			int bScale = 10;
 			String c = "1.64769459009933764189139568605273529E+40";
 			int resScale = -5;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Ceiling);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -256,8 +257,8 @@ namespace Deveel.Math {
 			int bScale = 20;
 			String c = "1.647694590099337641891395686052735285121058381E+50";
 			int resScale = -5;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Ceiling);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -274,8 +275,8 @@ namespace Deveel.Math {
 			int bScale = 20;
 			String c = "3.5000000000000000000000000000000E+36";
 			int resScale = -5;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Ceiling);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -292,8 +293,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "-1.24390557635720517122423359799284E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Up);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -310,8 +311,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "1.24390557635720517122423359799284E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Up);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -328,8 +329,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "-1.24390557635720517122423359799283E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Down);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -346,8 +347,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "1.24390557635720517122423359799283E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Down);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -364,8 +365,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "1.24390557635720517122423359799283E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Floor);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -382,8 +383,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "-1.24390557635720517122423359799284E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Floor);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -400,8 +401,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "1.24390557635720517122423359799284E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Ceiling);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -418,8 +419,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "-1.24390557635720517122423359799283E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Ceiling);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -436,8 +437,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "1.24390557635720517122423359799284E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfUp);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -454,8 +455,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "-1.24390557635720517122423359799284E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfUp);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -472,8 +473,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "1.2439055763572051712242335979928354832010167729111113605E+76";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfUp);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -490,8 +491,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "-1.2439055763572051712242335979928354832010167729111113605E+76";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfUp);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -508,8 +509,8 @@ namespace Deveel.Math {
 			int bScale = 15;
 			String c = "-1E+5";
 			int resScale = -5;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfUp);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -526,8 +527,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "1.24390557635720517122423359799284E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfDown);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -544,8 +545,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "-1.24390557635720517122423359799284E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfDown);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -562,8 +563,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "1.2439055763572051712242335979928354832010167729111113605E+76";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfDown);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -580,8 +581,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "-1.2439055763572051712242335979928354832010167729111113605E+76";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfDown);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -598,8 +599,8 @@ namespace Deveel.Math {
 			int bScale = 15;
 			String c = "0E+5";
 			int resScale = -5;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfDown);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -616,8 +617,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "1.24390557635720517122423359799284E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfEven);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -634,8 +635,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "-1.24390557635720517122423359799284E+53";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfEven);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -652,8 +653,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "1.2439055763572051712242335979928354832010167729111113605E+76";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfEven);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -670,8 +671,8 @@ namespace Deveel.Math {
 			int bScale = 13;
 			String c = "-1.2439055763572051712242335979928354832010167729111113605E+76";
 			int resScale = -21;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfEven);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -688,8 +689,8 @@ namespace Deveel.Math {
 			int bScale = 15;
 			String c = "0E+5";
 			int resScale = -5;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.HalfEven);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -706,8 +707,8 @@ namespace Deveel.Math {
 			int bScale = 15;
 			String c = "-5E+4";
 			int resScale = -4;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -724,8 +725,8 @@ namespace Deveel.Math {
 			int bScale = -15;
 			String c = "-5E-26";
 			int resScale = 26;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -743,8 +744,8 @@ namespace Deveel.Math {
 			int newScale = 31;
 			RoundingMode rm = RoundingMode.Up;
 			String c = "-5.00000E-26";
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, newScale, rm);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(newScale, result.Scale, "incorrect scale");
@@ -762,8 +763,8 @@ namespace Deveel.Math {
 			int newScale = 31;
 			RoundingMode rm = RoundingMode.Down;
 			String c = "-50000.0000000000000000000000000000000";
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, newScale, rm);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(newScale, result.Scale, "incorrect scale");
@@ -781,8 +782,8 @@ namespace Deveel.Math {
 			int newScale = 45;
 			RoundingMode rm = RoundingMode.Ceiling;
 			String c = "1E-45";
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, newScale, rm);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(newScale, result.Scale, "incorrect scale");
@@ -800,8 +801,8 @@ namespace Deveel.Math {
 			int newScale = 45;
 			RoundingMode rm = RoundingMode.Floor;
 			String c = "0E-45";
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, newScale, rm);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(newScale, result.Scale, "incorrect scale");
@@ -821,8 +822,8 @@ namespace Deveel.Math {
 			String c = "50000260373164286401361913262100972218038099522752460421" +
 					   "05959924024355721031761947728703598332749334086415670525" +
 					   "3761096961.670";
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, newScale, rm);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(newScale, result.Scale, "incorrect scale");
@@ -840,8 +841,8 @@ namespace Deveel.Math {
 			int newScale = 7;
 			RoundingMode rm = RoundingMode.HalfDown;
 			String c = "500002603731642864013619132621009722.1803810";
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, newScale, rm);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(newScale, result.Scale, "incorrect scale");
@@ -859,8 +860,8 @@ namespace Deveel.Math {
 			int newScale = 7;
 			RoundingMode rm = RoundingMode.HalfEven;
 			String c = "500002603731642864013619132621009722.1803810";
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, newScale, rm);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(newScale, result.Scale, "incorrect scale");
@@ -880,8 +881,8 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String c = "49897861180.2562512996";
 			int resScale = 10;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -901,8 +902,8 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String c = "4.98978611802562512995E+70";
 			int resScale = -50;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -922,8 +923,8 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String c = "4.98978611802562512996E+70";
 			int resScale = -50;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -943,8 +944,8 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String c = "4.98978611802562512995E+70";
 			int resScale = -50;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -964,8 +965,8 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String c = "2.77923185514690367475E+26";
 			int resScale = -6;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -985,8 +986,8 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String c = "2.77923185514690367475E+26";
 			int resScale = -6;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -1006,8 +1007,8 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String c = "2.77923185514690367475E+26";
 			int resScale = -6;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -1021,8 +1022,8 @@ namespace Deveel.Math {
 		 */
 		[Test]
 		public void DivideLargeScale() {
-			BigDecimal arg1 = new BigDecimal("320.0E+2147483647");
-			BigDecimal arg2 = new BigDecimal("6E-2147483647");
+			BigDecimal arg1 = BigDecimal.Parse("320.0E+2147483647");
+			BigDecimal arg2 = BigDecimal.Parse("6E-2147483647");
 			try {
 				BigDecimal result = arg1.Divide(arg2, Int32.MaxValue, RoundingMode.Ceiling);
 				Assert.Fail("Expected ArithmeticException when dividing with a scale that's too large");
@@ -1042,8 +1043,8 @@ namespace Deveel.Math {
 			int bScale = 70;
 			String c = "277923185514690367474770683";
 			int resScale = 0;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.DivideToIntegralValue(bNumber);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -1063,8 +1064,8 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String c = "277923185514690367474770683";
 			int resScale = 0;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.DivideToIntegralValue(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -1084,8 +1085,8 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String c = "2.7792318551469036747477068339450205874992634417590178670822889E+62";
 			int resScale = -1;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.DivideToIntegralValue(bNumber, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
@@ -1104,8 +1105,8 @@ namespace Deveel.Math {
 			int resScale = 0;
 			String rem = "1.3032693871288309587558885943391070087960319452465789990E-15";
 			int remScale = 70;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal remainder;
 			BigDecimal quotient = aNumber.DivideAndRemainder(bNumber, out remainder);
 			Assert.AreEqual(res, quotient.ToString(), "incorrect quotient value");
@@ -1129,8 +1130,8 @@ namespace Deveel.Math {
 			int resScale = 0;
 			String rem = "3.4935796954060524114470681810486417234751682675102093970E-15";
 			int remScale = 70;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal remainder;
 			BigDecimal quotient = aNumber.DivideAndRemainder(bNumber, out remainder);
 			Assert.AreEqual(res, quotient.ToString(), "incorrect quotient value");
@@ -1155,8 +1156,8 @@ namespace Deveel.Math {
 			int resScale = 0;
 			String rem = "1.3032693871288309587558885943391070087960319452465789990E-15";
 			int remScale = 70;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal remainder;
 			BigDecimal quotient = aNumber.DivideAndRemainder(bNumber, mc, out remainder);
 			Assert.AreEqual(res, quotient.ToString(), "incorrect quotient value");
@@ -1181,8 +1182,8 @@ namespace Deveel.Math {
 			int resScale = 25;
 			String rem = "3736186567876.876578956958765675671119238118911893939591735";
 			int remScale = 45;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal remainder;
 			BigDecimal quotient = aNumber.DivideAndRemainder(bNumber, mc, out remainder);
 			Assert.AreEqual(res, quotient.ToString(), "incorrect quotient value");
@@ -1203,7 +1204,7 @@ namespace Deveel.Math {
 		[TestCase("123121247898748298842980", 10, 0, "1", 0, Description = "Pow(0)")]
 		[TestCase("0", 0, 0, "1", 0, Description = "Zero.Pow(0)")]
 		public void Pow(string a, int aScale, int exp, string c, int cScale) {
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal result = aNumber.Pow(exp);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
 			Assert.AreEqual(cScale, result.Scale, "incorrect scale");			
@@ -1211,7 +1212,7 @@ namespace Deveel.Math {
 
 		[TestCase("123121247898748298842980", 10, 10, "8.0044E+130", -126, 5, RoundingMode.HalfUp)]
 		public void PowWithContext(string a, int aScale, int exp, string c, int cScale, int precision, RoundingMode roundingMode) {
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			MathContext mc = new MathContext(precision, roundingMode);
 			BigDecimal result = aNumber.Pow(exp, mc);
 			Assert.AreEqual(c, result.ToString(), "incorrect value");
@@ -1231,8 +1232,8 @@ namespace Deveel.Math {
 			int bScale = 10;
 			String res = "3736186567876.876578956958765675671119238118911893939591735";
 			int resScale = 45;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Remainder(bNumber);
 			Assert.AreEqual(res, result.ToString(), "incorrect quotient value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect quotient scale");
@@ -1249,8 +1250,8 @@ namespace Deveel.Math {
 			int bScale = 10;
 			String res = "1149310942946292909508821656680979993738625937.2065885780";
 			int resScale = 10;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Remainder(bNumber);
 			Assert.AreEqual(res, result.ToString(), "incorrect quotient value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect quotient scale");
@@ -1270,8 +1271,8 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String res = "3736186567876.876578956958765675671119238118911893939591735";
 			int resScale = 45;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Remainder(bNumber, mc);
 			Assert.AreEqual(res, result.ToString(), "incorrect quotient value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect quotient scale");
@@ -1291,8 +1292,8 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String res = "1149310942946292909508821656680979993738625937.2065885780";
 			int resScale = 10;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
-			BigDecimal bNumber = new BigDecimal(new BigInteger(b), bScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
+			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Remainder(bNumber, mc);
 			Assert.AreEqual(res, result.ToString(), "incorrect quotient value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect quotient scale");
@@ -1310,7 +1311,7 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String res = "3.736186567876876578956958765675671119238118911893939591735E+102";
 			int resScale = -45;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal result = aNumber.Round(mc);
 			Assert.AreEqual(res, result.ToString(), "incorrect quotient value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect quotient scale");
@@ -1328,7 +1329,7 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String res = "3736186567876.88";
 			int resScale = 2;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal result = aNumber.Round(mc);
 			Assert.AreEqual(res, result.ToString(), "incorrect quotient value");
 			Assert.AreEqual(resScale, result.Scale, "incorrect quotient scale");
@@ -1345,7 +1346,7 @@ namespace Deveel.Math {
 			RoundingMode rm = RoundingMode.HalfUp;
 			MathContext mc = new MathContext(precision, rm);
 			String res = "3736186567876.876578956958765675671119238118911893939591735";
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal result = aNumber.Round(mc);
 			Assert.AreEqual(res, result.ToString(), "incorrect quotient value");
 			Assert.AreEqual(aScale, result.Scale, "incorrect quotient scale");
@@ -1359,7 +1360,7 @@ namespace Deveel.Math {
 		public void UlpPos() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = -45;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal result = aNumber.Ulp();
 			String res = "1E+45";
 			int resScale = -45;
@@ -1374,7 +1375,7 @@ namespace Deveel.Math {
 		public void UlpNeg() {
 			String a = "-3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal result = aNumber.Ulp();
 			String res = "1E-45";
 			int resScale = 45;
@@ -1389,7 +1390,7 @@ namespace Deveel.Math {
 		public void UlpZero() {
 			String a = "0";
 			int aScale = 2;
-			BigDecimal aNumber = new BigDecimal(new BigInteger(a), aScale);
+			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal result = aNumber.Ulp();
 			String res = "0.01";
 			int resScale = 2;

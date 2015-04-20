@@ -9,25 +9,25 @@ namespace Deveel.Math {
 			twoToTheSeventy = two.Pow(70);
 		}
 
-		private BigInteger minusTwo = new BigInteger("-2", 10);
+		private BigInteger minusTwo = BigInteger.Parse("-2", 10);
 
-		private BigInteger minusOne = new BigInteger("-1", 10);
+		private BigInteger minusOne = BigInteger.Parse("-1", 10);
 
-		private BigInteger zero = new BigInteger("0", 10);
+		private BigInteger zero = BigInteger.Parse("0", 10);
 
-		private BigInteger one = new BigInteger("1", 10);
+		private BigInteger one = BigInteger.Parse("1", 10);
 
-		private BigInteger two = new BigInteger("2", 10);
+		private BigInteger two = BigInteger.Parse("2", 10);
 
-		private BigInteger ten = new BigInteger("10", 10);
+		private BigInteger ten = BigInteger.Parse("10", 10);
 
-		private BigInteger sixteen = new BigInteger("16", 10);
+		private BigInteger sixteen = BigInteger.Parse("16", 10);
 
-		private BigInteger oneThousand = new BigInteger("1000", 10);
+		private BigInteger oneThousand = BigInteger.Parse("1000", 10);
 
-		private BigInteger aZillion = new BigInteger("100000000000000000000000000000000000000000000000000", 10);
+		private BigInteger aZillion = BigInteger.Parse("100000000000000000000000000000000000000000000000000", 10);
 
-		private BigInteger twoToTheTen = new BigInteger("1024", 10);
+		private BigInteger twoToTheTen = BigInteger.Parse("1024", 10);
 
 		private BigInteger twoToTheSeventy;
 
@@ -65,35 +65,34 @@ namespace Deveel.Math {
 
 		[TestFixtureSetUp]
 		public void SetUp() {
-			bi1 = new BigInteger("2436798324768978", 16);
-			bi2 = new BigInteger("4576829475724387584378543764555", 16);
-			bi3 = new BigInteger("43987298363278574365732645872643587624387563245",
-					16);
+			bi1 = BigInteger.Parse("2436798324768978", 16);
+			bi2 = BigInteger.Parse("4576829475724387584378543764555", 16);
+			bi3 = BigInteger.Parse("43987298363278574365732645872643587624387563245", 16);
 
-			bi33 = new BigInteger(
+			bi33 = BigInteger.Parse(
 					"10730846694701319120609898625733976090865327544790136667944805934175543888691400559249041094474885347922769807001",
 					10);
-			bi22 = new BigInteger(
+			bi22 = BigInteger.Parse(
 					"33301606932171509517158059487795669025817912852219962782230629632224456249",
 					10);
-			bi11 = new BigInteger("6809003003832961306048761258711296064", 10);
-			bi23 = new BigInteger(
+			bi11 = BigInteger.Parse("6809003003832961306048761258711296064", 10);
+			bi23 = BigInteger.Parse(
 					"597791300268191573513888045771594235932809890963138840086083595706565695943160293610527214057",
 					10);
-			bi13 = new BigInteger(
+			bi13 = BigInteger.Parse(
 					"270307912162948508387666703213038600031041043966215279482940731158968434008",
 					10);
-			bi12 = new BigInteger(
+			bi12 = BigInteger.Parse(
 					"15058244971895641717453176477697767050482947161656458456", 10);
 
-			largePos = new BigInteger(
+			largePos = BigInteger.Parse(
 					"834759814379857314986743298675687569845986736578576375675678998612743867438632986243982098437620983476924376",
 					16);
-			smallPos = new BigInteger("48753269875973284765874598630960986276", 16);
-			largeNeg = new BigInteger(
+			smallPos = BigInteger.Parse("48753269875973284765874598630960986276", 16);
+			largeNeg = BigInteger.Parse(
 					"-878824397432651481891353247987891423768534321387864361143548364457698487264387568743568743265873246576467643756437657436587436",
 					16);
-			smallNeg = new BigInteger("-567863254343798609857456273458769843", 16);
+			smallNeg = BigInteger.Parse("-567863254343798609857456273458769843", 16);
 			booleanPairs = new BigInteger[4][];
 			booleanPairs[0] = new BigInteger[] { largePos, smallPos };
 			booleanPairs[1] = new BigInteger[] { largePos, smallNeg };
@@ -193,7 +192,7 @@ namespace Deveel.Math {
 		[Test]
 		public void test_constructor_String_empty() {
 			try {
-				new BigInteger("");
+				BigInteger.Parse("");
 				Assert.Fail("Expected NumberFormatException for new BigInteger(\"\")");
 			} catch (FormatException e) {
 			}
@@ -224,7 +223,7 @@ namespace Deveel.Math {
 			if (!bi.IsProbablePrime(17)) {
 				fails++;
 			}
-			bi = new BigInteger("4", 10);
+			bi = BigInteger.Parse("4", 10);
 			if (bi.IsProbablePrime(17)) {
 				Assert.Fail("isProbablePrime failed for: " + bi.ToString());
 			}
@@ -490,14 +489,14 @@ namespace Deveel.Math {
 		public void test_shiftLeftI() {
 			Assert.IsTrue(one.ShiftLeft(0).Equals(one), "1 << 0");
 			Assert.IsTrue(one.ShiftLeft(1).Equals(two), "1 << 1");
-			Assert.IsTrue(one.ShiftLeft(63).Equals(new BigInteger("8000000000000000", 16)), "1 << 63");
-			Assert.IsTrue(one.ShiftLeft(64).Equals(new BigInteger("10000000000000000", 16)), "1 << 64");
-			Assert.IsTrue(one.ShiftLeft(65).Equals(new BigInteger("20000000000000000", 16)), "1 << 65");
+			Assert.IsTrue(one.ShiftLeft(63).Equals(BigInteger.Parse("8000000000000000", 16)), "1 << 63");
+			Assert.IsTrue(one.ShiftLeft(64).Equals(BigInteger.Parse("10000000000000000", 16)), "1 << 64");
+			Assert.IsTrue(one.ShiftLeft(65).Equals(BigInteger.Parse("20000000000000000", 16)), "1 << 65");
 			Assert.IsTrue(minusOne.ShiftLeft(0).Equals(minusOne), "-1 << 0");
 			Assert.IsTrue(minusOne.ShiftLeft(1).Equals(minusTwo), "-1 << 1");
-			Assert.IsTrue(minusOne.ShiftLeft(63).Equals(new BigInteger("-9223372036854775808")), "-1 << 63");
-			Assert.IsTrue(minusOne.ShiftLeft(64).Equals(new BigInteger("-18446744073709551616")), "-1 << 64");
-			Assert.IsTrue(minusOne.ShiftLeft(65).Equals(new BigInteger("-36893488147419103232")), "-1 << 65");
+			Assert.IsTrue(minusOne.ShiftLeft(63).Equals(BigInteger.Parse("-9223372036854775808")), "-1 << 63");
+			Assert.IsTrue(minusOne.ShiftLeft(64).Equals(BigInteger.Parse("-18446744073709551616")), "-1 << 64");
+			Assert.IsTrue(minusOne.ShiftLeft(65).Equals(BigInteger.Parse("-36893488147419103232")), "-1 << 65");
 
 			BigInteger a = bi3;
 			BigInteger c = minusOne;
@@ -525,7 +524,7 @@ namespace Deveel.Math {
 		[Test]
 		public void test_multiplyLjava_math_BigInteger() {
             SetUp();
-			Assert.IsTrue(aZillion.Add(aZillion).Add(aZillion).Equals(aZillion.Multiply(new BigInteger("3", 10))),
+			Assert.IsTrue(aZillion.Add(aZillion).Add(aZillion).Equals(aZillion.Multiply(BigInteger.Parse("3", 10))),
 						  "Incorrect sum--wanted three zillion");
 
 			Assert.IsTrue(zero.Multiply(zero).Equals(zero), "0*0");
@@ -576,7 +575,7 @@ namespace Deveel.Math {
 			testDivRanges(bi3);
 			testDivRanges(smallPos);
 			testDivRanges(largePos);
-			testDivRanges(new BigInteger("62EB40FEF85AA9EB", 16));
+			testDivRanges(BigInteger.Parse("62EB40FEF85AA9EB", 16));
 			testAllDivs(BigInteger.ValueOf(0xCC0225953CL), BigInteger
 					.ValueOf(0x1B937B765L));
 
@@ -683,11 +682,11 @@ namespace Deveel.Math {
 		 */
 		[Test]
 		public void test_ConstructorLjava_lang_String() {
-			Assert.IsTrue(new BigInteger("0").Equals(BigInteger.ValueOf(0)), "new(0)");
-			Assert.IsTrue(new BigInteger("1").Equals(BigInteger.ValueOf(1)), "new(1)");
-			Assert.IsTrue(new BigInteger("12345678901234").Equals(BigInteger.ValueOf(12345678901234L)), "new(12345678901234)");
-			Assert.IsTrue(new BigInteger("-1").Equals(BigInteger.ValueOf(-1)), "new(-1)");
-			Assert.IsTrue(new BigInteger("-12345678901234").Equals(BigInteger.ValueOf(-12345678901234L)), "new(-12345678901234)");
+			Assert.IsTrue(BigInteger.Parse("0").Equals(BigInteger.ValueOf(0)), "new(0)");
+			Assert.IsTrue(BigInteger.Parse("1").Equals(BigInteger.ValueOf(1)), "new(1)");
+			Assert.IsTrue(BigInteger.Parse("12345678901234").Equals(BigInteger.ValueOf(12345678901234L)), "new(12345678901234)");
+			Assert.IsTrue(BigInteger.Parse("-1").Equals(BigInteger.ValueOf(-1)), "new(-1)");
+			Assert.IsTrue(BigInteger.Parse("-12345678901234").Equals(BigInteger.ValueOf(-12345678901234L)), "new(-12345678901234)");
 		}
 
 		/**
@@ -695,14 +694,14 @@ namespace Deveel.Math {
 		 */
 		[Test]
 		public void test_ConstructorLjava_lang_StringI() {
-			Assert.IsTrue(new BigInteger("0", 16).Equals(BigInteger.ValueOf(0)), "new(0,16)");
-			Assert.IsTrue(new BigInteger("1", 16).Equals(BigInteger.ValueOf(1)), "new(1,16)");
-			Assert.IsTrue(new BigInteger("ABF345678901234", 16).Equals(BigInteger.ValueOf(0xABF345678901234L)), "new(ABF345678901234,16)");
-			Assert.IsTrue(new BigInteger("abf345678901234", 16).Equals(BigInteger.ValueOf(0xABF345678901234L)), "new(abf345678901234,16)");
-			Assert.IsTrue(new BigInteger("-1", 16).Equals(BigInteger.ValueOf(-1)), "new(-1,16)");
-			Assert.IsTrue(new BigInteger("-ABF345678901234", 16).Equals(BigInteger.ValueOf(-0xABF345678901234L)), "new(-ABF345678901234,16)");
-			Assert.IsTrue(new BigInteger("-abf345678901234", 16).Equals(BigInteger.ValueOf(-0xABF345678901234L)), "new(-abf345678901234,16)");
-			Assert.IsTrue(new BigInteger("-101010101", 2).Equals(BigInteger.ValueOf(-341)), "new(-101010101,2)");
+			Assert.IsTrue(BigInteger.Parse("0", 16).Equals(BigInteger.ValueOf(0)), "new(0,16)");
+			Assert.IsTrue(BigInteger.Parse("1", 16).Equals(BigInteger.ValueOf(1)), "new(1,16)");
+			Assert.IsTrue(BigInteger.Parse("ABF345678901234", 16).Equals(BigInteger.ValueOf(0xABF345678901234L)), "new(ABF345678901234,16)");
+			Assert.IsTrue(BigInteger.Parse("abf345678901234", 16).Equals(BigInteger.ValueOf(0xABF345678901234L)), "new(abf345678901234,16)");
+			Assert.IsTrue(BigInteger.Parse("-1", 16).Equals(BigInteger.ValueOf(-1)), "new(-1,16)");
+			Assert.IsTrue(BigInteger.Parse("-ABF345678901234", 16).Equals(BigInteger.ValueOf(-0xABF345678901234L)), "new(-ABF345678901234,16)");
+			Assert.IsTrue(BigInteger.Parse("-abf345678901234", 16).Equals(BigInteger.ValueOf(-0xABF345678901234L)), "new(-abf345678901234,16)");
+			Assert.IsTrue(BigInteger.Parse("-101010101", 2).Equals(BigInteger.ValueOf(-341)), "new(-101010101,2)");
 		}
 
 		/**
@@ -822,22 +821,6 @@ namespace Deveel.Math {
 			}
 			BigInteger bi = new BigInteger(0, new byte[] { });
 			Assert.AreEqual(BigInteger.Zero, bi.AndNot(BigInteger.Zero));
-		}
-
-		[Test]
-		public void testClone() {
-			// Regression test for HARMONY-1770
-			MyBigInteger myBigInteger = new MyBigInteger("12345");
-			myBigInteger = (MyBigInteger)myBigInteger.Clone();
-		}
-
-		class MyBigInteger : BigInteger, ICloneable {
-			public MyBigInteger(String val)
-				: base(val) {
-			}
-			public Object Clone() {
-				return base.MemberwiseClone();
-			}
 		}
 
 		private void testDiv(BigInteger i1, BigInteger i2) {

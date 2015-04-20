@@ -14,6 +14,9 @@
 //    limitations under the License.
 
 using System;
+using System.ComponentModel;
+using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Runtime.Serialization;
 
@@ -28,8 +31,15 @@ namespace Deveel.Math {
 	/// arbitrary precision mantissa (the unscaled value) and a scale. The value 
 	/// of the <see cref="BigDecimal"/> is <see cref="UnscaledValue"/> 10^(-<see cref="Scale"/>).
 	/// </remarks>
-	[Serializable, System.Diagnostics.DebuggerDisplay("{ToStringInternal()}")]
-	public sealed class BigDecimal : IComparable<BigDecimal>, IConvertible, ISerializable, IEquatable<BigDecimal> {
+#if !PORTABLE
+	[Serializable]
+#endif
+	[System.Diagnostics.DebuggerDisplay("{ToStringInternal()}")]
+	public sealed class BigDecimal : IComparable<BigDecimal>, IConvertible, IEquatable<BigDecimal> 
+#if !PORTABLE
+		, ISerializable
+#endif
+	{
 
 		/// <summary>
 		/// The constant zero as a <see cref="BigDecimal"/>.
@@ -54,13 +64,17 @@ namespace Deveel.Math {
 		/// <summary>
 		/// The <see cref="string"/> representation is cached.
 		/// </summary>
+#if !PORTABLE
 		[NonSerialized]
+#endif
 		private string toStringImage;
 
 		/// <summary>
 		/// Cache for the hash code.
 		/// </summary>
+#if !PORTABLE
 		[NonSerialized]
+#endif
 		private int hashCode;
 
 		/// <summary>
@@ -186,10 +200,14 @@ namespace Deveel.Math {
 		/// </summary>
 		private BigInteger intVal;
 
+#if !PORTABLE
 		[NonSerialized]
+#endif
 		private int _bitLength;
 
+#if !PORTABLE
 		[NonSerialized]
+#endif
 		private long smallValue;
 
 		/// <summary>
@@ -208,7 +226,9 @@ namespace Deveel.Math {
 		/// </remarks>
 		/// <seealso cref="Precision"/>
 		/// <seealso cref="InplaceRound"/>
+#if !PORTABLE
 		[NonSerialized]
+#endif
 		private int _precision = 0;
 
 		#region .ctor
@@ -225,223 +245,10 @@ namespace Deveel.Math {
 			_bitLength = BitLength(smallValue);
 		}
 
-		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from a string 
-		/// representation given as a <see cref="char">character</see> array.
-		/// </summary>
-		/// <param name="inData">Array of <see cref="char"/> containing the string 
-		/// representation of this <see cref="BigDecimal"/>.</param>
-		/// <param name="offset">The first index to be copied.</param>
-		/// <param name="len">The number of <see cref="char"/> to be used.</param>
-		/// <exception cref="ArgumentNullException">
-		/// If the parameter <paramref name="inData"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="FormatException">
-		/// If <paramref name="offset"/> is less than 0 or <paramref name="len"/> is
-		/// less or equal to 0 or if <see cref="offset"/> + (<paramref name="len"/>-1) is 
-		/// less than 0 or if <paramref name="offset"/> + (<paramref name="len"/>-1) is
-		/// greater or equal to the length of <paramref name="inData"/>.
-		/// <para>
-		/// It is also thrown if <paramref name="inData"/> does not contain a valid string 
-		/// representation of a big decimal.
-		/// </para>
-		/// </exception>
-		public BigDecimal(char[] inData, int offset, int len) {
-			int begin = offset; // first index to be copied
-			int last = offset + (len - 1); // last index to be copied
-
-			if (inData == null)
-				throw new ArgumentNullException("inData");
-
-			if ((last >= inData.Length) || (offset < 0) || (len <= 0) || (last < 0))
-				throw new FormatException();
-
-			var unscaledBuffer = new StringBuilder(len);
-			int bufLength = 0;
-			// To skip a possible '+' symbol
-			if ((offset <= last) && (inData[offset] == '+')) {
-				offset++;
-				begin++;
-			}
-			int counter = 0;
-			bool wasNonZero = false;
-			// Accumulating all digits until a possible decimal point
-			for (; (offset <= last) && (inData[offset] != '.')
-			&& (inData[offset] != 'e') && (inData[offset] != 'E'); offset++) {
-				if (!wasNonZero) {
-					if (inData[offset] == '0') {
-						counter++;
-					} else {
-						wasNonZero = true;
-					}
-				}
-
-			}
-			unscaledBuffer.Append(inData, begin, offset - begin);
-			bufLength += offset - begin;
-			// A decimal point was found
-			if ((offset <= last) && (inData[offset] == '.')) {
-				offset++;
-				// Accumulating all digits until a possible exponent
-				begin = offset;
-				for (; (offset <= last) && (inData[offset] != 'e') && (inData[offset] != 'E'); offset++) {
-					if (!wasNonZero) {
-						if (inData[offset] == '0') {
-							counter++;
-						} else {
-							wasNonZero = true;
-						}
-					}
-				}
-				_scale = offset - begin;
-				bufLength += _scale;
-				unscaledBuffer.Append(inData, begin, _scale);
-			} else {
-				_scale = 0;
-			}
-			// An exponent was found
-			if ((offset <= last) && ((inData[offset] == 'e') || (inData[offset] == 'E'))) {
-				offset++;
-				// Checking for a possible sign of scale
-				begin = offset;
-				if ((offset <= last) && (inData[offset] == '+')) {
-					offset++;
-					if ((offset <= last) && (inData[offset] != '-')) {
-						begin++;
-					}
-				}
-				// Accumulating all remaining digits
-				String scaleString = new String(inData, begin, last + 1 - begin); // buffer for scale
-				// Checking if the scale is defined            
-				long newScale = (long)_scale - Int32.Parse(scaleString); // the new scale
-				_scale = (int)newScale;
-				if (newScale != _scale) {
-					// math.02=Scale out of range.
-					throw new FormatException(Messages.math02); //$NON-NLS-1$
-				}
-			}
-			// Parsing the unscaled value
-			if (bufLength < 19) {
-				smallValue = Int64.Parse(unscaledBuffer.ToString());
-				_bitLength = BitLength(smallValue);
-			} else {
-				SetUnscaledValue(new BigInteger(unscaledBuffer.ToString()));
-			}
-			_precision = unscaledBuffer.Length - counter;
-			if (unscaledBuffer[0] == '-') {
-				_precision--;
-			}
+		private BigDecimal() {
+			
 		}
 
-		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from a string 
-		/// representation given as a <see cref="char">character</see> array.
-		/// </summary>
-		/// <param name="inData">Array of <see cref="char"/> containing the string 
-		/// representation of this <see cref="BigDecimal"/>.</param>
-		/// <param name="offset">The first index to be copied.</param>
-		/// <param name="len">The number of <see cref="char"/> to be used.</param>
-		/// <param name="mc">The rounding mode and precision for the result of 
-		/// this operation.</param>
-		/// <exception cref="ArgumentNullException">
-		/// If the parameter <paramref name="inData"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="FormatException">
-		/// If <paramref name="offset"/> is less than 0 or <paramref name="len"/> is
-		/// less or equal to 0 or if <see cref="offset"/> + (<paramref name="len"/>-1) is 
-		/// less than 0 or if <paramref name="offset"/> + (<paramref name="len"/>-1) is
-		/// greater or equal to the length of <paramref name="inData"/>.
-		/// <para>
-		/// It is also thrown if <paramref name="inData"/> does not contain a valid string 
-		/// representation of a big decimal.
-		/// </para>
-		/// </exception>
-		/// <exception cref="ArithmeticException">
-		/// if <see cref="MathContext.Precision"/> of <paramref name="mc"/> is greater than 0
-		/// and <see cref="MathContext.RoundingMode"/> is equal to <see cref="RoundingMode.Unnecessary"/>
-		/// and the new big decimal cannot be represented within the given precision without rounding.
-		/// </exception>
-		public BigDecimal(char[] inData, int offset, int len, MathContext mc)
-			: this(inData, offset, len) {
-			InplaceRound(mc);
-		}
-
-		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from a string 
-		/// representation given as a <see cref="char">character</see> array.
-		/// </summary>
-		/// <param name="inData">Array of <see cref="char"/> containing the string 
-		/// representation of this <see cref="BigDecimal"/>.</param>
-		/// <exception cref="ArgumentNullException">
-		/// If the parameter <paramref name="inData"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="FormatException">
-		/// If <paramref name="inData"/> does not contain a valid string representation 
-		/// of a big decimal.
-		/// </exception>
-		public BigDecimal(char[] inData)
-			: this(inData, 0, inData.Length) {
-		}
-
-		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from a string 
-		/// representation given as a <see cref="char">character</see> array.
-		/// The result is rounded according to the specified math context.
-		/// </summary>
-		/// <param name="inData">Array of <see cref="char"/> containing the string 
-		/// representation of this <see cref="BigDecimal"/>.</param>
-		/// <param name="mc">The rounding mode and precision for the result of 
-		/// this operation.</param>
-		/// <exception cref="FormatException">
-		/// If <paramref name="inData"/> does not contain a valid string representation 
-		/// of a big decimal.
-		/// </exception>
-		/// <exception cref="ArithmeticException">
-		/// if <see cref="MathContext.Precision"/> of <paramref name="mc"/> is greater than 0
-		/// and <see cref="MathContext.RoundingMode"/> is equal to <see cref="RoundingMode.Unnecessary"/>
-		/// and the new big decimal cannot be represented within the given precision without rounding.
-		/// </exception>
-		public BigDecimal(char[] inData, MathContext mc)
-			: this(inData, 0, inData.Length) {
-			InplaceRound(mc);
-		}
-
-		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from a 
-		/// string representation.
-		/// </summary>
-		/// <param name="value">The string containing the representation of this 
-		/// <see cref="BigDecimal"/>.</param>
-		/// <exception cref="FormatException">
-		/// If <paramref name="value"/> does not contain a valid string representation 
-		/// of a big decimal.
-		/// </exception>
-		public BigDecimal(string value)
-			: this(value.ToCharArray(), 0, value.Length) {
-		}
-
-		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from a 
-		/// string representation. The result is rounded according to the 
-		/// specified math context.
-		/// </summary>
-		/// <param name="value">The string containing the representation of this 
-		/// <see cref="BigDecimal"/>.</param>
-		/// <param name="mc">The rounding mode and precision for the result of 
-		/// this operation.</param>
-		/// <exception cref="FormatException">
-		/// If <paramref name="value"/> does not contain a valid string representation 
-		/// of a big decimal.
-		/// </exception>
-		/// <exception cref="ArithmeticException">
-		/// if <see cref="MathContext.Precision"/> of <paramref name="mc"/> is greater than 0
-		/// and <see cref="MathContext.RoundingMode"/> is equal to <see cref="RoundingMode.Unnecessary"/>
-		/// and the new big decimal cannot be represented within the given precision without rounding.
-		/// </exception>
-		public BigDecimal(string value, MathContext mc)
-			: this(value.ToCharArray(), 0, value.Length) {
-			InplaceRound(mc);
-		}
 
 		/// <summary>
 		/// Constructs a new <see cref="BigDecimal"/> instance from the 64bit 
@@ -629,20 +436,19 @@ namespace Deveel.Math {
 			: this(val, 0) {
 		}
 
-		/**
-		 * Constructs a new {@code BigDecimal} instance from the given int {@code
-		 * val}. The scale of the result is {@code 0}. The result is rounded
-		 * according to the specified math context.
-		 *
-		 * @param val
-		 *            int value to be converted to a {@code BigDecimal} instance.
-		 * @param mc
-		 *            rounding mode and precision for the result of this operation.
-		 * @throws ArithmeticException
-		 *             if {@code mc.precision > 0} and {@code c.roundingMode ==
-		 *             UNNECESSARY} and the new big decimal cannot be represented
-		 *             within the given precision without rounding.
-		 */
+		/// <summary>
+		/// Constructs a new <see cref="BigDecimal"/> instance from the given <paramref name="val">integer value</paramref>. 
+		/// </summary>
+		/// <param name="val">Integer value to be converted to a <see cref="BigDecimal"/> instance.</param>
+		/// <param name="mc">The rounding mode and precision for the result of this operation.</param>
+		/// <remarks>
+		/// The scale of the result is {@code 0}. The result is rounded according to the specified math context.
+		/// </remarks>
+		/// <exception cref="ArithmeticException">
+		/// Thrown if precision is greater than 0 and <see cref="RoundingMode"/> is
+		/// <see cref="RoundingMode.Unnecessary"/> and the new big decimal cannot be represented
+		/// within the given precision without rounding. 
+		/// </exception>
 		public BigDecimal(int val, MathContext mc)
 			: this(val, 0) {
 			InplaceRound(mc);
@@ -679,6 +485,96 @@ namespace Deveel.Math {
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Gets the sign of the decimal, where <c>-1</c> if the value is less than 0,
+		/// <c>0</c> if the value is 0 and <c>1</c> if the value is greater than 0.
+		/// </summary>
+		/// <seealso cref="Sign"/>
+		public int Sign {
+			get {
+				if (_bitLength < 64)
+					return System.Math.Sign(smallValue);
+				return GetUnscaledValue().Sign;
+			}
+		}
+
+		/// <summary>
+		/// Gets a value indicating if the decimal is equivalent to zero.
+		/// </summary>
+		public bool IsZero {
+			get {
+				//Watch out: -1 has a bitLength=0
+				return _bitLength == 0 && smallValue != -1;
+			}
+		}
+
+		/**
+		 * Returns the scale of this {@code BigDecimal}. The scale is the number of
+		 * digits behind the decimal point. The value of this {@code BigDecimal} is
+		 * the unsignedValue * 10^(-scale). If the scale is negative, then this
+		 * {@code BigDecimal} represents a big integer.
+		 *
+		 * @return the scale of this {@code BigDecimal}.
+		 */
+
+		public int Scale {
+			get { return _scale; }
+		}
+
+		/**
+		 * Returns the precision of this {@code BigDecimal}. The precision is the
+		 * number of decimal digits used to represent this decimal. It is equivalent
+		 * to the number of digits of the unscaled value. The precision of {@code 0}
+		 * is {@code 1} (independent of the scale).
+		 *
+		 * @return the precision of this {@code BigDecimal}.
+		 */
+
+		public int Precision {
+			get {
+				// Checking if the precision already was calculated
+				if (_precision > 0) {
+					return _precision;
+				}
+				int bitLength = this._bitLength;
+				int decimalDigits = 1; // the precision to be calculated
+				double doubleUnsc = 1; // intVal in 'double'
+
+				if (bitLength < 1024) {
+					// To calculate the precision for small numbers
+					if (bitLength >= 64) {
+						doubleUnsc = GetUnscaledValue().ToDouble();
+					} else if (bitLength >= 1) {
+						doubleUnsc = smallValue;
+					}
+					decimalDigits += (int) System.Math.Log10(System.Math.Abs(doubleUnsc));
+				} else {
+// (bitLength >= 1024)
+					/* To calculate the precision for large numbers
+				 * Note that: 2 ^(bitlength() - 1) <= intVal < 10 ^(precision()) */
+					decimalDigits += (int) ((bitLength - 1)*Log10_2);
+					// If after division the number isn't zero, exists an aditional digit
+					if (GetUnscaledValue().Divide(Multiplication.PowerOf10(decimalDigits)).Sign != 0) {
+						decimalDigits++;
+					}
+				}
+				_precision = decimalDigits;
+				return _precision;
+			}
+		}
+
+		/**
+		 * Returns the unscaled value (mantissa) of this {@code BigDecimal} instance
+		 * as a {@code BigInteger}. The unscaled value can be computed as {@code
+		 * this} 10^(scale).
+		 *
+		 * @return unscaled value (this * 10^(scale)).
+		 */
+
+		public BigInteger UnscaledValue {
+			get { return GetUnscaledValue(); }
+		}
 
 		internal static bool __isNegativeZero(double d) {
 			return ((1.0 / d) == double.NegativeInfinity);
@@ -782,31 +678,6 @@ namespace Deveel.Math {
 			return new BigDecimal(unscaledVal, 0);
 		}
 
-		/**
-		 * Returns a new {@code BigDecimal} instance whose value is equal to {@code
-		 * val}. The new decimal is constructed as if the {@code BigDecimal(String)}
-		 * constructor is called with an argument which is equal to {@code
-		 * Double.toString(val)}. For example, {@code valueOf("0.1")} is converted to
-		 * (unscaled=1, scale=1), although the double {@code 0.1} cannot be
-		 * represented exactly as a double value. In contrast to that, a new {@code
-		 * BigDecimal(0.1)} instance has the value {@code
-		 * 0.1000000000000000055511151231257827021181583404541015625} with an
-		 * unscaled value {@code 1000000000000000055511151231257827021181583404541015625}
-		 * and the scale {@code 55}.
-		 *
-		 * @param val
-		 *            double value to be converted to a {@code BigDecimal}.
-		 * @return {@code BigDecimal} instance with the value {@code val}.
-		 * @throws NumberFormatException
-		 *             if {@code val} is infinite or {@code val} is not a number
-		 */
-		public static BigDecimal ValueOf(double val) {
-			if (Double.IsInfinity(val) || Double.IsNaN(val)) {
-				// math.03=Infinity or NaN
-				throw new FormatException(Messages.math03); //$NON-NLS-1$
-			}
-			return new BigDecimal(Convert.ToString(val));
-		}
 
 		/// <summary>
 		/// Adds a value to the current instance of <see cref="BigDecimal"/>.
@@ -1141,6 +1012,8 @@ namespace Deveel.Math {
 		}
 
 		#endregion
+
+		#region Operations
 
 		private static BigDecimal DivideBigIntegers(BigInteger scaledDividend, BigInteger scaledDivisor, int scale, RoundingMode roundingMode) {
 			BigInteger remainder;
@@ -1829,114 +1702,6 @@ namespace Deveel.Math {
 			return Round(mc);
 		}
 
-		/// <summary>
-		/// Gets the sign of the decimal, where <c>-1</c> if the value is less than 0,
-		/// <c>0</c> if the value is 0 and <c>1</c> if the value is greater than 0.
-		/// </summary>
-		/// <seealso cref="Sign"/>
-		public int Sign {
-			get {
-				if (_bitLength < 64)
-					return System.Math.Sign(smallValue);
-				return GetUnscaledValue().Sign;
-			}
-		}
-
-		/// <summary>
-		/// Gets a value indicating if the decimal is equivalent to zero.
-		/// </summary>
-		public bool IsZero {
-			get {
-				//Watch out: -1 has a bitLength=0
-				return _bitLength == 0 && smallValue != -1;
-			}
-		}
-
-		/**
-		 * Returns the scale of this {@code BigDecimal}. The scale is the number of
-		 * digits behind the decimal point. The value of this {@code BigDecimal} is
-		 * the unsignedValue * 10^(-scale). If the scale is negative, then this
-		 * {@code BigDecimal} represents a big integer.
-		 *
-		 * @return the scale of this {@code BigDecimal}.
-		 */
-
-		public int Scale {
-			get { return _scale; }
-		}
-
-		/**
-		 * Returns the precision of this {@code BigDecimal}. The precision is the
-		 * number of decimal digits used to represent this decimal. It is equivalent
-		 * to the number of digits of the unscaled value. The precision of {@code 0}
-		 * is {@code 1} (independent of the scale).
-		 *
-		 * @return the precision of this {@code BigDecimal}.
-		 */
-
-		public int Precision {
-			get {
-				// Checking if the precision already was calculated
-				if (_precision > 0) {
-					return _precision;
-				}
-				int bitLength = this._bitLength;
-				int decimalDigits = 1; // the precision to be calculated
-				double doubleUnsc = 1; // intVal in 'double'
-
-				if (bitLength < 1024) {
-					// To calculate the precision for small numbers
-					if (bitLength >= 64) {
-						doubleUnsc = GetUnscaledValue().ToDouble();
-					} else if (bitLength >= 1) {
-						doubleUnsc = smallValue;
-					}
-					decimalDigits += (int) System.Math.Log10(System.Math.Abs(doubleUnsc));
-				} else {
-// (bitLength >= 1024)
-					/* To calculate the precision for large numbers
-				 * Note that: 2 ^(bitlength() - 1) <= intVal < 10 ^(precision()) */
-					decimalDigits += (int) ((bitLength - 1)*Log10_2);
-					// If after division the number isn't zero, exists an aditional digit
-					if (GetUnscaledValue().Divide(Multiplication.PowerOf10(decimalDigits)).Sign != 0) {
-						decimalDigits++;
-					}
-				}
-				_precision = decimalDigits;
-				return _precision;
-			}
-		}
-
-		/**
-		 * Returns the unscaled value (mantissa) of this {@code BigDecimal} instance
-		 * as a {@code BigInteger}. The unscaled value can be computed as {@code
-		 * this} 10^(scale).
-		 *
-		 * @return unscaled value (this * 10^(scale)).
-		 */
-
-		public BigInteger UnscaledValue {
-			get { return GetUnscaledValue(); }
-		}
-
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code this}, rounded
-		 * according to the passed context {@code mc}.
-		 * <p>
-		 * If {@code mc.precision = 0}, then no rounding is performed.
-		 * <p>
-		 * If {@code mc.precision > 0} and {@code mc.roundingMode == UNNECESSARY},
-		 * then an {@code ArithmeticException} is thrown if the result cannot be
-		 * represented exactly within the given precision.
-		 *
-		 * @param mc
-		 *            rounding mode and precision for the result of this operation.
-		 * @return {@code this} rounded according to the passed context.
-		 * @throws ArithmeticException
-		 *             if {@code mc.precision > 0} and {@code mc.roundingMode ==
-		 *             UNNECESSARY} and this cannot be represented within the given
-		 *             precision.
-		 */
 		public BigDecimal Round(MathContext mc) {
 			var thisBD = new BigDecimal(GetUnscaledValue(), _scale);
 
@@ -1975,7 +1740,7 @@ namespace Deveel.Math {
 			if (diffScale > 0) {
 				// return  [u * 10^(s2 - s), newScale]
 				if (diffScale < LongTenPow.Length &&
-						(_bitLength + LongTenPowBitLength[(int)diffScale]) < 64) {
+				    (_bitLength + LongTenPowBitLength[(int)diffScale]) < 64) {
 					return ValueOf(smallValue * LongTenPow[(int)diffScale], newScale);
 				}
 				return new BigDecimal(Multiplication.MultiplyByTenPow(GetUnscaledValue(), (int)diffScale), newScale);
@@ -2013,7 +1778,7 @@ namespace Deveel.Math {
 		public BigDecimal SetScale(int newScale, int roundingMode) {
 			RoundingMode rm = (RoundingMode)roundingMode;
 			if ((roundingMode < (int)RoundingMode.Up) || 
-				(roundingMode > (int)RoundingMode.Unnecessary)) {
+			    (roundingMode > (int)RoundingMode.Unnecessary)) {
 				throw new ArgumentException("roundingMode");
 			}
 			return SetScale(newScale, (RoundingMode)roundingMode);
@@ -2072,7 +1837,7 @@ namespace Deveel.Math {
 				return new BigDecimal(GetUnscaledValue(), ToIntScale(newScale));
 			}
 			if (-newScale < LongTenPow.Length &&
-					_bitLength + LongTenPowBitLength[(int)-newScale] < 64) {
+			    _bitLength + LongTenPowBitLength[(int)-newScale] < 64) {
 				return ValueOf(smallValue * LongTenPow[(int)-newScale], 0);
 			}
 			return new BigDecimal(Multiplication.MultiplyByTenPow(GetUnscaledValue(), (int)-newScale), 0);
@@ -2137,7 +1902,7 @@ namespace Deveel.Math {
 			long newScale = _scale;
 
 			if (IsZero) {
-				return new BigDecimal("0");
+				return BigDecimal.Parse("0");
 			}
 			BigInteger strippedBI = GetUnscaledValue();
 			BigInteger quotient;
@@ -2167,6 +1932,44 @@ namespace Deveel.Math {
 			}
 			return new BigDecimal(strippedBI, ToIntScale(newScale));
 		}
+
+		public BigDecimal Min(BigDecimal val) {
+			return ((CompareTo(val) <= 0) ? this : val);
+		}
+
+		/**
+		 * Returns the maximum of this {@code BigDecimal} and {@code val}.
+		 *
+		 * @param val
+		 *            value to be used to compute the maximum with this.
+		 * @return {@code max(this, val}.
+		 * @throws NullPointerException
+		 *             if {@code val == null}.
+		 */
+		public BigDecimal Max(BigDecimal val) {
+			return ((CompareTo(val) >= 0) ? this : val);
+		}
+
+		#endregion
+
+		/**
+		 * Returns a new {@code BigDecimal} whose value is {@code this}, rounded
+		 * according to the passed context {@code mc}.
+		 * <p>
+		 * If {@code mc.precision = 0}, then no rounding is performed.
+		 * <p>
+		 * If {@code mc.precision > 0} and {@code mc.roundingMode == UNNECESSARY},
+		 * then an {@code ArithmeticException} is thrown if the result cannot be
+		 * represented exactly within the given precision.
+		 *
+		 * @param mc
+		 *            rounding mode and precision for the result of this operation.
+		 * @return {@code this} rounded according to the passed context.
+		 * @throws ArithmeticException
+		 *             if {@code mc.precision > 0} and {@code mc.roundingMode ==
+		 *             UNNECESSARY} and this cannot be represented within the given
+		 *             precision.
+		 */
 
 		/**
 		 * Compares this {@code BigDecimal} with {@code val}. Returns one of the
@@ -2252,22 +2055,6 @@ namespace Deveel.Math {
 		 * @throws NullPointerException
 		 *             if {@code val == null}.
 		 */
-		public BigDecimal Min(BigDecimal val) {
-			return ((CompareTo(val) <= 0) ? this : val);
-		}
-
-		/**
-		 * Returns the maximum of this {@code BigDecimal} and {@code val}.
-		 *
-		 * @param val
-		 *            value to be used to compute the maximum with this.
-		 * @return {@code max(this, val}.
-		 * @throws NullPointerException
-		 *             if {@code val == null}.
-		 */
-		public BigDecimal Max(BigDecimal val) {
-			return ((CompareTo(val) >= 0) ? this : val);
-		}
 
 		/**
 		 * Returns a hash code for this {@code BigDecimal}.
@@ -2299,472 +2086,6 @@ namespace Deveel.Math {
 		 * @return a string representation of {@code this} in scientific notation if
 		 *         necessary.
 		 */
-		public override String ToString() {
-			if (toStringImage != null) {
-				return toStringImage;
-			}
-			return ToStringInternal();
-		}
-
-		private string ToStringInternal() {
-			if (_bitLength < 32) {
-				toStringImage = Conversion.ToDecimalScaledString(smallValue, _scale);
-				return toStringImage;
-			}
-			String intString = GetUnscaledValue().ToString();
-			if (_scale == 0) {
-				return intString;
-			}
-			int begin = (GetUnscaledValue().Sign < 0) ? 2 : 1;
-			int end = intString.Length;
-			long exponent = -(long)_scale + end - begin;
-			StringBuilder result = new StringBuilder();
-
-			result.Append(intString);
-			if ((_scale > 0) && (exponent >= -6)) {
-				if (exponent >= 0) {
-					result.Insert(end - _scale, '.');
-				} else {
-					result.Insert(begin - 1, "0."); //$NON-NLS-1$
-					result.Insert(begin + 1, ChZeros, 0, -(int)exponent - 1);
-				}
-			} else {
-				if (end - begin >= 1) {
-					result.Insert(begin, '.');
-					end++;
-				}
-				result.Insert(end, 'E');
-				if (exponent > 0) {
-					result.Insert(++end, '+');
-				}
-				result.Insert(++end, Convert.ToString(exponent));
-			}
-			toStringImage = result.ToString();
-			return toStringImage;
-		}
-
-		/**
-		 * Returns a string representation of this {@code BigDecimal}. This
-		 * representation always prints all significant digits of this value.
-		 * <p>
-		 * If the scale is negative or if {@code scale - precision >= 6} then
-		 * engineering notation is used. Engineering notation is similar to the
-		 * scientific notation except that the exponent is made to be a multiple of
-		 * 3 such that the integer part is >= 1 and < 1000.
-		 *
-		 * @return a string representation of {@code this} in engineering notation
-		 *         if necessary.
-		 */
-		public String ToEngineeringString() {
-			String intString = GetUnscaledValue().ToString();
-			if (_scale == 0) {
-				return intString;
-			}
-			int begin = (GetUnscaledValue().Sign < 0) ? 2 : 1;
-			int end = intString.Length;
-			long exponent = -(long)_scale + end - begin;
-			StringBuilder result = new StringBuilder(intString);
-
-			if ((_scale > 0) && (exponent >= -6)) {
-				if (exponent >= 0) {
-					result.Insert(end - _scale, '.');
-				} else {
-					result.Insert(begin - 1, "0."); //$NON-NLS-1$
-					result.Insert(begin + 1, ChZeros, 0, -(int)exponent - 1);
-				}
-			} else {
-				int delta = end - begin;
-				int rem = (int)(exponent % 3);
-
-				if (rem != 0) {
-					// adjust exponent so it is a multiple of three
-					if (GetUnscaledValue().Sign == 0) {
-						// zero value
-						rem = (rem < 0) ? -rem : 3 - rem;
-						exponent += rem;
-					} else {
-						// nonzero value
-						rem = (rem < 0) ? rem + 3 : rem;
-						exponent -= rem;
-						begin += rem;
-					}
-					if (delta < 3) {
-						for (int i = rem - delta; i > 0; i--) {
-							result.Insert(end++, '0');
-						}
-					}
-				}
-				if (end - begin >= 1) {
-					result.Insert(begin, '.');
-					end++;
-				}
-				if (exponent != 0) {
-					result.Insert(end, 'E');
-					if (exponent > 0) {
-						result.Insert(++end, '+');
-					}
-					result.Insert(++end, Convert.ToString(exponent));
-				}
-			}
-			return result.ToString();
-		}
-
-		/**
-		 * Returns a string representation of this {@code BigDecimal}. No scientific
-		 * notation is used. This methods adds zeros where necessary.
-		 * <p>
-		 * If this string representation is used to create a new instance, this
-		 * instance is generally not identical to {@code this} as the precision
-		 * changes.
-		 * <p>
-		 * {@code x.equals(new BigDecimal(x.toPlainString())} usually returns
-		 * {@code false}.
-		 * <p>
-		 * {@code x.compareTo(new BigDecimal(x.toPlainString())} returns {@code 0}.
-		 *
-		 * @return a string representation of {@code this} without exponent part.
-		 */
-		public String ToPlainString() {
-			String intStr = GetUnscaledValue().ToString();
-			if ((_scale == 0) || ((IsZero) && (_scale < 0))) {
-				return intStr;
-			}
-			int begin = (Sign < 0) ? 1 : 0;
-			int delta = _scale;
-			// We take space for all digits, plus a possible decimal point, plus 'scale'
-			StringBuilder result = new StringBuilder(intStr.Length + 1 + System.Math.Abs(_scale));
-
-			if (begin == 1) {
-				// If the number is negative, we insert a '-' CharHelper at front 
-				result.Append('-');
-			}
-			if (_scale > 0) {
-				delta -= (intStr.Length - begin);
-				if (delta >= 0) {
-					result.Append("0."); //$NON-NLS-1$
-					// To append zeros after the decimal point
-					for (; delta > ChZeros.Length; delta -= ChZeros.Length) {
-						result.Append(ChZeros);
-					}
-					result.Append(ChZeros, 0, delta);
-					result.Append(intStr.Substring(begin));
-				} else {
-					delta = begin - delta;
-					result.Append(intStr.Substring(begin, delta - begin));
-					result.Append('.');
-					result.Append(intStr.Substring(delta));
-				}
-			} else {// (scale <= 0)
-				result.Append(intStr.Substring(begin));
-				// To append trailing zeros
-				for (; delta < -ChZeros.Length; delta += ChZeros.Length) {
-					result.Append(ChZeros);
-				}
-				result.Append(ChZeros, 0, -delta);
-			}
-			return result.ToString();
-		}
-
-		/**
-		 * Returns this {@code BigDecimal} as a big integer instance. A fractional
-		 * part is discarded.
-		 *
-		 * @return this {@code BigDecimal} as a big integer instance.
-		 */
-		public BigInteger ToBigInteger() {
-			if ((_scale == 0) || (IsZero)) {
-				return GetUnscaledValue();
-			} else if (_scale < 0) {
-				return GetUnscaledValue().Multiply(Multiplication.PowerOf10(-(long)_scale));
-			} else {// (scale > 0)
-				return GetUnscaledValue().Divide(Multiplication.PowerOf10(_scale));
-			}
-		}
-
-		/**
-		 * Returns this {@code BigDecimal} as a big integer instance if it has no
-		 * fractional part. If this {@code BigDecimal} has a fractional part, i.e.
-		 * if rounding would be necessary, an {@code ArithmeticException} is thrown.
-		 *
-		 * @return this {@code BigDecimal} as a big integer value.
-		 * @throws ArithmeticException
-		 *             if rounding is necessary.
-		 */
-		public BigInteger ToBigIntegerExact() {
-			if ((_scale == 0) || (IsZero)) {
-				return GetUnscaledValue();
-			} else if (_scale < 0) {
-				return GetUnscaledValue().Multiply(Multiplication.PowerOf10(-(long)_scale));
-			} else {// (scale > 0)
-				BigInteger integer;
-				BigInteger fraction;
-				// An optimization before do a heavy division
-				if ((_scale > AproxPrecision()) || (_scale > GetUnscaledValue().LowestSetBit)) {
-					// math.08=Rounding necessary
-					throw new ArithmeticException(Messages.math08); //$NON-NLS-1$
-				}
-				integer = GetUnscaledValue().DivideAndRemainder(Multiplication.PowerOf10(_scale), out fraction);
-				if (fraction.Sign != 0) {
-					// It exists a non-zero fractional part 
-					// math.08=Rounding necessary
-					throw new ArithmeticException(Messages.math08); //$NON-NLS-1$
-				}
-				return integer;
-			}
-		}
-
-		/**
-		 * Returns this {@code BigDecimal} as an long value. Any fractional part is
-		 * discarded. If the integral part of {@code this} is too big to be
-		 * represented as an long, then {@code this} % 2^64 is returned.
-		 *
-		 * @return this {@code BigDecimal} as a long value.
-		 */
-		public long ToInt64() {
-			/* If scale <= -64 there are at least 64 trailing bits zero in 10^(-scale).
-			 * If the scale is positive and very large the long value could be zero. */
-			return ((_scale <= -64) || (_scale > AproxPrecision()) ? 0L : ToBigInteger().ToInt64());
-		}
-
-		/**
-		 * Returns this {@code BigDecimal} as a long value if it has no fractional
-		 * part and if its value fits to the int range ([-2^{63}..2^{63}-1]). If
-		 * these conditions are not met, an {@code ArithmeticException} is thrown.
-		 *
-		 * @return this {@code BigDecimal} as a long value.
-		 * @throws ArithmeticException
-		 *             if rounding is necessary or the number doesn't fit in a long.
-		 */
-		public long ToInt64Exact() {
-			return ValueExact(64);
-		}
-
-		/**
-		 * Returns this {@code BigDecimal} as an int value. Any fractional part is
-		 * discarded. If the integral part of {@code this} is too big to be
-		 * represented as an int, then {@code this} % 2^32 is returned.
-		 *
-		 * @return this {@code BigDecimal} as a int value.
-		 */
-		public int ToInt32() {
-			/* If scale <= -32 there are at least 32 trailing bits zero in 10^(-scale).
-			 * If the scale is positive and very large the long value could be zero. */
-			return ((_scale <= -32) || (_scale > AproxPrecision()) ? 0 : ToBigInteger().ToInt32());
-		}
-
-		/**
-		 * Returns this {@code BigDecimal} as a int value if it has no fractional
-		 * part and if its value fits to the int range ([-2^{31}..2^{31}-1]). If
-		 * these conditions are not met, an {@code ArithmeticException} is thrown.
-		 *
-		 * @return this {@code BigDecimal} as a int value.
-		 * @throws ArithmeticException
-		 *             if rounding is necessary or the number doesn't fit in a int.
-		 */
-		public int ToInt32Exact() {
-			return (int)ValueExact(32);
-		}
-
-		/**
-		 * Returns this {@code BigDecimal} as a short value if it has no fractional
-		 * part and if its value fits to the short range ([-2^{15}..2^{15}-1]). If
-		 * these conditions are not met, an {@code ArithmeticException} is thrown.
-		 *
-		 * @return this {@code BigDecimal} as a short value.
-		 * @throws ArithmeticException
-		 *             if rounding is necessary of the number doesn't fit in a
-		 *             short.
-		 */
-		public short ToInt16Exact() {
-			return (short)ValueExact(16);
-		}
-
-		/**
-		 * Returns this {@code BigDecimal} as a byte value if it has no fractional
-		 * part and if its value fits to the byte range ([-128..127]). If these
-		 * conditions are not met, an {@code ArithmeticException} is thrown.
-		 *
-		 * @return this {@code BigDecimal} as a byte value.
-		 * @throws ArithmeticException
-		 *             if rounding is necessary or the number doesn't fit in a byte.
-		 */
-		public byte ToByteExact() {
-			return (byte)ValueExact(8);
-		}
-
-		/**
-		 * Returns this {@code BigDecimal} as a float value. If {@code this} is too
-		 * big to be represented as an float, then {@code Float.POSITIVE_INFINITY}
-		 * or {@code Float.NEGATIVE_INFINITY} is returned.
-		 * <p>
-		 * Note, that if the unscaled value has more than 24 significant digits,
-		 * then this decimal cannot be represented exactly in a float variable. In
-		 * this case the result is rounded.
-		 * <p>
-		 * For example, if the instance {@code x1 = new BigDecimal("0.1")} cannot be
-		 * represented exactly as a float, and thus {@code x1.equals(new
-		 * BigDecimal(x1.folatValue())} returns {@code false} for this case.
-		 * <p>
-		 * Similarly, if the instance {@code new BigDecimal(16777217)} is converted
-		 * to a float, the result is {@code 1.6777216E}7.
-		 *
-		 * @return this {@code BigDecimal} as a float value.
-		 */
-		public float ToSingle() {
-			/* A similar code like in ToDouble() could be repeated here,
-			 * but this simple implementation is quite efficient. */
-			float floatResult = Sign;
-			long powerOfTwo = this._bitLength - (long)(_scale / Log10_2);
-			if ((powerOfTwo < -149) || (floatResult == 0.0f)) {
-				// Cases which 'this' is very small
-				floatResult *= 0.0f;
-			} else if (powerOfTwo > 129) {
-				// Cases which 'this' is very large
-				floatResult *= Single.PositiveInfinity;
-			} else {
-				floatResult = (float)ToDouble();
-			}
-			return floatResult;
-		}
-
-		/**
-		 * Returns this {@code BigDecimal} as a double value. If {@code this} is too
-		 * big to be represented as an float, then {@code Double.POSITIVE_INFINITY}
-		 * or {@code Double.NEGATIVE_INFINITY} is returned.
-		 * <p>
-		 * Note, that if the unscaled value has more than 53 significant digits,
-		 * then this decimal cannot be represented exactly in a double variable. In
-		 * this case the result is rounded.
-		 * <p>
-		 * For example, if the instance {@code x1 = new BigDecimal("0.1")} cannot be
-		 * represented exactly as a double, and thus {@code x1.equals(new
-		 * BigDecimal(x1.ToDouble())} returns {@code false} for this case.
-		 * <p>
-		 * Similarly, if the instance {@code new BigDecimal(9007199254740993L)} is
-		 * converted to a double, the result is {@code 9.007199254740992E15}.
-		 * <p>
-		 *
-		 * @return this {@code BigDecimal} as a double value.
-		 */
-		public double ToDouble() {
-			int sign = Sign;
-			int exponent = 1076; // bias + 53
-			int lowestSetBit;
-			int discardedSize;
-			long powerOfTwo = this._bitLength - (long)(_scale / Log10_2);
-			long bits; // IEEE-754 Standard
-			long tempBits; // for temporal calculations     
-			BigInteger mantisa;
-
-			if ((powerOfTwo < -1074) || (sign == 0)) {
-				// Cases which 'this' is very small            
-				return (sign * 0.0d);
-			} else if (powerOfTwo > 1025) {
-				// Cases which 'this' is very large            
-				return (sign * Double.PositiveInfinity);
-			}
-			mantisa = GetUnscaledValue().Abs();
-			// Let be:  this = [u,s], with s > 0
-			if (_scale <= 0) {
-				// mantisa = abs(u) * 10^s
-				mantisa = mantisa.Multiply(Multiplication.PowerOf10(-_scale));
-			} else {
-				// (scale > 0)
-				BigInteger quotient;
-				BigInteger remainder;
-				BigInteger powerOfTen = Multiplication.PowerOf10(_scale);
-				int k = 100 - (int)powerOfTwo;
-				int compRem;
-
-				if (k > 0) {
-					/* Computing (mantisa * 2^k) , where 'k' is a enough big
-					 * power of '2' to can divide by 10^s */
-					mantisa = mantisa.ShiftLeft(k);
-					exponent -= k;
-				}
-				// Computing (mantisa * 2^k) / 10^s
-				quotient = mantisa.DivideAndRemainder(powerOfTen, out remainder);
-				// To check if the fractional part >= 0.5
-				compRem = remainder.ShiftLeftOneBit().CompareTo(powerOfTen);
-				// To add two rounded bits at end of mantisa
-				mantisa = quotient.ShiftLeft(2).Add(BigInteger.ValueOf((compRem * (compRem + 3)) / 2 + 1));
-				exponent -= 2;
-			}
-			lowestSetBit = mantisa.LowestSetBit;
-			discardedSize = mantisa.BitLength - 54;
-			if (discardedSize > 0) {
-				// (n > 54)
-				// mantisa = (abs(u) * 10^s) >> (n - 54)
-				bits = mantisa.ShiftRight(discardedSize).ToInt64();
-				tempBits = bits;
-				// #bits = 54, to check if the discarded fraction produces a carry             
-				if ((((bits & 1) == 1) && (lowestSetBit < discardedSize))
-					|| ((bits & 3) == 3)) {
-					bits += 2;
-				}
-			} else {
-				// (n <= 54)
-				// mantisa = (abs(u) * 10^s) << (54 - n)                
-				bits = mantisa.ToInt64() << -discardedSize;
-				tempBits = bits;
-				// #bits = 54, to check if the discarded fraction produces a carry:
-				if ((bits & 3) == 3) {
-					bits += 2;
-				}
-			}
-			// Testing bit 54 to check if the carry creates a new binary digit
-			if ((bits & 0x40000000000000L) == 0) {
-				// To drop the last bit of mantisa (first discarded)
-				bits >>= 1;
-				// exponent = 2^(s-n+53+bias)
-				exponent += discardedSize;
-			} else {
-				// #bits = 54
-				bits >>= 2;
-				exponent += discardedSize + 1;
-			}
-			// To test if the 53-bits number fits in 'double'            
-			if (exponent > 2046) {
-				// (exponent - bias > 1023)
-				return (sign * Double.PositiveInfinity);
-			}
-			if (exponent <= 0) {
-				// (exponent - bias <= -1023)
-				// Denormalized numbers (having exponent == 0)
-				if (exponent < -53) {
-					// exponent - bias < -1076
-					return (sign * 0.0d);
-				}
-				// -1076 <= exponent - bias <= -1023 
-				// To discard '- exponent + 1' bits
-				bits = tempBits >> 1;
-				tempBits = bits & Utils.URShift(-1L, (63 + exponent));
-				bits >>= (-exponent);
-				// To test if after discard bits, a new carry is generated
-				if (((bits & 3) == 3) || (((bits & 1) == 1) && (tempBits != 0)
-										  && (lowestSetBit < discardedSize))) {
-					bits += 1;
-				}
-				exponent = 0;
-				bits >>= 1;
-			}
-			// Construct the 64 double bits: [sign(1), exponent(11), mantisa(52)]
-			// bits = (long)((ulong)sign & 0x8000000000000000L) | ((long)exponent << 52) | (bits & 0xFFFFFFFFFFFFFL);
-			bits = sign & Int64.MinValue | ((long)exponent << 52) | (bits & 0xFFFFFFFFFFFFFL);
-			return BitConverter.Int64BitsToDouble(bits);
-		}
-
-		// TODO: must be verified
-		public decimal ToDecimal() {
-			var scaleDivisor = BigInteger.ValueOf(10).Pow(_scale);
-			var remainder = GetUnscaledValue().Remainder(scaleDivisor);
-			var scaledValue = GetUnscaledValue().Divide(scaleDivisor);
-
-			var leftOfDecimal = (decimal)scaledValue;
-			var rightOfDecimal = (remainder) / ((decimal)scaleDivisor);
-
-			return leftOfDecimal + rightOfDecimal;
-		}
 
 		/**
 		 * Returns the unit in the last place (ULP) of this {@code BigDecimal}
@@ -3092,6 +2413,7 @@ namespace Deveel.Math {
 		}
 		*/
 
+#if !PORTABLE
 		private BigDecimal(SerializationInfo info, StreamingContext context) {
 			intVal = (BigInteger) info.GetValue("intVal", typeof(BigInteger));
 			_scale = info.GetInt32("scale");
@@ -3107,7 +2429,9 @@ namespace Deveel.Math {
 			info.AddValue("scale", _scale);
 		}
 
-		#region Implementation of IConvertible
+#endif
+
+		#region Conversions
 
 		TypeCode IConvertible.GetTypeCode() {
 			return TypeCode.Object;
@@ -3179,7 +2503,7 @@ namespace Deveel.Math {
 		}
 
 		string IConvertible.ToString(IFormatProvider provider) {
-			return ToString();
+			return ToString(provider);
 		}
 
 		object IConvertible.ToType(Type conversionType, IFormatProvider provider) {
@@ -3202,6 +2526,782 @@ namespace Deveel.Math {
 				return ToBigInteger();
 
 			throw new NotSupportedException();
+		}
+
+		public override string ToString() {
+			if (toStringImage != null) {
+				return toStringImage;
+			}
+			return ToString(null);
+		}
+
+		public string ToString(IFormatProvider provider) {
+			if (provider == null)
+				provider = NumberFormatInfo.InvariantInfo;
+
+			return ToStringInternal(provider);
+		}
+
+		private string ToStringInternal(IFormatProvider provider) {
+			var numberInfo = provider.GetFormat(typeof (NumberFormatInfo)) as NumberFormatInfo;
+			if (numberInfo == null)
+				numberInfo = NumberFormatInfo.InvariantInfo;
+
+			var decimalSep = numberInfo.NumberDecimalSeparator;
+			if (decimalSep.Length > 1)
+				throw new NotSupportedException("Decimal separators with more than one character are not supported (yet).");
+
+			if (_bitLength < 32) {
+				toStringImage = Conversion.ToDecimalScaledString(smallValue, _scale);
+				return toStringImage;
+			}
+			String intString = GetUnscaledValue().ToString();
+			if (_scale == 0) {
+				return intString;
+			}
+			int begin = (GetUnscaledValue().Sign < 0) ? 2 : 1;
+			int end = intString.Length;
+			long exponent = -(long)_scale + end - begin;
+			StringBuilder result = new StringBuilder();
+
+			result.Append(intString);
+			if ((_scale > 0) && (exponent >= -6)) {
+				if (exponent >= 0) {
+					result.Insert(end - _scale, decimalSep);
+				} else {
+					result.Insert(begin - 1, "0"+decimalSep); //$NON-NLS-1$
+					result.Insert(begin + 1, ChZeros, 0, -(int)exponent - 1);
+				}
+			} else {
+				if (end - begin >= 1) {
+					result.Insert(begin, decimalSep);
+					end++;
+				}
+				result.Insert(end, new []{'E'});
+				if (exponent > 0) {
+					result.Insert(++end, new[] {'+'});
+				}
+				result.Insert(++end, Convert.ToString(exponent));
+			}
+			toStringImage = result.ToString();
+			return toStringImage;
+		}
+
+		/**
+		 * Returns a string representation of this {@code BigDecimal}. This
+		 * representation always prints all significant digits of this value.
+		 * <p>
+		 * If the scale is negative or if {@code scale - precision >= 6} then
+		 * engineering notation is used. Engineering notation is similar to the
+		 * scientific notation except that the exponent is made to be a multiple of
+		 * 3 such that the integer part is >= 1 and < 1000.
+		 *
+		 * @return a string representation of {@code this} in engineering notation
+		 *         if necessary.
+		 */
+
+		public String ToEngineeringString() {
+			return ToEngineeringString(null);
+		}
+
+		public String ToEngineeringString(IFormatProvider provider) {
+			var numberInfo = provider.GetFormat(typeof(NumberFormatInfo)) as NumberFormatInfo;
+			if (numberInfo == null)
+				numberInfo = NumberFormatInfo.InvariantInfo;
+
+			var decimalSep = numberInfo.NumberDecimalSeparator;
+			if (decimalSep.Length > 1)
+				throw new NotSupportedException("Decimal separators with more than one character are not supported (yet).");
+
+			String intString = GetUnscaledValue().ToString();
+			if (_scale == 0) {
+				return intString;
+			}
+			int begin = (GetUnscaledValue().Sign < 0) ? 2 : 1;
+			int end = intString.Length;
+			long exponent = -(long)_scale + end - begin;
+			StringBuilder result = new StringBuilder(intString);
+
+			if ((_scale > 0) && (exponent >= -6)) {
+				if (exponent >= 0) {
+					result.Insert(end - _scale,  decimalSep);
+				} else {
+					result.Insert(begin - 1, "0" + decimalSep); //$NON-NLS-1$
+					result.Insert(begin + 1, ChZeros, 0, -(int)exponent - 1);
+				}
+			} else {
+				int delta = end - begin;
+				int rem = (int)(exponent % 3);
+
+				if (rem != 0) {
+					// adjust exponent so it is a multiple of three
+					if (GetUnscaledValue().Sign == 0) {
+						// zero value
+						rem = (rem < 0) ? -rem : 3 - rem;
+						exponent += rem;
+					} else {
+						// nonzero value
+						rem = (rem < 0) ? rem + 3 : rem;
+						exponent -= rem;
+						begin += rem;
+					}
+					if (delta < 3) {
+						for (int i = rem - delta; i > 0; i--) {
+							result.Insert(end++, new []{'0'});
+						}
+					}
+				}
+				if (end - begin >= 1) {
+					result.Insert(begin, decimalSep);
+					end++;
+				}
+				if (exponent != 0) {
+					result.Insert(end, new[]{ 'E'});
+					if (exponent > 0) {
+						result.Insert(++end, new []{'+'});
+					}
+					result.Insert(++end, Convert.ToString(exponent));
+				}
+			}
+			return result.ToString();
+		}
+
+		/**
+		 * Returns a string representation of this {@code BigDecimal}. No scientific
+		 * notation is used. This methods adds zeros where necessary.
+		 * <p>
+		 * If this string representation is used to create a new instance, this
+		 * instance is generally not identical to {@code this} as the precision
+		 * changes.
+		 * <p>
+		 * {@code x.equals(new BigDecimal(x.toPlainString())} usually returns
+		 * {@code false}.
+		 * <p>
+		 * {@code x.compareTo(new BigDecimal(x.toPlainString())} returns {@code 0}.
+		 *
+		 * @return a string representation of {@code this} without exponent part.
+		 */
+		public String ToPlainString() {
+			String intStr = GetUnscaledValue().ToString();
+			if ((_scale == 0) || ((IsZero) && (_scale < 0))) {
+				return intStr;
+			}
+			int begin = (Sign < 0) ? 1 : 0;
+			int delta = _scale;
+			// We take space for all digits, plus a possible decimal point, plus 'scale'
+			StringBuilder result = new StringBuilder(intStr.Length + 1 + System.Math.Abs(_scale));
+
+			if (begin == 1) {
+				// If the number is negative, we insert a '-' CharHelper at front 
+				result.Append('-');
+			}
+			if (_scale > 0) {
+				delta -= (intStr.Length - begin);
+				if (delta >= 0) {
+					result.Append("0."); //$NON-NLS-1$
+					// To append zeros after the decimal point
+					for (; delta > ChZeros.Length; delta -= ChZeros.Length) {
+						result.Append(ChZeros);
+					}
+					result.Append(ChZeros, 0, delta);
+					result.Append(intStr.Substring(begin));
+				} else {
+					delta = begin - delta;
+					result.Append(intStr.Substring(begin, delta - begin));
+					result.Append('.');
+					result.Append(intStr.Substring(delta));
+				}
+			} else {// (scale <= 0)
+				result.Append(intStr.Substring(begin));
+				// To append trailing zeros
+				for (; delta < -ChZeros.Length; delta += ChZeros.Length) {
+					result.Append(ChZeros);
+				}
+				result.Append(ChZeros, 0, -delta);
+			}
+			return result.ToString();
+		}
+
+		private static bool TryParse(char[] inData, int offset, int len, IFormatProvider provider, out BigDecimal value, out Exception exception) {
+			if (inData == null || inData.Length == 0) {
+				exception = new FormatException("Cannot parse an empty string.");
+				value = null;
+				return false;
+			}
+
+			var numberformatInfo = provider.GetFormat(typeof(NumberFormatInfo)) as NumberFormatInfo;
+			if (numberformatInfo == null)
+				numberformatInfo = NumberFormatInfo.CurrentInfo;
+
+			var decSep = numberformatInfo.NumberDecimalSeparator;
+			if (decSep.Length > 1) {
+				exception = new NotSupportedException("More than one decimal separator not yet supported");
+				value = null;
+				return false;
+			}
+
+			var cDecSep = decSep[0];
+
+			int begin = offset; // first index to be copied
+			int last = offset + (len - 1); // last index to be copied
+
+			if ((last >= inData.Length) || (offset < 0) || (len <= 0) || (last < 0)) {
+				exception = new FormatException();
+				value = null;
+				return false;
+			}
+
+			value = new BigDecimal();
+
+			try {
+				var unscaledBuffer = new StringBuilder(len);
+				int bufLength = 0;
+				// To skip a possible '+' symbol
+				if ((offset <= last) && (inData[offset] == '+')) {
+					offset++;
+					begin++;
+				}
+
+				int counter = 0;
+				bool wasNonZero = false;
+				// Accumulating all digits until a possible decimal point
+				for (;
+					(offset <= last) &&
+					(inData[offset] != cDecSep) &&
+					(inData[offset] != 'e') &&
+					(inData[offset] != 'E');
+					offset++) {
+					if (!wasNonZero) {
+						if (inData[offset] == '0') {
+							counter++;
+						} else {
+							wasNonZero = true;
+						}
+					}
+				}
+
+				unscaledBuffer.Append(inData, begin, offset - begin);
+				bufLength += offset - begin;
+				// A decimal point was found
+				if ((offset <= last) && (inData[offset] == cDecSep)) {
+					offset++;
+					// Accumulating all digits until a possible exponent
+					begin = offset;
+					for (;
+						(offset <= last) &&
+						(inData[offset] != 'e') &&
+						(inData[offset] != 'E');
+						offset++) {
+						if (!wasNonZero) {
+							if (inData[offset] == '0') {
+								counter++;
+							} else {
+								wasNonZero = true;
+							}
+						}
+					}
+
+					value._scale = offset - begin;
+					bufLength += value._scale;
+					unscaledBuffer.Append(inData, begin, value._scale);
+				} else {
+					value._scale = 0;
+				}
+				// An exponent was found
+				if ((offset <= last) && ((inData[offset] == 'e') || (inData[offset] == 'E'))) {
+					offset++;
+					// Checking for a possible sign of scale
+					begin = offset;
+					if ((offset <= last) && (inData[offset] == '+')) {
+						offset++;
+						if ((offset <= last) && (inData[offset] != '-')) {
+							begin++;
+						}
+					}
+
+					// Accumulating all remaining digits
+					String scaleString = new String(inData, begin, last + 1 - begin); // buffer for scale
+					// Checking if the scale is defined            
+					long newScale = (long)value._scale - Int32.Parse(scaleString, provider); // the new scale
+					value._scale = (int)newScale;
+					if (newScale != value._scale) {
+						// math.02=Scale out of range.
+						throw new FormatException(Messages.math02); //$NON-NLS-1$
+					}
+				}
+
+				// Parsing the unscaled value
+				if (bufLength < 19) {
+					if (!Int64.TryParse(unscaledBuffer.ToString(), NumberStyles.Integer, provider, out value.smallValue)) {
+						value = null;
+						exception = new FormatException();
+						return false;
+					}
+
+					value._bitLength = BitLength(value.smallValue);
+				} else {
+					value.SetUnscaledValue(BigInteger.Parse(unscaledBuffer.ToString()));
+				}
+
+				value._precision = unscaledBuffer.Length - counter;
+				if (unscaledBuffer[0] == '-') {
+					value._precision--;
+				}
+
+				exception = null;
+				return true;
+			} catch (Exception ex) {
+				exception = ex;
+				value = null;
+				return false;
+			}
+		}
+
+		public static bool TryParse(char[] chars, int offset, int length, out BigDecimal value) {
+			return TryParse(chars, offset, length, NumberFormatInfo.InvariantInfo, out value);
+		}
+
+		public static bool TryParse(char[] chars, int offset, int length, IFormatProvider provider, out BigDecimal value) {
+			return TryParse(chars, offset, length, null, provider, out value);
+		}
+
+		public static bool TryParse(char[] chars, int offset, int length, MathContext context, out BigDecimal value) {
+			return TryParse(chars, offset, length, context, null, out value);
+		}
+
+		public static bool TryParse(char[] chars, int offset, int length, MathContext context, IFormatProvider provider, out BigDecimal value) {
+			Exception error;
+			if (!TryParse(chars, offset, length, provider, out value, out error))
+				return false;
+
+			if (context != null)
+				value.InplaceRound(context);
+
+			return true;
+		}
+
+		public static bool TryParse(char[] chars, out BigDecimal value) {
+			return TryParse(chars, (MathContext) null, out value);
+		}
+
+		public static bool TryParse(char[] chars, MathContext context, out BigDecimal value) {
+			return TryParse(chars, context, NumberFormatInfo.InvariantInfo, out value);
+		}
+
+		public static bool TryParse(char[] chars, IFormatProvider provider, out BigDecimal value) {
+			return TryParse(chars, null, provider, out value);
+		}
+
+		public static bool TryParse(char[] chars, MathContext context, IFormatProvider provider, out BigDecimal value) {
+			if (chars == null) {
+				value = null;
+				return false;
+			}
+
+			return TryParse(chars, 0, chars.Length, context, provider, out value);
+		}
+
+		public static BigDecimal Parse(char[] chars, int offset, int length, IFormatProvider provider) {
+			return Parse(chars, offset, length, null, provider);
+		}
+
+		public static BigDecimal Parse(char[] chars, int offset, int length) {
+			return Parse(chars, offset, length, (MathContext)null);
+		}
+
+		public static BigDecimal Parse(char[] chars, int offset, int length, MathContext context) {
+			return Parse(chars, offset, length, context, NumberFormatInfo.InvariantInfo);
+		}
+
+		public static BigDecimal Parse(char[] chars, int offset, int length, MathContext context, IFormatProvider provider) {
+			Exception error;
+			BigDecimal value;
+			if (!TryParse(chars, offset, length, provider, out value, out error))
+				throw error;
+
+			if (context != null)
+				value.InplaceRound(context);
+
+			return value;
+		}
+
+		public static BigDecimal Parse(char[] chars, IFormatProvider provider) {
+			return Parse(chars, null, provider);
+		}
+
+		public static BigDecimal Parse(char[] chars) {
+			return Parse(chars, (MathContext)null);
+		}
+
+		public static BigDecimal Parse(char[] chars, MathContext context) {
+			return Parse(chars, context, NumberFormatInfo.InvariantInfo);
+		}
+
+		public static BigDecimal Parse(char[] chars, MathContext context, IFormatProvider provider) {
+			if (chars == null)
+				throw new ArgumentNullException("chars");
+
+			return Parse(chars, 0, chars.Length, context, provider);
+		}
+
+		public static bool TryParse(string s, out BigDecimal value) {
+			return TryParse(s, (MathContext)null, out value);
+		}
+
+		public static bool TryParse(string s, MathContext context, out BigDecimal value) {
+			return TryParse(s, context, NumberFormatInfo.InvariantInfo, out value);
+		}
+
+		public static bool TryParse(string s, IFormatProvider provider, out BigDecimal value) {
+			return TryParse(s, null, provider, out value);
+		}
+
+		public static bool TryParse(string s, MathContext context, IFormatProvider provider, out BigDecimal value) {
+			if (String.IsNullOrEmpty(s)) {
+				value = null;
+				return false;
+			}
+
+			var data = s.ToCharArray();
+
+			Exception error;
+			if (!TryParse(data, 0, data.Length, provider, out value, out error))
+				return false;
+
+			if (context != null)
+				value.InplaceRound(context);
+
+			return true;
+		}
+
+		public static BigDecimal Parse(string s, IFormatProvider provider) {
+			return Parse(s, null, provider);
+		}
+
+		public static BigDecimal Parse(string s) {
+			return Parse(s, (MathContext) null);
+		}
+
+		public static BigDecimal Parse(string s, MathContext context) {
+			return Parse(s, context, NumberFormatInfo.InvariantInfo);
+		}
+
+		public static BigDecimal Parse(string s, MathContext context, IFormatProvider provider) {
+			if (String.IsNullOrEmpty(s))
+				throw new FormatException();
+
+			var data = s.ToCharArray();
+
+			Exception error;
+			BigDecimal value;
+			if (!TryParse(data, 0, data.Length, provider, out value, out error))
+				throw error;
+
+			if (context != null)
+				value.InplaceRound(context);
+
+			return value;
+		}
+
+		/**
+		 * Returns this {@code BigDecimal} as a big integer instance. A fractional
+		 * part is discarded.
+		 *
+		 * @return this {@code BigDecimal} as a big integer instance.
+		 */
+		public BigInteger ToBigInteger() {
+			if ((_scale == 0) || (IsZero)) {
+				return GetUnscaledValue();
+			} else if (_scale < 0) {
+				return GetUnscaledValue().Multiply(Multiplication.PowerOf10(-(long)_scale));
+			} else {// (scale > 0)
+				return GetUnscaledValue().Divide(Multiplication.PowerOf10(_scale));
+			}
+		}
+
+		/**
+		 * Returns this {@code BigDecimal} as a big integer instance if it has no
+		 * fractional part. If this {@code BigDecimal} has a fractional part, i.e.
+		 * if rounding would be necessary, an {@code ArithmeticException} is thrown.
+		 *
+		 * @return this {@code BigDecimal} as a big integer value.
+		 * @throws ArithmeticException
+		 *             if rounding is necessary.
+		 */
+		public BigInteger ToBigIntegerExact() {
+			if ((_scale == 0) || (IsZero)) {
+				return GetUnscaledValue();
+			} else if (_scale < 0) {
+				return GetUnscaledValue().Multiply(Multiplication.PowerOf10(-(long)_scale));
+			} else {// (scale > 0)
+				BigInteger integer;
+				BigInteger fraction;
+				// An optimization before do a heavy division
+				if ((_scale > AproxPrecision()) || (_scale > GetUnscaledValue().LowestSetBit)) {
+					// math.08=Rounding necessary
+					throw new ArithmeticException(Messages.math08); //$NON-NLS-1$
+				}
+				integer = GetUnscaledValue().DivideAndRemainder(Multiplication.PowerOf10(_scale), out fraction);
+				if (fraction.Sign != 0) {
+					// It exists a non-zero fractional part 
+					// math.08=Rounding necessary
+					throw new ArithmeticException(Messages.math08); //$NON-NLS-1$
+				}
+				return integer;
+			}
+		}
+
+		/**
+		 * Returns this {@code BigDecimal} as an long value. Any fractional part is
+		 * discarded. If the integral part of {@code this} is too big to be
+		 * represented as an long, then {@code this} % 2^64 is returned.
+		 *
+		 * @return this {@code BigDecimal} as a long value.
+		 */
+		public long ToInt64() {
+			/* If scale <= -64 there are at least 64 trailing bits zero in 10^(-scale).
+			 * If the scale is positive and very large the long value could be zero. */
+			return ((_scale <= -64) || (_scale > AproxPrecision()) ? 0L : ToBigInteger().ToInt64());
+		}
+
+		/**
+		 * Returns this {@code BigDecimal} as a long value if it has no fractional
+		 * part and if its value fits to the int range ([-2^{63}..2^{63}-1]). If
+		 * these conditions are not met, an {@code ArithmeticException} is thrown.
+		 *
+		 * @return this {@code BigDecimal} as a long value.
+		 * @throws ArithmeticException
+		 *             if rounding is necessary or the number doesn't fit in a long.
+		 */
+		public long ToInt64Exact() {
+			return ValueExact(64);
+		}
+
+		/**
+		 * Returns this {@code BigDecimal} as an int value. Any fractional part is
+		 * discarded. If the integral part of {@code this} is too big to be
+		 * represented as an int, then {@code this} % 2^32 is returned.
+		 *
+		 * @return this {@code BigDecimal} as a int value.
+		 */
+		public int ToInt32() {
+			/* If scale <= -32 there are at least 32 trailing bits zero in 10^(-scale).
+			 * If the scale is positive and very large the long value could be zero. */
+			return ((_scale <= -32) || (_scale > AproxPrecision()) ? 0 : ToBigInteger().ToInt32());
+		}
+
+		/**
+		 * Returns this {@code BigDecimal} as a int value if it has no fractional
+		 * part and if its value fits to the int range ([-2^{31}..2^{31}-1]). If
+		 * these conditions are not met, an {@code ArithmeticException} is thrown.
+		 *
+		 * @return this {@code BigDecimal} as a int value.
+		 * @throws ArithmeticException
+		 *             if rounding is necessary or the number doesn't fit in a int.
+		 */
+		public int ToInt32Exact() {
+			return (int)ValueExact(32);
+		}
+
+		/**
+		 * Returns this {@code BigDecimal} as a short value if it has no fractional
+		 * part and if its value fits to the short range ([-2^{15}..2^{15}-1]). If
+		 * these conditions are not met, an {@code ArithmeticException} is thrown.
+		 *
+		 * @return this {@code BigDecimal} as a short value.
+		 * @throws ArithmeticException
+		 *             if rounding is necessary of the number doesn't fit in a
+		 *             short.
+		 */
+		public short ToInt16Exact() {
+			return (short)ValueExact(16);
+		}
+
+		/**
+		 * Returns this {@code BigDecimal} as a byte value if it has no fractional
+		 * part and if its value fits to the byte range ([-128..127]). If these
+		 * conditions are not met, an {@code ArithmeticException} is thrown.
+		 *
+		 * @return this {@code BigDecimal} as a byte value.
+		 * @throws ArithmeticException
+		 *             if rounding is necessary or the number doesn't fit in a byte.
+		 */
+		public byte ToByteExact() {
+			return (byte)ValueExact(8);
+		}
+
+		/**
+		 * Returns this {@code BigDecimal} as a float value. If {@code this} is too
+		 * big to be represented as an float, then {@code Float.POSITIVE_INFINITY}
+		 * or {@code Float.NEGATIVE_INFINITY} is returned.
+		 * <p>
+		 * Note, that if the unscaled value has more than 24 significant digits,
+		 * then this decimal cannot be represented exactly in a float variable. In
+		 * this case the result is rounded.
+		 * <p>
+		 * For example, if the instance {@code x1 = new BigDecimal("0.1")} cannot be
+		 * represented exactly as a float, and thus {@code x1.equals(new
+		 * BigDecimal(x1.folatValue())} returns {@code false} for this case.
+		 * <p>
+		 * Similarly, if the instance {@code new BigDecimal(16777217)} is converted
+		 * to a float, the result is {@code 1.6777216E}7.
+		 *
+		 * @return this {@code BigDecimal} as a float value.
+		 */
+		public float ToSingle() {
+			/* A similar code like in ToDouble() could be repeated here,
+			 * but this simple implementation is quite efficient. */
+			float floatResult = Sign;
+			long powerOfTwo = this._bitLength - (long)(_scale / Log10_2);
+			if ((powerOfTwo < -149) || (floatResult == 0.0f)) {
+				// Cases which 'this' is very small
+				floatResult *= 0.0f;
+			} else if (powerOfTwo > 129) {
+				// Cases which 'this' is very large
+				floatResult *= Single.PositiveInfinity;
+			} else {
+				floatResult = (float)ToDouble();
+			}
+			return floatResult;
+		}
+
+		/**
+		 * Returns this {@code BigDecimal} as a double value. If {@code this} is too
+		 * big to be represented as an float, then {@code Double.POSITIVE_INFINITY}
+		 * or {@code Double.NEGATIVE_INFINITY} is returned.
+		 * <p>
+		 * Note, that if the unscaled value has more than 53 significant digits,
+		 * then this decimal cannot be represented exactly in a double variable. In
+		 * this case the result is rounded.
+		 * <p>
+		 * For example, if the instance {@code x1 = new BigDecimal("0.1")} cannot be
+		 * represented exactly as a double, and thus {@code x1.equals(new
+		 * BigDecimal(x1.ToDouble())} returns {@code false} for this case.
+		 * <p>
+		 * Similarly, if the instance {@code new BigDecimal(9007199254740993L)} is
+		 * converted to a double, the result is {@code 9.007199254740992E15}.
+		 * <p>
+		 *
+		 * @return this {@code BigDecimal} as a double value.
+		 */
+		public double ToDouble() {
+			int sign = Sign;
+			int exponent = 1076; // bias + 53
+			int lowestSetBit;
+			int discardedSize;
+			long powerOfTwo = this._bitLength - (long)(_scale / Log10_2);
+			long bits; // IEEE-754 Standard
+			long tempBits; // for temporal calculations     
+			BigInteger mantisa;
+
+			if ((powerOfTwo < -1074) || (sign == 0)) {
+				// Cases which 'this' is very small            
+				return (sign * 0.0d);
+			} else if (powerOfTwo > 1025) {
+				// Cases which 'this' is very large            
+				return (sign * Double.PositiveInfinity);
+			}
+			mantisa = GetUnscaledValue().Abs();
+			// Let be:  this = [u,s], with s > 0
+			if (_scale <= 0) {
+				// mantisa = abs(u) * 10^s
+				mantisa = mantisa.Multiply(Multiplication.PowerOf10(-_scale));
+			} else {
+				// (scale > 0)
+				BigInteger quotient;
+				BigInteger remainder;
+				BigInteger powerOfTen = Multiplication.PowerOf10(_scale);
+				int k = 100 - (int)powerOfTwo;
+				int compRem;
+
+				if (k > 0) {
+					/* Computing (mantisa * 2^k) , where 'k' is a enough big
+					 * power of '2' to can divide by 10^s */
+					mantisa = mantisa.ShiftLeft(k);
+					exponent -= k;
+				}
+				// Computing (mantisa * 2^k) / 10^s
+				quotient = mantisa.DivideAndRemainder(powerOfTen, out remainder);
+				// To check if the fractional part >= 0.5
+				compRem = remainder.ShiftLeftOneBit().CompareTo(powerOfTen);
+				// To add two rounded bits at end of mantisa
+				mantisa = quotient.ShiftLeft(2).Add(BigInteger.ValueOf((compRem * (compRem + 3)) / 2 + 1));
+				exponent -= 2;
+			}
+			lowestSetBit = mantisa.LowestSetBit;
+			discardedSize = mantisa.BitLength - 54;
+			if (discardedSize > 0) {
+				// (n > 54)
+				// mantisa = (abs(u) * 10^s) >> (n - 54)
+				bits = mantisa.ShiftRight(discardedSize).ToInt64();
+				tempBits = bits;
+				// #bits = 54, to check if the discarded fraction produces a carry             
+				if ((((bits & 1) == 1) && (lowestSetBit < discardedSize))
+				    || ((bits & 3) == 3)) {
+					bits += 2;
+				}
+			} else {
+				// (n <= 54)
+				// mantisa = (abs(u) * 10^s) << (54 - n)                
+				bits = mantisa.ToInt64() << -discardedSize;
+				tempBits = bits;
+				// #bits = 54, to check if the discarded fraction produces a carry:
+				if ((bits & 3) == 3) {
+					bits += 2;
+				}
+			}
+			// Testing bit 54 to check if the carry creates a new binary digit
+			if ((bits & 0x40000000000000L) == 0) {
+				// To drop the last bit of mantisa (first discarded)
+				bits >>= 1;
+				// exponent = 2^(s-n+53+bias)
+				exponent += discardedSize;
+			} else {
+				// #bits = 54
+				bits >>= 2;
+				exponent += discardedSize + 1;
+			}
+			// To test if the 53-bits number fits in 'double'            
+			if (exponent > 2046) {
+				// (exponent - bias > 1023)
+				return (sign * Double.PositiveInfinity);
+			}
+			if (exponent <= 0) {
+				// (exponent - bias <= -1023)
+				// Denormalized numbers (having exponent == 0)
+				if (exponent < -53) {
+					// exponent - bias < -1076
+					return (sign * 0.0d);
+				}
+				// -1076 <= exponent - bias <= -1023 
+				// To discard '- exponent + 1' bits
+				bits = tempBits >> 1;
+				tempBits = bits & Utils.URShift(-1L, (63 + exponent));
+				bits >>= (-exponent);
+				// To test if after discard bits, a new carry is generated
+				if (((bits & 3) == 3) || (((bits & 1) == 1) && (tempBits != 0)
+				                          && (lowestSetBit < discardedSize))) {
+					bits += 1;
+				}
+				exponent = 0;
+				bits >>= 1;
+			}
+			// Construct the 64 double bits: [sign(1), exponent(11), mantisa(52)]
+			// bits = (long)((ulong)sign & 0x8000000000000000L) | ((long)exponent << 52) | (bits & 0xFFFFFFFFFFFFFL);
+			bits = sign & Int64.MinValue | ((long)exponent << 52) | (bits & 0xFFFFFFFFFFFFFL);
+			return BitConverter.Int64BitsToDouble(bits);
+		}
+
+		// TODO: must be verified
+		public decimal ToDecimal() {
+			var scaleDivisor = BigInteger.ValueOf(10).Pow(_scale);
+			var remainder = GetUnscaledValue().Remainder(scaleDivisor);
+			var scaledValue = GetUnscaledValue().Divide(scaleDivisor);
+
+			var leftOfDecimal = (decimal)scaledValue;
+			var rightOfDecimal = (remainder) / ((decimal)scaleDivisor);
+
+			return leftOfDecimal + rightOfDecimal;
 		}
 
 		#endregion

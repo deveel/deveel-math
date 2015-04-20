@@ -135,7 +135,7 @@ namespace Deveel.Math {
 		}
 
 		public Rational Add(int val) {
-			BigInteger val2 = Numerator.Add(Denominator.Multiply(new BigInteger("" + val)));
+			BigInteger val2 = Numerator.Add(Denominator.Multiply(BigInteger.Parse("" + val)));
 			return new Rational(val2, Denominator);
 		}
 
@@ -363,10 +363,10 @@ namespace Deveel.Math {
 					string s1 = s.Substring(0, index).Trim();
 					string s2 = s.Substring(index + 1).Trim();
 
-					num = new BigInteger(s1, radix);
-					denom = new BigInteger(s2, radix);
+					num = BigInteger.Parse(s1, radix);
+					denom = BigInteger.Parse(s2, radix);
 				} else {
-					num = new BigInteger(s, radix);
+					num = BigInteger.Parse(s, radix);
 					denom = BigInteger.ValueOf(1);
 				}
 

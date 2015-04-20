@@ -86,7 +86,7 @@ namespace Deveel.Math {
 		}
 
 		public bool IsSpp(BigInteger n, BigInteger a) {
-			BigInteger two = new BigInteger("" + 2);
+			BigInteger two = BigInteger.Parse("" + 2);
 
 
 			/* numbers less than 2 are not prime 
@@ -131,7 +131,7 @@ namespace Deveel.Math {
 			};
 			int mrLim = 0;
 			while (mrLim < mr.Length) {
-				int l = n.CompareTo(new BigInteger(mr[mrLim]));
+				int l = n.CompareTo(BigInteger.Parse(mr[mrLim]));
 				if (l < 0)
 					break;
 					/* if one of the pseudo-primes: this is a composite
