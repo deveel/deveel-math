@@ -34,7 +34,7 @@ namespace Deveel.Math {
 #if !PORTABLE
 	[Serializable]
 #endif
-	[System.Diagnostics.DebuggerDisplay("{ToStringInternal()}")]
+	[System.Diagnostics.DebuggerDisplay("{ToString()}")]
 	public sealed class BigDecimal : IComparable<BigDecimal>, IConvertible, IEquatable<BigDecimal> 
 #if !PORTABLE
 		, ISerializable
@@ -2757,7 +2757,7 @@ namespace Deveel.Math {
 				return false;
 			}
 
-			value = new BigDecimal();
+			var v = new BigDecimal();
 
 			try {
 				var unscaledBuffer = new StringBuilder(len);
@@ -2807,11 +2807,11 @@ namespace Deveel.Math {
 						}
 					}
 
-					value._scale = offset - begin;
-					bufLength += value._scale;
-					unscaledBuffer.Append(inData, begin, value._scale);
+					v._scale = offset - begin;
+					bufLength += v._scale;
+					unscaledBuffer.Append(inData, begin, v._scale);
 				} else {
-					value._scale = 0;
+					v._scale = 0;
 				}
 				// An exponent was found
 				if ((offset <= last) && ((inData[offset] == 'e') || (inData[offset] == 'E'))) {
@@ -2828,9 +2828,9 @@ namespace Deveel.Math {
 					// Accumulating all remaining digits
 					String scaleString = new String(inData, begin, last + 1 - begin); // buffer for scale
 					// Checking if the scale is defined            
-					long newScale = (long)value._scale - Int32.Parse(scaleString, provider); // the new scale
-					value._scale = (int)newScale;
-					if (newScale != value._scale) {
+					long newScale = (long)v._scale - Int32.Parse(scaleString, provider); // the new scale
+					v._scale = (int)newScale;
+					if (newScale != v._scale) {
 						// math.02=Scale out of range.
 						throw new FormatException(Messages.math02); //$NON-NLS-1$
 					}
@@ -2838,22 +2838,23 @@ namespace Deveel.Math {
 
 				// Parsing the unscaled value
 				if (bufLength < 19) {
-					if (!Int64.TryParse(unscaledBuffer.ToString(), NumberStyles.Integer, provider, out value.smallValue)) {
+					if (!Int64.TryParse(unscaledBuffer.ToString(), NumberStyles.Integer, provider, out v.smallValue)) {
 						value = null;
 						exception = new FormatException();
 						return false;
 					}
 
-					value._bitLength = BitLength(value.smallValue);
+					v._bitLength = BitLength(v.smallValue);
 				} else {
-					value.SetUnscaledValue(BigInteger.Parse(unscaledBuffer.ToString()));
+					v.SetUnscaledValue(BigInteger.Parse(unscaledBuffer.ToString()));
 				}
 
-				value._precision = unscaledBuffer.Length - counter;
+				v._precision = unscaledBuffer.Length - counter;
 				if (unscaledBuffer[0] == '-') {
-					value._precision--;
+					v._precision--;
 				}
 
+				value = v;
 				exception = null;
 				return true;
 			} catch (Exception ex) {
