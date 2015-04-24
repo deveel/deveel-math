@@ -430,12 +430,17 @@ namespace Deveel.Math {
 			 * To check if there is free memory to allocate a BigInteger of the
 			 * estimated size, measured in bytes: 1 + [exp / log10(2)]
 			 */
-			long byteArraySize = 1 + (long)(exp / 2.4082399653118496);
+			var byteArraySize = 1 + (exp / 2.4082399653118496);
 
-			if (byteArraySize > System.Diagnostics.Process.GetCurrentProcess().PeakVirtualMemorySize64) {
-				// math.01=power of ten too big
-				throw new ArithmeticException(Messages.math01); //$NON-NLS-1$
-			}
+			//if (byteArraySize > System.Diagnostics.Process.GetCurrentProcess().PeakVirtualMemorySize64) {
+			//	// math.01=power of ten too big
+			//	throw new ArithmeticException(Messages.math01); //$NON-NLS-1$
+			//}
+
+			// More than 128Mb
+			if (byteArraySize > (128 * 1024))
+				throw new ArithmeticException(Messages.math01);
+
 			if (exp <= Int32.MaxValue) {
 				// To calculate:    5^exp * 2^exp
 				return BigFivePows[1].Pow(intExp).ShiftLeft(intExp);
