@@ -124,7 +124,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>IF NOT EXIST "$(SolutionDir)..\dist\$(PlatformName)\pcl" MKDIR "$(SolutionDir)..\dist\$(PlatformName)\pc"
+    <PostBuildEvent>IF NOT EXIST "$(SolutionDir)..\dist\$(PlatformName)\pcl" MKDIR "$(SolutionDir)..\dist\$(PlatformName)\pcl"
 COPY "$(TargetDir)" "$(SolutionDir)..\dist\$(PlatformName)\pcl"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
