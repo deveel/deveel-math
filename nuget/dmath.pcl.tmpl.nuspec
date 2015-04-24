@@ -13,7 +13,7 @@
         <copyright>(c) 2010-2015 Deveel</copyright>
     </metadata>
     <files>
-	    <file src="..\dist\$platform$\Deveel.Math.dll" target="lib/portable-net4-sl4-wp7-win8/Deveel.Math.dll"/>
-		<file src="..\dist\$platform$\Deveel.Math.dll" target="lib/portable-net4-sl4-wp7-win8/Deveel.Math.pdb"/>
+	    <file src="..\dist\$platform$\pcl\Deveel.Math.dll" target="lib/portable-net4-sl4-wp7-win8/Deveel.Math.dll"/>
+		<file src="..\dist\$platform$\pcl\Deveel.Math.dll" target="lib/portable-net4-sl4-wp7-win8/Deveel.Math.pdb"/>
 	</files>
 </package>
