@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
+
+#if !PORTABLE
 using System.Runtime.Serialization.Formatters.Binary;
+#endif
 
 using NUnit.Framework;
 
@@ -749,6 +752,7 @@ namespace Deveel.Math {
 
 		}
 
+#if !PORTABLE
 		[Test]
 		public void test_BigDecimal_serialization() {
 			// Regression for HARMONY-1896
@@ -766,6 +770,7 @@ namespace Deveel.Math {
 			Assert.AreEqual(bd.ToDouble(), nbd.ToDouble(), 0.0);
 			Assert.AreEqual(bd.ToString(), nbd.ToString());
 		}
+#endif
 
 		/**
 		 * @tests java.math.BigDecimal#stripTrailingZero(long)
@@ -792,7 +797,7 @@ namespace Deveel.Math {
 			int precision = 6;
 			RoundingMode rm = RoundingMode.HalfDown;
 			MathContext mcIntRm = new MathContext(precision, rm);
-			MathContext mcStr = new MathContext("precision=6 roundingMode=HALFDOWN");
+			MathContext mcStr = MathContext.Parse("precision=6 roundingMode=HALFDOWN");
 			MathContext mcInt = new MathContext(precision);
 			BigDecimal res = aNumber.Abs(mcInt);
 			Assert.AreEqual(res, BigDecimal.Parse("1.23809E+68"), "MathContext Constructor with int precision failed");

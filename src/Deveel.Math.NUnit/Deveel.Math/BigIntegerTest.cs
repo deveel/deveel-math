@@ -235,21 +235,27 @@ namespace Deveel.Math {
 				if (isPrime(a)) {
 					Assert.IsTrue(BigInteger.ValueOf(a).IsProbablePrime(5), "false negative on prime number <1000");
 				} else if (BigInteger.ValueOf(a).IsProbablePrime(17)) {
+#if !PORTABLE
 					Console.Out.WriteLine("isProbablePrime failed for: " + a);
+#endif
 					fails++;
 				}
 			}
 			for (int a = 0; a < 1000; a++) {
 				bi = BigInteger.ValueOf(rand.Next(1000000)).Multiply(BigInteger.ValueOf(rand.Next(1000000)));
 				if (bi.IsProbablePrime(17)) {
+#if !PORTABLE
 					Console.Out.WriteLine("isProbablePrime failed for: " + bi.ToString());
+#endif
 					fails++;
 				}
 			}
 			for (int a = 0; a < 200; a++) {
 				bi = new BigInteger(70, rand).Multiply(new BigInteger(70, rand));
 				if (bi.IsProbablePrime(17)) {
+#if !PORTABLE
 					Console.Out.WriteLine("isProbablePrime failed for: " + bi.ToString());
+#endif
 					fails++;
 				}
 			}

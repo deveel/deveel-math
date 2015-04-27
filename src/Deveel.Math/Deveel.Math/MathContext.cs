@@ -115,85 +115,85 @@ namespace Deveel.Math {
 			this.roundingMode = roundingMode;
 		}
 
-		/// <summary>
-		/// Constructs a new <see cref="MathContext"/> from a string.
-		/// </summary>
-		/// <param name="val">
-		/// A string describing the precision and rounding mode for the new context.
-		/// </param>
-		/// <remarks>
-		/// The string has to specify the precision and the rounding mode to be used and has to 
-		/// follow the following syntax: "precision=&lt;precision&gt; roundingMode=&lt;roundingMode&gt;".<br/>
-		/// This is the same form as the one returned by the <see cref="ToString"/> method.
-		/// </remarks>
-		/// <exception cref="FormatException">
-		/// Thrown if the given string is in an incorrect format.
-		/// </exception>
-		/// <exception cref="ArgumentException">
-		/// If the precision value parsed from the string is less than zero.
-		/// </exception>
-		public MathContext(String val) {
-			char[] charVal = val.ToCharArray();
-			int i; // Index of charVal
-			int j; // Index of chRoundingMode
-			int digit; // It will contain the digit parsed
+		///// <summary>
+		///// Constructs a new <see cref="MathContext"/> from a string.
+		///// </summary>
+		///// <param name="val">
+		///// A string describing the precision and rounding mode for the new context.
+		///// </param>
+		///// <remarks>
+		///// The string has to specify the precision and the rounding mode to be used and has to 
+		///// follow the following syntax: "precision=&lt;precision&gt; roundingMode=&lt;roundingMode&gt;".<br/>
+		///// This is the same form as the one returned by the <see cref="ToString"/> method.
+		///// </remarks>
+		///// <exception cref="FormatException">
+		///// Thrown if the given string is in an incorrect format.
+		///// </exception>
+		///// <exception cref="ArgumentException">
+		///// If the precision value parsed from the string is less than zero.
+		///// </exception>
+		//public MathContext(String val) {
+		//	char[] charVal = val.ToCharArray();
+		//	int i; // Index of charVal
+		//	int j; // Index of chRoundingMode
+		//	int digit; // It will contain the digit parsed
 
-			if ((charVal.Length < 27) || (charVal.Length > 45)) {
-				// math.0E=bad string format
-				throw new FormatException(Messages.math0E); //$NON-NLS-1$
-			}
-			// Parsing "precision=" String
-			for (i = 0; (i < chPrecision.Length) && (charVal[i] == chPrecision[i]); i++) {
-				;
-			}
+		//	if ((charVal.Length < 27) || (charVal.Length > 45)) {
+		//		// math.0E=bad string format
+		//		throw new FormatException(Messages.math0E); //$NON-NLS-1$
+		//	}
+		//	// Parsing "precision=" String
+		//	for (i = 0; (i < chPrecision.Length) && (charVal[i] == chPrecision[i]); i++) {
+		//		;
+		//	}
 
-			if (i < chPrecision.Length) {
-				// math.0E=bad string format
-				throw new FormatException(Messages.math0E); //$NON-NLS-1$
-			}
-			// Parsing the value for "precision="...
-            digit = CharHelper.toDigit(charVal[i], 10);
-			if (digit == -1) {
-				// math.0E=bad string format
-				throw new FormatException(Messages.math0E); //$NON-NLS-1$
-			}
+		//	if (i < chPrecision.Length) {
+		//		// math.0E=bad string format
+		//		throw new FormatException(Messages.math0E); //$NON-NLS-1$
+		//	}
+		//	// Parsing the value for "precision="...
+		//	digit = CharHelper.toDigit(charVal[i], 10);
+		//	if (digit == -1) {
+		//		// math.0E=bad string format
+		//		throw new FormatException(Messages.math0E); //$NON-NLS-1$
+		//	}
 			
-			precision = precision * 10 + digit;
-			i++;
+		//	precision = precision * 10 + digit;
+		//	i++;
 
-			do {
-                digit = CharHelper.toDigit(charVal[i], 10);
-				if (digit == -1) {
-					if (charVal[i] == ' ') {
-						// It parsed all the digits
-						i++;
-						break;
-					}
-					// It isn't  a valid digit, and isn't a white space
-					// math.0E=bad string format
-					throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
-				}
-				// Accumulating the value parsed
-				precision = precision * 10 + digit;
-				if (precision < 0) {
-					// math.0E=bad string format
-					throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
-				}
-				i++;
-			} while (true);
-			// Parsing "roundingMode="
-			for (j = 0; (j < chRoundingMode.Length)
-					&& (charVal[i] == chRoundingMode[j]); i++, j++) {
-				;
-			}
+		//	do {
+		//		digit = CharHelper.toDigit(charVal[i], 10);
+		//		if (digit == -1) {
+		//			if (charVal[i] == ' ') {
+		//				// It parsed all the digits
+		//				i++;
+		//				break;
+		//			}
+		//			// It isn't  a valid digit, and isn't a white space
+		//			// math.0E=bad string format
+		//			throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
+		//		}
+		//		// Accumulating the value parsed
+		//		precision = precision * 10 + digit;
+		//		if (precision < 0) {
+		//			// math.0E=bad string format
+		//			throw new ArgumentException(Messages.math0E); //$NON-NLS-1$
+		//		}
+		//		i++;
+		//	} while (true);
+		//	// Parsing "roundingMode="
+		//	for (j = 0; (j < chRoundingMode.Length)
+		//			&& (charVal[i] == chRoundingMode[j]); i++, j++) {
+		//		;
+		//	}
 
-			if (j < chRoundingMode.Length) {
-				// math.0E=bad string format
-				throw new FormatException(Messages.math0E); //$NON-NLS-1$
-			}
-			// Parsing the value for "roundingMode"...
-			roundingMode = (RoundingMode)Enum.Parse(typeof(RoundingMode), new string(charVal, i, charVal.Length - i), true);
-		}
+		//	if (j < chRoundingMode.Length) {
+		//		// math.0E=bad string format
+		//		throw new FormatException(Messages.math0E); //$NON-NLS-1$
+		//	}
+		//	// Parsing the value for "roundingMode"...
+		//	roundingMode = (RoundingMode)Enum.Parse(typeof(RoundingMode), new string(charVal, i, charVal.Length - i), true);
+		//}
 
 		/// <summary>
 		/// Get the precision of the context.
@@ -254,12 +254,113 @@ namespace Deveel.Math {
 			return sb.ToString();
 		}
 
+#if !PORTABLE
 		[OnDeserialized]
 		private void OnDeserialized(StreamingContext context) {
 			if (precision < 0) {
 				// math.0F=bad precision value
 				throw new SerializationException(Messages.math0F); //$NON-NLS-1$
 			}
+		}
+#endif
+
+		private static bool TryParse(string s, out MathContext context, out Exception exception) {
+			char[] charVal = s.ToCharArray();
+			int i; // Index of charVal
+			int j; // Index of chRoundingMode
+			int digit; // It will contain the digit parsed
+
+			if ((charVal.Length < 27) || (charVal.Length > 45)) {
+				// math.0E=bad string format
+				exception = new FormatException(Messages.math0E); //$NON-NLS-1$
+				context = null;
+				return false;
+			}
+
+			// Parsing "precision=" String
+			for (i = 0; (i < chPrecision.Length) && (charVal[i] == chPrecision[i]); i++) { }
+
+			if (i < chPrecision.Length) {
+				// math.0E=bad string format
+				throw new FormatException(Messages.math0E); //$NON-NLS-1$
+			}
+			// Parsing the value for "precision="...
+			digit = CharHelper.toDigit(charVal[i], 10);
+			if (digit == -1) {
+				// math.0E=bad string format
+				exception = new FormatException(Messages.math0E); //$NON-NLS-1$
+				context = null;
+				return false;
+			}
+
+			var precision = digit;
+			i++;
+
+			do {
+				digit = CharHelper.toDigit(charVal[i], 10);
+				if (digit == -1) {
+					if (charVal[i] == ' ') {
+						// It parsed all the digits
+						i++;
+						break;
+					}
+
+					// It isn't  a valid digit, and isn't a white space
+					// math.0E=bad string format
+					exception = new ArgumentException(Messages.math0E); //$NON-NLS-1$
+					context = null;
+					return false;
+				}
+				// Accumulating the value parsed
+				precision = precision * 10 + digit;
+				if (precision < 0) {
+					// math.0E=bad string format
+					exception = new ArgumentException(Messages.math0E); //$NON-NLS-1$
+					context = null;
+					return false;
+				}
+
+				i++;
+			} while (true);
+			// Parsing "roundingMode="
+			for (j = 0; (j < chRoundingMode.Length)
+					&& (charVal[i] == chRoundingMode[j]); i++, j++) {
+				;
+			}
+
+			if (j < chRoundingMode.Length) {
+				// math.0E=bad string format
+				throw new FormatException(Messages.math0E); //$NON-NLS-1$
+			}
+
+			RoundingMode roundingMode;
+
+			try {
+				// Parsing the value for "roundingMode"...
+				roundingMode = (RoundingMode)Enum.Parse(typeof(RoundingMode), new string(charVal, i, charVal.Length - i), true);
+			} catch (Exception ex) {
+				exception = ex;
+				context = null;
+				return false;
+			}
+
+			exception = null;
+			context = new MathContext(precision, roundingMode);
+			return true;
+		}
+
+		public static bool TryParse(string s, out MathContext context) {
+			Exception error;
+			return TryParse(s, out context, out error);
+		}
+
+		public static MathContext Parse(string s) {
+			Exception error;
+			MathContext context;
+			if (!TryParse(s, out context, out error))
+				throw error;
+
+			return context;
 		}
 	}
 }

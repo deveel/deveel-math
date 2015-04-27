@@ -127,13 +127,13 @@ namespace Deveel.Math {
                         */
 				if (primeexp[0] == 1 && type == 0)
 					return oth;
-				else if (primeexp[0] == 1 && type == 2)
+				if (primeexp[0] == 1 && type == 2)
 					return oth;
-				else if (primeexp[0] == 1 && type == 1)
+				if (primeexp[0] == 1 && type == 1)
 					return this;
-				else if (oth.primeexp[0] == 1 && type == 0)
+				if (oth.primeexp[0] == 1 && type == 0)
 					return this;
-				else if (oth.primeexp[0] == 1 && type == 2)
+				if (oth.primeexp[0] == 1 && type == 2)
 					return this;
 				else if (oth.primeexp[0] == 1 && type == 1)
 					return oth;

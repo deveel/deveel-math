@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
-        <id>$id$-$platform$</id>
+        <id>$id$-pcl-$platform$</id>
         <version>$version$</version>
         <title>Deveel Math ($platform$)</title>
         <authors>Antonello Provenzano</authors>
@@ -13,7 +13,7 @@
         <copyright>(c) 2010-2015 Deveel</copyright>
     </metadata>
     <files>
-	    <file src="..\dist\$platform$\pcl\Deveel.Math.dll" target="lib/portable-net4-sl4-wp7-win8/Deveel.Math.dll"/>
-		<file src="..\dist\$platform$\pcl\Deveel.Math.dll" target="lib/portable-net4-sl4-wp7-win8/Deveel.Math.pdb"/>
+	    <file src="..\dist\$platform$\pcl\Deveel.Math.dll" target="lib/portable-net40+sl50+win+wpa81+wp80/Deveel.Math.dll"/>
+		<file src="..\dist\$platform$\pcl\Deveel.Math.dll" target="lib/portable-net40+sl50+win+wpa81+wp80/Deveel.Math.pdb"/>
 	</files>
 </package>
