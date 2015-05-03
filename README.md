@@ -1,6 +1,8 @@
 Deveel Math
 ===========
 
+[![Join the chat at https://gitter.im/deveel/deveel-math](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/deveel/deveel-math?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This is the port of the Java Math library implemented by the Apache Harmony framework, that is used to factorize big numbers and decimals, for the .NET and Mono frameworks.
 In fact the native .NET support for decimal numbers appear to be limited in several contexts, leading some independent developments of the support within applications.
 
