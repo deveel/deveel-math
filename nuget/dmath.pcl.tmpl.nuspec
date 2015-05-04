@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
-        <id>dmath-pcl-$platform$</id>
+        <id>dmath-pcl</id>
         <version>$version$</version>
-        <title>Deveel Math ($platform$)</title>
+        <title>Deveel Math (PCL)</title>
         <authors>Antonello Provenzano</authors>
         <owners>antonello</owners>
         <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</licenseUrl>

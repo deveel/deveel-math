@@ -3,7 +3,7 @@
     <metadata>
         <id>dmath</id>
         <version>$version$</version>
-        <title>Deveel Math ($platform$)</title>
+        <title>Deveel Math</title>
         <authors>Antonello Provenzano</authors>
         <owners>antonello</owners>
         <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</licenseUrl>
