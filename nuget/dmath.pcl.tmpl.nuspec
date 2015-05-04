@@ -9,8 +9,12 @@
         <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</licenseUrl>
         <projectUrl>http://github.com/deveel/deveel-math</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>Deveel Math is the port to .NET/Mono of the Apache Harmony Math component, that is used to handle operations on big numbers in a fast and secure way.</description>
+        <description>Deveel Math is the port to .NET/Mono of the Apache Harmony Math component, that is used to handle operations on big numbers in a fast and secure way.
+		
+		This package supports the Portable Class Library (PCL) model.
+		</description>
         <copyright>(c) 2010-2015 Deveel</copyright>
+		<tags>math decimal bigdecimal integer biginteger int deveel harmony portable</tags>
     </metadata>
     <files>
 	    <file src="..\dist\$platform$\pcl\Deveel.Math.dll" target="lib/portable-net40+sl50+win+wpa81+wp80/Deveel.Math.dll"/>

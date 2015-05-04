@@ -14,6 +14,7 @@
 		This package supports the $platform$ processor architecture.
 		</description>
         <copyright>(c) 2010-2015 Deveel</copyright>
+		<tags>math decimal bigdecimal integer biginteger int deveel harmony $platform$</tags>
     </metadata>
     <files>
 	    <file src="..\dist\$platform$\Deveel.Math.dll" target="lib/net20/Deveel.Math.dll"/>
