@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
-        <id>dmath-$platform$</id>
+        <id>dmath</id>
         <version>$version$</version>
         <title>Deveel Math ($platform$)</title>
         <authors>Antonello Provenzano</authors>
@@ -11,12 +11,13 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Deveel Math is the port to .NET/Mono of the Apache Harmony Math component, that is used to handle operations on big numbers in a fast and secure way.
 		
-		This package supports the $platform$ processor architecture.
+		This package supports all the processor architectures (Any CPU).
 		</description>
         <copyright>(c) 2010-2015 Deveel</copyright>
+		<tags>math decimal bigdecimal integer biginteger int deveel harmony</tags>
     </metadata>
     <files>
-	    <file src="..\dist\$platform$\Deveel.Math.dll" target="lib/net20/Deveel.Math.dll"/>
-		<file src="..\dist\$platform$\Deveel.Math.dll" target="lib/net20/Deveel.Math.pdb"/>
+	    <file src="..\dist\anycpu\Deveel.Math.dll" target="lib/net20/Deveel.Math.dll"/>
+		<file src="..\dist\anycpu\Deveel.Math.dll" target="lib/net20/Deveel.Math.pdb"/>
 	</files>
 </package>
