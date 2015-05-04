@@ -177,50 +177,39 @@ namespace Deveel.Math {
 			Assert.Throws<ArithmeticException>(() => aNumber.Divide(bNumber), "ArithmeticException has not been caught");
 		}
 
-		/**
-		 * Divide with ROUND_UNNECESSARY
-		 */
 		[Test]
-		public void DivideExceptionRM() {
+		public void DivideExceptionRoundingMode() {
 			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = 15;
+			const int aScale = 15;
 			String b = "747233429293018787918347987234564568";
-			int bScale = 10;
+			const int bScale = 10;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
-			try {
-				aNumber.Divide(bNumber, RoundingMode.Unnecessary);
-				Assert.Fail("ArithmeticException has not been caught");
-			} catch (ArithmeticException e) {
-				Assert.AreEqual("Rounding necessary", e.Message, "Improper exception message");
-			}
+			Assert.Throws<ArithmeticException>(() => aNumber.Divide(bNumber, RoundingMode.Unnecessary));
 		}
 
-		/**
-		 * Divide with invalid rounding mode
-		 */
 		[Test]
-		public void DivideExceptionInvalidRM() {
+		public void DivideExceptionInvalidRoundingMode() {
 			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = 15;
+			const int aScale = 15;
 			String b = "747233429293018787918347987234564568";
-			int bScale = 10;
+			const int bScale = 10;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			Assert.Throws<ArgumentException>(() => aNumber.Divide(bNumber, 100));
 		}
 
-		/**
-		 * Divide: local variable exponent is less than zero
-		 */
 		[Test]
 		public void DivideExpLessZero() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = 15;
-			String b = "747233429293018787918347987234564568";
-			int bScale = 10;
-			String c = "1.64770E+10";
-			int resScale = -5;
+			// Divide: local variable exponent is less than zero
+
+			const string a = "1231212478987482988429808779810457634781384756794987";
+			const int aScale = 15;
+			const string b = "747233429293018787918347987234564568";
+			const int bScale = 10;
+			string c = "1.64770E+10";
+			const int resScale = -5;
+
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Ceiling);
@@ -228,17 +217,16 @@ namespace Deveel.Math {
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
 		}
 
-		/**
-		 * Divide: local variable exponent is equal to zero
-		 */
 		[Test]
 		public void DivideExpEqualsZero() {
-			String a = "1231212478987482988429808779810457634781384756794987";
-			int aScale = -15;
-			String b = "747233429293018787918347987234564568";
-			int bScale = 10;
-			String c = "1.64769459009933764189139568605273529E+40";
-			int resScale = -5;
+			// Divide: local variable exponent is equal to zero
+
+			const string a = "1231212478987482988429808779810457634781384756794987";
+			const int aScale = -15;
+			string b = "747233429293018787918347987234564568";
+			const int bScale = 10;
+			string c = "1.64769459009933764189139568605273529E+40";
+			const int resScale = -5;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal result = aNumber.Divide(bNumber, resScale, RoundingMode.Ceiling);
@@ -246,11 +234,10 @@ namespace Deveel.Math {
 			Assert.AreEqual(resScale, result.Scale, "incorrect scale");
 		}
 
-		/**
-		 * Divide: local variable exponent is greater than zero
-		 */
 		[Test]
 		public void DivideExpGreaterZero() {
+			// Divide: local variable exponent is greater than zero
+
 			String a = "1231212478987482988429808779810457634781384756794987";
 			int aScale = -15;
 			String b = "747233429293018787918347987234564568";
@@ -736,7 +723,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void DivideBigDecimalScaleRoundingModeUP() {
+		public void DivideBigDecimalScaleRoundingModeUp() {
 			String a = "-37361671119238118911893939591735";
 			int aScale = 10;
 			String b = "74723342238476237823787879183470";
@@ -755,7 +742,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void DivideBigDecimalScaleRoundingModeDOWN() {
+		public void DivideBigDecimalScaleRoundingModeDown() {
 			String a = "-37361671119238118911893939591735";
 			int aScale = 10;
 			String b = "74723342238476237823787879183470";
@@ -774,7 +761,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void DivideBigDecimalScaleRoundingModeCEILING() {
+		public void DivideBigDecimalScaleRoundingModeCeiling() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 100;
 			String b = "74723342238476237823787879183470";
@@ -793,7 +780,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void DivideBigDecimalScaleRoundingModeFLOOR() {
+		public void DivideBigDecimalScaleRoundingModeFloor() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 100;
 			String b = "74723342238476237823787879183470";
@@ -812,7 +799,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void DivideBigDecimalScaleRoundingModeHALF_UP() {
+		public void DivideBigDecimalScaleRoundingModeHalfUp() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = -51;
 			String b = "74723342238476237823787879183470";
@@ -833,7 +820,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void DivideBigDecimalScaleRoundingModeHALF_DOWN() {
+		public void DivideBigDecimalScaleRoundingModeHalfDown() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 5;
 			String b = "74723342238476237823787879183470";
@@ -852,7 +839,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, scale, RoundingMode)
 		 */
 		[Test]
-		public void DivideBigDecimalScaleRoundingModeHALF_EVEN() {
+		public void DivideBigDecimalScaleRoundingModeHalfEven() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 5;
 			String b = "74723342238476237823787879183470";
@@ -871,7 +858,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void DivideBigDecimalScaleMathContextUP() {
+		public void DivideBigDecimalScaleMathContextUp() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 15;
 			String b = "748766876876723342238476237823787879183470";
@@ -892,7 +879,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void DivideBigDecimalScaleMathContextDOWN() {
+		public void DivideBigDecimalScaleMathContextDown() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 15;
 			String b = "748766876876723342238476237823787879183470";
@@ -913,7 +900,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void DivideBigDecimalScaleMathContextCEILING() {
+		public void DivideBigDecimalScaleMathContextCeiling() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 15;
 			String b = "748766876876723342238476237823787879183470";
@@ -934,7 +921,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void DivideBigDecimalScaleMathContextFLOOR() {
+		public void DivideBigDecimalScaleMathContextFloor() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 15;
 			String b = "748766876876723342238476237823787879183470";
@@ -976,7 +963,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void DivideBigDecimalScaleMathContextHALF_DOWN() {
+		public void DivideBigDecimalScaleMathContextHalfDown() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -997,7 +984,7 @@ namespace Deveel.Math {
 		 * divide(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void DivideBigDecimalScaleMathContextHALF_EVEN() {
+		public void DivideBigDecimalScaleMathContextHalfEven() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1024,12 +1011,8 @@ namespace Deveel.Math {
 		public void DivideLargeScale() {
 			BigDecimal arg1 = BigDecimal.Parse("320.0E+2147483647");
 			BigDecimal arg2 = BigDecimal.Parse("6E-2147483647");
-			try {
-				BigDecimal result = arg1.Divide(arg2, Int32.MaxValue, RoundingMode.Ceiling);
-				Assert.Fail("Expected ArithmeticException when dividing with a scale that's too large");
-			} catch (ArithmeticException e) {
-				// expected behaviour
-			}
+			Assert.Throws<ArithmeticException>(() => arg1.Divide(arg2, Int32.MaxValue, RoundingMode.Ceiling),
+				"Expected ArithmeticException when dividing with a scale that's too large");
 		}
 
 		/**
@@ -1054,7 +1037,7 @@ namespace Deveel.Math {
 		 * divideToIntegralValue(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void DivideToIntegralValueMathContextUP() {
+		public void DivideToIntegralValueMathContextUp() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1075,7 +1058,7 @@ namespace Deveel.Math {
 		 * divideToIntegralValue(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void DivideToIntegralValueMathContextDOWN() {
+		public void DivideToIntegralValueMathContextDown() {
 			String a = "3736186567876876578956958769675785435673453453653543654354365435675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1144,7 +1127,7 @@ namespace Deveel.Math {
 		 * divideAndRemainder(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void DivideAndRemainderMathContextUP() {
+		public void DivideAndRemainderMathContextUp() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";
@@ -1170,7 +1153,7 @@ namespace Deveel.Math {
 		 * divideAndRemainder(BigDecimal, MathContext)
 		 */
 		[Test]
-		public void DivideAndRemainderMathContextDOWN() {
+		public void DivideAndRemainderMathContextDown() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			String b = "134432345432345748766876876723342238476237823787879183470";

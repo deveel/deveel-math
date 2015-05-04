@@ -14,20 +14,14 @@ namespace Deveel.Math {
 
 		BigInteger value2 = BigInteger.Parse("12334560000");
 
-		/**
-		 * @tests java.math.BigDecimal#BigDecimal(java.math.BigInteger)
-		 */
 		[Test]
-		public void test_ConstructorLjava_math_BigInteger() {
+		public void ConstructorBigInteger() {
 			BigDecimal big = new BigDecimal(value);
 			Assert.IsTrue(big.UnscaledValue.Equals(value) && big.Scale == 0, "the BigDecimal value is not initialized properly");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#BigDecimal(java.math.BigInteger, int)
-		 */
 		[Test]
-		public void test_ConstructorLjava_math_BigIntegerI() {
+		public void ConstructorBigIntegerScale() {
 			BigDecimal big = new BigDecimal(value2, 5);
 			Assert.IsTrue(big.UnscaledValue.Equals(value2) && big.Scale == 5, "the BigDecimal value is not initialized properly");
 			Assert.IsTrue(big.ToString().Equals("123345.60000"), "the BigDecimal value is not represented properly");
@@ -40,11 +34,8 @@ namespace Deveel.Math {
 			Assert.IsFalse(big == null);
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#BigDecimal(double)
-		 */
 		[Test]
-		public void test_ConstructorD() {
+		public void ConstructorDouble() {
 			BigDecimal big = new BigDecimal(123E04);
 			Assert.AreEqual("1230000", big.ToString(),
 			                "the BigDecimal value taking a double argument is not initialized properly");
@@ -64,11 +55,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(big.Scale == 0, "the double representation of -0.0 bigDecimal is not correct");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#BigDecimal(java.lang.String)
-		 */
 		[Test]
-		public void test_ParseString() {
+		public void ParseString() {
 			BigDecimal big = BigDecimal.Parse("345.23499600293850");
 			Assert.IsTrue(big.ToString().Equals("345.23499600293850") && big.Scale == 14,
 						  "the BigDecimal value is not initialized properly");
@@ -80,72 +68,36 @@ namespace Deveel.Math {
 			BigDecimal.Parse("1.234E02");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#BigDecimal(java.lang.String)
-		 */
+
 		[Test]
-		public void test_constructor_String_plus_exp() {
+		public void ParserStringPlusExp() {
 			/*
 			 * BigDecimal does not support a + sign in the exponent when converting
 			 * from a String
 			 */
-			new BigDecimal(+23e-0);
-			new BigDecimal(-23e+0);
+			Assert.DoesNotThrow(() => BigDecimal.Parse("+23e-0"));
+			Assert.DoesNotThrow(() => BigDecimal.Parse("-23e+0"));
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#BigDecimal(java.lang.String)
-		 */
 		[Test]
-		public void test_constructor_String_empty() {
-			try {
-				BigDecimal.Parse("");
-				Assert.Fail("FormatException expected");
-			} catch (Exception e) {
-			}
+		public void ParseStringEmpty() {
+			Assert.Throws<FormatException>(() => BigDecimal.Parse(""));
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#BigDecimal(java.lang.String)
-		 */
 		[Test]
-		public void test_constructor_String_plus_minus_exp() {
-			try {
-				BigDecimal.Parse("+35e+-2");
-				Assert.Fail("FormatException expected");
-			} catch (FormatException e) {
-			}
-
-			try {
-				BigDecimal.Parse("-35e-+2");
-				Assert.Fail("NumberFormatException expected");
-			} catch (FormatException e) {
-			}
+		public void ParseStringPlusMinusExp() {
+			Assert.Throws<FormatException>(() => BigDecimal.Parse("+35e+-2"));
+			Assert.Throws<FormatException>(() => BigDecimal.Parse("-35e-+2"));
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#BigDecimal(char[])
-		 */
 		[Test]
-		public void test_constructor_CC_plus_minus_exp() {
-			try {
-				BigDecimal.Parse("+35e+-2".ToCharArray());
-				Assert.Fail("NumberFormatException expected");
-			} catch (FormatException e) {
-			}
-
-			try {
-				BigDecimal.Parse("-35e-+2".ToCharArray());
-				Assert.Fail("NumberFormatException expected");
-			} catch (FormatException e) {
-			}
+		public void ParseCharArrayPlusMinusExp() {
+			Assert.Throws<FormatException>(() => BigDecimal.Parse("+35e+-2".ToCharArray()));
+			Assert.Throws<FormatException>(() => BigDecimal.Parse("-35e-+2".ToCharArray()));
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#abs()
-		 */
 		[Test]
-		public void test_abs() {
+		public void Abs() {
 			BigDecimal big = BigDecimal.Parse("-1234");
 			BigDecimal bigabs = big.Abs();
 			Assert.IsTrue(bigabs.ToString().Equals("1234"), "the absolute value of -1234 is not 1234");
@@ -154,11 +106,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(bigabs.ToString().Equals("23.45"), "the absolute value of 23.45 is not 23.45");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#add(java.math.BigDecimal)
-		 */
 		[Test]
-		public void test_addLjava_math_BigDecimal() {
+		public void AddBigDecimal() {
 			BigDecimal add1 = BigDecimal.Parse("23.456");
 			BigDecimal add2 = BigDecimal.Parse("3849.235");
 			BigDecimal sum = add1.Add(add2);
@@ -169,11 +118,8 @@ namespace Deveel.Math {
 			Assert.IsTrue((add1.Add(add3)).ToString().Equals("1257.456"), "the sum of 23.456 + 12.34E02 is not printed correctly");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#compareTo(java.math.BigDecimal)
-		 */
 		[Test]
-		public void test_compareToLjava_math_BigDecimal() {
+		public void CompareToBigDecimal() {
 			BigDecimal comp1 = BigDecimal.Parse("1.00");
 			BigDecimal comp2 = new BigDecimal(1.000000D);
 			Assert.IsTrue(comp1.CompareTo(comp2) == 0, "1.00 and 1.000000 should be equal");
@@ -183,11 +129,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(comp4.CompareTo(comp1) == -1, "0.98 should be less than 1.00");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#divide(java.math.BigDecimal, int)
-		 */
 		[Test]
-		public void test_divideLjava_math_BigDecimalI() {
+		public void DivideBigDecimalI() {
 			BigDecimal divd1 = new BigDecimal(value, 2);
 			BigDecimal divd2 = BigDecimal.Parse("2.335");
 			BigDecimal divd3 = divd1.Divide(divd2, RoundingMode.Up);
@@ -199,18 +142,11 @@ namespace Deveel.Math {
 			Assert.IsTrue(divd3.ToString().Equals("1000.47") && divd3.Scale == 2, "123459.08/123.4  is not correct");
 			divd2 = new BigDecimal(000D);
 
-			try {
-				divd1.Divide(divd2, RoundingMode.Down);
-				Assert.Fail("divide by zero is not caught");
-			} catch (ArithmeticException e) {
-			}
+			Assert.Throws<ArithmeticException>(() => divd1.Divide(divd2, RoundingMode.Down));
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#divide(java.math.BigDecimal, int, int)
-		 */
 		[Test]
-		public void test_divideLjava_math_BigDecimalII() {
+		public void DivideBigDecimalII() {
 			BigDecimal divd1 = new BigDecimal(value2, 4);
 			BigDecimal divd2 = BigDecimal.Parse("0.0023");
 			BigDecimal divd3 = divd1.Divide(divd2, 3, RoundingMode.HalfUp);
@@ -221,18 +157,11 @@ namespace Deveel.Math {
 						  "1233456/13.455 is not correct or does not have the correct scale");
 			divd2 = new BigDecimal(0000D);
 
-			try {
-				divd1.Divide(divd2, 4, RoundingMode.Down);
-				Assert.Fail("divide by zero is not caught");
-			} catch (ArithmeticException e) {
-			}
+			Assert.Throws<ArithmeticException>(() => divd1.Divide(divd2, 4, RoundingMode.Down));
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#doubleValue()
-		 */
 		[Test]
-		public void test_doubleValue() {
+		public void ToDouble() {
 			BigDecimal bigDB = new BigDecimal(-1.234E-112);
 			//		Commenting out this part because it causes an endless loop (see HARMONY-319 and HARMONY-329)
 			//		Assert.IsTrue(
@@ -256,11 +185,8 @@ namespace Deveel.Math {
 						  "a  - number out of the double range should return neg infinity");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#equals(java.lang.Object)
-		 */
 		[Test]
-		public void test_equalsLjava_lang_Object() {
+		public void EqualsObject() {
 			BigDecimal equal1 = new BigDecimal(1.00D);
 			BigDecimal equal2 = BigDecimal.Parse("1.0");
 			Assert.IsFalse(equal1.Equals(equal2), "1.00 and 1.0 should not be equal");
@@ -278,11 +204,8 @@ namespace Deveel.Math {
 			Assert.IsFalse(equal1.Equals("23415"), "bigDecimal 100D does not equal string 23415");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#floatValue()
-		 */
 		[Test]
-		public void test_floatValue() {
+		public void ToSingle() {
 			BigDecimal fl1 = BigDecimal.Parse("234563782344567");
 			Assert.IsTrue(fl1.ToSingle() == 234563782344567f, "the float representation of bigDecimal 234563782344567");
 			BigDecimal fl2 = new BigDecimal(2.345E37);
@@ -300,11 +223,9 @@ namespace Deveel.Math {
 
 		}
 
-		/**
-	 * @tests java.math.BigDecimal#GetHashCode()
-	 */
+
 		[Test]
-		public void test_hashCode() {
+		public void TestGetHashCode() {
 			// anything that is equal must have the same hashCode
 			BigDecimal hash = BigDecimal.Parse("1.00");
 			BigDecimal hash2 = new BigDecimal(1.00D);
@@ -326,11 +247,8 @@ namespace Deveel.Math {
 			              "hashCode of 123459.08 and -123459.08 is not equal");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#intValue()
-		 */
 		[Test]
-		public void test_intValue() {
+		public void ToInt32() {
 			BigDecimal int1 = new BigDecimal(value, 3);
 			Assert.IsTrue(int1.ToInt32() == 12345, "the int value of 12345.908 is not 12345");
 			int1 = BigDecimal.Parse("1.99");
@@ -342,11 +260,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(int1.ToInt32() == -1235, "the int value of -1235 is not -1235");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#longValue()
-		 */
 		[Test]
-		public void test_longValue() {
+		public void ToInt64() {
 			BigDecimal long1 = new BigDecimal(value2.Negate(), 0);
 			Assert.IsTrue(long1.ToInt64() == -12334560000L, "the long value of 12334560000 is not 12334560000");
 			long1 = new BigDecimal(-1345.348E-123D);
@@ -357,11 +272,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(long1.ToInt64() == -5251313250005125155L, "the long value of 31323423423419083091823091283933 is wrong");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#max(java.math.BigDecimal)
-		 */
 		[Test]
-		public void test_maxLjava_math_BigDecimal() {
+		public void MaxBigDecimal() {
 			BigDecimal max1 = new BigDecimal(value2, 1);
 			BigDecimal max2 = new BigDecimal(value2, 4);
 			Assert.IsTrue(max1.Max(max2).Equals(max1), "1233456000.0 is not greater than 1233456");
@@ -373,10 +285,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(max1.Max(max2).Equals(max2), "123E19 is the not the max");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#min(java.math.BigDecimal)
-		 */
-		public void test_minLjava_math_BigDecimal() {
+		[Test]
+		public void MinBigDecimal() {
 			BigDecimal min1 = new BigDecimal(-12345.4D);
 			BigDecimal min2 = new BigDecimal(-12345.39D);
 			Assert.IsTrue(min1.Min(min2).Equals(min1), "-12345.39 should have been returned");
@@ -385,11 +295,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(min1.Min(min2).Equals(min1), "123345.6 should have been returned");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#movePointLeft(int)
-		 */
 		[Test]
-		public void test_movePointLeftI() {
+		public void MovePointLeftI() {
 			BigDecimal movePtLeft = BigDecimal.Parse("123456265.34");
 			BigDecimal alreadyMoved = movePtLeft.MovePointLeft(5);
 			Assert.IsTrue(alreadyMoved.Scale == 7 && alreadyMoved.ToString().Equals("1234.5626534"), "move point left 5 failed");
@@ -411,11 +318,8 @@ namespace Deveel.Math {
 			              "move point left -2 failed");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#movePointRight(int)
-		 */
 		[Test]
-		public void test_movePointRightI() {
+		public void MovePointRightI() {
 			BigDecimal movePtRight = BigDecimal.Parse("-1.58796521458");
 			BigDecimal alreadyMoved = movePtRight.MovePointRight(8);
 			Assert.IsTrue(alreadyMoved.Scale == 3 && alreadyMoved.ToString().Equals("-158796521.458"),
@@ -435,11 +339,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(alreadyMoved.Equals(movePtRight), "move point right -5 failed");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#multiply(java.math.BigDecimal)
-		 */
 		[Test]
-		public void test_multiplyLjava_math_BigDecimal() {
+		public void MultiplyBigDecimal() {
 			BigDecimal multi1 = new BigDecimal(value, 5);
 			BigDecimal multi2 = new BigDecimal(2.345D);
 			BigDecimal result = multi1.Multiply(multi2);
@@ -465,11 +366,8 @@ namespace Deveel.Math {
 			              "-0.00234 * 13.4E10 is not correct");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#negate()
-		 */
 		[Test]
-		public void test_negate() {
+		public void Negate() {
 			BigDecimal negate1 = new BigDecimal(value2, 7);
 			Assert.IsTrue(negate1.Negate().ToString().Equals("-1233.4560000"), "the negate of 1233.4560000 is not -1233.4560000");
 			negate1 = BigDecimal.Parse("-23465839");
@@ -478,11 +376,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(negate1.Negate().Negate().Equals(negate1), "the negate of -3.456E6 is not 3.456E6");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#scale()
-		 */
 		[Test]
-		public void test_scale() {
+		public void Scale() {
 			BigDecimal scale1 = new BigDecimal(value2, 8);
 			Assert.IsTrue(scale1.Scale == 8, "the scale of the number 123.34560000 is wrong");
 			BigDecimal scale2 = BigDecimal.Parse("29389.");
@@ -497,11 +392,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(scale4.Scale == 201, "the scale of the number -345.4E-200 is wrong");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#setScale(int)
-		 */
 		[Test]
-		public void test_setScaleI() {
+		public void SetScaleI() {
 			// rounding mode defaults to zero
 			BigDecimal setScale1 = new BigDecimal(value, 3);
 			BigDecimal setScale2 = setScale1.SetScale(5);
@@ -509,18 +401,11 @@ namespace Deveel.Math {
 			Assert.IsTrue(setScale2.UnscaledValue.Equals(setresult) && setScale2.Scale == 5,
 			              "the number 12345.908 after setting scale is wrong");
 
-			try {
-				setScale2 = setScale1.SetScale(2, RoundingMode.Unnecessary);
-				Assert.Fail("arithmetic Exception not caught as a result of loosing precision");
-			} catch (ArithmeticException e) {
-			}
+			Assert.Throws<ArithmeticException>(() => setScale1.SetScale(2, RoundingMode.Unnecessary));
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#setScale(int, int)
-		 */
 		[Test]
-		public void test_setScaleII() {
+		public void SetScaleII() {
 			BigDecimal setScale1 = new BigDecimal(2.323E102);
 			BigDecimal setScale2 = setScale1.SetScale(4);
 			Assert.IsTrue(setScale2.Scale == 4, "the number 2.323E102 after setting scale is wrong");
@@ -598,12 +483,7 @@ namespace Deveel.Math {
 			Assert.IsTrue(setScale2.ToString().Equals("-1234") && setScale2.Scale == 0,
 			              "the number -1234.4567 after setting scale to 0/ROUND_HALF_UP is wrong");
 
-			// testing rounding Mode ROUND_UNNECESSARY
-			try {
-				setScale1.SetScale(3, RoundingMode.Unnecessary);
-				Assert.Fail("arithmetic Exception not caught for round unnecessary");
-			} catch (ArithmeticException e) {
-			}
+			Assert.Throws<ArithmeticException>(() => setScale1.SetScale(3, RoundingMode.Unnecessary));
 
 			// testing rounding Mode ROUND_UP
 			setScale1 = BigDecimal.Parse("100000.374");
@@ -615,19 +495,11 @@ namespace Deveel.Math {
 			Assert.IsTrue(setScale2.ToDouble() == -134.35D && setScale2.Scale == 2,
 			              "the number -134.34589 after setting scale to 2/ROUND_UP is wrong");
 
-			// testing invalid rounding modes
-			try {
-				setScale2 = setScale1.SetScale(0, -123);
-				Assert.Fail("ArgumentException is not caught for wrong rounding mode");
-			} catch (ArgumentException e) {
-			}
+			Assert.Throws<ArgumentException>(() => setScale1.SetScale(0, -123));
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#signum()
-		 */
 		[Test]
-		public void test_signum() {
+		public void Signum() {
 			BigDecimal sign = new BigDecimal(123E-104);
 			Assert.IsTrue(sign.Sign == 1, "123E-104 is not positive in signum()");
 			sign = BigDecimal.Parse("-1234.3959");
@@ -636,11 +508,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(sign.Sign == 0, "000D is not zero in signum()");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#subtract(java.math.BigDecimal)
-		 */
 		[Test]
-		public void test_subtractLjava_math_BigDecimal() {
+		public void SubtractBigDecimal() {
 			BigDecimal sub1 = BigDecimal.Parse("13948");
 			BigDecimal sub2 = BigDecimal.Parse("2839.489");
 			BigDecimal result = sub1.Subtract(sub2);
@@ -662,11 +531,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(result.ToDouble() == 0.0, "1234.0123 - 1234.0123000 is wrong, " + result.ToDouble());
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#toBigInteger()
-		 */
 		[Test]
-		public void test_toBigInteger() {
+		public void ToBigInteger() {
 			BigDecimal sub1 = BigDecimal.Parse("-29830.989");
 			BigInteger result = sub1.ToBigInteger();
 
@@ -682,11 +548,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(result.ToString().Equals("12334"), "the bigInteger equivalent of 12334.560000 is wrong");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#ToString()
-		 */
 		[Test]
-		public void test_toString() {
+		public void TestToString() {
 			BigDecimal toString1 = BigDecimal.Parse("1234.000");
 			Assert.IsTrue(toString1.ToString().Equals("1234.000"), "the ToString representation of 1234.000 is wrong");
 			toString1 = BigDecimal.Parse("-123.4E-5");
@@ -698,11 +561,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(toString1.ToString().Equals("1233456.0000"), "the ToString representation of 1233456.0000 is wrong");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#unscaledValue()
-		 */
 		[Test]
-		public void test_unscaledValue() {
+		public void UnscaledValue() {
 			BigDecimal unsVal = BigDecimal.Parse("-2839485.000");
 			Assert.IsTrue(unsVal.UnscaledValue.ToString().Equals("-2839485000"), "the unscaledValue of -2839485.000 is wrong");
 			unsVal = new BigDecimal(123E10);
@@ -715,11 +575,8 @@ namespace Deveel.Math {
 
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#valueOf(long)
-		 */
 		[Test]
-		public void test_valueOfJ() {
+		public void ValueOfJ() {
 			BigDecimal valueOfL = BigDecimal.ValueOf(9223372036854775806L);
 			Assert.IsTrue(valueOfL.UnscaledValue.ToString().Equals("9223372036854775806") && valueOfL.Scale == 0,
 			              "the bigDecimal equivalent of 9223372036854775806 is wrong");
@@ -730,11 +587,8 @@ namespace Deveel.Math {
 			              "the bigDecimal equivalent of 0 is wrong");
 		}
 
-		/**
-		 * @tests java.math.BigDecimal#valueOf(long, int)
-		 */
 		[Test]
-		public void test_valueOfJI() {
+		public void ValueOfJI() {
 			BigDecimal valueOfJI = BigDecimal.ValueOf(9223372036854775806L, 5);
 			Assert.IsTrue(valueOfJI.UnscaledValue.ToString().Equals("9223372036854775806") && valueOfJI.Scale == 5,
 			              "the bigDecimal equivalent of 92233720368547.75806 is wrong");
@@ -754,7 +608,7 @@ namespace Deveel.Math {
 
 #if !PORTABLE
 		[Test]
-		public void test_BigDecimal_serialization() {
+		public void BigDecimalSerialization() {
 			// Regression for HARMONY-1896
 			char[] input = { '1', '5', '6', '7', '8', '7', '.', '0', '0' };
 			BigDecimal bd = BigDecimal.Parse(input, 0, 9);
@@ -772,11 +626,8 @@ namespace Deveel.Math {
 		}
 #endif
 
-		/**
-		 * @tests java.math.BigDecimal#stripTrailingZero(long)
-		 */
 		[Test]
-		public void test_stripTrailingZero() {
+		public void StripTrailingZero() {
 			BigDecimal sixhundredtest = BigDecimal.Parse("600.0");
 			Assert.IsTrue(((sixhundredtest.StripTrailingZeros()).Scale == -2), "stripTrailingZero failed for 600.0");
 
@@ -791,7 +642,7 @@ namespace Deveel.Math {
 		}
 
 		[Test]
-		public void testMathContextConstruction() {
+		public void MathContextConstruction() {
 			String a = "-12380945E+61";
 			BigDecimal aNumber = BigDecimal.Parse(a);
 			int precision = 6;

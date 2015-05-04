@@ -662,7 +662,7 @@ namespace Deveel.Math {
 		/// <param name="mc">The rounding mode and precision for the result of 
 		/// this operation.</param>
 		/// <returns>
-		/// Returns a new {@code BigDecimal} whose value is <c>this + <paramref name="augend"/></c>.
+		/// Returns a new <see cref="BigDecimal"/> whose value is <c>this + <paramref name="augend"/></c>.
 		/// </returns>
 		/// <exception cref="ArgumentNullException">
 		/// If the given <paramref name="augend"/> or <paramref name="mc"/> is <c>null</c>.
@@ -722,7 +722,11 @@ namespace Deveel.Math {
 		/// If the given <paramref name="subtrahend"/> is <c>null</c>.
 		/// </exception>
 		public BigDecimal Subtract(BigDecimal subtrahend) {
+			if (subtrahend == null)
+				throw new ArgumentNullException("subtrahend");
+
 			int diffScale = _scale - subtrahend._scale;
+
 			// Fast return when some operand is zero
 			if (IsZero) {
 				if (diffScale <= 0) {
@@ -761,36 +765,47 @@ namespace Deveel.Math {
 			    System.Math.Max(_bitLength + LongTenPowBitLength[diffScale], subtrahend._bitLength) + 1 < 64) {
 				return ValueOf(smallValue*LongTenPow[diffScale] - subtrahend.smallValue, subtrahend._scale);
 			}
+
 			return new BigDecimal(Multiplication.MultiplyByTenPow(GetUnscaledValue(), diffScale)
 			                      	.Subtract(subtrahend.GetUnscaledValue()), subtrahend._scale);
 		}
 
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code this - subtrahend}.
-		 * The result is rounded according to the passed context {@code mc}.
-		 *
-		 * @param subtrahend
-		 *            value to be subtracted from {@code this}.
-		 * @param mc
-		 *            rounding mode and precision for the result of this operation.
-		 * @return {@code this - subtrahend}.
-		 * @throws NullPointerException
-		 *             if {@code subtrahend == null} or {@code mc == null}.
-		 */
+		/// <summary>
+		/// Subtracts the given value from this instance of <see cref="BigDecimal"/>.
+		/// </summary>
+		/// <remarks>
+		/// <para>
+		/// This overload rounds the result of the operation to the <paramref name="mc">context</paramref>
+		/// provided as argument.
+		/// </para>
+		/// </remarks>
+		/// <param name="subtrahend">The value to be subtracted from this <see cref="BigDecimal"/>.</param>
+		/// <param name="mc">The context used to round the result of this operation.</param>
+		/// <returns>
+		/// Returns an instance of <see cref="BigDecimal"/> that is the result of the
+		/// subtraction of the given <paramref name="subtrahend"/> from this instance.
+		/// </returns>
+		/// <exception cref="ArgumentNullException">
+		/// If either of the given <paramref name="subtrahend"/> or <paramref name="mc"/> are <c>null</c>.
+		/// </exception>
 		public BigDecimal Subtract(BigDecimal subtrahend, MathContext mc) {
+			if (subtrahend == null)
+				throw new ArgumentNullException("subtrahend");
+			if (mc == null)
+				throw new ArgumentNullException("mc");
+
 			long diffScale = subtrahend._scale - (long)_scale;
-			int thisSignum;
-			BigDecimal leftOperand; // it will be only the left operand (this) 
-			BigInteger tempBI;
+
 			// Some operand is zero or the precision is infinity  
-			if ((subtrahend.IsZero) || (IsZero) || (mc.Precision == 0)) {
+			if ((subtrahend.IsZero) || (IsZero) || (mc.Precision == 0))
 				return Subtract(subtrahend).Round(mc);
-			}
+
 			// Now:   this != 0   and   subtrahend != 0
 			if (subtrahend.AproxPrecision() < diffScale - 1) {
 				// Cases where it is unnecessary to subtract two numbers with very different scales
 				if (mc.Precision < AproxPrecision()) {
-					thisSignum = Sign;
+					var thisSignum = Sign;
+					BigInteger tempBI;
 					if (thisSignum != subtrahend.Sign) {
 						tempBI = Multiplication.MultiplyByPositiveInt(this.GetUnscaledValue(), 10)
 						.Add(BigInteger.ValueOf(thisSignum));
@@ -800,10 +815,11 @@ namespace Deveel.Math {
 						.Add(BigInteger.ValueOf(thisSignum * 9));
 					}
 					// Rounding the improved subtracting
-					leftOperand = new BigDecimal(tempBI, _scale + 1);
+					var leftOperand = new BigDecimal(tempBI, _scale + 1); // it will be only the left operand (this) 
 					return leftOperand.Round(mc);
 				}
 			}
+
 			// No optimization is done
 			return Subtract(subtrahend).Round(mc);
 		}

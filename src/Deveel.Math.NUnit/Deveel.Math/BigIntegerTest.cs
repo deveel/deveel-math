@@ -105,18 +105,10 @@ namespace Deveel.Math {
 			*/
 		}
 
-		/**
- * @tests java.math.BigInteger#BigInteger(int, java.util.Random)
- */
 		[Test]
-		public void test_ConstructorILjava_util_Random() {
+		public void ConstructorIRandom() {
 			// regression test for HARMONY-1047
-			try {
-				new BigInteger(Int32.MaxValue, (Random)null);
-				Assert.Fail("OverflowException expected");
-			} catch (OverflowException e) {
-				// PASSED
-			}
+			Assert.Throws<OverflowException>(() => new BigInteger(Int32.MaxValue, (Random) null));
 
 			bi = new BigInteger(70, rand);
 			bi2 = new BigInteger(70, rand);
@@ -126,11 +118,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(new BigInteger(0, rand).Equals(BigInteger.Zero), "Not zero");
 		}
 
-		/**
- * @tests java.math.BigInteger#BigInteger(int, int, java.util.Random)
- */
 		[Test]
-		public void test_ConstructorIILjava_util_Random() {
+		public void CostructorIIRandom() {
 			bi = new BigInteger(10, 5, rand);
 			bi2 = new BigInteger(10, 5, rand);
 			Assert.IsTrue(bi.CompareTo(zero) >= 0, "Random number one is negative");
@@ -149,13 +138,9 @@ namespace Deveel.Math {
 			}
 		}
 
-		/**
- * @tests java.math.BigInteger#BigInteger(byte[])
- */
 		[Test]
-		public void test_Constructor_B() {
-			byte[] myByteArray;
-			myByteArray = new byte[] { (byte)0x00, (byte)0xFF, (byte)0xFE };
+		public void ConstructorBytes() {
+			var myByteArray = new byte[] { (byte)0x00, (byte)0xFF, (byte)0xFE };
 			bi = new BigInteger(myByteArray);
 			Assert.IsTrue(bi.Equals(BigInteger.Zero.SetBit(16).Subtract(two)), "Incorrect value for pos number");
 			myByteArray = new byte[] { (byte)0xFF, (byte)0xFE };
@@ -163,13 +148,9 @@ namespace Deveel.Math {
 			Assert.IsTrue(bi.Equals(minusTwo), "Incorrect value for neg number");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#BigInteger(int, byte[])
-		 */
 		[Test]
-		public void test_ConstructorI_B() {
-			byte[] myByteArray;
-			myByteArray = new byte[] { (byte)0xFF, (byte)0xFE };
+		public void ConstructorIBytes() {
+			var myByteArray = new byte[] { (byte)0xFF, (byte)0xFE };
 			bi = new BigInteger(1, myByteArray);
 			Assert.IsTrue(bi.Equals(BigInteger.Zero.SetBit(16).Subtract(two)), "Incorrect value for pos number");
 			bi = new BigInteger(-1, myByteArray);
@@ -178,46 +159,27 @@ namespace Deveel.Math {
 			bi = new BigInteger(0, myByteArray);
 			Assert.IsTrue(bi.Equals(zero), "Incorrect value for zero");
 			myByteArray = new byte[] { (byte)1 };
-			try {
-				new BigInteger(0, myByteArray);
-				Assert.Fail("Failed to throw FormatException");
-			} catch (FormatException e) {
-				// correct
-			}
+
+			Assert.Throws<FormatException>(() => new BigInteger(0, myByteArray));
 		}
 
-		/**
-		 * @tests java.math.BigInteger#BigInteger(java.lang.String)
-		 */
 		[Test]
-		public void test_constructor_String_empty() {
-			try {
-				BigInteger.Parse("");
-				Assert.Fail("Expected NumberFormatException for new BigInteger(\"\")");
-			} catch (FormatException e) {
-			}
+		public void ParseStringEmpty() {
+			Assert.Throws<FormatException>(() => BigInteger.Parse(""));
 		}
 
-		/**
-		 * @tests java.math.BigInteger#toByteArray()
-		 */
 		[Test]
-		public void test_toByteArray() {
-			byte[] myByteArray, anotherByteArray;
-			myByteArray = new byte[] { 97, 33, 120, 124, 50, 2, 0, 0, 0, 12, 124,
-				42 };
-			anotherByteArray = new BigInteger(myByteArray).ToByteArray();
+		public void ToByteArray() {
+			var myByteArray = new byte[] { 97, 33, 120, 124, 50, 2, 0, 0, 0, 12, 124, 42 };
+			var anotherByteArray = new BigInteger(myByteArray).ToByteArray();
 			Assert.IsTrue(myByteArray.Length == anotherByteArray.Length, "Incorrect byte array returned");
 			for (int counter = myByteArray.Length - 1; counter >= 0; counter--) {
 				Assert.IsTrue(myByteArray[counter] == anotherByteArray[counter], "Incorrect values in returned byte array");
 			}
 		}
 
-		/**
-		 * @tests java.math.BigInteger#isProbablePrime(int)
-		 */
 		[Test]
-		public void test_isProbablePrimeI() {
+		public void IsProbablePrimeI() {
 			int fails = 0;
 			bi = new BigInteger(20, 20, rand);
 			if (!bi.IsProbablePrime(17)) {
@@ -225,18 +187,18 @@ namespace Deveel.Math {
 			}
 			bi = BigInteger.Parse("4", 10);
 			if (bi.IsProbablePrime(17)) {
-				Assert.Fail("isProbablePrime failed for: " + bi.ToString());
+				Assert.Fail("IsProbablePrime failed for: " + bi.ToString());
 			}
 			bi = BigInteger.ValueOf(17L * 13L);
 			if (bi.IsProbablePrime(17)) {
-				Assert.Fail("isProbablePrime failed for: " + bi.ToString());
+				Assert.Fail("IsProbablePrime failed for: " + bi.ToString());
 			}
 			for (long a = 2; a < 1000; a++) {
 				if (isPrime(a)) {
 					Assert.IsTrue(BigInteger.ValueOf(a).IsProbablePrime(5), "false negative on prime number <1000");
 				} else if (BigInteger.ValueOf(a).IsProbablePrime(17)) {
 #if !PORTABLE
-					Console.Out.WriteLine("isProbablePrime failed for: " + a);
+					Console.Out.WriteLine("IsProbablePrime failed for: " + a);
 #endif
 					fails++;
 				}
@@ -245,7 +207,7 @@ namespace Deveel.Math {
 				bi = BigInteger.ValueOf(rand.Next(1000000)).Multiply(BigInteger.ValueOf(rand.Next(1000000)));
 				if (bi.IsProbablePrime(17)) {
 #if !PORTABLE
-					Console.Out.WriteLine("isProbablePrime failed for: " + bi.ToString());
+					Console.Out.WriteLine("IsProbablePrime failed for: " + bi.ToString());
 #endif
 					fails++;
 				}
@@ -254,19 +216,17 @@ namespace Deveel.Math {
 				bi = new BigInteger(70, rand).Multiply(new BigInteger(70, rand));
 				if (bi.IsProbablePrime(17)) {
 #if !PORTABLE
-					Console.Out.WriteLine("isProbablePrime failed for: " + bi.ToString());
+					Console.Out.WriteLine("IsProbablePrime failed for: " + bi.ToString());
 #endif
 					fails++;
 				}
 			}
+
 			Assert.IsTrue(fails <= 1, "Too many false positives - may indicate a problem");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#equals(java.lang.Object)
-		 */
 		[Test]
-		public void test_equalsLjava_lang_Object() {
+		public void EqualsObject() {
 			Assert.IsTrue(zero.Equals(BigInteger.ValueOf(0)), "0=0");
 			Assert.IsTrue(BigInteger.ValueOf(-123).Equals(BigInteger.ValueOf(-123)), "-123=-123");
 			Assert.IsTrue(!zero.Equals(one), "0=1");
@@ -277,50 +237,35 @@ namespace Deveel.Math {
 			Assert.IsTrue(!bi3.Equals(bi2), "bi3=bi2");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#compareTo(java.math.BigInteger)
-		 */
 		[Test]
-		public void test_compareToLjava_math_BigInteger() {
+		public void CompareToBigInteger() {
 			Assert.IsTrue(one.CompareTo(two) < 0, "Smaller number returned >= 0");
 			Assert.IsTrue(two.CompareTo(one) > 0, "Larger number returned >= 0");
 			Assert.IsTrue(one.CompareTo(one) == 0, "Equal numbers did not return 0");
 			Assert.IsTrue(two.Negate().CompareTo(one) < 0, "Neg number messed things up");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#intValue()
-		 */
 		[Test]
-		public void test_intValue() {
+		public void ToInt32() {
 			Assert.IsTrue(twoToTheSeventy.ToInt32() == 0, "Incorrect ToInt32 for 2**70");
 			Assert.IsTrue(two.ToInt32() == 2, "Incorrect ToInt32 for 2");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#longValue()
-		 */
 		[Test]
-		public void test_longValue() {
+		public void ToInt64() {
 			Assert.IsTrue(twoToTheSeventy.ToInt64() == 0, "Incorrect ToInt64 for 2**70");
 			Assert.IsTrue(two.ToInt64() == 2, "Incorrect ToInt64 for 2");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#valueOf(long)
-		 */
 		[Test]
-		public void test_valueOfJ() {
+		public void ValueOfJ() {
 			Assert.IsTrue(BigInteger.ValueOf(2L).Equals(two), "Incurred number returned for 2");
 			Assert.IsTrue(BigInteger.ValueOf(200L).Equals(BigInteger.ValueOf(139).Add(BigInteger.ValueOf(61))),
 						  "Incurred number returned for 200");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#add(java.math.BigInteger)
-		 */
 		[Test]
-		public void test_addLjava_math_BigInteger() {
+		public void AddBigInteger() {
 			Assert.IsTrue(aZillion.Add(aZillion).Add(aZillion.Negate()).Equals(aZillion), "Incorrect sum--wanted a zillion");
 			Assert.IsTrue(zero.Add(zero).Equals(zero), "0+0");
 			Assert.IsTrue(zero.Add(one).Equals(one), "0+1");
@@ -336,24 +281,14 @@ namespace Deveel.Math {
 				BigInteger midbit = zero.SetBit(i);
 				Assert.IsTrue(midbit.Add(midbit).Equals(zero.SetBit(i + 1)), "add fails to carry on bit " + i);
 			}
+
 			BigInteger bi2p3 = bi2.Add(bi3);
 			BigInteger bi3p2 = bi3.Add(bi2);
 			Assert.IsTrue(bi2p3.Equals(bi3p2), "bi2p3=bi3p2");
-
-			// add large positive + small positive
-
-			// add large positive + small negative
-
-			// add large negative + small positive
-
-			// add large negative + small negative
 		}
 
-		/**
-		 * @tests java.math.BigInteger#negate()
-		 */
 		[Test]
-		public void test_negate() {
+		public void Negate() {
 			Assert.IsTrue(zero.Negate().Equals(zero), "Single negation of zero did not result in zero");
 			Assert.IsTrue(!aZillion.Negate().Equals(aZillion), "Single negation resulted in original nonzero number");
 			Assert.IsTrue(aZillion.Negate().Negate().Equals(aZillion), "Double negation did not result in original number");
@@ -374,43 +309,31 @@ namespace Deveel.Math {
 			}
 		}
 
-		/**
-		 * @tests java.math.BigInteger#signum()
-		 */
 		[Test]
-		public void test_signum() {
+		public void Signum() {
 			Assert.IsTrue(two.Sign == 1, "Wrong positive signum");
 			Assert.IsTrue(zero.Sign == 0, "Wrong zero signum");
 			Assert.IsTrue(zero.Negate().Sign == 0, "Wrong neg zero signum");
 			Assert.IsTrue(two.Negate().Sign == -1, "Wrong neg signum");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#abs()
-		 */
 		[Test]
-		public void test_abs() {
+		public void Abs() {
 			Assert.IsTrue(aZillion.Negate().Abs().Equals(aZillion.Abs()), "Invalid number returned for zillion");
 			Assert.IsTrue(zero.Negate().Abs().Equals(zero), "Invalid number returned for zero neg");
 			Assert.IsTrue(zero.Abs().Equals(zero), "Invalid number returned for zero");
 			Assert.IsTrue(two.Negate().Abs().Equals(two), "Invalid number returned for two");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#pow(int)
-		 */
 		[Test]
-		public void test_powI() {
+		public void PowI() {
 			Assert.IsTrue(two.Pow(10).Equals(twoToTheTen), "Incorrect exponent returned for 2**10");
 			Assert.IsTrue(two.Pow(30).Multiply(two.Pow(40)).Equals(twoToTheSeventy), "Incorrect exponent returned for 2**70");
 			Assert.IsTrue(ten.Pow(50).Equals(aZillion), "Incorrect exponent returned for 10**50");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#modInverse(java.math.BigInteger)
-		 */
 		[Test]
-		public void test_modInverseLjava_math_BigInteger() {
+		public void MmodInverseBigInteger() {
 			BigInteger a = zero, mod, inv;
 			for (int j = 3; j < 50; j++) {
 				mod = BigInteger.ValueOf(j);
@@ -435,18 +358,15 @@ namespace Deveel.Math {
 						Assert.IsTrue(one.Equals(a.Multiply(inv).Mod(mod)), "bad inverse: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.IsTrue(inv.CompareTo(mod) < 0, "inverse greater than modulo: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.IsTrue(inv.CompareTo(BigInteger.Zero) >= 0, "inverse less than zero: " + a + " inv mod " + mod + " equals " + inv);
-					} catch (ArithmeticException e) {
+					} catch (ArithmeticException) {
 						Assert.IsTrue(!one.Equals(a.Gcd(mod)), "should have found inverse for " + a + " mod " + mod);
 					}
 				}
 			}
 		}
 
-		/**
-		 * @tests java.math.BigInteger#shiftRight(int)
-		 */
 		[Test]
-		public void test_shiftRightI() {
+		public void ShiftRightI() {
 			Assert.IsTrue(BigInteger.ValueOf(1).ShiftRight(0).Equals(BigInteger.One), "1 >> 0");
 			Assert.IsTrue(BigInteger.ValueOf(1).ShiftRight(1).Equals(BigInteger.Zero), "1 >> 1");
 			Assert.IsTrue(BigInteger.ValueOf(1).ShiftRight(63).Equals(BigInteger.Zero), "1 >> 63");
@@ -488,11 +408,8 @@ namespace Deveel.Math {
 			}
 		}
 
-		/**
-		 * @tests java.math.BigInteger#shiftLeft(int)
-		 */
 		[Test]
-		public void test_shiftLeftI() {
+		public void ShiftLeftI() {
 			Assert.IsTrue(one.ShiftLeft(0).Equals(one), "1 << 0");
 			Assert.IsTrue(one.ShiftLeft(1).Equals(two), "1 << 1");
 			Assert.IsTrue(one.ShiftLeft(63).Equals(BigInteger.Parse("8000000000000000", 16)), "1 << 63");
@@ -524,11 +441,8 @@ namespace Deveel.Math {
 			}
 		}
 
-		/**
-		 * @tests java.math.BigInteger#multiply(java.math.BigInteger)
-		 */
 		[Test]
-		public void test_multiplyLjava_math_BigInteger() {
+		public void MultiplyBigInteger() {
             SetUp();
 			Assert.IsTrue(aZillion.Add(aZillion).Add(aZillion).Equals(aZillion.Multiply(BigInteger.Parse("3", 10))),
 						  "Incorrect sum--wanted three zillion");
@@ -551,130 +465,61 @@ namespace Deveel.Math {
 			testAllMults(bi2, bi3, bi23);
 		}
 
-		/**
-		 * @tests java.math.BigInteger#divide(java.math.BigInteger)
-		 */
 		[Test]
-		public void test_divideLjava_math_BigInteger() {
-			testAllDivs(bi33, bi3);
-			testAllDivs(bi22, bi2);
-			testAllDivs(bi11, bi1);
-			testAllDivs(bi13, bi1);
-			testAllDivs(bi13, bi3);
-			testAllDivs(bi12, bi1);
-			testAllDivs(bi12, bi2);
-			testAllDivs(bi23, bi2);
-			testAllDivs(bi23, bi3);
-			testAllDivs(largePos, bi1);
-			testAllDivs(largePos, bi2);
-			testAllDivs(largePos, bi3);
-			testAllDivs(largeNeg, bi1);
-			testAllDivs(largeNeg, bi2);
-			testAllDivs(largeNeg, bi3);
-			testAllDivs(largeNeg, largePos);
-			testAllDivs(largePos, largeNeg);
-			testAllDivs(bi3, bi3);
-			testAllDivs(bi2, bi2);
-			testAllDivs(bi1, bi1);
-			testDivRanges(bi1);
-			testDivRanges(bi2);
-			testDivRanges(bi3);
-			testDivRanges(smallPos);
-			testDivRanges(largePos);
-			testDivRanges(BigInteger.Parse("62EB40FEF85AA9EB", 16));
-			testAllDivs(BigInteger.ValueOf(0xCC0225953CL), BigInteger
+		public void DivideBigInteger() {
+			TestAllDivs(bi33, bi3);
+			TestAllDivs(bi22, bi2);
+			TestAllDivs(bi11, bi1);
+			TestAllDivs(bi13, bi1);
+			TestAllDivs(bi13, bi3);
+			TestAllDivs(bi12, bi1);
+			TestAllDivs(bi12, bi2);
+			TestAllDivs(bi23, bi2);
+			TestAllDivs(bi23, bi3);
+			TestAllDivs(largePos, bi1);
+			TestAllDivs(largePos, bi2);
+			TestAllDivs(largePos, bi3);
+			TestAllDivs(largeNeg, bi1);
+			TestAllDivs(largeNeg, bi2);
+			TestAllDivs(largeNeg, bi3);
+			TestAllDivs(largeNeg, largePos);
+			TestAllDivs(largePos, largeNeg);
+			TestAllDivs(bi3, bi3);
+			TestAllDivs(bi2, bi2);
+			TestAllDivs(bi1, bi1);
+			TestDivRanges(bi1);
+			TestDivRanges(bi2);
+			TestDivRanges(bi3);
+			TestDivRanges(smallPos);
+			TestDivRanges(largePos);
+			TestDivRanges(BigInteger.Parse("62EB40FEF85AA9EB", 16));
+			TestAllDivs(BigInteger.ValueOf(0xCC0225953CL), BigInteger
 					.ValueOf(0x1B937B765L));
 
-			try {
-				largePos.Divide(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
-
-			try {
-				bi1.Divide(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
-
-			try {
-				bi3.Negate().Divide(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
-
-			try {
-				zero.Divide(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
+			Assert.Throws<ArithmeticException>(() => largePos.Divide(zero));
+			Assert.Throws<ArithmeticException>(() => bi1.Divide(zero));
+			Assert.Throws<ArithmeticException>(() => bi3.Negate().Divide(zero));
+			Assert.Throws<ArithmeticException>(() => zero.Divide(zero));
 		}
 
-		/**
-		 * @tests java.math.BigInteger#remainder(java.math.BigInteger)
-		 */
 		[Test]
-		public void test_remainderLjava_math_BigInteger() {
-			try {
-				largePos.Remainder(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
-
-			try {
-				bi1.Remainder(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
-
-			try {
-				bi3.Negate().Remainder(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
-
-			try {
-				zero.Remainder(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
+		public void RemainderBigInteger() {
+			Assert.Throws<ArithmeticException>(() => largePos.Remainder(zero));
+			Assert.Throws<ArithmeticException>(() => bi1.Remainder(zero));
+			Assert.Throws<ArithmeticException>(() => bi3.Negate().Remainder(zero));
+			Assert.Throws<ArithmeticException>(() => zero.Remainder(zero));
 		}
 
-		/**
-		 * @tests java.math.BigInteger#mod(java.math.BigInteger)
-		 */
 		[Test]
-		public void test_modLjava_math_BigInteger() {
-			try {
-				largePos.Mod(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
-
-			try {
-				bi1.Mod(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
-
-			try {
-				bi3.Negate().Mod(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
-
-			try {
-				zero.Mod(zero);
-				Assert.Fail("ArithmeticException expected");
-			} catch (ArithmeticException e) {
-			}
+		public void ModLBigInteger() {
+			Assert.Throws<ArithmeticException>(() => largePos.Mod(zero));
+			Assert.Throws<ArithmeticException>(() => bi1.Mod(zero));
+			Assert.Throws<ArithmeticException>(() => bi3.Negate().Mod(zero));
+			Assert.Throws<ArithmeticException>(() => zero.Mod(zero));
 		}
 
-		/**
-		 * @tests java.math.BigInteger#divideAndRemainder(java.math.BigInteger)
-		 */
 		[Test]
-		public void test_divideAndRemainderLjava_math_BigInteger() {
+		public void DivideAndRemainderBigInteger() {
 			BigInteger remainder;
 
 			Assert.Throws<ArithmeticException>(() => largePos.DivideAndRemainder(zero, out remainder));
@@ -683,11 +528,8 @@ namespace Deveel.Math {
 			Assert.Throws<ArithmeticException>(() => zero.DivideAndRemainder(zero, out remainder));
 		}
 
-		/**
-		 * @tests java.math.BigInteger#BigInteger(java.lang.String)
-		 */
 		[Test]
-		public void test_ConstructorLjava_lang_String() {
+		public void ParseString() {
 			Assert.IsTrue(BigInteger.Parse("0").Equals(BigInteger.ValueOf(0)), "new(0)");
 			Assert.IsTrue(BigInteger.Parse("1").Equals(BigInteger.ValueOf(1)), "new(1)");
 			Assert.IsTrue(BigInteger.Parse("12345678901234").Equals(BigInteger.ValueOf(12345678901234L)), "new(12345678901234)");
@@ -695,11 +537,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(BigInteger.Parse("-12345678901234").Equals(BigInteger.ValueOf(-12345678901234L)), "new(-12345678901234)");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#BigInteger(java.lang.String, int)
-		 */
 		[Test]
-		public void test_ConstructorLjava_lang_StringI() {
+		public void ParseStringI() {
 			Assert.IsTrue(BigInteger.Parse("0", 16).Equals(BigInteger.ValueOf(0)), "new(0,16)");
 			Assert.IsTrue(BigInteger.Parse("1", 16).Equals(BigInteger.ValueOf(1)), "new(1,16)");
 			Assert.IsTrue(BigInteger.Parse("ABF345678901234", 16).Equals(BigInteger.ValueOf(0xABF345678901234L)), "new(ABF345678901234,16)");
@@ -710,11 +549,8 @@ namespace Deveel.Math {
 			Assert.IsTrue(BigInteger.Parse("-101010101", 2).Equals(BigInteger.ValueOf(-341)), "new(-101010101,2)");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#ToString()
-		 */
 		[Test]
-		public void test_toString() {
+		public void TestToString() {
 			Assert.IsTrue("0".Equals(BigInteger.ValueOf(0).ToString()), "0.ToString");
 			Assert.IsTrue("1".Equals(BigInteger.ValueOf(1).ToString()), "1.ToString");
 			Assert.IsTrue("12345678901234".Equals(BigInteger.ValueOf(12345678901234L).ToString()), "12345678901234.ToString");
@@ -722,11 +558,8 @@ namespace Deveel.Math {
 			Assert.IsTrue("-12345678901234".Equals(BigInteger.ValueOf(-12345678901234L).ToString()), "-12345678901234.ToString");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#ToString(int)
-		 */
 		[Test]
-		public void test_toStringI() {
+		public void ToStringI() {
 			Assert.IsTrue("0".Equals(BigInteger.ValueOf(0).ToString(16)), "0.ToString(16)");
 			Assert.IsTrue("1".Equals(BigInteger.ValueOf(1).ToString(16)), "1.ToString(16)");
 			Assert.IsTrue("abf345678901234".Equals(BigInteger.ValueOf(0xABF345678901234L).ToString(16)), "ABF345678901234.ToString(16)");
@@ -735,11 +568,8 @@ namespace Deveel.Math {
 			Assert.IsTrue("-101010101".Equals(BigInteger.ValueOf(-341).ToString(2)), "-101010101.ToString(2)");
 		}
 
-		/**
-		 * @tests java.math.BigInteger#and(java.math.BigInteger)
-		 */
 		[Test]
-		public void test_andLjava_math_BigInteger() {
+		public void AndLBigInteger() {
 			foreach (BigInteger[] element in booleanPairs) {
 				BigInteger i1 = element[0], i2 = element[1];
 				BigInteger res = i1.And(i2);
@@ -751,11 +581,8 @@ namespace Deveel.Math {
 			}
 		}
 
-		/**
-		 * @tests java.math.BigInteger#or(java.math.BigInteger)
-		 */
 		[Test]
-		public void test_orLjava_math_BigInteger() {
+		public void OrBigInteger() {
 			foreach (BigInteger[] element in booleanPairs) {
 				BigInteger i1 = element[0], i2 = element[1];
 				BigInteger res = i1.Or(i2);
@@ -767,11 +594,8 @@ namespace Deveel.Math {
 			}
 		}
 
-		/**
-		 * @tests java.math.BigInteger#xor(java.math.BigInteger)
-		 */
 		[Test]
-		public void test_xorLjava_math_BigInteger() {
+		public void XOrBigInteger() {
 			foreach (BigInteger[] element in booleanPairs) {
 				BigInteger i1 = element[0], i2 = element[1];
 				BigInteger res = i1.XOr(i2);
@@ -783,11 +607,8 @@ namespace Deveel.Math {
 			}
 		}
 
-		/**
-		 * @tests java.math.BigInteger#not()
-		 */
 		[Test]
-		public void test_not() {
+		public void Not() {
 			foreach (BigInteger[] element in booleanPairs) {
 				BigInteger i1 = element[0];
 				BigInteger res = i1.Not();
@@ -798,11 +619,8 @@ namespace Deveel.Math {
 			}
 		}
 
-		/**
-		 * @tests java.math.BigInteger#andNot(java.math.BigInteger)
-		 */
 		[Test]
-		public void test_andNotLjava_math_BigInteger() {
+		public void AndNotBigInteger() {
 			foreach (BigInteger[] element in booleanPairs) {
 				BigInteger i1 = element[0], i2 = element[1];
 				BigInteger res = i1.AndNot(i2);
@@ -810,6 +628,7 @@ namespace Deveel.Math {
 				for (int i = 0; i < len; i++) {
 					Assert.IsTrue((i1.TestBit(i) && !i2.TestBit(i)) == res.TestBit(i), "andNot");
 				}
+
 				// asymmetrical
 				i1 = element[1];
 				i2 = element[0];
@@ -818,18 +637,14 @@ namespace Deveel.Math {
 					Assert.IsTrue((i1.TestBit(i) && !i2.TestBit(i)) == res.TestBit(i), "andNot reversed");
 				}
 			}
-			//regression for HARMONY-4653
-			try {
-				BigInteger.Zero.AndNot(null);
-				Assert.Fail("should throw NPE");
-			} catch (Exception e) {
-				//expected
-			}
+
+			Assert.Throws<NullReferenceException>(() => BigInteger.Zero.AndNot(null));
+
 			BigInteger bi = new BigInteger(0, new byte[] { });
 			Assert.AreEqual(BigInteger.Zero, bi.AndNot(BigInteger.Zero));
 		}
 
-		private void testDiv(BigInteger i1, BigInteger i2) {
+		private void TestDiv(BigInteger i1, BigInteger i2) {
 			BigInteger q = i1.Divide(i2);
 			BigInteger r = i1.Remainder(i2);
 			BigInteger remainder;
@@ -858,19 +673,19 @@ namespace Deveel.Math {
 			}
 		}
 
-		private void testDivRanges(BigInteger i) {
+		private void TestDivRanges(BigInteger i) {
 			BigInteger bound = i.Multiply(two);
 			for (BigInteger j = bound.Negate(); j.CompareTo(bound) <= 0; j = j
 					.Add(i)) {
 				BigInteger innerbound = j.Add(two);
 				BigInteger k = j.Subtract(two);
 				for (; k.CompareTo(innerbound) <= 0; k = k.Add(one)) {
-					testDiv(k, i);
+					TestDiv(k, i);
 				}
 			}
 		}
 
-		private bool isPrime(long b) {
+		private static bool isPrime(long b) {
 			if (b == 2) {
 				return true;
 			}
@@ -887,7 +702,7 @@ namespace Deveel.Math {
 			return true;
 		}
 
-		private void testAllMults(BigInteger i1, BigInteger i2, BigInteger ans) {
+		private static void testAllMults(BigInteger i1, BigInteger i2, BigInteger ans) {
 			Assert.IsTrue(i1.Multiply(i2).Equals(ans), "i1*i2=ans");
 			Assert.IsTrue(i2.Multiply(i1).Equals(ans), "i2*i1=ans");
 			Assert.IsTrue(i1.Negate().Multiply(i2).Equals(ans.Negate()), "-i1*i2=-ans");
@@ -898,11 +713,11 @@ namespace Deveel.Math {
 			Assert.IsTrue(i2.Negate().Multiply(i1.Negate()).Equals(ans), "-i2*-i1=ans");
 		}
 
-		private void testAllDivs(BigInteger i1, BigInteger i2) {
-			testDiv(i1, i2);
-			testDiv(i1.Negate(), i2);
-			testDiv(i1, i2.Negate());
-			testDiv(i1.Negate(), i2.Negate());
+		private void TestAllDivs(BigInteger i1, BigInteger i2) {
+			TestDiv(i1, i2);
+			TestDiv(i1.Negate(), i2);
+			TestDiv(i1, i2.Negate());
+			TestDiv(i1.Negate(), i2.Negate());
 		}
 	}
 }
