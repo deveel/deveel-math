@@ -101,6 +101,17 @@ namespace Deveel.Math {
 			}
 		}
 
+		public override bool Equals(object obj) {
+			if (!(obj is Rational))
+				return false;
+
+			return CompareTo((Rational)obj) == 0;
+		}
+
+		public override int GetHashCode() {
+			return base.GetHashCode();
+		}
+
 		public int CompareTo(object obj) {
 			if (!(obj is Rational))
 				throw new ArgumentException();
@@ -611,7 +622,7 @@ namespace Deveel.Math {
 		}
 
 		public static bool operator ==(Rational a, Rational b) {
-			return a.CompareTo(b) == 0;
+			return a.Equals(b);
 		}
 
 		public static bool operator !=(Rational a, Rational b) {

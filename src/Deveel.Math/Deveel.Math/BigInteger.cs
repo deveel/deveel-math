@@ -75,22 +75,25 @@ namespace Deveel.Math {
 #endif
 		private int sign;
 
-		/**
-		 * The {@code BigInteger} constant 0.
-		 */
+
+		/// <summary>
+		/// The constant value <c>0</c> as <see cref="BigInteger"/>
+		/// </summary>
 		public static readonly BigInteger Zero = new BigInteger(0, 0);
 
-		/**
-		 * The {@code BigInteger} constant 1.
-		 */
+		/// <summary>
+		/// The constant value <c>1</c> as <see cref="BigInteger"/>
+		/// </summary>
 		public static readonly BigInteger One = new BigInteger(1, 1);
 
-		/**
-		 * The {@code BigInteger} constant 10.
-		 */
+		/// <summary>
+		/// The constant value <c>10</c> as <see cref="BigInteger"/>
+		/// </summary>
 		public static readonly BigInteger Ten = new BigInteger(1, 10);
 
-		/** The {@code BigInteger} constant -1. */
+		/// <summary>
+		/// The constant value <c>-1</c> as <see cref="BigInteger"/>
+		/// </summary>
 		internal static readonly BigInteger MinusOne = new BigInteger(-1, 1);
 
 		/** The {@code BigInteger} constant 0 used for comparison. */
@@ -150,20 +153,16 @@ namespace Deveel.Math {
 		#endregion
 #endif
 
-		/**
-		 * Constructs a random non-negative {@code BigInteger} instance in the range
-		 * [0, 2^(numBits)-1].
-		 *
-		 * @param numBits
-		 *            maximum length of the new {@code BigInteger} in bits.
-		 * @param rnd
-		 *            is an optional random generator to be used.
-		 * @throws IllegalArgumentException
-		 *             if {@code numBits} < 0.
-		 */
-
 		#region .ctor
 
+		/// <summary>
+		/// Constructs a random non-negative big integer instance in the range [0, 2^(numBits)-1]
+		/// </summary>
+		/// <param name="numBits">The maximum length of the new <see cref="BigInteger"/> in bits.</param>
+		/// <param name="rnd">An optional random number generator to be used.</param>
+		/// <exception cref="ArgumentException">
+		/// If the given <paramref name="numBits"/> value is less than 0.
+		/// </exception>
 		public BigInteger(int numBits, Random rnd) {
 			if (numBits < 0) {
 				// math.1B=numBits must be non-negative
@@ -211,95 +210,37 @@ namespace Deveel.Math {
 			digits = me.digits;
 		}
 
-		/**
-		 * Constructs a new {@code BigInteger} instance from the string
-		 * representation. The string representation consists of an optional minus
-		 * sign followed by a non-empty sequence of decimal digits.
-		 *
-		 * @param val
-		 *            string representation of the new {@code BigInteger}.
-		 * @throws NullPointerException
-		 *             if {@code val == null}.
-		 * @throws NumberFormatException
-		 *             if {@code val} is not a valid representation of a {@code
-		 *             BigInteger}.
-		 */
-		/*
-		public BigInteger(String val)
-			: this(val, 10) {
-		}
-		*/
-
-		/**
-		 * Constructs a new {@code BigInteger} instance from the string
-		 * representation. The string representation consists of an optional minus
-		 * sign followed by a non-empty sequence of digits in the specified radix.
-		 * For the conversion the method {@code CharHelper.digit(char, radix)} is
-		 * used.
-		 *
-		 * @param val
-		 *            string representation of the new {@code BigInteger}.
-		 * @param radix
-		 *            the base to be used for the conversion.
-		 * @throws NullPointerException
-		 *             if {@code val == null}.
-		 * @throws NumberFormatException
-		 *             if {@code val} is not a valid representation of a {@code
-		 *             BigInteger} or if {@code radix < CharHelper.MIN_RADIX} or
-		 *             {@code radix > CharHelper.MAX_RADIX}.
-		 */
-		/*
-		public BigInteger(String val, int radix) {
-			if (val == null) {
-				throw new NullReferenceException();
-			}
-            if ((radix < CharHelper.MIN_RADIX) || (radix > CharHelper.MAX_RADIX))
-            {
-				// math.11=Radix out of range
-				throw new FormatException(Messages.math11); //$NON-NLS-1$
-			}
-			if (val.Length == 0) {
-				// math.12=Zero length BigInteger
-				throw new FormatException(Messages.math12); //$NON-NLS-1$
-			}
-			SetFromString(this, val, radix);
-		}
-		*/
-
-		/**
-		 * Constructs a new {@code BigInteger} instance with the given sign and the
-		 * given magnitude. The sign is given as an integer (-1 for negative, 0 for
-		 * zero, 1 for positive). The magnitude is specified as a byte array. The
-		 * most significant byte is the entry at index 0.
-		 *
-		 * @param signum
-		 *            sign of the new {@code BigInteger} (-1 for negative, 0 for
-		 *            zero, 1 for positive).
-		 * @param magnitude
-		 *            magnitude of the new {@code BigInteger} with the most
-		 *            significant byte first.
-		 * @throws NullPointerException
-		 *             if {@code magnitude == null}.
-		 * @throws NumberFormatException
-		 *             if the sign is not one of -1, 0, 1 or if the sign is zero and
-		 *             the magnitude contains non-zero entries.
-		 */
+		/// <summary>
+		/// Constructs a new {@code BigInteger} instance with the given sign and the given magnitude. 
+		/// </summary>
+		/// <param name="signum">The sign as an integer (-1 for negative, 0 for zero, 1 for positive).</param>
+		/// <param name="magnitude">The byte array that describes the magnitude, where the most significant
+		/// byte is the first.</param>
+		/// <exception cref="ArgumentNullException">
+		/// If the provided <paramref name="magnitude"/> provided is <c>null</c>.
+		/// </exception>
+		/// <exception cref="FormatException">
+		/// If the provided <paramref name="signum"/> is different from -1, 0 or 1 or
+		/// if the sign is 0 and the magnitude contains non-zero entries.
+		/// </exception>
 		public BigInteger(int signum, byte[] magnitude) {
-			if (magnitude == null) {
-				throw new NullReferenceException();
-			}
-			if ((signum < -1) || (signum > 1)) {
+			if (magnitude == null)
+				throw new ArgumentNullException("magnitude");
+
+			if ((signum < -1) || (signum > 1))
 				// math.13=Invalid signum value
 				throw new FormatException(Messages.math13); //$NON-NLS-1$
-			}
+
 			if (signum == 0) {
 				foreach (byte element in magnitude) {
+
 					if (element != 0) {
 						// math.14=signum-magnitude mismatch
 						throw new FormatException(Messages.math14); //$NON-NLS-1$
 					}
 				}
 			}
+
 			if (magnitude.Length == 0) {
 				sign = 0;
 				numberLength = 1;
@@ -478,80 +419,27 @@ namespace Deveel.Math {
 			get { return digits; }
 		}
 
-		/** @see BigInteger#BigInteger(String, int) */
-		/*
-		private static void SetFromString(BigInteger bi, String val, int radix) {
-			int sign;
-			int[] digits;
-			int numberLength;
-			int stringLength = val.Length;
-			int startChar;
-			int endChar = stringLength;
-
-			if (val[0] == '-') {
-				sign = -1;
-				startChar = 1;
-				stringLength--;
-			} else {
-				sign = 1;
-				startChar = 0;
-			}
-			/*
-			 * We use the following algorithm: split a string into portions of n
-			 * CharHelpers and convert each portion to an integer according to the
-			 * radix. Then convert an exp(radix, n) based number to binary using the
-			 * multiplication method. See D. Knuth, The Art of Computer Programming,
-			 * vol. 2.
-			 *
-
-			int charsPerInt = Conversion.digitFitInInt[radix];
-			int bigRadixDigitsLength = stringLength / charsPerInt;
-			int topChars = stringLength % charsPerInt;
-
-			if (topChars != 0) {
-				bigRadixDigitsLength++;
-			}
-			digits = new int[bigRadixDigitsLength];
-			// Get the maximal power of radix that fits in int
-			int bigRadix = Conversion.bigRadices[radix - 2];
-			// Parse an input string and accumulate the BigInteger's magnitude
-			int digitIndex = 0; // index of digits array
-			int substrEnd = startChar + ((topChars == 0) ? charsPerInt : topChars);
-			int newDigit;
-
-			for (int substrStart = startChar; substrStart < endChar; substrStart = substrEnd, substrEnd = substrStart
-					+ charsPerInt) {
-				int bigRadixDigit = Convert.ToInt32(val.Substring(substrStart, substrEnd - substrStart), radix);
-				newDigit = Multiplication.MultiplyByInt(digits, digitIndex, bigRadix);
-				newDigit += Elementary.inplaceAdd(digits, digitIndex, bigRadixDigit);
-				digits[digitIndex++] = newDigit;
-			}
-			numberLength = digitIndex;
-			bi.sign = sign;
-			bi.numberLength = numberLength;
-			bi.digits = digits;
-			bi.CutOffLeadingZeroes();
-		}
-		*/
-
-		/**
-		 * Returns a (new) {@code BigInteger} whose value is the absolute value of
-		 * {@code this}.
-		 *
-		 * @return {@code abs(this)}.
-		 */
 
 		#region Operations
 
+		/// <summary>
+		/// Computes the absolute value of this <see cref="BigInteger"/>
+		/// </summary>
+		/// <returns>
+		/// Returns an instance of <see cref="BigInteger"/> that represents the
+		/// absolute value of this instance.
+		/// </returns>
 		public BigInteger Abs() {
 			return ((sign < 0) ? new BigInteger(1, numberLength, digits) : this);
 		}
 
-		/**
-		 * Returns a new {@code BigInteger} whose value is the {@code -this}.
-		 *
-		 * @return {@code -this}.
-		 */
+		/// <summary>
+		/// Computes the negation of this <see cref="BigInteger"/>.
+		/// </summary>
+		/// <returns>
+		/// Returns an instance of <see cref="BigInteger"/> that is the negated value
+		/// of this instance.
+		/// </returns>
 		public BigInteger Negate() {
 			return ((sign == 0) ? this : new BigInteger(-sign, numberLength, digits));
 		}
@@ -1007,7 +895,7 @@ namespace Deveel.Math {
 				throw new ArithmeticException(Messages.math17); //$NON-NLS-1$
 			}
 			int divisorSign = divisor.sign;
-			if (divisor.IsOne()) {
+			if (divisor.IsOne) {
 				return ((divisor.sign > 0) ? this : this.Negate());
 			}
 			int thisSign = sign;
@@ -1108,7 +996,7 @@ namespace Deveel.Math {
 				// math.19=BigInteger not invertible.
 				throw new ArithmeticException(Messages.math19); //$NON-NLS-1$
 			}
-			if (m.IsOne()) {
+			if (m.IsOne) {
 				return Zero;
 			}
 
@@ -1150,7 +1038,7 @@ namespace Deveel.Math {
 			}
 			BigInteger b = this;
 
-			if (m.IsOne() | (exponent.sign > 0 & b.sign == 0)) {
+			if (m.IsOne | (exponent.sign > 0 & b.sign == 0)) {
 				return BigInteger.Zero;
 			}
 			if (b.sign == 0 && exponent.sign == 0) {
@@ -1346,13 +1234,6 @@ namespace Deveel.Math {
 		}
 
 		/**
-		 * Returns a string representation of this {@code BigInteger} in decimal
-		 * form.
-		 *
-		 * @return a string representation of {@code this} in decimal form.
-		 */
-
-		/**
 		 * Returns a new {@code BigInteger} whose value is greatest common divisor
 		 * of {@code this} and {@code val}. If {@code this==0} and {@code val==0}
 		 * then zero is returned, otherwise the result is positive.
@@ -1377,10 +1258,11 @@ namespace Deveel.Math {
 			}
 		}
 
-		/** Tests if {@code this.abs()} is equals to {@code ONE} */
-
-		internal bool IsOne() {
-			return ((numberLength == 1) && (digits[0] == 1));
+		/// <summary>
+		/// Indicates if this instance absolute value is equivalent to <c>1</c>.
+		/// </summary>
+		internal bool IsOne {
+			get { return ((numberLength == 1) && (digits[0] == 1)); }
 		}
 
 		/**
