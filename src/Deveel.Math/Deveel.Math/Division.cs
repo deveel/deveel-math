@@ -540,7 +540,7 @@ namespace Deveel.Math {
 					k += toShift;
 				}
 			}
-			if (!u.IsOne()) {
+			if (!u.IsOne) {
 				// in u is stored the gcd
 				// math.19: BigInteger not invertible.
 				throw new ArithmeticException(Messages.math19);

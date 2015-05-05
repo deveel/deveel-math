@@ -266,10 +266,10 @@ namespace Deveel.Math {
 					do {
 						x = new BigInteger(bitLength, rnd);
 					} while ((x.CompareTo(n) >= BigInteger.EQUALS) || (x.Sign == 0)
-							|| x.IsOne());
+							|| x.IsOne);
 				}
 				y = x.ModPow(q, n);
-				if (y.IsOne() || y.Equals(n_minus_1)) {
+				if (y.IsOne || y.Equals(n_minus_1)) {
 					continue;
 				}
 				for (int j = 1; j < k; j++) {
@@ -277,7 +277,7 @@ namespace Deveel.Math {
 						continue;
 					}
 					y = y.Multiply(y).Mod(n);
-					if (y.IsOne()) {
+					if (y.IsOne) {
 						return false;
 					}
 				}
