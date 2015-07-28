@@ -1,5 +1,6 @@
 Deveel Math
 ===========
+[![Build status](https://ci.appveyor.com/api/projects/status/ut1oyratnbqo5yg5?svg=true)](https://ci.appveyor.com/project/tsutomi/deveel-math)
 
 [![Join the chat at https://gitter.im/deveel/deveel-math](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/deveel/deveel-math?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
