@@ -6,3 +6,4 @@
 /src/_ReSharper.Deveel.Math.vs2010
 /src/packages
 /nuget/*.nuspec
+/dist
