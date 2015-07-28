@@ -165,6 +165,22 @@ namespace Deveel.Math {
 
 		#region Divide
 
+		[Test(Description = "Assesses an error reported by a user")]
+		public void DivideBigDecimalBySevenHundred() {
+			const string a = "45465464646546546464646446547777777777777777777777777777888888888888888888888888888888777777777778542222222222221333333335";
+			const int b = 700;
+
+			BigDecimal bd1 = null;
+			Assert.DoesNotThrow(() => bd1 = BigDecimal.Parse(a));
+			Assert.IsNotNull(bd1);
+
+			BigDecimal bd2 = new BigDecimal(b);
+
+			BigDecimal result = null;
+			Assert.DoesNotThrow(() => result = bd1 / bd2);
+			Assert.IsNotNull(result);
+		}
+
 		/**
 		 * Divide by zero
 		 */

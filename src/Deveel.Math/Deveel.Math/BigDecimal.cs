@@ -3207,23 +3207,28 @@ namespace Deveel.Math {
 		#region Operators
 
 		public static BigDecimal operator +(BigDecimal a, BigDecimal b) {
-			return a.Add(b);
+			// In case of implicit operators apply the precision of the dividend
+			return a.Add(b, new MathContext(a.Precision));
 		}
 
 		public static BigDecimal operator -(BigDecimal a, BigDecimal b) {
-			return a.Subtract(b);
+			// In case of implicit operators apply the precision of the dividend
+			return a.Subtract(b, new MathContext(a.Precision));
 		}
 
 		public static BigDecimal operator /(BigDecimal a, BigDecimal b) {
-			return a.Divide(b);
+			// In case of implicit operators apply the precision of the dividend
+			return a.Divide(b, new MathContext(a.Precision));
 		}
 
 		public static BigDecimal operator %(BigDecimal a, BigDecimal b) {
-			return a.Remainder(b);
+			// In case of implicit operators apply the precision of the dividend
+			return a.Remainder(b, new MathContext(a.Precision));
 		}
 
 		public static BigDecimal operator *(BigDecimal a, BigDecimal b) {
-			return a.Multiply(b);
+			// In case of implicit operators apply the precision of the dividend
+			return a.Multiply(b, new MathContext(a.Precision));
 		}
 
 		public static BigDecimal operator +(BigDecimal a) {
