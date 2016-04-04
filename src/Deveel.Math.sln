@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deveel.Math", "Deveel.Math\Deveel.Math.csproj", "{DAB16486-ED07-4D2D-8E09-DB259C583F02}"
 EndProject
@@ -24,6 +24,9 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
+		Release-PCL|Any CPU = Release-PCL|Any CPU
+		Release-PCL|x64 = Release-PCL|x64
+		Release-PCL|x86 = Release-PCL|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -38,6 +41,11 @@ Global
 		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release|x64.Build.0 = Release|x64
 		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release|x86.ActiveCfg = Release|x86
 		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release|x86.Build.0 = Release|x86
+		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release-PCL|Any CPU.ActiveCfg = Release-PCL|Any CPU
+		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release-PCL|x64.ActiveCfg = Release-PCL|x64
+		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release-PCL|x64.Build.0 = Release-PCL|x64
+		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release-PCL|x86.ActiveCfg = Release-PCL|x86
+		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release-PCL|x86.Build.0 = Release-PCL|x86
 		{473247F5-FDF7-41D2-96DC-B550903227F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{473247F5-FDF7-41D2-96DC-B550903227F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{473247F5-FDF7-41D2-96DC-B550903227F0}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -50,16 +58,24 @@ Global
 		{473247F5-FDF7-41D2-96DC-B550903227F0}.Release|x64.Build.0 = Release|x64
 		{473247F5-FDF7-41D2-96DC-B550903227F0}.Release|x86.ActiveCfg = Release|x86
 		{473247F5-FDF7-41D2-96DC-B550903227F0}.Release|x86.Build.0 = Release|x86
+		{473247F5-FDF7-41D2-96DC-B550903227F0}.Release-PCL|Any CPU.ActiveCfg = Release-PCL|Any CPU
+		{473247F5-FDF7-41D2-96DC-B550903227F0}.Release-PCL|x64.ActiveCfg = Release-PCL|x64
+		{473247F5-FDF7-41D2-96DC-B550903227F0}.Release-PCL|x64.Build.0 = Release-PCL|x64
+		{473247F5-FDF7-41D2-96DC-B550903227F0}.Release-PCL|x86.ActiveCfg = Release-PCL|x86
+		{473247F5-FDF7-41D2-96DC-B550903227F0}.Release-PCL|x86.Build.0 = Release-PCL|x86
 		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Debug|x86.Build.0 = Debug|Any CPU
 		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Release|x64.ActiveCfg = Release|x64
-		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Release|x64.Build.0 = Release|x64
 		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Release|x86.ActiveCfg = Release|x86
+		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Release-PCL|Any CPU.ActiveCfg = Release-PCL|Any CPU
+		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Release-PCL|Any CPU.Build.0 = Release-PCL|Any CPU
+		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Release-PCL|x64.ActiveCfg = Release-PCL|x64
+		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Release-PCL|x64.Build.0 = Release-PCL|x64
+		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Release-PCL|x86.ActiveCfg = Release-PCL|x86
+		{A70E4F11-A520-4145-8D8E-3743B3A3BC3B}.Release-PCL|x86.Build.0 = Release-PCL|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

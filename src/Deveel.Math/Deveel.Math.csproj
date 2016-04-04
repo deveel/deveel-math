@@ -145,6 +145,15 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release-PCL|AnyCPU'">
+    <OutputPath>bin\Release-PCL\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release-PCL|x64'">
+    <OutputPath>bin\x64\Release-PCL\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release-PCL|x86'">
+    <OutputPath>bin\x86\Release-PCL\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Deveel.Math\Bernoulli.cs" />
     <Compile Include="Deveel.Math\BigComplex.cs" />
