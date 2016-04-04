@@ -31,9 +31,9 @@ namespace Deveel.Math {
 	[Serializable]
 #endif
 	[System.Diagnostics.DebuggerDisplay("{ToString()}")]
-	public sealed class BigDecimal : IComparable<BigDecimal>, IConvertible, IEquatable<BigDecimal> 
+	public sealed class BigDecimal : IComparable<BigDecimal>, IEquatable<BigDecimal>
 #if !PORTABLE
-		, ISerializable
+		, ISerializable, IConvertible
 #endif
 	{
 
@@ -82,58 +82,58 @@ namespace Deveel.Math {
 		/// (<c>10^0,10^1,...,10^18</c>).
 		/// </summary>
 		private static readonly long[] LongTenPow = new long[] {
-		                                                         	1L,
-		                                                         	10L,
-		                                                         	100L,
-		                                                         	1000L,
-		                                                         	10000L,
-		                                                         	100000L,
-		                                                         	1000000L,
-		                                                         	10000000L,
-		                                                         	100000000L,
-		                                                         	1000000000L,
-		                                                         	10000000000L,
-		                                                         	100000000000L,
-		                                                         	1000000000000L,
-		                                                         	10000000000000L,
-		                                                         	100000000000000L,
-		                                                         	1000000000000000L,
-		                                                         	10000000000000000L,
-		                                                         	100000000000000000L,
-		                                                         	1000000000000000000L,
-		                                                         };
+			1L,
+			10L,
+			100L,
+			1000L,
+			10000L,
+			100000L,
+			1000000L,
+			10000000L,
+			100000000L,
+			1000000000L,
+			10000000000L,
+			100000000000L,
+			1000000000000L,
+			10000000000000L,
+			100000000000000L,
+			1000000000000000L,
+			10000000000000000L,
+			100000000000000000L,
+			1000000000000000000L,
+		};
 
 
 		private static readonly long[] LongFivePow = new long[] {
-		                                                          	1L,
-		                                                          	5L,
-		                                                          	25L,
-		                                                          	125L,
-		                                                          	625L,
-		                                                          	3125L,
-		                                                          	15625L,
-		                                                          	78125L,
-		                                                          	390625L,
-		                                                          	1953125L,
-		                                                          	9765625L,
-		                                                          	48828125L,
-		                                                          	244140625L,
-		                                                          	1220703125L,
-		                                                          	6103515625L,
-		                                                          	30517578125L,
-		                                                          	152587890625L,
-		                                                          	762939453125L,
-		                                                          	3814697265625L,
-		                                                          	19073486328125L,
-		                                                          	95367431640625L,
-		                                                          	476837158203125L,
-		                                                          	2384185791015625L,
-		                                                          	11920928955078125L,
-		                                                          	59604644775390625L,
-		                                                          	298023223876953125L,
-		                                                          	1490116119384765625L,
-		                                                          	7450580596923828125L,
-		                                                          };
+			1L,
+			5L,
+			25L,
+			125L,
+			625L,
+			3125L,
+			15625L,
+			78125L,
+			390625L,
+			1953125L,
+			9765625L,
+			48828125L,
+			244140625L,
+			1220703125L,
+			6103515625L,
+			30517578125L,
+			152587890625L,
+			762939453125L,
+			3814697265625L,
+			19073486328125L,
+			95367431640625L,
+			476837158203125L,
+			2384185791015625L,
+			11920928955078125L,
+			59604644775390625L,
+			298023223876953125L,
+			1490116119384765625L,
+			7450580596923828125L,
+		};
 
 		private static readonly int[] LongFivePowBitLength = new int[LongFivePow.Length];
 		private static readonly int[] LongTenPowBitLength = new int[LongTenPow.Length];
@@ -234,7 +234,7 @@ namespace Deveel.Math {
 		}
 
 		private BigDecimal() {
-			
+
 		}
 
 
@@ -265,7 +265,7 @@ namespace Deveel.Math {
 			long bits = BitConverter.DoubleToInt64Bits(val); // IEEE-754
 
 			// Extracting the exponent, note that the bias is 1023
-			_scale = 1075 - (int)((bits >> 52) & 0x7FFL);
+			_scale = 1075 - (int) ((bits >> 52) & 0x7FFL);
 			// Extracting the 52 bits of the mantisa.
 			long mantisa = (_scale == 1075) ? (bits & 0xFFFFFFFFFFFFFL) << 1 : (bits & 0xFFFFFFFFFFFFFL) | 0x10000000000000L;
 			if (mantisa == 0) {
@@ -275,7 +275,7 @@ namespace Deveel.Math {
 			// To simplify all factors '2' in the mantisa 
 			if (_scale > 0) {
 				int trailingZeros = System.Math.Min(_scale, Utils.NumberOfTrailingZeros(mantisa));
-				long mantisa2 = (long)(((ulong)mantisa) >> trailingZeros);
+				long mantisa2 = (long) (((ulong) mantisa) >> trailingZeros);
 				mantisa = Utils.URShift(mantisa, trailingZeros);
 				_scale -= trailingZeros;
 			}
@@ -295,12 +295,13 @@ namespace Deveel.Math {
 			} else if (_scale > 0) {
 				// m * 2^e =  (m * 5^(-e)) * 10^e
 				if (_scale < LongFivePow.Length && mantisaBits + LongFivePowBitLength[_scale] < 64) {
-					smallValue = mantisa * LongFivePow[_scale];
+					smallValue = mantisa*LongFivePow[_scale];
 					_bitLength = BitLength(smallValue);
 				} else {
 					SetUnscaledValue(Multiplication.MultiplyByFivePow(BigInteger.ValueOf(mantisa), _scale));
 				}
-			} else { // scale == 0
+			} else {
+				// scale == 0
 				smallValue = mantisa;
 				_bitLength = mantisaBits;
 			}
@@ -580,8 +581,8 @@ namespace Deveel.Math {
 		public static BigDecimal ValueOf(long unscaledVal, int scale) {
 			if (scale == 0)
 				return ValueOf(unscaledVal);
-			if ((unscaledVal == 0) && (scale >= 0) && 
-				(scale < ZeroScaledBy.Length)) {
+			if ((unscaledVal == 0) && (scale >= 0) &&
+			    (scale < ZeroScaledBy.Length)) {
 				return ZeroScaledBy[scale];
 			}
 
@@ -599,7 +600,7 @@ namespace Deveel.Math {
 		/// </returns>
 		public static BigDecimal ValueOf(long unscaledVal) {
 			if ((unscaledVal >= 0) && (unscaledVal < BiScaledByZeroLength)) {
-				return BiScaledByZero[(int)unscaledVal];
+				return BiScaledByZero[(int) unscaledVal];
 			}
 			return new BigDecimal(unscaledVal, 0);
 		}
@@ -639,19 +640,19 @@ namespace Deveel.Math {
 			if (diffScale > 0)
 				// case s1 > s2 : [(u1 + u2) * 10 ^ (s1 - s2) , s1]
 				return AddAndMult10(this, augend, diffScale);
-			
+
 			// case s2 > s1 : [(u2 + u1) * 10 ^ (s2 - s1) , s2]
 			return AddAndMult10(augend, this, -diffScale);
 		}
 
 		private static BigDecimal AddAndMult10(BigDecimal thisValue, BigDecimal augend, int diffScale) {
 			if (diffScale < LongTenPow.Length &&
-					System.Math.Max(thisValue._bitLength, augend._bitLength + LongTenPowBitLength[diffScale]) + 1 < 64) {
-				return ValueOf(thisValue.smallValue + augend.smallValue * LongTenPow[diffScale], thisValue._scale);
+			    System.Math.Max(thisValue._bitLength, augend._bitLength + LongTenPowBitLength[diffScale]) + 1 < 64) {
+				return ValueOf(thisValue.smallValue + augend.smallValue*LongTenPow[diffScale], thisValue._scale);
 			}
 			return new BigDecimal(
-					thisValue.GetUnscaledValue().Add(Multiplication.MultiplyByTenPow(augend.GetUnscaledValue(), diffScale)),
-					thisValue._scale);
+				thisValue.GetUnscaledValue().Add(Multiplication.MultiplyByTenPow(augend.GetUnscaledValue(), diffScale)),
+				thisValue._scale);
 		}
 
 		/// <summary>
@@ -671,7 +672,7 @@ namespace Deveel.Math {
 			BigDecimal larger; // operand with the largest unscaled value
 			BigDecimal smaller; // operand with the smallest unscaled value
 			BigInteger tempBi;
-			long diffScale = (long)this._scale - augend._scale;
+			long diffScale = (long) this._scale - augend._scale;
 
 			// Some operand is zero or the precision is infinity  
 			if ((augend.IsZero) || (IsZero) || (mc.Precision == 0)) {
@@ -684,7 +685,8 @@ namespace Deveel.Math {
 			} else if (augend.AproxPrecision() < -diffScale - 1) {
 				larger = this;
 				smaller = augend;
-			} else {// No optimization is done 
+			} else {
+// No optimization is done 
 				return Add(augend).Round(mc);
 			}
 			if (mc.Precision >= larger.AproxPrecision()) {
@@ -696,12 +698,12 @@ namespace Deveel.Math {
 			var largerSignum = larger.Sign;
 			if (largerSignum == smaller.Sign) {
 				tempBi = Multiplication.MultiplyByPositiveInt(larger.GetUnscaledValue(), 10)
-				.Add(BigInteger.ValueOf(largerSignum));
+					.Add(BigInteger.ValueOf(largerSignum));
 			} else {
 				tempBi = larger.GetUnscaledValue().Subtract(
-						BigInteger.ValueOf(largerSignum));
+					BigInteger.ValueOf(largerSignum));
 				tempBi = Multiplication.MultiplyByPositiveInt(tempBi, 10)
-				.Add(BigInteger.ValueOf(largerSignum * 9));
+					.Add(BigInteger.ValueOf(largerSignum*9));
 			}
 			// Rounding the improved adding 
 			larger = new BigDecimal(tempBi, larger._scale + 1);
@@ -755,10 +757,10 @@ namespace Deveel.Math {
 					return ValueOf(smallValue - subtrahend.smallValue*LongTenPow[diffScale], _scale);
 				}
 				return new BigDecimal(
-						GetUnscaledValue().Subtract(Multiplication.MultiplyByTenPow(subtrahend.GetUnscaledValue(), diffScale)),
-						_scale);
+					GetUnscaledValue().Subtract(Multiplication.MultiplyByTenPow(subtrahend.GetUnscaledValue(), diffScale)),
+					_scale);
 			}
-			
+
 			// case s2 > s1 : [ u1 * 10 ^ (s2 - s1) - u2 , s2 ]
 			diffScale = -diffScale;
 			if (diffScale < LongTenPow.Length &&
@@ -767,7 +769,7 @@ namespace Deveel.Math {
 			}
 
 			return new BigDecimal(Multiplication.MultiplyByTenPow(GetUnscaledValue(), diffScale)
-			                      	.Subtract(subtrahend.GetUnscaledValue()), subtrahend._scale);
+				.Subtract(subtrahend.GetUnscaledValue()), subtrahend._scale);
 		}
 
 		/// <summary>
@@ -794,7 +796,7 @@ namespace Deveel.Math {
 			if (mc == null)
 				throw new ArgumentNullException("mc");
 
-			long diffScale = subtrahend._scale - (long)_scale;
+			long diffScale = subtrahend._scale - (long) _scale;
 
 			// Some operand is zero or the precision is infinity  
 			if ((subtrahend.IsZero) || (IsZero) || (mc.Precision == 0))
@@ -808,11 +810,11 @@ namespace Deveel.Math {
 					BigInteger tempBI;
 					if (thisSignum != subtrahend.Sign) {
 						tempBI = Multiplication.MultiplyByPositiveInt(this.GetUnscaledValue(), 10)
-						.Add(BigInteger.ValueOf(thisSignum));
+							.Add(BigInteger.ValueOf(thisSignum));
 					} else {
 						tempBI = GetUnscaledValue().Subtract(BigInteger.ValueOf(thisSignum));
 						tempBI = Multiplication.MultiplyByPositiveInt(tempBI, 10)
-						.Add(BigInteger.ValueOf(thisSignum * 9));
+							.Add(BigInteger.ValueOf(thisSignum*9));
 					}
 					// Rounding the improved subtracting
 					var leftOperand = new BigDecimal(tempBI, _scale + 1); // it will be only the left operand (this) 
@@ -835,8 +837,9 @@ namespace Deveel.Math {
 		 * @throws NullPointerException
 		 *             if {@code multiplicand == null}.
 		 */
+
 		public BigDecimal Multiply(BigDecimal multiplicand) {
-			long newScale = (long)_scale + multiplicand._scale;
+			long newScale = (long) _scale + multiplicand._scale;
 
 			if ((IsZero) || (multiplicand.IsZero)) {
 				return GetZeroScaledBy(newScale);
@@ -844,7 +847,7 @@ namespace Deveel.Math {
 			/* Let be: this = [u1,s1] and multiplicand = [u2,s2] so:
 			 * this x multiplicand = [ s1 * s2 , s1 + s2 ] */
 			if (_bitLength + multiplicand._bitLength < 64) {
-				return ValueOf(smallValue * multiplicand.smallValue, ToIntScale(newScale));
+				return ValueOf(smallValue*multiplicand.smallValue, ToIntScale(newScale));
 			}
 			return new BigDecimal(GetUnscaledValue().Multiply(multiplicand.GetUnscaledValue()), ToIntScale(newScale));
 		}
@@ -862,6 +865,7 @@ namespace Deveel.Math {
 		 * @throws NullPointerException
 		 *             if {@code multiplicand == null} or {@code mc == null}.
 		 */
+
 		public BigDecimal Multiply(BigDecimal multiplicand, MathContext mc) {
 			BigDecimal result = Multiply(multiplicand);
 
@@ -892,6 +896,7 @@ namespace Deveel.Math {
 		 *             rounding is necessary according to the given scale and given
 		 *             precision.
 		 */
+
 		public BigDecimal Divide(BigDecimal divisor, int scale, RoundingMode roundingMode) {
 			// Let be: this = [u1,s1]  and  divisor = [u2,s2]
 			if (divisor.IsZero) {
@@ -899,18 +904,19 @@ namespace Deveel.Math {
 				throw new ArithmeticException(Messages.math04); //$NON-NLS-1$
 			}
 
-			long diffScale = ((long)_scale - divisor._scale) - scale;
+			long diffScale = ((long) _scale - divisor._scale) - scale;
 			if (_bitLength < 64 && divisor._bitLength < 64) {
 				if (diffScale == 0)
 					return DividePrimitiveLongs(smallValue, divisor.smallValue, scale, roundingMode);
 				if (diffScale > 0) {
 					if (diffScale < LongTenPow.Length &&
-							divisor._bitLength + LongTenPowBitLength[(int)diffScale] < 64) {
+					    divisor._bitLength + LongTenPowBitLength[(int) diffScale] < 64) {
 						return DividePrimitiveLongs(smallValue, divisor.smallValue*LongTenPow[(int) diffScale], scale, roundingMode);
 					}
-				} else { // diffScale < 0
+				} else {
+					// diffScale < 0
 					if (-diffScale < LongTenPow.Length &&
-						_bitLength + LongTenPowBitLength[(int)-diffScale] < 64) {
+					    _bitLength + LongTenPowBitLength[(int) -diffScale] < 64) {
 						return DividePrimitiveLongs(smallValue*LongTenPow[(int) -diffScale], divisor.smallValue, scale, roundingMode);
 					}
 
@@ -921,10 +927,10 @@ namespace Deveel.Math {
 
 			if (diffScale > 0) {
 				// Multiply 'u2'  by:  10^((s1 - s2) - scale)
-				scaledDivisor = Multiplication.MultiplyByTenPow(scaledDivisor, (int)diffScale);
+				scaledDivisor = Multiplication.MultiplyByTenPow(scaledDivisor, (int) diffScale);
 			} else if (diffScale < 0) {
 				// Multiply 'u1'  by:  10^(scale - (s1 - s2))
-				scaledDividend = Multiplication.MultiplyByTenPow(scaledDividend, (int)-diffScale);
+				scaledDividend = Multiplication.MultiplyByTenPow(scaledDividend, (int) -diffScale);
 			}
 			return DivideBigIntegers(scaledDividend, scaledDivisor, scale, roundingMode);
 		}
@@ -933,27 +939,29 @@ namespace Deveel.Math {
 
 		#region Operations
 
-		private static BigDecimal DivideBigIntegers(BigInteger scaledDividend, BigInteger scaledDivisor, int scale, RoundingMode roundingMode) {
+		private static BigDecimal DivideBigIntegers(BigInteger scaledDividend, BigInteger scaledDivisor, int scale,
+			RoundingMode roundingMode) {
 			BigInteger remainder;
 			BigInteger quotient = scaledDividend.DivideAndRemainder(scaledDivisor, out remainder);
 			if (remainder.Sign == 0) {
 				return new BigDecimal(quotient, scale);
 			}
-			int sign = scaledDividend.Sign * scaledDivisor.Sign;
-			int compRem;                                      // 'compare to remainder'
-			if (scaledDivisor.BitLength < 63) { // 63 in order to avoid out of long after <<1
+			int sign = scaledDividend.Sign*scaledDivisor.Sign;
+			int compRem; // 'compare to remainder'
+			if (scaledDivisor.BitLength < 63) {
+				// 63 in order to avoid out of long after <<1
 				long rem = remainder.ToInt64();
 				long divisor = scaledDivisor.ToInt64();
 				compRem = LongCompareTo(System.Math.Abs(rem) << 1, System.Math.Abs(divisor));
 				// To look if there is a carry
 				compRem = RoundingBehavior(quotient.TestBit(0) ? 1 : 0,
-						sign * (5 + compRem), roundingMode);
+					sign*(5 + compRem), roundingMode);
 
 			} else {
 				// Checking if:  remainder * 2 >= scaledDivisor 
 				compRem = remainder.Abs().ShiftLeftOneBit().CompareTo(scaledDivisor.Abs());
 				compRem = RoundingBehavior(quotient.TestBit(0) ? 1 : 0,
-						sign * (5 + compRem), roundingMode);
+					sign*(5 + compRem), roundingMode);
 			}
 			if (compRem != 0) {
 				if (quotient.BitLength < 63) {
@@ -966,16 +974,17 @@ namespace Deveel.Math {
 			return new BigDecimal(quotient, scale);
 		}
 
-		private static BigDecimal DividePrimitiveLongs(long scaledDividend, long scaledDivisor, int scale, RoundingMode roundingMode) {
-			long quotient = scaledDividend / scaledDivisor;
-			long remainder = scaledDividend % scaledDivisor;
-			int sign = System.Math.Sign(scaledDividend) * System.Math.Sign(scaledDivisor);
+		private static BigDecimal DividePrimitiveLongs(long scaledDividend, long scaledDivisor, int scale,
+			RoundingMode roundingMode) {
+			long quotient = scaledDividend/scaledDivisor;
+			long remainder = scaledDividend%scaledDivisor;
+			int sign = System.Math.Sign(scaledDividend)*System.Math.Sign(scaledDivisor);
 			if (remainder != 0) {
 				// Checking if:  remainder * 2 >= scaledDivisor
-				int compRem;                                      // 'compare to remainder'
+				int compRem; // 'compare to remainder'
 				compRem = LongCompareTo(System.Math.Abs(remainder) << 1, System.Math.Abs(scaledDivisor));
 				// To look if there is a carry
-				quotient += RoundingBehavior(((int)quotient) & 1, sign * (5 + compRem), roundingMode);
+				quotient += RoundingBehavior(((int) quotient) & 1, sign*(5 + compRem), roundingMode);
 			}
 			// Constructing the result with the appropriate unscaled value
 			return ValueOf(quotient, scale);
@@ -1003,11 +1012,12 @@ namespace Deveel.Math {
 		 *             if {@code roundingMode == ROUND_UNNECESSARY} and rounding is
 		 *             necessary according to the scale of this.
 		 */
+
 		public BigDecimal Divide(BigDecimal divisor, int roundingMode) {
-			if (!Enum.IsDefined(typeof(RoundingMode), roundingMode))
+			if (!Enum.IsDefined(typeof (RoundingMode), roundingMode))
 				throw new ArgumentException();
 
-			return Divide(divisor, _scale, (RoundingMode)roundingMode);
+			return Divide(divisor, _scale, (RoundingMode) roundingMode);
 		}
 
 		/**
@@ -1030,6 +1040,7 @@ namespace Deveel.Math {
 		 *             if {@code roundingMode == RoundingMode.UNNECESSARY} and
 		 *             rounding is necessary according to the scale of this.
 		 */
+
 		public BigDecimal Divide(BigDecimal divisor, RoundingMode roundingMode) {
 			return Divide(divisor, _scale, roundingMode);
 		}
@@ -1051,13 +1062,14 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException
 		 *             if the result cannot be represented exactly.
 		 */
+
 		public BigDecimal Divide(BigDecimal divisor) {
 			BigInteger p = this.GetUnscaledValue();
 			BigInteger q = divisor.GetUnscaledValue();
 			BigInteger gcd; // greatest common divisor between 'p' and 'q'
 			BigInteger quotient;
 			BigInteger remainder;
-			long diffScale = (long)_scale - divisor._scale;
+			long diffScale = (long) _scale - divisor._scale;
 			int newScale; // the new scale for final quotient
 			int k; // number of factors "2" in 'q'
 			int l = 0; // number of factors "5" in 'q'
@@ -1108,8 +1120,9 @@ namespace Deveel.Math {
 			// k >= 0  and  l >= 0  implies that  k - l  is in the 32-bit range
 			i = k - l;
 
-			p = (i > 0) ? Multiplication.MultiplyByFivePow(p, i)
-			: p.ShiftLeft(-i);
+			p = (i > 0)
+				? Multiplication.MultiplyByFivePow(p, i)
+				: p.ShiftLeft(-i);
 			return new BigDecimal(p, newScale);
 		}
 
@@ -1132,12 +1145,13 @@ namespace Deveel.Math {
 		 *             if {@code mc.getRoundingMode() == UNNECESSARY} and rounding
 		 *             is necessary according {@code mc.getPrecision()}.
 		 */
+
 		public BigDecimal Divide(BigDecimal divisor, MathContext mc) {
 			/* Calculating how many zeros must be append to 'dividend'
 			 * to obtain a  quotient with at least 'mc.precision()' digits */
 			long traillingZeros = mc.Precision + 2L
-					+ divisor.AproxPrecision() - AproxPrecision();
-			long diffScale = (long)_scale - divisor._scale;
+			                      + divisor.AproxPrecision() - AproxPrecision();
+			long diffScale = (long) _scale - divisor._scale;
 			long newScale = diffScale; // scale of the final quotient
 			int compRem; // to compare the remainder
 			int i = 1; // index   
@@ -1162,14 +1176,14 @@ namespace Deveel.Math {
 				compRem = remainder.ShiftLeftOneBit().CompareTo(divisor.GetUnscaledValue());
 				// quot := quot * 10 + r;     with 'r' in {-6,-5,-4, 0,+4,+5,+6}
 				integerQuot = integerQuot.Multiply(BigInteger.Ten)
-				.Add(BigInteger.ValueOf(quotient.Sign * (5 + compRem)));
+					.Add(BigInteger.ValueOf(quotient.Sign*(5 + compRem)));
 				newScale++;
 			} else {
 				// To strip trailing zeros until the preferred scale is reached
 				while (!integerQuot.TestBit(0)) {
 					quotient = integerQuot.DivideAndRemainder(TenPow[i], out remainder);
 					if ((remainder.Sign == 0)
-							&& (newScale - i >= diffScale)) {
+					    && (newScale - i >= diffScale)) {
 						newScale -= i;
 						if (i < lastPow) {
 							i++;
@@ -1200,12 +1214,13 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException
 		 *             if {@code divisor == 0}.
 		 */
+
 		public BigDecimal DivideToIntegralValue(BigDecimal divisor) {
 			BigInteger integralValue; // the integer of result
 			BigInteger powerOfTen; // some power of ten
 			BigInteger quotient;
 			BigInteger remainder;
-			long newScale = (long)_scale - divisor._scale;
+			long newScale = (long) _scale - divisor._scale;
 			long tempScale = 0;
 			int i = 1;
 			int lastPow = TenPow.Length - 1;
@@ -1215,7 +1230,7 @@ namespace Deveel.Math {
 				throw new ArithmeticException(Messages.math04); //$NON-NLS-1$
 			}
 			if ((divisor.AproxPrecision() + newScale > this.AproxPrecision() + 1L)
-			|| (this.IsZero)) {
+			    || (this.IsZero)) {
 				/* If the divisor's integer part is greater than this's integer part,
 				 * the result must be zero with the appropriate scale */
 				integralValue = BigInteger.Zero;
@@ -1225,14 +1240,15 @@ namespace Deveel.Math {
 				powerOfTen = Multiplication.PowerOf10(newScale);
 				integralValue = GetUnscaledValue().Divide(divisor.GetUnscaledValue().Multiply(powerOfTen));
 				integralValue = integralValue.Multiply(powerOfTen);
-			} else {// (newScale < 0)
+			} else {
+// (newScale < 0)
 				powerOfTen = Multiplication.PowerOf10(-newScale);
 				integralValue = GetUnscaledValue().Multiply(powerOfTen).Divide(divisor.GetUnscaledValue());
 				// To strip trailing zeros approximating to the preferred scale
 				while (!integralValue.TestBit(0)) {
 					quotient = integralValue.DivideAndRemainder(TenPow[i], out remainder);
 					if ((remainder.Sign == 0)
-							&& (tempScale - i >= newScale)) {
+					    && (tempScale - i >= newScale)) {
 						tempScale -= i;
 						if (i < lastPow) {
 							i++;
@@ -1248,8 +1264,8 @@ namespace Deveel.Math {
 				newScale = tempScale;
 			}
 			return ((integralValue.Sign == 0)
-			? GetZeroScaledBy(newScale)
-					: new BigDecimal(integralValue, ToIntScale(newScale)));
+				? GetZeroScaledBy(newScale)
+				: new BigDecimal(integralValue, ToIntScale(newScale)));
 		}
 
 		/**
@@ -1273,11 +1289,12 @@ namespace Deveel.Math {
 		 *             if {@code mc.getPrecision() > 0} and the result requires more
 		 *             digits to be represented.
 		 */
+
 		public BigDecimal DivideToIntegralValue(BigDecimal divisor, MathContext mc) {
 			int mcPrecision = mc.Precision;
 			int diffPrecision = Precision - divisor.Precision;
 			int lastPow = TenPow.Length - 1;
-			long diffScale = (long)_scale - divisor._scale;
+			long diffScale = (long) _scale - divisor._scale;
 			long newScale = diffScale;
 			long quotPrecision = diffPrecision - diffScale + 1;
 			BigInteger quotient;
@@ -1299,20 +1316,23 @@ namespace Deveel.Math {
 				newScale = System.Math.Min(diffScale, System.Math.Max(mcPrecision - quotPrecision + 1, 0));
 				// To calculate: (u1 / (u2 * 10^(s1-s2)) * 10^newScale
 				quotient = quotient.Multiply(Multiplication.PowerOf10(newScale));
-			} else {// CASE s2 > s1:   
+			} else {
+// CASE s2 > s1:   
 				/* To calculate the minimum power of ten, such that the quotient 
 				 *   (u1 * 10^exp) / u2   has at least 'mc.precision()' digits. */
-				long exp = System.Math.Min(-diffScale, System.Math.Max((long)mcPrecision - diffPrecision, 0));
+				long exp = System.Math.Min(-diffScale, System.Math.Max((long) mcPrecision - diffPrecision, 0));
 				long compRemDiv;
 				// Let be:   (u1 * 10^exp) / u2 = [q,r]  
-				quotient = GetUnscaledValue().Multiply(Multiplication.PowerOf10(exp)).DivideAndRemainder(divisor.GetUnscaledValue(), out remainder);
+				quotient = GetUnscaledValue()
+					.Multiply(Multiplication.PowerOf10(exp))
+					.DivideAndRemainder(divisor.GetUnscaledValue(), out remainder);
 				newScale += exp; // To fix the scale
 				exp = -newScale; // The remaining power of ten
 				// If after division there is a remainder...
 				if ((remainder.Sign != 0) && (exp > 0)) {
 					// Log10(r) + ((s2 - s1) - exp) > mc.precision ?
 					compRemDiv = (new BigDecimal(remainder)).Precision
-					+ exp - divisor.Precision;
+					             + exp - divisor.Precision;
 					if (compRemDiv == 0) {
 						// To calculate:  (r * 10^exp2) / u2
 						remainder = remainder.Multiply(Multiplication.PowerOf10(exp)).Divide(divisor.GetUnscaledValue());
@@ -1337,8 +1357,8 @@ namespace Deveel.Math {
 			while (!strippedBI.TestBit(0)) {
 				quotient = strippedBI.DivideAndRemainder(TenPow[i], out remainder);
 				if ((remainder.Sign == 0) &&
-						((resultPrecision - i >= mcPrecision)
-						|| (newScale - i >= diffScale))) {
+				    ((resultPrecision - i >= mcPrecision)
+				     || (newScale - i >= diffScale))) {
 					resultPrecision -= i;
 					newScale -= i;
 					if (i < lastPow) {
@@ -1376,9 +1396,10 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException
 		 *             if {@code divisor == 0}.
 		 */
+
 		public BigDecimal Remainder(BigDecimal divisor) {
 			BigDecimal remainder;
-			 DivideAndRemainder(divisor, out remainder);
+			DivideAndRemainder(divisor, out remainder);
 			return remainder;
 		}
 
@@ -1404,6 +1425,7 @@ namespace Deveel.Math {
 		 *             this.divideToIntegralValue(divisor, mc)} requires more digits
 		 *             to be represented.
 		 */
+
 		public BigDecimal Remainder(BigDecimal divisor, MathContext mc) {
 			BigDecimal remainder;
 			DivideAndRemainder(divisor, mc, out remainder);
@@ -1427,8 +1449,9 @@ namespace Deveel.Math {
 		 * @see #divideToIntegralValue
 		 * @see #remainder
 		 */
+
 		public BigDecimal DivideAndRemainder(BigDecimal divisor, out BigDecimal remainder) {
-			var  quotient = DivideToIntegralValue(divisor);
+			var quotient = DivideToIntegralValue(divisor);
 			remainder = Subtract(quotient.Multiply(divisor));
 			return quotient;
 		}
@@ -1455,6 +1478,7 @@ namespace Deveel.Math {
 		 * @see #divideToIntegralValue
 		 * @see #remainder
 		 */
+
 		public BigDecimal DivideAndRemainder(BigDecimal divisor, MathContext mc, out BigDecimal remainder) {
 			var quotient = DivideToIntegralValue(divisor, mc);
 			remainder = Subtract(quotient.Multiply(divisor));
@@ -1476,6 +1500,7 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException
 		 *             if {@code n < 0} or {@code n > 999999999}.
 		 */
+
 		public BigDecimal Pow(int n) {
 			if (n == 0) {
 				return One;
@@ -1484,11 +1509,11 @@ namespace Deveel.Math {
 				// math.07=Invalid Operation
 				throw new ArithmeticException(Messages.math07); //$NON-NLS-1$
 			}
-			long newScale = _scale * (long)n;
+			long newScale = _scale*(long) n;
 			// Let be: this = [u,s]   so:  this^n = [u^n, s*n]
 			return ((IsZero)
-			? GetZeroScaledBy(newScale)
-			: new BigDecimal(GetUnscaledValue().Pow(n), ToIntScale(newScale)));
+				? GetZeroScaledBy(newScale)
+				: new BigDecimal(GetUnscaledValue().Pow(n), ToIntScale(newScale)));
 		}
 
 		/**
@@ -1506,11 +1531,12 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException
 		 *             if {@code n < 0} or {@code n > 999999999}.
 		 */
+
 		public BigDecimal Pow(int n, MathContext mc) {
 			// The ANSI standard X3.274-1996 algorithm
 			int m = System.Math.Abs(n);
 			int mcPrecision = mc.Precision;
-			int elength = (int)System.Math.Log10(m) + 1;   // decimal digits in 'n'
+			int elength = (int) System.Math.Log10(m) + 1; // decimal digits in 'n'
 			int oneBitMask; // mask of bits
 			BigDecimal accum; // the single accumulator
 			MathContext newPrecision = mc; // MathContext by default
@@ -1520,13 +1546,13 @@ namespace Deveel.Math {
 				return Pow(n);
 			}
 			if ((m > 999999999) || ((mcPrecision == 0) && (n < 0))
-					|| ((mcPrecision > 0) && (elength > mcPrecision))) {
+			    || ((mcPrecision > 0) && (elength > mcPrecision))) {
 				// math.07=Invalid Operation
 				throw new ArithmeticException(Messages.math07); //$NON-NLS-1$
 			}
 			if (mcPrecision > 0) {
 				newPrecision = new MathContext(mcPrecision + elength + 1,
-						mc.RoundingMode);
+					mc.RoundingMode);
 			}
 			// The result is calculated as if 'n' were positive        
 			accum = Round(newPrecision);
@@ -1554,6 +1580,7 @@ namespace Deveel.Math {
 		 *
 		 * @return {@code abs(this)}
 		 */
+
 		public BigDecimal Abs() {
 			return ((Sign < 0) ? Negate() : this);
 		}
@@ -1567,6 +1594,7 @@ namespace Deveel.Math {
 		 *            rounding mode and precision for the result of this operation.
 		 * @return {@code abs(this)}
 		 */
+
 		public BigDecimal Abs(MathContext mc) {
 			return Round(mc).Abs();
 		}
@@ -1577,6 +1605,7 @@ namespace Deveel.Math {
 		 *
 		 * @return {@code -this}
 		 */
+
 		public BigDecimal Negate() {
 			if (_bitLength < 63 || (_bitLength == 63 && smallValue != Int64.MinValue)) {
 				return ValueOf(-smallValue, _scale);
@@ -1592,6 +1621,7 @@ namespace Deveel.Math {
 		 *            rounding mode and precision for the result of this operation.
 		 * @return {@code -this}
 		 */
+
 		public BigDecimal Negate(MathContext mc) {
 			return Round(mc).Negate();
 		}
@@ -1602,6 +1632,7 @@ namespace Deveel.Math {
 		 *
 		 * @return {@code this}
 		 */
+
 		public BigDecimal Plus() {
 			return this;
 		}
@@ -1649,8 +1680,9 @@ namespace Deveel.Math {
 		 *             if {@code roundingMode == ROUND_UNNECESSARY} and rounding is
 		 *             necessary according to the given scale.
 		 */
+
 		public BigDecimal SetScale(int newScale, RoundingMode roundingMode) {
-			long diffScale = newScale - (long)_scale;
+			long diffScale = newScale - (long) _scale;
 			// Let be:  'this' = [u,s]        
 			if (diffScale == 0) {
 				return this;
@@ -1658,15 +1690,15 @@ namespace Deveel.Math {
 			if (diffScale > 0) {
 				// return  [u * 10^(s2 - s), newScale]
 				if (diffScale < LongTenPow.Length &&
-				    (_bitLength + LongTenPowBitLength[(int)diffScale]) < 64) {
-					return ValueOf(smallValue * LongTenPow[(int)diffScale], newScale);
+				    (_bitLength + LongTenPowBitLength[(int) diffScale]) < 64) {
+					return ValueOf(smallValue*LongTenPow[(int) diffScale], newScale);
 				}
-				return new BigDecimal(Multiplication.MultiplyByTenPow(GetUnscaledValue(), (int)diffScale), newScale);
+				return new BigDecimal(Multiplication.MultiplyByTenPow(GetUnscaledValue(), (int) diffScale), newScale);
 			}
 			// diffScale < 0
 			// return  [u,s] / [1,newScale]  with the appropriate scale and rounding
 			if (_bitLength < 64 && -diffScale < LongTenPow.Length) {
-				return DividePrimitiveLongs(smallValue, LongTenPow[(int)-diffScale], newScale, roundingMode);
+				return DividePrimitiveLongs(smallValue, LongTenPow[(int) -diffScale], newScale, roundingMode);
 			}
 			return DivideBigIntegers(GetUnscaledValue(), Multiplication.PowerOf10(-diffScale), newScale, roundingMode);
 		}
@@ -1693,13 +1725,14 @@ namespace Deveel.Math {
 		 *             if {@code roundingMode == ROUND_UNNECESSARY} and rounding is
 		 *             necessary according to the given scale.
 		 */
+
 		public BigDecimal SetScale(int newScale, int roundingMode) {
-			RoundingMode rm = (RoundingMode)roundingMode;
-			if ((roundingMode < (int)RoundingMode.Up) || 
-			    (roundingMode > (int)RoundingMode.Unnecessary)) {
+			RoundingMode rm = (RoundingMode) roundingMode;
+			if ((roundingMode < (int) RoundingMode.Up) ||
+			    (roundingMode > (int) RoundingMode.Unnecessary)) {
 				throw new ArgumentException("roundingMode");
 			}
-			return SetScale(newScale, (RoundingMode)roundingMode);
+			return SetScale(newScale, (RoundingMode) roundingMode);
 		}
 
 		/**
@@ -1718,6 +1751,7 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException
 		 *             if rounding would be necessary.
 		 */
+
 		public BigDecimal SetScale(int newScale) {
 			return SetScale(newScale, RoundingMode.Unnecessary);
 		}
@@ -1738,8 +1772,9 @@ namespace Deveel.Math {
 		 *            number of placed the decimal point has to be moved.
 		 * @return {@code this * 10^(-n}).
 		 */
+
 		public BigDecimal MovePointLeft(int n) {
-			return MovePoint(_scale + (long)n);
+			return MovePoint(_scale + (long) n);
 		}
 
 		private BigDecimal MovePoint(long newScale) {
@@ -1755,10 +1790,10 @@ namespace Deveel.Math {
 				return new BigDecimal(GetUnscaledValue(), ToIntScale(newScale));
 			}
 			if (-newScale < LongTenPow.Length &&
-			    _bitLength + LongTenPowBitLength[(int)-newScale] < 64) {
-				return ValueOf(smallValue * LongTenPow[(int)-newScale], 0);
+			    _bitLength + LongTenPowBitLength[(int) -newScale] < 64) {
+				return ValueOf(smallValue*LongTenPow[(int) -newScale], 0);
 			}
-			return new BigDecimal(Multiplication.MultiplyByTenPow(GetUnscaledValue(), (int)-newScale), 0);
+			return new BigDecimal(Multiplication.MultiplyByTenPow(GetUnscaledValue(), (int) -newScale), 0);
 		}
 
 		/**
@@ -1777,8 +1812,9 @@ namespace Deveel.Math {
 		 *            number of placed the decimal point has to be moved.
 		 * @return {@code this * 10^n}.
 		 */
+
 		public BigDecimal MovePointRight(int n) {
-			return MovePoint(_scale - (long)n);
+			return MovePoint(_scale - (long) n);
 		}
 
 		/**
@@ -1793,8 +1829,9 @@ namespace Deveel.Math {
 		 *            number of places the decimal point has to be moved.
 		 * @return {@code this * 10^n}
 		 */
+
 		public BigDecimal ScaleByPowerOfTen(int n) {
-			long newScale = _scale - (long)n;
+			long newScale = _scale - (long) n;
 			if (_bitLength < 64) {
 				//Taking care when a 0 is to be scaled
 				if (smallValue == 0) {
@@ -1814,6 +1851,7 @@ namespace Deveel.Math {
 		 * @return a new {@code BigDecimal} instance equivalent to this where the
 		 *         trailing zeros of the unscaled value have been removed.
 		 */
+
 		public BigDecimal StripTrailingZeros() {
 			int i = 1; // 1 <= i <= 18
 			int lastPow = TenPow.Length - 1;
@@ -1864,6 +1902,7 @@ namespace Deveel.Math {
 		 * @throws NullPointerException
 		 *             if {@code val == null}.
 		 */
+
 		public BigDecimal Max(BigDecimal val) {
 			return ((CompareTo(val) >= 0) ? this : val);
 		}
@@ -1905,6 +1944,7 @@ namespace Deveel.Math {
 		 * @throws NullPointerException
 		 *             if {@code val == null}.
 		 */
+
 		public int CompareTo(BigDecimal val) {
 			int thisSign = Sign;
 			int valueSign = val.Sign;
@@ -1913,13 +1953,14 @@ namespace Deveel.Math {
 				if (this._scale == val._scale && this._bitLength < 64 && val._bitLength < 64) {
 					return (smallValue < val.smallValue) ? -1 : (smallValue > val.smallValue) ? 1 : 0;
 				}
-				long diffScale = (long)this._scale - val._scale;
+				long diffScale = (long) this._scale - val._scale;
 				int diffPrecision = this.AproxPrecision() - val.AproxPrecision();
 				if (diffPrecision > diffScale + 1) {
 					return thisSign;
 				} else if (diffPrecision < diffScale - 1) {
 					return -thisSign;
-				} else {// thisSign == val.signum()  and  diffPrecision is aprox. diffScale
+				} else {
+// thisSign == val.signum()  and  diffPrecision is aprox. diffScale
 					BigInteger thisUnscaled = this.GetUnscaledValue();
 					BigInteger valUnscaled = val.GetUnscaledValue();
 					// If any of both precision is bigger, append zeros to the shorter one
@@ -1948,6 +1989,7 @@ namespace Deveel.Math {
 		 *            object to be compared with {@code this}.
 		 * @return true if {@code x} is a {@code BigDecimal} and {@code this == x}.
 		 */
+
 		public override bool Equals(object obj) {
 			if (ReferenceEquals(this, obj))
 				return true;
@@ -1966,8 +2008,9 @@ namespace Deveel.Math {
 				return false;
 
 			return other._scale == _scale
-				   && (_bitLength < 64 ? (other.smallValue == smallValue)
-					: intVal.Equals(other.intVal));			
+			       && (_bitLength < 64
+				       ? (other.smallValue == smallValue)
+				       : intVal.Equals(other.intVal));
 		}
 
 		/**
@@ -1985,16 +2028,17 @@ namespace Deveel.Math {
 		 *
 		 * @return hash code for {@code this}.
 		 */
+
 		public override int GetHashCode() {
 			int hashCode;
 			if (_bitLength < 64) {
-				hashCode = (int)(smallValue & 0xffffffff);
-				hashCode = 33 * hashCode + (int)((smallValue >> 32) & 0xffffffff);
-				hashCode = 17 * hashCode + _scale;
+				hashCode = (int) (smallValue & 0xffffffff);
+				hashCode = 33*hashCode + (int) ((smallValue >> 32) & 0xffffffff);
+				hashCode = 17*hashCode + _scale;
 				return hashCode;
 			}
 
-			hashCode = 17 * intVal.GetHashCode() + _scale;
+			hashCode = 17*intVal.GetHashCode() + _scale;
 			return hashCode;
 		}
 
@@ -2025,6 +2069,7 @@ namespace Deveel.Math {
 		 *
 		 * @return unit in the last place (ULP) of this {@code BigDecimal} instance.
 		 */
+
 		public BigDecimal Ulp() {
 			return ValueOf(1, _scale);
 		}
@@ -2040,6 +2085,7 @@ namespace Deveel.Math {
 		 *            the {@code MathContext} for perform the rounding.
 		 * @see #round(MathContext)
 		 */
+
 		private void InplaceRound(MathContext mc) {
 			int mcPrecision = mc.Precision;
 			if (AproxPrecision() - mcPrecision <= 0 || mcPrecision == 0) {
@@ -2059,7 +2105,7 @@ namespace Deveel.Math {
 			BigInteger sizeOfFraction = Multiplication.PowerOf10(discardedPrecision);
 			BigInteger fraction;
 			BigInteger integer = GetUnscaledValue().DivideAndRemainder(sizeOfFraction, out fraction);
-			long newScale = (long)_scale - discardedPrecision;
+			long newScale = (long) _scale - discardedPrecision;
 			int compRem;
 			BigDecimal tempBD;
 			// If the discarded fraction is non-zero, perform rounding
@@ -2067,8 +2113,8 @@ namespace Deveel.Math {
 				// To check if the discarded fraction >= 0.5
 				compRem = (fraction.Abs().ShiftLeftOneBit().CompareTo(sizeOfFraction));
 				// To look if there is a carry
-				compRem = RoundingBehavior(integer.TestBit(0) ? 1 : 0, fraction.Sign * (5 + compRem),
-						mc.RoundingMode);
+				compRem = RoundingBehavior(integer.TestBit(0) ? 1 : 0, fraction.Sign*(5 + compRem),
+					mc.RoundingMode);
 				if (compRem != 0) {
 					integer = integer.Add(BigInteger.ValueOf(compRem));
 				}
@@ -2088,6 +2134,7 @@ namespace Deveel.Math {
 		private static int LongCompareTo(long value1, long value2) {
 			return value1 > value2 ? 1 : (value1 < value2 ? -1 : 0);
 		}
+
 		/**
 		 * This method implements an efficient rounding for numbers which unscaled
 		 * value fits in the type {@code long}.
@@ -2098,21 +2145,22 @@ namespace Deveel.Math {
 		 *            the number of decimal digits that are discarded
 		 * @see #round(MathContext)
 		 */
+
 		private void SmallRound(MathContext mc, int discardedPrecision) {
 			long sizeOfFraction = LongTenPow[discardedPrecision];
-			long newScale = (long)_scale - discardedPrecision;
+			long newScale = (long) _scale - discardedPrecision;
 			long unscaledVal = smallValue;
 			// Getting the integer part and the discarded fraction
-			long integer = unscaledVal / sizeOfFraction;
-			long fraction = unscaledVal % sizeOfFraction;
+			long integer = unscaledVal/sizeOfFraction;
+			long fraction = unscaledVal%sizeOfFraction;
 			int compRem;
 			// If the discarded fraction is non-zero perform rounding
 			if (fraction != 0) {
 				// To check if the discarded fraction >= 0.5
 				compRem = LongCompareTo(System.Math.Abs(fraction) << 1, sizeOfFraction);
 				// To look if there is a carry
-				integer += RoundingBehavior(((int)integer) & 1, System.Math.Sign(fraction) * (5 + compRem),
-						mc.RoundingMode);
+				integer += RoundingBehavior(((int) integer) & 1, System.Math.Sign(fraction)*(5 + compRem),
+					mc.RoundingMode);
 				// If after to add the increment the precision changed, we normalize the size
 				if (System.Math.Log10(System.Math.Abs(integer)) >= mc.Precision) {
 					integer /= 10;
@@ -2140,6 +2188,7 @@ namespace Deveel.Math {
 		 *            the type of rounding
 		 * @return the carry propagated after rounding
 		 */
+
 		private static int RoundingBehavior(int parityBit, int fraction, RoundingMode roundingMode) {
 			int increment = 0; // the carry after rounding
 
@@ -2195,6 +2244,7 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException when rounding is necessary or the
 		 *             number don't fit in the primitive type
 		 */
+
 		private long ValueExact(int bitLengthOfType) {
 			BigInteger bigInteger = ToBigIntegerExact();
 
@@ -2214,8 +2264,9 @@ namespace Deveel.Math {
 		 *
 		 * @return an approximation of {@code precision()} value
 		 */
+
 		private int AproxPrecision() {
-			return ((_precision > 0) ? _precision : (int)((_bitLength - 1) * Log10Of2)) + 1;
+			return ((_precision > 0) ? _precision : (int) ((_bitLength - 1)*Log10Of2)) + 1;
 		}
 
 		/**
@@ -2230,6 +2281,7 @@ namespace Deveel.Math {
 	 *             fit in {@code int} type
 	 * @see #scale
 	 */
+
 		private static int ToIntScale(long longScale) {
 			if (longScale < Int32.MinValue) {
 				// math.09=Overflow
@@ -2238,7 +2290,7 @@ namespace Deveel.Math {
 				// math.0A=Underflow
 				throw new ArithmeticException(Messages.math0A); //$NON-NLS-1$
 			} else {
-				return (int)longScale;
+				return (int) longScale;
 			}
 		}
 
@@ -2255,9 +2307,10 @@ namespace Deveel.Math {
 		 * @return the value 0 scaled by the closer scale of type {@code int}.
 		 * @see #scale
 		 */
+
 		private static BigDecimal GetZeroScaledBy(long longScale) {
-			if (longScale == (int)longScale) {
-				return ValueOf(0, (int)longScale);
+			if (longScale == (int) longScale) {
+				return ValueOf(0, (int) longScale);
 			}
 			if (longScale >= 0) {
 				return new BigDecimal(0, Int32.MaxValue);
@@ -2330,6 +2383,7 @@ namespace Deveel.Math {
 
 		#region Conversions
 
+#if !PORTABLE
 		TypeCode IConvertible.GetTypeCode() {
 			return TypeCode.Object;
 		}
@@ -2425,6 +2479,8 @@ namespace Deveel.Math {
 			throw new NotSupportedException();
 		}
 
+		#endif
+
 		public override string ToString() {
 			if (toStringImage != null) {
 				return toStringImage;
@@ -2458,7 +2514,7 @@ namespace Deveel.Math {
 			}
 			int begin = (GetUnscaledValue().Sign < 0) ? 2 : 1;
 			int end = intString.Length;
-			long exponent = -(long)_scale + end - begin;
+			long exponent = -(long) _scale + end - begin;
 			StringBuilder result = new StringBuilder();
 
 			result.Append(intString);
@@ -2466,15 +2522,15 @@ namespace Deveel.Math {
 				if (exponent >= 0) {
 					result.Insert(end - _scale, decimalSep);
 				} else {
-					result.Insert(begin - 1, "0"+decimalSep); //$NON-NLS-1$
-					result.Insert(begin + 1, ChZeros, 0, -(int)exponent - 1);
+					result.Insert(begin - 1, "0" + decimalSep); //$NON-NLS-1$
+					result.Insert(begin + 1, ChZeros, 0, -(int) exponent - 1);
 				}
 			} else {
 				if (end - begin >= 1) {
 					result.Insert(begin, decimalSep);
 					end++;
 				}
-				result.Insert(end, new []{'E'});
+				result.Insert(end, new[] {'E'});
 				if (exponent > 0) {
 					result.Insert(++end, new[] {'+'});
 				}
@@ -2502,7 +2558,7 @@ namespace Deveel.Math {
 		}
 
 		public String ToEngineeringString(IFormatProvider provider) {
-			var numberInfo = provider.GetFormat(typeof(NumberFormatInfo)) as NumberFormatInfo;
+			var numberInfo = provider.GetFormat(typeof (NumberFormatInfo)) as NumberFormatInfo;
 			if (numberInfo == null)
 				numberInfo = NumberFormatInfo.InvariantInfo;
 
@@ -2516,19 +2572,19 @@ namespace Deveel.Math {
 			}
 			int begin = (GetUnscaledValue().Sign < 0) ? 2 : 1;
 			int end = intString.Length;
-			long exponent = -(long)_scale + end - begin;
+			long exponent = -(long) _scale + end - begin;
 			StringBuilder result = new StringBuilder(intString);
 
 			if ((_scale > 0) && (exponent >= -6)) {
 				if (exponent >= 0) {
-					result.Insert(end - _scale,  decimalSep);
+					result.Insert(end - _scale, decimalSep);
 				} else {
 					result.Insert(begin - 1, "0" + decimalSep); //$NON-NLS-1$
-					result.Insert(begin + 1, ChZeros, 0, -(int)exponent - 1);
+					result.Insert(begin + 1, ChZeros, 0, -(int) exponent - 1);
 				}
 			} else {
 				int delta = end - begin;
-				int rem = (int)(exponent % 3);
+				int rem = (int) (exponent%3);
 
 				if (rem != 0) {
 					// adjust exponent so it is a multiple of three
@@ -2544,7 +2600,7 @@ namespace Deveel.Math {
 					}
 					if (delta < 3) {
 						for (int i = rem - delta; i > 0; i--) {
-							result.Insert(end++, new []{'0'});
+							result.Insert(end++, new[] {'0'});
 						}
 					}
 				}
@@ -2553,9 +2609,9 @@ namespace Deveel.Math {
 					end++;
 				}
 				if (exponent != 0) {
-					result.Insert(end, new[]{ 'E'});
+					result.Insert(end, new[] {'E'});
 					if (exponent > 0) {
-						result.Insert(++end, new []{'+'});
+						result.Insert(++end, new[] {'+'});
 					}
 					result.Insert(++end, Convert.ToString(exponent));
 				}
@@ -2578,6 +2634,7 @@ namespace Deveel.Math {
 		 *
 		 * @return a string representation of {@code this} without exponent part.
 		 */
+
 		public String ToPlainString() {
 			String intStr = GetUnscaledValue().ToString();
 			if ((_scale == 0) || ((IsZero) && (_scale < 0))) {
@@ -2608,7 +2665,8 @@ namespace Deveel.Math {
 					result.Append('.');
 					result.Append(intStr.Substring(delta));
 				}
-			} else {// (scale <= 0)
+			} else {
+// (scale <= 0)
 				result.Append(intStr.Substring(begin));
 				// To append trailing zeros
 				for (; delta < -ChZeros.Length; delta += ChZeros.Length) {
@@ -2619,14 +2677,15 @@ namespace Deveel.Math {
 			return result.ToString();
 		}
 
-		private static bool TryParse(char[] inData, int offset, int len, IFormatProvider provider, out BigDecimal value, out Exception exception) {
+		private static bool TryParse(char[] inData, int offset, int len, IFormatProvider provider, out BigDecimal value,
+			out Exception exception) {
 			if (inData == null || inData.Length == 0) {
 				exception = new FormatException("Cannot parse an empty string.");
 				value = null;
 				return false;
 			}
 
-			var numberformatInfo = provider.GetFormat(typeof(NumberFormatInfo)) as NumberFormatInfo;
+			var numberformatInfo = provider.GetFormat(typeof (NumberFormatInfo)) as NumberFormatInfo;
 			if (numberformatInfo == null)
 				numberformatInfo = NumberFormatInfo.CurrentInfo;
 
@@ -2719,8 +2778,8 @@ namespace Deveel.Math {
 					// Accumulating all remaining digits
 					String scaleString = new String(inData, begin, last + 1 - begin); // buffer for scale
 					// Checking if the scale is defined            
-					long newScale = (long)v._scale - Int32.Parse(scaleString, provider); // the new scale
-					v._scale = (int)newScale;
+					long newScale = (long) v._scale - Int32.Parse(scaleString, provider); // the new scale
+					v._scale = (int) newScale;
 					if (newScale != v._scale) {
 						// math.02=Scale out of range.
 						throw new FormatException(Messages.math02); //$NON-NLS-1$
@@ -2767,7 +2826,8 @@ namespace Deveel.Math {
 			return TryParse(chars, offset, length, context, null, out value);
 		}
 
-		public static bool TryParse(char[] chars, int offset, int length, MathContext context, IFormatProvider provider, out BigDecimal value) {
+		public static bool TryParse(char[] chars, int offset, int length, MathContext context, IFormatProvider provider,
+			out BigDecimal value) {
 			Exception error;
 			if (!TryParse(chars, offset, length, provider, out value, out error))
 				return false;
@@ -2804,7 +2864,7 @@ namespace Deveel.Math {
 		}
 
 		public static BigDecimal Parse(char[] chars, int offset, int length) {
-			return Parse(chars, offset, length, (MathContext)null);
+			return Parse(chars, offset, length, (MathContext) null);
 		}
 
 		public static BigDecimal Parse(char[] chars, int offset, int length, MathContext context) {
@@ -2828,7 +2888,7 @@ namespace Deveel.Math {
 		}
 
 		public static BigDecimal Parse(char[] chars) {
-			return Parse(chars, (MathContext)null);
+			return Parse(chars, (MathContext) null);
 		}
 
 		public static BigDecimal Parse(char[] chars, MathContext context) {
@@ -2843,7 +2903,7 @@ namespace Deveel.Math {
 		}
 
 		public static bool TryParse(string s, out BigDecimal value) {
-			return TryParse(s, (MathContext)null, out value);
+			return TryParse(s, (MathContext) null, out value);
 		}
 
 		public static bool TryParse(string s, MathContext context, out BigDecimal value) {
@@ -2907,12 +2967,14 @@ namespace Deveel.Math {
 		 *
 		 * @return this {@code BigDecimal} as a big integer instance.
 		 */
+
 		public BigInteger ToBigInteger() {
 			if ((_scale == 0) || (IsZero)) {
 				return GetUnscaledValue();
 			} else if (_scale < 0) {
-				return GetUnscaledValue().Multiply(Multiplication.PowerOf10(-(long)_scale));
-			} else {// (scale > 0)
+				return GetUnscaledValue().Multiply(Multiplication.PowerOf10(-(long) _scale));
+			} else {
+// (scale > 0)
 				return GetUnscaledValue().Divide(Multiplication.PowerOf10(_scale));
 			}
 		}
@@ -2926,12 +2988,14 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException
 		 *             if rounding is necessary.
 		 */
+
 		public BigInteger ToBigIntegerExact() {
 			if ((_scale == 0) || (IsZero)) {
 				return GetUnscaledValue();
 			} else if (_scale < 0) {
-				return GetUnscaledValue().Multiply(Multiplication.PowerOf10(-(long)_scale));
-			} else {// (scale > 0)
+				return GetUnscaledValue().Multiply(Multiplication.PowerOf10(-(long) _scale));
+			} else {
+// (scale > 0)
 				BigInteger integer;
 				BigInteger fraction;
 				// An optimization before do a heavy division
@@ -2956,6 +3020,7 @@ namespace Deveel.Math {
 		 *
 		 * @return this {@code BigDecimal} as a long value.
 		 */
+
 		public long ToInt64() {
 			/* If scale <= -64 there are at least 64 trailing bits zero in 10^(-scale).
 			 * If the scale is positive and very large the long value could be zero. */
@@ -2971,6 +3036,7 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException
 		 *             if rounding is necessary or the number doesn't fit in a long.
 		 */
+
 		public long ToInt64Exact() {
 			return ValueExact(64);
 		}
@@ -2982,6 +3048,7 @@ namespace Deveel.Math {
 		 *
 		 * @return this {@code BigDecimal} as a int value.
 		 */
+
 		public int ToInt32() {
 			/* If scale <= -32 there are at least 32 trailing bits zero in 10^(-scale).
 			 * If the scale is positive and very large the long value could be zero. */
@@ -2997,8 +3064,9 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException
 		 *             if rounding is necessary or the number doesn't fit in a int.
 		 */
+
 		public int ToInt32Exact() {
-			return (int)ValueExact(32);
+			return (int) ValueExact(32);
 		}
 
 		/**
@@ -3011,8 +3079,9 @@ namespace Deveel.Math {
 		 *             if rounding is necessary of the number doesn't fit in a
 		 *             short.
 		 */
+
 		public short ToInt16Exact() {
-			return (short)ValueExact(16);
+			return (short) ValueExact(16);
 		}
 
 		/**
@@ -3024,8 +3093,9 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException
 		 *             if rounding is necessary or the number doesn't fit in a byte.
 		 */
+
 		public byte ToByteExact() {
-			return (byte)ValueExact(8);
+			return (byte) ValueExact(8);
 		}
 
 		/**
@@ -3046,11 +3116,12 @@ namespace Deveel.Math {
 		 *
 		 * @return this {@code BigDecimal} as a float value.
 		 */
+
 		public float ToSingle() {
 			/* A similar code like in ToDouble() could be repeated here,
 			 * but this simple implementation is quite efficient. */
 			float floatResult = Sign;
-			long powerOfTwo = this._bitLength - (long)(_scale / Log10Of2);
+			long powerOfTwo = this._bitLength - (long) (_scale/Log10Of2);
 			if ((powerOfTwo < -149) || (floatResult == 0.0f)) {
 				// Cases which 'this' is very small
 				floatResult *= 0.0f;
@@ -3058,7 +3129,7 @@ namespace Deveel.Math {
 				// Cases which 'this' is very large
 				floatResult *= Single.PositiveInfinity;
 			} else {
-				floatResult = (float)ToDouble();
+				floatResult = (float) ToDouble();
 			}
 			return floatResult;
 		}
@@ -3082,22 +3153,23 @@ namespace Deveel.Math {
 		 *
 		 * @return this {@code BigDecimal} as a double value.
 		 */
+
 		public double ToDouble() {
 			int sign = Sign;
 			int exponent = 1076; // bias + 53
 			int lowestSetBit;
 			int discardedSize;
-			long powerOfTwo = this._bitLength - (long)(_scale / Log10Of2);
+			long powerOfTwo = this._bitLength - (long) (_scale/Log10Of2);
 			long bits; // IEEE-754 Standard
 			long tempBits; // for temporal calculations     
 			BigInteger mantisa;
 
 			if ((powerOfTwo < -1074) || (sign == 0)) {
 				// Cases which 'this' is very small            
-				return (sign * 0.0d);
+				return (sign*0.0d);
 			} else if (powerOfTwo > 1025) {
 				// Cases which 'this' is very large            
-				return (sign * Double.PositiveInfinity);
+				return (sign*Double.PositiveInfinity);
 			}
 			mantisa = GetUnscaledValue().Abs();
 			// Let be:  this = [u,s], with s > 0
@@ -3109,7 +3181,7 @@ namespace Deveel.Math {
 				BigInteger quotient;
 				BigInteger remainder;
 				BigInteger powerOfTen = Multiplication.PowerOf10(_scale);
-				int k = 100 - (int)powerOfTwo;
+				int k = 100 - (int) powerOfTwo;
 				int compRem;
 
 				if (k > 0) {
@@ -3123,7 +3195,7 @@ namespace Deveel.Math {
 				// To check if the fractional part >= 0.5
 				compRem = remainder.ShiftLeftOneBit().CompareTo(powerOfTen);
 				// To add two rounded bits at end of mantisa
-				mantisa = quotient.ShiftLeft(2).Add(BigInteger.ValueOf((compRem * (compRem + 3)) / 2 + 1));
+				mantisa = quotient.ShiftLeft(2).Add(BigInteger.ValueOf((compRem*(compRem + 3))/2 + 1));
 				exponent -= 2;
 			}
 			lowestSetBit = mantisa.LowestSetBit;
@@ -3162,14 +3234,14 @@ namespace Deveel.Math {
 			// To test if the 53-bits number fits in 'double'            
 			if (exponent > 2046) {
 				// (exponent - bias > 1023)
-				return (sign * Double.PositiveInfinity);
+				return (sign*Double.PositiveInfinity);
 			}
 			if (exponent <= 0) {
 				// (exponent - bias <= -1023)
 				// Denormalized numbers (having exponent == 0)
 				if (exponent < -53) {
 					// exponent - bias < -1076
-					return (sign * 0.0d);
+					return (sign*0.0d);
 				}
 				// -1076 <= exponent - bias <= -1023 
 				// To discard '- exponent + 1' bits
@@ -3186,7 +3258,7 @@ namespace Deveel.Math {
 			}
 			// Construct the 64 double bits: [sign(1), exponent(11), mantisa(52)]
 			// bits = (long)((ulong)sign & 0x8000000000000000L) | ((long)exponent << 52) | (bits & 0xFFFFFFFFFFFFFL);
-			bits = sign & Int64.MinValue | ((long)exponent << 52) | (bits & 0xFFFFFFFFFFFFFL);
+			bits = sign & Int64.MinValue | ((long) exponent << 52) | (bits & 0xFFFFFFFFFFFFFL);
 			return BitConverter.Int64BitsToDouble(bits);
 		}
 
@@ -3196,8 +3268,8 @@ namespace Deveel.Math {
 			var remainder = GetUnscaledValue().Remainder(scaleDivisor);
 			var scaledValue = GetUnscaledValue().Divide(scaleDivisor);
 
-			var leftOfDecimal = (decimal)scaledValue;
-			var rightOfDecimal = (remainder) / ((decimal)scaleDivisor);
+			var leftOfDecimal = (decimal) scaledValue;
+			var rightOfDecimal = (remainder)/((decimal) scaleDivisor);
 
 			return leftOfDecimal + rightOfDecimal;
 		}
@@ -3240,9 +3312,9 @@ namespace Deveel.Math {
 		}
 
 		public static bool operator ==(BigDecimal a, BigDecimal b) {
-			if ((object)a == null && (object)b == null)
+			if ((object) a == null && (object) b == null)
 				return true;
-			if ((object)a == null)
+			if ((object) a == null)
 				return false;
 			return a.Equals(b);
 		}

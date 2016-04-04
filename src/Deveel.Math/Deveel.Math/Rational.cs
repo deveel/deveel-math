@@ -19,7 +19,11 @@ namespace Deveel.Math {
 #if !PORTABLE
 	[Serializable]
 #endif
-	public struct Rational : IComparable<Rational>, IComparable, IConvertible {
+	public struct Rational : IComparable<Rational>, IComparable
+#if !PORTABLE
+		, IConvertible 
+#endif
+		{
 		public static readonly BigInteger MaxInt32 = BigInteger.ValueOf(Int32.MaxValue);
 		public static readonly BigInteger MinInt32 = BigInteger.ValueOf(Int32.MinValue);
 
@@ -478,6 +482,7 @@ namespace Deveel.Math {
 			return Numerator;
 		}
 
+#if !PORTABLE
 		TypeCode IConvertible.GetTypeCode() {
 			return TypeCode.Object;
 		}
@@ -568,6 +573,7 @@ namespace Deveel.Math {
 
 			throw new InvalidCastException();
 		}
+#endif
 
 		public static Rational operator +(Rational a, Rational b) {
 			return a.Add(b);

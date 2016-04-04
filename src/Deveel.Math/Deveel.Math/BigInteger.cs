@@ -39,9 +39,9 @@ namespace Deveel.Math {
 #if !PORTABLE
 	[Serializable]
 #endif
-	public sealed class BigInteger : IComparable<BigInteger>, IConvertible, IEquatable<BigInteger>
+	public sealed class BigInteger : IComparable<BigInteger>, IEquatable<BigInteger>
 #if !PORTABLE
-		, ISerializable
+		, ISerializable, IConvertible
 #endif
 	{
 
@@ -1364,6 +1364,7 @@ namespace Deveel.Math {
 
 		#region Conversions
 
+#if !PORTABLE
 		TypeCode IConvertible.GetTypeCode() {
 			return TypeCode.Object;
 		}
@@ -1454,6 +1455,7 @@ namespace Deveel.Math {
 
 			throw new NotSupportedException();
 		}
+#endif
 
 		public static BigInteger ValueOf(long val) {
 			if (val < 0) {
@@ -1703,9 +1705,9 @@ namespace Deveel.Math {
 			return i;
 		}
 
-		#endregion
+#endregion
 
-		#region Operators
+#region Operators
 
 		public static BigInteger operator +(BigInteger a, BigInteger b) {
 			if (a == null)
@@ -1787,9 +1789,9 @@ namespace Deveel.Math {
 			return a == b || a < b;
 		}
 
-		#endregion
+#endregion
 
-		#region Implicit Operators
+#region Implicit Operators
 
 		public static implicit operator Int32(BigInteger i) {
 			return i.ToInt32();
@@ -1819,6 +1821,6 @@ namespace Deveel.Math {
 			return ValueOf(value);
 		}
 
-		#endregion
+#endregion
 	}
 }
