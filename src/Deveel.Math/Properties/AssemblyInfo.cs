@@ -13,6 +13,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 using System.Reflection;
+using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -24,9 +25,11 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Deveel")]
 [assembly: AssemblyProduct("Deveel.Math")]
-[assembly: AssemblyCopyright("(c) 2010-2014 Deveel")]
+[assembly: AssemblyCopyright("(c) 2010-2016 Deveel")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+
+[assembly: NeutralResourcesLanguage("en")]
 
 #if !PORTABLE
 // Setting ComVisible to false makes the types in this assembly not visible 
