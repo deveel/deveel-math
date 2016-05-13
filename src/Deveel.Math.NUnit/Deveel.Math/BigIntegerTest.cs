@@ -246,6 +246,15 @@ namespace Deveel.Math {
 		}
 
 		[Test]
+		public void CompareToBigInteger_Op() {
+			Assert.IsTrue(one < two, "Smaller number returned >= 0");
+			Assert.IsTrue(two > 0, "Larger number returned >= 0");
+			Assert.IsTrue(one == one, "Equal numbers did not return 0");
+			Assert.IsTrue(two.Negate() < 0, "Neg number messed things up");
+		}
+
+
+		[Test]
 		public void ToInt32() {
 			Assert.IsTrue(twoToTheSeventy.ToInt32() == 0, "Incorrect ToInt32 for 2**70");
 			Assert.IsTrue(two.ToInt32() == 2, "Incorrect ToInt32 for 2");

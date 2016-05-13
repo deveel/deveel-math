@@ -1762,11 +1762,11 @@ namespace Deveel.Math {
 		}
 
 		public static bool operator >(BigInteger a, BigInteger b) {
-			return a.CompareTo(b) < 0;
+			return a.CompareTo(b) > 0;
 		}
 
 		public static bool operator <(BigInteger a, BigInteger b) {
-			return a.CompareTo(b) > 0;
+			return a.CompareTo(b) < 0;
 		}
 
 		public static bool operator ==(BigInteger a, BigInteger b) {
