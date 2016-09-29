@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3152C775-CFE4-4B4E-B526-1896BD3B0A8C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Deveel.Math</RootNamespace>
+    <AssemblyName>Deveel.Math</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile328</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;PORTABLE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;PORTABLE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
+  </ItemGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
+    <EmbeddedResource Include="..\Deveel.Math\Messages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal.cs">
+      <Link>Deveel.Math\BigDecimal.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigInteger.cs">
+      <Link>Deveel.Math\BigInteger.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\BitLevel.cs">
+      <Link>Deveel.Math\BitLevel.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\CharHelper.cs">
+      <Link>Deveel.Math\CharHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\Conversion.cs">
+      <Link>Deveel.Math\Conversion.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\Division.cs">
+      <Link>Deveel.Math\Division.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\Elementary.cs">
+      <Link>Deveel.Math\Elementary.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\Logical.cs">
+      <Link>Deveel.Math\Logical.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\MathContext.cs">
+      <Link>Deveel.Math\MathContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\Multiplication.cs">
+      <Link>Deveel.Math\Multiplication.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\Primality.cs">
+      <Link>Deveel.Math\Primality.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\RoundingMode.cs">
+      <Link>Deveel.Math\RoundingMode.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\Utils.cs">
+      <Link>Deveel.Math\Utils.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Messages.Designer.cs">
+      <Link>Messages.Designer.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Messages.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
