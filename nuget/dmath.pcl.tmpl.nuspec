@@ -17,7 +17,9 @@
 		<tags>math decimal bigdecimal integer biginteger int deveel harmony portable</tags>
     </metadata>
     <files>
-	    <file src="..\dist\anycpu\pcl\Deveel.Math.dll" target="lib/portable-net45+win+wpa81+wp80/Deveel.Math.dll"/>
-		<file src="..\dist\anycpu\pcl\Deveel.Math.dll" target="lib/portable-net45+win+wpa81+wp80/Deveel.Math.pdb"/>
+		<file src="..\dist\anycpu\pcl.profile328\Deveel.Math.dll" target="lib/portable-net4+sl50+netcore45+wpa81+wp8/Deveel.Math.dll"/>
+		<file src="..\dist\anycpu\pcl.profile328\Deveel.Math.pdb" target="lib/portable-net4+sl50+netcore45+wpa81+wp8/Deveel.Math.pdb"/>
+	    <file src="..\dist\anycpu\pcl.profile111\Deveel.Math.dll" target="lib/portable-net45+netcore45+wpa81/Deveel.Math.dll"/>
+		<file src="..\dist\anycpu\pcl.profile111\Deveel.Math.pdb" target="lib/portable-net45+netcore45+wpa81/Deveel.Math.pdb"/>
 	</files>
 </package>
