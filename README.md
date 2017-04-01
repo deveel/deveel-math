@@ -11,9 +11,15 @@ Tha aim of this library is to provide .NET developers with a powerful instrument
 
 How to Install It
 ==================
-
+The library is maintained in two separate repositories from where it is possible to install it: in fact, the nightly builds can be found at the dedicated space of MyGet, while the production packages can be found at nuget.org 
 From the NuGet Package Management console, select the project where the library will be installed and type the following command
 
 ```
 PM> Install-Package dmath
+```
+
+ If you are developing a .NET Standard or .NET Core application, you can install the `dmath.core` library instead
+  
+```
+PM> Install-Package dmath.core
 ```
