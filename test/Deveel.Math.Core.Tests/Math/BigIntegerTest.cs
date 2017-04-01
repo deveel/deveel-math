@@ -188,14 +188,14 @@ namespace Deveel.Math {
 			if (bi.IsProbablePrime(17)) {
 				throw new Exception("IsProbablePrime failed for: " + bi.ToString());
 			}
-			bi = BigInteger.ValueOf(17L * 13L);
+			bi = BigInteger.FromInt64(17L * 13L);
 			if (bi.IsProbablePrime(17)) {
 				throw new Exception("IsProbablePrime failed for: " + bi.ToString());
 			}
 			for (long a = 2; a < 1000; a++) {
 				if (isPrime(a)) {
-					Assert.True(BigInteger.ValueOf(a).IsProbablePrime(5), "false negative on prime number <1000");
-				} else if (BigInteger.ValueOf(a).IsProbablePrime(17)) {
+					Assert.True(BigInteger.FromInt64(a).IsProbablePrime(5), "false negative on prime number <1000");
+				} else if (BigInteger.FromInt64(a).IsProbablePrime(17)) {
 #if !PORTABLE
 					Console.Out.WriteLine("IsProbablePrime failed for: " + a);
 #endif
@@ -203,7 +203,7 @@ namespace Deveel.Math {
 				}
 			}
 			for (int a = 0; a < 1000; a++) {
-				bi = BigInteger.ValueOf(rand.Next(1000000)).Multiply(BigInteger.ValueOf(rand.Next(1000000)));
+				bi = BigInteger.FromInt64(rand.Next(1000000)).Multiply(BigInteger.FromInt64(rand.Next(1000000)));
 				if (bi.IsProbablePrime(17)) {
 #if !PORTABLE
 					Console.Out.WriteLine("IsProbablePrime failed for: " + bi.ToString());
@@ -226,8 +226,8 @@ namespace Deveel.Math {
 
 		[Fact]
 		public void EqualsObject() {
-			Assert.True(zero.Equals(BigInteger.ValueOf(0)), "0=0");
-			Assert.True(BigInteger.ValueOf(-123).Equals(BigInteger.ValueOf(-123)), "-123=-123");
+			Assert.True(zero.Equals(BigInteger.FromInt64(0)), "0=0");
+			Assert.True(BigInteger.FromInt64(-123).Equals(BigInteger.FromInt64(-123)), "-123=-123");
 			Assert.True(!zero.Equals(one), "0=1");
 			Assert.True(!zero.Equals(minusOne), "0=-1");
 			Assert.True(!one.Equals(minusOne), "1=-1");
@@ -267,8 +267,8 @@ namespace Deveel.Math {
 
 		[Fact]
 		public void ValueOfJ() {
-			Assert.True(BigInteger.ValueOf(2L).Equals(two), "Incurred number returned for 2");
-			Assert.True(BigInteger.ValueOf(200L).Equals(BigInteger.ValueOf(139).Add(BigInteger.ValueOf(61))),
+			Assert.True(BigInteger.FromInt64(2L).Equals(two), "Incurred number returned for 2");
+			Assert.True(BigInteger.FromInt64(200L).Equals(BigInteger.FromInt64(139).Add(BigInteger.FromInt64(61))),
 						  "Incurred number returned for 200");
 		}
 
@@ -307,7 +307,7 @@ namespace Deveel.Math {
 			Assert.True(minusOne.Negate().Equals(one), "-1.neg");
 			Assert.True(minusTwo.Negate().Equals(two), "-2.neg");
 			Assert.True(
-				unchecked(BigInteger.ValueOf(0x62EB40FEF85AA9EBL*2).Negate().Equals(BigInteger.ValueOf(-0x62EB40FEF85AA9EBL*2))),
+				unchecked(BigInteger.FromInt64(0x62EB40FEF85AA9EBL*2).Negate().Equals(BigInteger.FromInt64(-0x62EB40FEF85AA9EBL*2))),
 				"0x62EB40FEF85AA9EBL*2.neg");
 			for (int i = 0; i < 200; i++) {
 				BigInteger midbit = zero.SetBit(i);
@@ -344,10 +344,10 @@ namespace Deveel.Math {
 		public void MmodInverseBigInteger() {
 			BigInteger a = zero, mod, inv;
 			for (int j = 3; j < 50; j++) {
-				mod = BigInteger.ValueOf(j);
+				mod = BigInteger.FromInt64(j);
 				for (int i = -j + 1; i < j; i++) {
 					try {
-						a = BigInteger.ValueOf(i);
+						a = BigInteger.FromInt64(i);
 						inv = a.ModInverse(mod);
 						Assert.True(one.Equals(a.Multiply(inv).Mod(mod)), "bad inverse: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.True(inv.CompareTo(mod) < 0, "inverse greater than modulo: " + a + " inv mod " + mod + " equals " + inv);
@@ -358,10 +358,10 @@ namespace Deveel.Math {
 				}
 			}
 			for (int j = 1; j < 10; j++) {
-				mod = bi2.Add(BigInteger.ValueOf(j));
+				mod = bi2.Add(BigInteger.FromInt64(j));
 				for (int i = 0; i < 20; i++) {
 					try {
-						a = bi3.Add(BigInteger.ValueOf(i));
+						a = bi3.Add(BigInteger.FromInt64(i));
 						inv = a.ModInverse(mod);
 						Assert.True(one.Equals(a.Multiply(inv).Mod(mod)), "bad inverse: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.True(inv.CompareTo(mod) < 0, "inverse greater than modulo: " + a + " inv mod " + mod + " equals " + inv);
@@ -375,18 +375,18 @@ namespace Deveel.Math {
 
 		[Fact]
 		public void ShiftRightI() {
-			Assert.True(BigInteger.ValueOf(1).ShiftRight(0).Equals(BigInteger.One), "1 >> 0");
-			Assert.True(BigInteger.ValueOf(1).ShiftRight(1).Equals(BigInteger.Zero), "1 >> 1");
-			Assert.True(BigInteger.ValueOf(1).ShiftRight(63).Equals(BigInteger.Zero), "1 >> 63");
-			Assert.True(BigInteger.ValueOf(1).ShiftRight(64).Equals(BigInteger.Zero), "1 >> 64");
-			Assert.True(BigInteger.ValueOf(1).ShiftRight(65).Equals(BigInteger.Zero), "1 >> 65");
-			Assert.True(BigInteger.ValueOf(1).ShiftRight(1000).Equals(BigInteger.Zero), "1 >> 1000");
-			Assert.True(BigInteger.ValueOf(-1).ShiftRight(0).Equals(minusOne), "-1 >> 0");
-			Assert.True(BigInteger.ValueOf(-1).ShiftRight(1).Equals(minusOne), "-1 >> 1");
-			Assert.True(BigInteger.ValueOf(-1).ShiftRight(63).Equals(minusOne), "-1 >> 63");
-			Assert.True(BigInteger.ValueOf(-1).ShiftRight(64).Equals(minusOne), "-1 >> 64");
-			Assert.True(BigInteger.ValueOf(-1).ShiftRight(65).Equals(minusOne), "-1 >> 65");
-			Assert.True(BigInteger.ValueOf(-1).ShiftRight(1000).Equals(minusOne), "-1 >> 1000");
+			Assert.True(BigInteger.FromInt64(1).ShiftRight(0).Equals(BigInteger.One), "1 >> 0");
+			Assert.True(BigInteger.FromInt64(1).ShiftRight(1).Equals(BigInteger.Zero), "1 >> 1");
+			Assert.True(BigInteger.FromInt64(1).ShiftRight(63).Equals(BigInteger.Zero), "1 >> 63");
+			Assert.True(BigInteger.FromInt64(1).ShiftRight(64).Equals(BigInteger.Zero), "1 >> 64");
+			Assert.True(BigInteger.FromInt64(1).ShiftRight(65).Equals(BigInteger.Zero), "1 >> 65");
+			Assert.True(BigInteger.FromInt64(1).ShiftRight(1000).Equals(BigInteger.Zero), "1 >> 1000");
+			Assert.True(BigInteger.FromInt64(-1).ShiftRight(0).Equals(minusOne), "-1 >> 0");
+			Assert.True(BigInteger.FromInt64(-1).ShiftRight(1).Equals(minusOne), "-1 >> 1");
+			Assert.True(BigInteger.FromInt64(-1).ShiftRight(63).Equals(minusOne), "-1 >> 63");
+			Assert.True(BigInteger.FromInt64(-1).ShiftRight(64).Equals(minusOne), "-1 >> 64");
+			Assert.True(BigInteger.FromInt64(-1).ShiftRight(65).Equals(minusOne), "-1 >> 65");
+			Assert.True(BigInteger.FromInt64(-1).ShiftRight(1000).Equals(minusOne), "-1 >> 1000");
 
 			BigInteger a = BigInteger.One;
 			BigInteger c = bi3;
@@ -501,8 +501,8 @@ namespace Deveel.Math {
 			TestDivRanges(smallPos);
 			TestDivRanges(largePos);
 			TestDivRanges(BigInteger.Parse("62EB40FEF85AA9EB", 16));
-			TestAllDivs(BigInteger.ValueOf(0xCC0225953CL), BigInteger
-					.ValueOf(0x1B937B765L));
+			TestAllDivs(BigInteger.FromInt64(0xCC0225953CL), BigInteger
+					.FromInt64(0x1B937B765L));
 
 			Assert.Throws<ArithmeticException>(() => largePos.Divide(zero));
 			Assert.Throws<ArithmeticException>(() => bi1.Divide(zero));
@@ -538,42 +538,42 @@ namespace Deveel.Math {
 
 		[Fact]
 		public void ParseString() {
-			Assert.True(BigInteger.Parse("0").Equals(BigInteger.ValueOf(0)), "new(0)");
-			Assert.True(BigInteger.Parse("1").Equals(BigInteger.ValueOf(1)), "new(1)");
-			Assert.True(BigInteger.Parse("12345678901234").Equals(BigInteger.ValueOf(12345678901234L)), "new(12345678901234)");
-			Assert.True(BigInteger.Parse("-1").Equals(BigInteger.ValueOf(-1)), "new(-1)");
-			Assert.True(BigInteger.Parse("-12345678901234").Equals(BigInteger.ValueOf(-12345678901234L)), "new(-12345678901234)");
+			Assert.True(BigInteger.Parse("0").Equals(BigInteger.FromInt64(0)), "new(0)");
+			Assert.True(BigInteger.Parse("1").Equals(BigInteger.FromInt64(1)), "new(1)");
+			Assert.True(BigInteger.Parse("12345678901234").Equals(BigInteger.FromInt64(12345678901234L)), "new(12345678901234)");
+			Assert.True(BigInteger.Parse("-1").Equals(BigInteger.FromInt64(-1)), "new(-1)");
+			Assert.True(BigInteger.Parse("-12345678901234").Equals(BigInteger.FromInt64(-12345678901234L)), "new(-12345678901234)");
 		}
 
 		[Fact]
 		public void ParseStringI() {
-			Assert.True(BigInteger.Parse("0", 16).Equals(BigInteger.ValueOf(0)), "new(0,16)");
-			Assert.True(BigInteger.Parse("1", 16).Equals(BigInteger.ValueOf(1)), "new(1,16)");
-			Assert.True(BigInteger.Parse("ABF345678901234", 16).Equals(BigInteger.ValueOf(0xABF345678901234L)), "new(ABF345678901234,16)");
-			Assert.True(BigInteger.Parse("abf345678901234", 16).Equals(BigInteger.ValueOf(0xABF345678901234L)), "new(abf345678901234,16)");
-			Assert.True(BigInteger.Parse("-1", 16).Equals(BigInteger.ValueOf(-1)), "new(-1,16)");
-			Assert.True(BigInteger.Parse("-ABF345678901234", 16).Equals(BigInteger.ValueOf(-0xABF345678901234L)), "new(-ABF345678901234,16)");
-			Assert.True(BigInteger.Parse("-abf345678901234", 16).Equals(BigInteger.ValueOf(-0xABF345678901234L)), "new(-abf345678901234,16)");
-			Assert.True(BigInteger.Parse("-101010101", 2).Equals(BigInteger.ValueOf(-341)), "new(-101010101,2)");
+			Assert.True(BigInteger.Parse("0", 16).Equals(BigInteger.FromInt64(0)), "new(0,16)");
+			Assert.True(BigInteger.Parse("1", 16).Equals(BigInteger.FromInt64(1)), "new(1,16)");
+			Assert.True(BigInteger.Parse("ABF345678901234", 16).Equals(BigInteger.FromInt64(0xABF345678901234L)), "new(ABF345678901234,16)");
+			Assert.True(BigInteger.Parse("abf345678901234", 16).Equals(BigInteger.FromInt64(0xABF345678901234L)), "new(abf345678901234,16)");
+			Assert.True(BigInteger.Parse("-1", 16).Equals(BigInteger.FromInt64(-1)), "new(-1,16)");
+			Assert.True(BigInteger.Parse("-ABF345678901234", 16).Equals(BigInteger.FromInt64(-0xABF345678901234L)), "new(-ABF345678901234,16)");
+			Assert.True(BigInteger.Parse("-abf345678901234", 16).Equals(BigInteger.FromInt64(-0xABF345678901234L)), "new(-abf345678901234,16)");
+			Assert.True(BigInteger.Parse("-101010101", 2).Equals(BigInteger.FromInt64(-341)), "new(-101010101,2)");
 		}
 
 		[Fact]
 		public void TestToString() {
-			Assert.True("0".Equals(BigInteger.ValueOf(0).ToString()), "0.ToString");
-			Assert.True("1".Equals(BigInteger.ValueOf(1).ToString()), "1.ToString");
-			Assert.True("12345678901234".Equals(BigInteger.ValueOf(12345678901234L).ToString()), "12345678901234.ToString");
-			Assert.True("-1".Equals(BigInteger.ValueOf(-1).ToString()), "-1.ToString");
-			Assert.True("-12345678901234".Equals(BigInteger.ValueOf(-12345678901234L).ToString()), "-12345678901234.ToString");
+			Assert.True("0".Equals(BigInteger.FromInt64(0).ToString()), "0.ToString");
+			Assert.True("1".Equals(BigInteger.FromInt64(1).ToString()), "1.ToString");
+			Assert.True("12345678901234".Equals(BigInteger.FromInt64(12345678901234L).ToString()), "12345678901234.ToString");
+			Assert.True("-1".Equals(BigInteger.FromInt64(-1).ToString()), "-1.ToString");
+			Assert.True("-12345678901234".Equals(BigInteger.FromInt64(-12345678901234L).ToString()), "-12345678901234.ToString");
 		}
 
 		[Fact]
 		public void ToStringI() {
-			Assert.True("0".Equals(BigInteger.ValueOf(0).ToString(16)), "0.ToString(16)");
-			Assert.True("1".Equals(BigInteger.ValueOf(1).ToString(16)), "1.ToString(16)");
-			Assert.True("abf345678901234".Equals(BigInteger.ValueOf(0xABF345678901234L).ToString(16)), "ABF345678901234.ToString(16)");
-			Assert.True("-1".Equals(BigInteger.ValueOf(-1).ToString(16)), "-1.ToString(16)");
-			Assert.True("-abf345678901234".Equals(BigInteger.ValueOf(-0xABF345678901234L).ToString(16)), "-ABF345678901234.ToString(16)");
-			Assert.True("-101010101".Equals(BigInteger.ValueOf(-341).ToString(2)), "-101010101.ToString(2)");
+			Assert.True("0".Equals(BigInteger.FromInt64(0).ToString(16)), "0.ToString(16)");
+			Assert.True("1".Equals(BigInteger.FromInt64(1).ToString(16)), "1.ToString(16)");
+			Assert.True("abf345678901234".Equals(BigInteger.FromInt64(0xABF345678901234L).ToString(16)), "ABF345678901234.ToString(16)");
+			Assert.True("-1".Equals(BigInteger.FromInt64(-1).ToString(16)), "-1.ToString(16)");
+			Assert.True("-abf345678901234".Equals(BigInteger.FromInt64(-0xABF345678901234L).ToString(16)), "-ABF345678901234.ToString(16)");
+			Assert.True("-101010101".Equals(BigInteger.FromInt64(-341).ToString(2)), "-101010101.ToString(2)");
 		}
 
 		[Fact]

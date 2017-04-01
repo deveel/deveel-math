@@ -65,7 +65,7 @@ namespace Deveel.Math {
 
 		static Primality() {// To initialize the dual table of BigInteger primes
 			for (int i = 0; i < primes.Length; i++) {
-				BIprimes[i] = BigInteger.ValueOf(primes[i]);
+				BIprimes[i] = BigInteger.FromInt64(primes[i]);
 			}
 
 			offsetPrimes = new int[11][];

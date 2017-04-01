@@ -86,7 +86,7 @@ namespace Deveel.Math {
 					        	                                       	valueHi
 					        	                                       }));
 				}
-				return BigInteger.ValueOf((op1Sign < 0) ? (b - a) : (a - b));
+				return BigInteger.FromInt64((op1Sign < 0) ? (b - a) : (a - b));
 			} else if (op1Sign == op2Sign) {
 				resSign = op1Sign;
 				// an augend should not be shorter than addend
@@ -182,7 +182,7 @@ namespace Deveel.Math {
 				if (op2Sign < 0) {
 					b = -b;
 				}
-				return BigInteger.ValueOf(a - b);
+				return BigInteger.FromInt64(a - b);
 			}
 			int cmp = ((op1Len != op2Len) ? ((op1Len > op2Len) ? 1 : -1)
 					: Elementary.compareArrays(op1.Digits, op2.Digits, op1Len));

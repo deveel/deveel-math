@@ -31,7 +31,14 @@
 
   <ItemGroup>
     <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal.cs" Link="Math\BigDecimal.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Convertible.cs" Link="Math\BigDecimal_Convertible.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Functions.cs" Link="Math\BigDecimal_Functions.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Operators.cs" Link="Math\BigDecimal_Operators.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Parse.cs" Link="Math\BigDecimal_Parse.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\BigInteger.cs" Link="Math\BigInteger.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigInteger_Convertible.cs" Link="Math\BigInteger_Convertible.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigInteger_Functions.cs" Link="Math\BigInteger_Functions.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\BitInteger_Operators.cs" Link="Math\BitInteger_Operators.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\BitLevel.cs" Link="Math\BitLevel.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\CharHelper.cs" Link="Math\CharHelper.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\Conversion.cs" Link="Math\Conversion.cs" />

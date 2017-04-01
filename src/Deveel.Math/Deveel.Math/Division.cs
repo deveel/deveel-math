@@ -315,8 +315,8 @@ namespace Deveel.Math {
 				if (valSign < 0)
 					rem = -rem;
 				return new BigInteger[] {
-					BigInteger.ValueOf(quo),
-					BigInteger.ValueOf(rem)
+					BigInteger.FromInt64(quo),
+					BigInteger.FromInt64(rem)
 				};
 			}
 			int quotientLength = valLen;
@@ -409,7 +409,7 @@ namespace Deveel.Math {
 				// (op2.bitLength() < 64) implies by INV (op1.bitLength() < 64)
 				if ((op2.numberLength == 1)
 				    || ((op2.numberLength == 2) && (op2.Digits[1] > 0))) {
-					op2 = BigInteger.ValueOf(Division.GcdBinary(op1.ToInt64(),
+					op2 = BigInteger.FromInt64(Division.GcdBinary(op1.ToInt64(),
 						op2.ToInt64()));
 					break;
 				}

@@ -62,8 +62,8 @@ namespace Deveel.Math {
 			long fivePow = 1L;
 
 			for (i = 0; i <= 18; i++) {
-				BigFivePows[i] = BigInteger.ValueOf(fivePow);
-				BigTenPows[i] = BigInteger.ValueOf(fivePow << i);
+				BigFivePows[i] = BigInteger.FromInt64(fivePow);
+				BigTenPows[i] = BigInteger.FromInt64(fivePow << i);
 				fivePow *= 5;
 			}
 			for (; i < BigTenPows.Length; i++) {
