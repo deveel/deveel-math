@@ -107,7 +107,7 @@ namespace Deveel.Math {
 		private static BigInteger AndPositive(BigInteger val, BigInteger that) {
 			// PRE: both arguments are positive
 			int resLength = System.Math.Min(val.numberLength, that.numberLength);
-			int i = System.Math.Max(val.FirstNonzeroDigit, that.FirstNonzeroDigit);
+			int i = System.Math.Max(val.FirstNonZeroDigit, that.FirstNonZeroDigit);
 
 			if (i >= resLength) {
 				return BigInteger.Zero;
@@ -126,8 +126,8 @@ namespace Deveel.Math {
 		/** @return sign = positive.magnitude & magnitude = -negative.magnitude */
 		private static BigInteger AndDiffSigns(BigInteger positive, BigInteger negative) {
 			// PRE: positive is positive and negative is negative
-			int iPos = positive.FirstNonzeroDigit;
-			int iNeg = negative.FirstNonzeroDigit;
+			int iPos = positive.FirstNonZeroDigit;
+			int iNeg = negative.FirstNonZeroDigit;
 
 			// Look if the trailing zeros of the negative will "blank" all
 			// the positive digits
@@ -164,8 +164,8 @@ namespace Deveel.Math {
 		private static BigInteger AndNegative(BigInteger longer, BigInteger shorter) {
 			// PRE: longer and shorter are negative
 			// PRE: longer has at least as many digits as shorter
-			int iLonger = longer.FirstNonzeroDigit;
-			int iShorter = shorter.FirstNonzeroDigit;
+			int iLonger = longer.FirstNonZeroDigit;
+			int iShorter = shorter.FirstNonZeroDigit;
 
 			// Does shorter matter?
 			if (iLonger >= shorter.numberLength) {
@@ -255,7 +255,7 @@ namespace Deveel.Math {
 
 			int limit = System.Math.Min(val.numberLength, that.numberLength);
 			int i;
-			for (i = val.FirstNonzeroDigit; i < limit; i++) {
+			for (i = val.FirstNonZeroDigit; i < limit; i++) {
 				resDigits[i] = val.Digits[i] & ~that.Digits[i];
 			}
 			for (; i < val.numberLength; i++) {
@@ -270,8 +270,8 @@ namespace Deveel.Math {
 		/** @return sign = 1, magnitude = positive.magnitude & ~(-negative.magnitude)*/
 		private static BigInteger AndNotPositiveNegative(BigInteger positive, BigInteger negative) {
 			// PRE: positive > 0 && negative < 0
-			int iNeg = negative.FirstNonzeroDigit;
-			int iPos = positive.FirstNonzeroDigit;
+			int iNeg = negative.FirstNonZeroDigit;
+			int iPos = positive.FirstNonZeroDigit;
 
 			if (iNeg >= positive.numberLength) {
 				return positive;
@@ -308,8 +308,8 @@ namespace Deveel.Math {
 			int limit;
 			int digit;
 
-			int iNeg = negative.FirstNonzeroDigit;
-			int iPos = positive.FirstNonzeroDigit;
+			int iNeg = negative.FirstNonZeroDigit;
+			int iPos = positive.FirstNonZeroDigit;
 
 			if (iNeg >= positive.numberLength) {
 				return negative;
@@ -377,8 +377,8 @@ namespace Deveel.Math {
 		/** @return sign = 1, magnitude = -val.magnitude & ~(-that.magnitude)*/
 		private static BigInteger AndNotNegative(BigInteger val, BigInteger that) {
 			// PRE: val < 0 && that < 0
-			int iVal = val.FirstNonzeroDigit;
-			int iThat = that.FirstNonzeroDigit;
+			int iVal = val.FirstNonZeroDigit;
+			int iThat = that.FirstNonZeroDigit;
 
 			if (iVal >= that.numberLength) {
 				return BigInteger.Zero;
@@ -456,7 +456,7 @@ namespace Deveel.Math {
 			} else {
 				if (that.Sign > 0) {
 					return OrDiffSigns(that, val);
-				} else if (that.FirstNonzeroDigit > val.FirstNonzeroDigit) {
+				} else if (that.FirstNonZeroDigit > val.FirstNonZeroDigit) {
 					return OrNegative(that, val);
 				} else {
 					return OrNegative(val, that);
@@ -471,7 +471,7 @@ namespace Deveel.Math {
 			int resLength = longer.numberLength;
 			int[] resDigits = new int[resLength];
 
-			int i = System.Math.Min(longer.FirstNonzeroDigit, shorter.FirstNonzeroDigit);
+			int i = System.Math.Min(longer.FirstNonZeroDigit, shorter.FirstNonZeroDigit);
 			for (i = 0; i < shorter.numberLength; i++) {
 				resDigits[i] = longer.Digits[i] | shorter.Digits[i];
 			}
@@ -487,8 +487,8 @@ namespace Deveel.Math {
 		private static BigInteger OrNegative(BigInteger val, BigInteger that) {
 			// PRE: val and that are negative;
 			// PRE: val has at least as many trailing zeros digits as that
-			int iThat = that.FirstNonzeroDigit;
-			int iVal = val.FirstNonzeroDigit;
+			int iThat = that.FirstNonZeroDigit;
+			int iVal = val.FirstNonZeroDigit;
 			int i;
 
 			if (iVal >= that.numberLength) {
@@ -523,8 +523,8 @@ namespace Deveel.Math {
 		/** @return sign = -1, magnitude = -(positive.magnitude | -negative.magnitude) */
 		private static BigInteger OrDiffSigns(BigInteger positive, BigInteger negative) {
 			// Jumping over the least significant zero bits
-			int iNeg = negative.FirstNonzeroDigit;
-			int iPos = positive.FirstNonzeroDigit;
+			int iNeg = negative.FirstNonZeroDigit;
+			int iPos = positive.FirstNonZeroDigit;
 			int i;
 			int limit;
 
@@ -609,7 +609,7 @@ namespace Deveel.Math {
 			} else {
 				if (that.Sign > 0) {
 					return XorDiffSigns(that, val);
-				} else if (that.FirstNonzeroDigit > val.FirstNonzeroDigit) {
+				} else if (that.FirstNonZeroDigit > val.FirstNonZeroDigit) {
 					return XorNegative(that, val);
 				} else {
 					return XorNegative(val, that);
@@ -623,7 +623,7 @@ namespace Deveel.Math {
 			// PRE: longer has at least as many digits as shorter
 			int resLength = longer.numberLength;
 			int[] resDigits = new int[resLength];
-			int i = System.Math.Min(longer.FirstNonzeroDigit, shorter.FirstNonzeroDigit);
+			int i = System.Math.Min(longer.FirstNonZeroDigit, shorter.FirstNonZeroDigit);
 			for (; i < shorter.numberLength; i++) {
 				resDigits[i] = longer.Digits[i] ^ shorter.Digits[i];
 			}
@@ -642,8 +642,8 @@ namespace Deveel.Math {
 			// PRE: val has at least as many trailing zero digits as that
 			int resLength = System.Math.Max(val.numberLength, that.numberLength);
 			int[] resDigits = new int[resLength];
-			int iVal = val.FirstNonzeroDigit;
-			int iThat = that.FirstNonzeroDigit;
+			int iVal = val.FirstNonZeroDigit;
+			int iThat = that.FirstNonZeroDigit;
 			int i = iThat;
 			int limit;
 
@@ -695,8 +695,8 @@ namespace Deveel.Math {
 		private static BigInteger XorDiffSigns(BigInteger positive, BigInteger negative) {
 			int resLength = System.Math.Max(negative.numberLength, positive.numberLength);
 			int[] resDigits;
-			int iNeg = negative.FirstNonzeroDigit;
-			int iPos = positive.FirstNonzeroDigit;
+			int iNeg = negative.FirstNonZeroDigit;
+			int iPos = positive.FirstNonZeroDigit;
 			int i;
 			int limit;
 

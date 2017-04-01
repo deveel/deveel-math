@@ -482,7 +482,7 @@ namespace Deveel.Math {
 				throw new ArithmeticException(Messages.math19);
 			}
 
-			if (!p.TestBit(0)) {
+			if (!BigInteger.TestBit(p, 0)) {
 				// montgomery inverse require even modulo
 				return ModInverseLorencz(a, p);
 			}
@@ -605,11 +605,11 @@ namespace Deveel.Math {
 		private static int HowManyIterations(BigInteger bi, int n) {
 			int i = n - 1;
 			if (bi.Sign > 0) {
-				while (!bi.TestBit(i))
+				while (!BigInteger.TestBit(bi, i))
 					i--;
 				return n - 1 - i;
 			} else {
-				while (bi.TestBit(i))
+				while (BigInteger.TestBit(bi, i))
 					i--;
 				return n - 1 - System.Math.Max(i, bi.LowestSetBit);
 			}
@@ -701,7 +701,7 @@ namespace Deveel.Math {
 				if (v.Sign != u.Sign)
 					u = -u;
 			}
-			if (u.TestBit(n)) {
+			if (BigInteger.TestBit(u, n)) {
 				if (r.Sign < 0)
 					r = -r;
 				else
@@ -853,7 +853,7 @@ namespace Deveel.Math {
 			 * If 'base' is odd then it's coprime with 2^j and phi(2^j) = 2^(j-1);
 			 * so we can reduce reduce the exponent (mod 2^(j-1)).
 			 */
-			if (b.TestBit(0))
+			if (BigInteger.TestBit(b, 0))
 				InplaceModPow2(e, j - 1);
 			InplaceModPow2(baseMod2toN, j);
 

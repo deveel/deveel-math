@@ -36,8 +36,6 @@
     <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Operators.cs" Link="Math\BigDecimal_Operators.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Parse.cs" Link="Math\BigDecimal_Parse.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\BigInteger.cs" Link="Math\BigInteger.cs" />
-    <Compile Include="..\Deveel.Math\Deveel.Math\BigInteger_Convertible.cs" Link="Math\BigInteger_Convertible.cs" />
-    <Compile Include="..\Deveel.Math\Deveel.Math\BigInteger_Functions.cs" Link="Math\BigInteger_Functions.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\BigMath.cs" Link="Math\BigMath.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\BitLevel.cs" Link="Math\BitLevel.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\CharHelper.cs" Link="Math\CharHelper.cs" />

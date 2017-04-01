@@ -50,7 +50,7 @@ namespace Deveel.Math {
 			int highDigit = val.Digits[val.numberLength - 1];
 
 			if (val.Sign < 0) {
-				int i = val.FirstNonzeroDigit;
+				int i = val.FirstNonZeroDigit;
 				// We reduce the problem to the positive case.
 				if (i == val.numberLength - 1) {
 					highDigit--;
@@ -68,7 +68,7 @@ namespace Deveel.Math {
 				return 0;
 			}
 
-			int i = val.FirstNonzeroDigit;
+			int i = val.FirstNonZeroDigit;
 			;
 			if (val.Sign > 0) {
 				for (; i < val.numberLength; i++) {
@@ -337,7 +337,7 @@ namespace Deveel.Math {
 					resDigits[intCount] = bitNumber;
 				} else {
 					//val.sign<0 y intCount < val.numberLength
-					int firstNonZeroDigit = val.FirstNonzeroDigit;
+					int firstNonZeroDigit = val.FirstNonZeroDigit;
 					if (intCount > firstNonZeroDigit) {
 						resDigits[intCount] ^= bitNumber;
 					} else if (intCount < firstNonZeroDigit) {

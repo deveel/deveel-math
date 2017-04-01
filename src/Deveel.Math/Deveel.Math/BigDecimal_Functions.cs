@@ -308,7 +308,7 @@ namespace Deveel.Math {
 			BigInteger remainder;
 
 			// while the number is even...
-			while (!strippedBI.TestBit(0)) {
+			while (!BigInteger.TestBit(strippedBI, 0)) {
 				// To divide by 10^i
 				quotient = BigMath.DivideAndRemainder(strippedBI, TenPow[i], out remainder);
 				// To look the remainder

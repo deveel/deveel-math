@@ -584,7 +584,7 @@ namespace Deveel.Math {
 				Assert.True(res.Equals(i2 & i1), "symmetry of and");
 				int len = System.Math.Max(i1.BitLength, i2.BitLength) + 66;
 				for (int i = 0; i < len; i++) {
-					Assert.True((i1.TestBit(i) && i2.TestBit(i)) == res.TestBit(i), "and");
+					Assert.True((BigInteger.TestBit(i1, i) && BigInteger.TestBit(i2, i)) == BigInteger.TestBit(res, i), "and");
 				}
 			}
 		}
@@ -597,7 +597,7 @@ namespace Deveel.Math {
 				Assert.True(res.Equals(i2 | i1), "symmetry of or");
 				int len = System.Math.Max(i1.BitLength, i2.BitLength) + 66;
 				for (int i = 0; i < len; i++) {
-					Assert.True((i1.TestBit(i) || i2.TestBit(i)) == res.TestBit(i), "or");
+					Assert.True((BigInteger.TestBit(i1, i) || BigInteger.TestBit(i2, i)) == BigInteger.TestBit(res, i), "or");
 				}
 			}
 		}
@@ -610,7 +610,7 @@ namespace Deveel.Math {
 				Assert.True(res.Equals(i2 ^i1), "symmetry of xor");
 				int len = System.Math.Max(i1.BitLength, i2.BitLength) + 66;
 				for (int i = 0; i < len; i++) {
-					Assert.True((i1.TestBit(i) ^ i2.TestBit(i)) == res.TestBit(i), "xor");
+					Assert.True((BigInteger.TestBit(i1, i) ^ BigInteger.TestBit(i2, i)) == BigInteger.TestBit(res, i), "xor");
 				}
 			}
 		}
@@ -622,7 +622,7 @@ namespace Deveel.Math {
 				BigInteger res = ~i1;
 				int len = i1.BitLength + 66;
 				for (int i = 0; i < len; i++) {
-					Assert.True(!i1.TestBit(i) == res.TestBit(i), "not");
+					Assert.True(!BigInteger.TestBit(i1, i) == BigInteger.TestBit(res, i), "not");
 				}
 			}
 		}
@@ -634,7 +634,7 @@ namespace Deveel.Math {
 				BigInteger res = BigMath.AndNot(i1, i2);
 				int len = System.Math.Max(i1.BitLength, i2.BitLength) + 66;
 				for (int i = 0; i < len; i++) {
-					Assert.True((i1.TestBit(i) && !i2.TestBit(i)) == res.TestBit(i), "andNot");
+					Assert.True((BigInteger.TestBit(i1, i) && !BigInteger.TestBit(i2, i)) == BigInteger.TestBit(res, i), "andNot");
 				}
 
 				// asymmetrical
@@ -642,7 +642,7 @@ namespace Deveel.Math {
 				i2 = element[0];
 				res = BigMath.AndNot(i1, i2);
 				for (int i = 0; i < len; i++) {
-					Assert.True((i1.TestBit(i) && !i2.TestBit(i)) == res.TestBit(i), "andNot reversed");
+					Assert.True((BigInteger.TestBit(i1, i) && !BigInteger.TestBit(i2, i)) == BigInteger.TestBit(res, i), "andNot reversed");
 				}
 			}
 

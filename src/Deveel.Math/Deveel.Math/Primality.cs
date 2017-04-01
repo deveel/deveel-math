@@ -117,7 +117,7 @@ namespace Deveel.Math {
 					new int[n.numberLength + 1]);
 			Array.Copy(n.Digits, 0, startPoint.Digits, 0, n.numberLength);
 			// To fix N to the "next odd number"
-			if (n.TestBit(0)) {
+			if (BigInteger.TestBit(n, 0)) {
 				Elementary.inplaceAdd(startPoint, 2);
 			} else {
 				startPoint.Digits[0] |= 1;
@@ -208,7 +208,7 @@ namespace Deveel.Math {
 				return true;
 			}
 			// To discard all even numbers
-			if (!n.TestBit(0)) {
+			if (!BigInteger.TestBit(n, 0)) {
 				return false;
 			}
 			// To check if 'n' exists in the table (it fit in 10 bits)

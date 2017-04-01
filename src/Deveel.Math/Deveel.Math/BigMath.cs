@@ -364,7 +364,8 @@ namespace Deveel.Math {
 				throw new ArithmeticException(Messages.math18); //$NON-NLS-1$
 			}
 			// If both are even, no inverse exists
-			if (!(value.TestBit(0) || m.TestBit(0))) {
+			if (!(BigInteger.TestBit(value, 0) || 
+				BigInteger.TestBit(m, 0))) {
 				// math.19=BigInteger not invertible.
 				throw new ArithmeticException(Messages.math19); //$NON-NLS-1$
 			}
@@ -421,11 +422,11 @@ namespace Deveel.Math {
 				exponent = -exponent;
 			}
 			// From now on: (m > 0) and (exponent >= 0)
-			BigInteger res = (m.TestBit(0))
+			BigInteger res = (BigInteger.TestBit(m, 0))
 				? Division.OddModPow(Abs(b),
 					exponent, m)
 				: Division.EvenModPow(Abs(b), exponent, m);
-			if ((b.Sign < 0) && exponent.TestBit(0)) {
+			if ((b.Sign < 0) && BigInteger.TestBit(exponent, 0)) {
 				// -b^e mod m == ((-1 mod m) * (b^e mod m)) mod m
 				res = ((m - BigInteger.One) * res) % m;
 			}
@@ -456,9 +457,9 @@ namespace Deveel.Math {
 
 			// if even take out 2^x factor which we can
 			// calculate by shifting.
-			if (!value.TestBit(0)) {
+			if (!BigInteger.TestBit(value, 0)) {
 				int x = 1;
-				while (!value.TestBit(x)) {
+				while (!BigInteger.TestBit(value, x)) {
 					x++;
 				}
 

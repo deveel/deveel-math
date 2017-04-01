@@ -1146,7 +1146,7 @@ namespace Deveel.Math {
 				// To check if the discarded fraction >= 0.5
 				compRem = (BigMath.Abs(fraction).ShiftLeftOneBit().CompareTo(sizeOfFraction));
 				// To look if there is a carry
-				compRem = RoundingBehavior(integer.TestBit(0) ? 1 : 0, fraction.Sign*(5 + compRem),
+				compRem = RoundingBehavior(BigInteger.TestBit(integer, 0) ? 1 : 0, fraction.Sign*(5 + compRem),
 					mc.RoundingMode);
 				if (compRem != 0) {
 					integer += BigInteger.FromInt64(compRem);

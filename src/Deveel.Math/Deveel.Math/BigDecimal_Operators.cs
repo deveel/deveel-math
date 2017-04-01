@@ -32,13 +32,13 @@ namespace Deveel.Math {
 				long divisor = scaledDivisor.ToInt64();
 				compRem = LongCompareTo(System.Math.Abs(rem) << 1, System.Math.Abs(divisor));
 				// To look if there is a carry
-				compRem = RoundingBehavior(quotient.TestBit(0) ? 1 : 0,
+				compRem = RoundingBehavior(BigInteger.TestBit(quotient, 0) ? 1 : 0,
 					sign * (5 + compRem), roundingMode);
 
 			} else {
 				// Checking if:  remainder * 2 >= scaledDivisor 
 				compRem = BigMath.Abs(remainder).ShiftLeftOneBit().CompareTo(BigMath.Abs(scaledDivisor));
-				compRem = RoundingBehavior(quotient.TestBit(0) ? 1 : 0,
+				compRem = RoundingBehavior(BigInteger.TestBit(quotient, 0) ? 1 : 0,
 					sign * (5 + compRem), roundingMode);
 			}
 			if (compRem != 0) {
@@ -258,7 +258,7 @@ namespace Deveel.Math {
 				newScale++;
 			} else {
 				// To strip trailing zeros until the preferred scale is reached
-				while (!integerQuot.TestBit(0)) {
+				while (!BigInteger.TestBit(integerQuot, 0)) {
 					quotient = BigMath.DivideAndRemainder(integerQuot, TenPow[i], out remainder);
 					if ((remainder.Sign == 0)
 					    && (newScale - i >= diffScale)) {
@@ -323,7 +323,7 @@ namespace Deveel.Math {
 				powerOfTen = Multiplication.PowerOf10(-newScale);
 				integralValue = (GetUnscaledValue() * powerOfTen) / divisor.GetUnscaledValue();
 				// To strip trailing zeros approximating to the preferred scale
-				while (!integralValue.TestBit(0)) {
+				while (!BigInteger.TestBit(integralValue, 0)) {
 					quotient = BigMath.DivideAndRemainder(integralValue, TenPow[i], out remainder);
 					if ((remainder.Sign == 0)
 					    && (tempScale - i >= newScale)) {
@@ -431,7 +431,7 @@ namespace Deveel.Math {
 			long resultPrecision = integralValue.Precision;
 			int i = 1;
 			// To strip trailing zeros until the specified precision is reached
-			while (!strippedBI.TestBit(0)) {
+			while (!BigInteger.TestBit(strippedBI, 0)) {
 				quotient = BigMath.DivideAndRemainder(strippedBI, TenPow[i], out remainder);
 				if ((remainder.Sign == 0) &&
 				    ((resultPrecision - i >= mcPrecision)
