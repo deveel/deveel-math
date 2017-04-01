@@ -14,7 +14,9 @@
 //    limitations under the License.
 
 using System;
+#if !PORTABLE
 using System.Runtime.Serialization;
+#endif
 using System.Text;
 
 namespace Deveel.Math {

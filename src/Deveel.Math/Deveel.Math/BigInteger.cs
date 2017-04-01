@@ -16,7 +16,9 @@
 using System;
 using System.Globalization;
 using System.IO;
+#if !PORTABLE
 using System.Runtime.Serialization;
+#endif
 
 namespace Deveel.Math {
 	/// <summary>
@@ -135,7 +137,7 @@ namespace Deveel.Math {
 		private int hashCode = 0;
 
 #if !PORTABLE
-		#region Serializable
+#region Serializable
 
 		private BigInteger(SerializationInfo info, StreamingContext context) {
 			sign = info.GetInt32("sign");
@@ -150,10 +152,10 @@ namespace Deveel.Math {
 			info.AddValue("magnitude", magn, typeof(byte[]));
 		}
 
-		#endregion
+#endregion
 #endif
 
-		#region .ctor
+#region .ctor
 
 		/// <summary>
 		/// Constructs a random non-negative big integer instance in the range [0, 2^(numBits)-1]
@@ -356,7 +358,7 @@ namespace Deveel.Math {
 			}
 		}
 
-		#endregion
+#endregion
 
 		public int Sign {
 			get { return sign; }
@@ -420,7 +422,7 @@ namespace Deveel.Math {
 		}
 
 
-		#region Operations
+#region Operations
 
 		/// <summary>
 		/// Computes the absolute value of this <see cref="BigInteger"/>
@@ -1135,7 +1137,7 @@ namespace Deveel.Math {
 			return new BigInteger(bitLength, 100, rnd);
 		}
 
-		#endregion
+#endregion
 
 		/**
 		 * Returns this {@code BigInteger} as an int value. If {@code this} is too
@@ -1362,7 +1364,7 @@ namespace Deveel.Math {
 			return new BigInteger(1, intCount + 1, resDigits);
 		}
 
-		#region Conversions
+#region Conversions
 
 #if !PORTABLE
 		TypeCode IConvertible.GetTypeCode() {

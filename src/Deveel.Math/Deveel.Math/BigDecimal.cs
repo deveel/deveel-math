@@ -16,7 +16,9 @@
 using System;
 using System.Globalization;
 using System.Text;
+#if !PORTABLE
 using System.Runtime.Serialization;
+#endif
 
 namespace Deveel.Math {
 	/// <summary>

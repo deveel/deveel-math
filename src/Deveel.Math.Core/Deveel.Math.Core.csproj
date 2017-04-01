@@ -1,0 +1,72 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <RootNamespace>Deveel</RootNamespace>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Company>Deveel</Company>
+    <Authors>deveel</Authors>
+    <Description>Deveel Math is the port to .NET Standard of the Apache Harmony Math component, that is used to handle operations on big numbers in a fast and secure way.</Description>
+    <Copyright>(c) 2017 Deveel</Copyright>
+    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</PackageLicenseUrl>
+    <PackageProjectUrl>http://github.com/deveel/deveel-math</PackageProjectUrl>
+    <PackageId>dmath.core</PackageId>
+    <RepositoryUrl>http://github.com/deveel/deveel-math</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>math decimal bigdecimal integer biginteger int deveel harmony dotnet core netstandard</PackageTags>
+    <Product>Deveel Math Core</Product>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_3;PORTABLE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;RELEASE;NETSTANDARD1_3;PORTABLE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal.cs" Link="Math\BigDecimal.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigInteger.cs" Link="Math\BigInteger.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\BitLevel.cs" Link="Math\BitLevel.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\CharHelper.cs" Link="Math\CharHelper.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\Conversion.cs" Link="Math\Conversion.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\Division.cs" Link="Math\Division.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\Elementary.cs" Link="Math\Elementary.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\Logical.cs" Link="Math\Logical.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\MathContext.cs" Link="Math\MathContext.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\Multiplication.cs" Link="Math\Multiplication.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\Primality.cs" Link="Math\Primality.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\RoundingMode.cs" Link="Math\RoundingMode.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\Utils.cs" Link="Math\Utils.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Math\Messages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Messages.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Messages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Messages.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Math\Messages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Messages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Math\" />
+  </ItemGroup>
+
+</Project>
