@@ -580,8 +580,8 @@ namespace Deveel.Math {
 		public void AndLBigInteger() {
 			foreach (BigInteger[] element in booleanPairs) {
 				BigInteger i1 = element[0], i2 = element[1];
-				BigInteger res = i1.And(i2);
-				Assert.True(res.Equals(i2.And(i1)), "symmetry of and");
+				BigInteger res = i1 & i2;
+				Assert.True(res.Equals(i2 & i1), "symmetry of and");
 				int len = System.Math.Max(i1.BitLength, i2.BitLength) + 66;
 				for (int i = 0; i < len; i++) {
 					Assert.True((i1.TestBit(i) && i2.TestBit(i)) == res.TestBit(i), "and");
@@ -593,8 +593,8 @@ namespace Deveel.Math {
 		public void OrBigInteger() {
 			foreach (BigInteger[] element in booleanPairs) {
 				BigInteger i1 = element[0], i2 = element[1];
-				BigInteger res = i1.Or(i2);
-				Assert.True(res.Equals(i2.Or(i1)), "symmetry of or");
+				BigInteger res = i1 | i2;
+				Assert.True(res.Equals(i2 | i1), "symmetry of or");
 				int len = System.Math.Max(i1.BitLength, i2.BitLength) + 66;
 				for (int i = 0; i < len; i++) {
 					Assert.True((i1.TestBit(i) || i2.TestBit(i)) == res.TestBit(i), "or");
@@ -606,8 +606,8 @@ namespace Deveel.Math {
 		public void XOrBigInteger() {
 			foreach (BigInteger[] element in booleanPairs) {
 				BigInteger i1 = element[0], i2 = element[1];
-				BigInteger res = i1.XOr(i2);
-				Assert.True(res.Equals(i2.XOr(i1)), "symmetry of xor");
+				BigInteger res = i1 ^ i2;
+				Assert.True(res.Equals(i2 ^i1), "symmetry of xor");
 				int len = System.Math.Max(i1.BitLength, i2.BitLength) + 66;
 				for (int i = 0; i < len; i++) {
 					Assert.True((i1.TestBit(i) ^ i2.TestBit(i)) == res.TestBit(i), "xor");

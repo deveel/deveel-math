@@ -75,5 +75,33 @@ namespace Deveel.Math {
 			return ((n > 0) ? BitLevel.ShiftLeft(value, n) : BitLevel.ShiftRight(value, -n));
 		}
 
+		/// <summary>
+		/// Computes the bit per bit operator between two numbers
+		/// </summary>
+		/// <param name="a">The first term of the operation.</param>
+		/// <param name="b">The second term of the oepration</param>
+		/// <remarks>
+		/// <strong>Note:</strong> Usage of this method is not recommended as 
+		/// the current implementation is not efficient.
+		/// </remarks>
+		/// <returns>
+		/// Returns a new <see cref="BigInteger"/> whose value is the result
+		/// of an logical and between the given numbers.
+		/// </returns>
+		/// <exception cref="ArgumentException">
+		/// If either <paramref name="a"/> or <paramref name="b"/> is <c>null</c>.
+		/// </exception>
+		public static BigInteger And(BigInteger a, BigInteger b) {
+			return Logical.And(a, b);
+		}
+
+		public static BigInteger Or(BigInteger a, BigInteger b) {
+			return Logical.Or(a, b);
+		}
+
+		public static BigInteger XOr(BigInteger a, BigInteger b) {
+			return Logical.Xor(a, b);
+		}
+
 	}
 }

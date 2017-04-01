@@ -30,57 +30,6 @@ namespace Deveel.Math {
 			return Logical.Not(this);
 		}
 
-		/// <summary>
-		/// Computes the bit per bit operator between this number
-		/// and the given one.
-		/// </summary>
-		/// <param name="val">The value to be and'ed with the current.</param>
-		/// <remarks>
-		/// <b>Implementation Note:</b> Usage of this method is not recommended as 
-		/// the current implementation is not efficient.
-		/// </remarks>
-		/// <returns>
-		/// Returns a new <see cref="BigInteger"/> whose value is <c>this & <paramref name="val"/></c>.
-		/// </returns>
-		/// <exception cref="ArgumentException">
-		/// If <paramref name="val"/> is <c>null</c>.
-		/// </exception>
-		public BigInteger And(BigInteger val) {
-			return Logical.And(this, val);
-		}
-
-		/**
-		 * Returns a new {@code BigInteger} whose value is {@code this | val}.
-		 * <p>
-		 * <b>Implementation Note:</b> Usage of this method is not recommended as
-		 * the current implementation is not efficient.
-		 *
-		 * @param val
-		 *            value to be or'ed with {@code this}.
-		 * @return {@code this | val}.
-		 * @throws NullPointerException
-		 *             if {@code val == null}.
-		 */
-		public BigInteger Or(BigInteger val) {
-			return Logical.Or(this, val);
-		}
-
-		/**
-		 * Returns a new {@code BigInteger} whose value is {@code this ^ val}.
-		 * <p>
-		 * <b>Implementation Note:</b> Usage of this method is not recommended as
-		 * the current implementation is not efficient.
-		 *
-		 * @param val
-		 *            value to be xor'ed with {@code this}
-		 * @return {@code this ^ val}
-		 * @throws NullPointerException
-		 *             if {@code val == null}
-		 */
-		public BigInteger XOr(BigInteger val) {
-			return Logical.Xor(this, val);
-		}
-
 		/**
 		 * Returns a new {@code BigInteger} whose value is {@code this & ~val}.
 		 * Evaluating {@code x.andNot(val)} returns the same result as {@code
@@ -434,15 +383,15 @@ namespace Deveel.Math {
 		}
 
 		public static BigInteger operator &(BigInteger a, BigInteger b) {
-			return a.And(b);
+			return BigMath.And(a, b);
 		}
 
 		public static BigInteger operator |(BigInteger a, BigInteger b) {
-			return a.Or(b);
+			return BigMath.Or(a, b);
 		}
 
 		public static BigInteger operator ^(BigInteger a, BigInteger b) {
-			return a.XOr(b);
+			return BigMath.XOr(a, b);
 		}
 
 		public static BigInteger operator ~(BigInteger a) {
