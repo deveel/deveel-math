@@ -49,26 +49,6 @@ namespace Deveel.Math {
 		}
 
 		/**
- * Returns a new {@code BigInteger} whose value is {@code this * val}.
- *
- * @param val
- *            value to be multiplied with {@code this}.
- * @return {@code this * val}.
- * @throws NullPointerException
- *             if {@code val == null}.
- */
-		public BigInteger Multiply(BigInteger val) {
-			// This let us to throw NullPointerException when val == null
-			if (val.sign == 0) {
-				return Zero;
-			}
-			if (sign == 0) {
-				return Zero;
-			}
-			return Multiplication.Multiply(this, val);
-		}
-
-		/**
 		 * Returns a new {@code BigInteger} whose value is {@code this ^ exp}.
 		 *
 		 * @param exp
@@ -95,7 +75,7 @@ namespace Deveel.Math {
 				while (!TestBit(x)) {
 					x++;
 				}
-				return GetPowerOfTwo(x * exp).Multiply((this >> x).Pow(exp));
+				return GetPowerOfTwo(x * exp) * ((this >> x).Pow(exp));
 			}
 			return Multiplication.Pow(this, exp);
 		}
@@ -327,7 +307,7 @@ namespace Deveel.Math {
 				exponent, m) : Division.EvenModPow(b.Abs(), exponent, m);
 			if ((b.sign < 0) && exponent.TestBit(0)) {
 				// -b^e mod m == ((-1 mod m) * (b^e mod m)) mod m
-				res = (m - BigInteger.One).Multiply(res).Mod(m);
+				res = ((m - BigInteger.One) * res).Mod(m);
 			}
 			// else exponent is even, so base^exp is positive
 			return res;
@@ -371,7 +351,7 @@ namespace Deveel.Math {
 		}
 
 		public static BigInteger operator *(BigInteger a, BigInteger b) {
-			return a.Multiply(b);
+			return BigMath.Multiply(a, b);
 		}
 
 		public static BigInteger operator /(BigInteger a, BigInteger b) {

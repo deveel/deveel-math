@@ -276,7 +276,7 @@ namespace Deveel.Math {
 					if (y.Equals(n_minus_1)) {
 						continue;
 					}
-					y = y.Multiply(y).Mod(n);
+					y = (y * y).Mod(n);
 					if (y.IsOne) {
 						return false;
 					}

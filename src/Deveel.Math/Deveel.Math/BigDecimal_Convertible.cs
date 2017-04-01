@@ -314,7 +314,7 @@ namespace Deveel.Math {
 				if ((_scale == 0) || (IsZero)) {
 					return GetUnscaledValue();
 				} else if (_scale < 0) {
-					return GetUnscaledValue().Multiply(Multiplication.PowerOf10(-(long)_scale));
+					return GetUnscaledValue() * Multiplication.PowerOf10(-(long)_scale);
 				} else {
 					// (scale > 0)
 					return GetUnscaledValue().Divide(Multiplication.PowerOf10(_scale));
@@ -335,7 +335,7 @@ namespace Deveel.Math {
 				if ((_scale == 0) || (IsZero)) {
 					return GetUnscaledValue();
 				} else if (_scale < 0) {
-					return GetUnscaledValue().Multiply(Multiplication.PowerOf10(-(long)_scale));
+					return GetUnscaledValue() * Multiplication.PowerOf10(-(long)_scale);
 				} else {
 					// (scale > 0)
 					BigInteger integer;
@@ -517,7 +517,7 @@ namespace Deveel.Math {
 				// Let be:  this = [u,s], with s > 0
 				if (_scale <= 0) {
 					// mantisa = abs(u) * 10^s
-					mantisa = mantisa.Multiply(Multiplication.PowerOf10(-_scale));
+					mantisa = mantisa * Multiplication.PowerOf10(-_scale);
 				} else {
 					// (scale > 0)
 					BigInteger quotient;

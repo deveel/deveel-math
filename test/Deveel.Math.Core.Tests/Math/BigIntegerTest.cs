@@ -203,7 +203,7 @@ namespace Deveel.Math {
 				}
 			}
 			for (int a = 0; a < 1000; a++) {
-				bi = BigInteger.FromInt64(rand.Next(1000000)).Multiply(BigInteger.FromInt64(rand.Next(1000000)));
+				bi = (BigInteger.FromInt64(rand.Next(1000000)) * BigInteger.FromInt64(rand.Next(1000000)));
 				if (bi.IsProbablePrime(17)) {
 #if !PORTABLE
 					Console.Out.WriteLine("IsProbablePrime failed for: " + bi.ToString());
@@ -212,7 +212,7 @@ namespace Deveel.Math {
 				}
 			}
 			for (int a = 0; a < 200; a++) {
-				bi = new BigInteger(70, rand).Multiply(new BigInteger(70, rand));
+				bi = new BigInteger(70, rand) * new BigInteger(70, rand);
 				if (bi.IsProbablePrime(17)) {
 #if !PORTABLE
 					Console.Out.WriteLine("IsProbablePrime failed for: " + bi.ToString());
@@ -336,7 +336,7 @@ namespace Deveel.Math {
 		[Fact]
 		public void PowI() {
 			Assert.True(two.Pow(10).Equals(twoToTheTen), "Incorrect exponent returned for 2**10");
-			Assert.True(two.Pow(30).Multiply(two.Pow(40)).Equals(twoToTheSeventy), "Incorrect exponent returned for 2**70");
+			Assert.True((two.Pow(30) * two.Pow(40)).Equals(twoToTheSeventy), "Incorrect exponent returned for 2**70");
 			Assert.True(ten.Pow(50).Equals(aZillion), "Incorrect exponent returned for 10**50");
 		}
 
@@ -349,7 +349,7 @@ namespace Deveel.Math {
 					try {
 						a = BigInteger.FromInt64(i);
 						inv = a.ModInverse(mod);
-						Assert.True(one.Equals(a.Multiply(inv).Mod(mod)), "bad inverse: " + a + " inv mod " + mod + " equals " + inv);
+						Assert.True(one.Equals((a * inv).Mod(mod)), "bad inverse: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.True(inv.CompareTo(mod) < 0, "inverse greater than modulo: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.True(inv.CompareTo(BigInteger.Zero) >= 0, "inverse less than zero: " + a + " inv mod " + mod + " equals " + inv);
 					} catch (ArithmeticException) {
@@ -363,7 +363,7 @@ namespace Deveel.Math {
 					try {
 						a = bi3 + (BigInteger.FromInt64(i));
 						inv = a.ModInverse(mod);
-						Assert.True(one.Equals(a.Multiply(inv).Mod(mod)), "bad inverse: " + a + " inv mod " + mod + " equals " + inv);
+						Assert.True(one.Equals((a * inv).Mod(mod)), "bad inverse: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.True(inv.CompareTo(mod) < 0, "inverse greater than modulo: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.True(inv.CompareTo(BigInteger.Zero) >= 0, "inverse less than zero: " + a + " inv mod " + mod + " equals " + inv);
 					} catch (ArithmeticException) {
@@ -436,14 +436,14 @@ namespace Deveel.Math {
 				Assert.True(a.Equals(b), "a==b");
 				Assert.True((a >> i).Equals(bi3), "a >> i == bi3");
 				a = a << 1;
-				Assert.True(b.Multiply(two).Equals(a), "<<1 == *2");
+				Assert.True((b * two).Equals(a), "<<1 == *2");
 				Assert.True(a.Sign >= 0, "a non-neg");
 				Assert.True(a.BitCount == b.BitCount, "a.bitCount==b.bitCount");
 
 				BigInteger d = minusOne << i;
 				Assert.True(c.Equals(d), "c==d");
 				c = c << 1;
-				Assert.True(d.Multiply(two).Equals(c), "<<1 == *2 negative");
+				Assert.True((d * two).Equals(c), "<<1 == *2 negative");
 				Assert.True(c.Sign == -1, "c negative");
 				Assert.True((d >> i).Equals(minusOne), "d >> i == minusOne");
 			}
@@ -452,18 +452,18 @@ namespace Deveel.Math {
 		[Fact]
 		public void MultiplyBigInteger() {
             SetUp();
-			Assert.True((aZillion + aZillion + aZillion).Equals(aZillion.Multiply(BigInteger.Parse("3", 10))),
+			Assert.True((aZillion + aZillion + aZillion).Equals((aZillion * BigInteger.Parse("3", 10))),
 						  "Incorrect sum--wanted three zillion");
 
-			Assert.True(zero.Multiply(zero).Equals(zero), "0*0");
-			Assert.True(zero.Multiply(one).Equals(zero), "0*1");
-			Assert.True(one.Multiply(zero).Equals(zero), "1*0");
-			Assert.True(one.Multiply(one).Equals(one), "1*1");
-			Assert.True(zero.Multiply(minusOne).Equals(zero), "0*(-1)");
-			Assert.True(minusOne.Multiply(zero).Equals(zero), "(-1)*0");
-			Assert.True(minusOne.Multiply(minusOne).Equals(one), "(-1)*(-1)");
-			Assert.True(one.Multiply(minusOne).Equals(minusOne), "1*(-1)");
-			Assert.True(minusOne.Multiply(one).Equals(minusOne), "(-1)*1");
+			Assert.True((zero * zero).Equals(zero), "0*0");
+			Assert.True((zero * one).Equals(zero), "0*1");
+			Assert.True((one * zero).Equals(zero), "1*0");
+			Assert.True((one * one).Equals(one), "1*1");
+			Assert.True((zero * minusOne).Equals(zero), "0*(-1)");
+			Assert.True((minusOne * zero).Equals(zero), "(-1)*0");
+			Assert.True((minusOne * minusOne).Equals(one), "(-1)*(-1)");
+			Assert.True((one * minusOne).Equals(minusOne), "1*(-1)");
+			Assert.True((minusOne * one).Equals(minusOne), "(-1)*1");
 
 			testAllMults(bi1, bi1, bi11);
 			testAllMults(bi2, bi2, bi22);
@@ -665,9 +665,9 @@ namespace Deveel.Math {
 			Assert.True(q.Sign == 0 || q.Sign == i1.Sign * i2.Sign, "wrong sign on quotient");
 			Assert.True(r.Sign == 0 || r.Sign == i1.Sign, "wrong sign on remainder");
 			Assert.True(r.Abs().CompareTo(i2.Abs()) < 0, "remainder out of range");
-			Assert.True((q.Abs() + one).Multiply(i2.Abs()).CompareTo(i1.Abs()) > 0, "quotient too small");
-			Assert.True(q.Abs().Multiply(i2.Abs()).CompareTo(i1.Abs()) <= 0, "quotient too large");
-			BigInteger p = q.Multiply(i2);
+			Assert.True(((q.Abs() + one) * i2.Abs()).CompareTo(i1.Abs()) > 0, "quotient too small");
+			Assert.True((q.Abs() * i2.Abs()).CompareTo(i1.Abs()) <= 0, "quotient too large");
+			BigInteger p = q * i2;
 			BigInteger a = p + r;
 			Assert.True(a.Equals(i1), "(a/b)*b+(a%b) != a");
 			try {
@@ -682,7 +682,7 @@ namespace Deveel.Math {
 		}
 
 		private void TestDivRanges(BigInteger i) {
-			BigInteger bound = i.Multiply(two);
+			BigInteger bound = i * two;
 			for (BigInteger j = bound.Negate(); j.CompareTo(bound) <= 0; j = j + i) {
 				BigInteger innerbound = j + two;
 				BigInteger k = j - two;
@@ -710,14 +710,14 @@ namespace Deveel.Math {
 		}
 
 		private static void testAllMults(BigInteger i1, BigInteger i2, BigInteger ans) {
-			Assert.True(i1.Multiply(i2).Equals(ans), "i1*i2=ans");
-			Assert.True(i2.Multiply(i1).Equals(ans), "i2*i1=ans");
-			Assert.True(i1.Negate().Multiply(i2).Equals(ans.Negate()), "-i1*i2=-ans");
-			Assert.True(i2.Negate().Multiply(i1).Equals(ans.Negate()), "-i2*i1=-ans");
-			Assert.True(i1.Multiply(i2.Negate()).Equals(ans.Negate()), "i1*-i2=-ans");
-			Assert.True(i2.Multiply(i1.Negate()).Equals(ans.Negate()), "i2*-i1=-ans");
-			Assert.True(i1.Negate().Multiply(i2.Negate()).Equals(ans), "-i1*-i2=ans");
-			Assert.True(i2.Negate().Multiply(i1.Negate()).Equals(ans), "-i2*-i1=ans");
+			Assert.True((i1 * i2).Equals(ans), "i1*i2=ans");
+			Assert.True((i2 * i1).Equals(ans), "i2*i1=ans");
+			Assert.True((i1.Negate() * i2).Equals(ans.Negate()), "-i1*i2=-ans");
+			Assert.True((i2.Negate() * i1).Equals(ans.Negate()), "-i2*i1=-ans");
+			Assert.True((i1 * i2.Negate()).Equals(ans.Negate()), "i1*-i2=-ans");
+			Assert.True((i2 * i1.Negate()).Equals(ans.Negate()), "i2*-i1=-ans");
+			Assert.True((i1.Negate() * i2.Negate()).Equals(ans), "-i1*-i2=ans");
+			Assert.True((i2.Negate() * i1.Negate()).Equals(ans), "-i2*-i1=ans");
 		}
 
 		private void TestAllDivs(BigInteger i1, BigInteger i2) {

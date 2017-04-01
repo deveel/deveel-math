@@ -67,8 +67,8 @@ namespace Deveel.Math {
 				fivePow *= 5;
 			}
 			for (; i < BigTenPows.Length; i++) {
-				BigFivePows[i] = BigFivePows[i - 1].Multiply(BigFivePows[1]);
-				BigTenPows[i] = BigTenPows[i - 1].Multiply(BigInteger.Ten);
+				BigFivePows[i] = BigFivePows[i - 1] * BigFivePows[1];
+				BigTenPows[i] = BigTenPows[i - 1] * BigInteger.Ten;
 			}
 		}
 
@@ -341,18 +341,18 @@ namespace Deveel.Math {
 			for (; exponent > 1; exponent >>= 1) {
 				if ((exponent & 1) != 0) {
 					// if odd, multiply one more time by acc
-					res = res.Multiply(acc);
+					res = res * acc;
 				}
 				// acc = base^(2^i)
 				//a limit where karatsuba performs a faster square than the square algorithm
 				if (acc.numberLength == 1) {
-					acc = acc.Multiply(acc); // square
+					acc = acc * acc; // square
 				} else {
 					acc = new BigInteger(1, Square(acc.Digits, acc.numberLength, new int[acc.numberLength << 1]));
 				}
 			}
 			// exponent == 1, multiply one more time
-			res = res.Multiply(acc);
+			res = res * acc;
 			return res;
 		}
 
@@ -400,7 +400,7 @@ namespace Deveel.Math {
 			// PRE: exp >= 0
 			return ((exp < TenPows.Length)
 			? MultiplyByPositiveInt(val, TenPows[(int)exp])
-			: val.Multiply(PowerOf10(exp)));
+			: val * PowerOf10(exp));
 		}
 
 		/**
@@ -458,10 +458,10 @@ namespace Deveel.Math {
 
 			intExp = (int)(exp % Int32.MaxValue);
 			while (longExp > Int32.MaxValue) {
-				res = res.Multiply(powerOfFive);
+				res = res * powerOfFive;
 				longExp -= Int32.MaxValue;
 			}
-			res = res.Multiply(BigFivePows[1].Pow(intExp));
+			res = res * (BigFivePows[1].Pow(intExp));
 			// To calculate:    5^exp << exp
 			res = res << Int32.MaxValue;
 			longExp = exp - Int32.MaxValue;
@@ -486,9 +486,9 @@ namespace Deveel.Math {
 			if (exp < FivePows.Length) {
 				return MultiplyByPositiveInt(val, FivePows[exp]);
 			} else if (exp < BigFivePows.Length) {
-				return val.Multiply(BigFivePows[exp]);
+				return val * BigFivePows[exp];
 			} else {// Large powers of five
-				return val.Multiply(BigFivePows[1].Pow(exp));
+				return val * BigFivePows[1].Pow(exp);
 			}
 		}
 

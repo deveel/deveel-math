@@ -228,7 +228,7 @@ namespace Deveel.Math {
 
 			if (traillingZeros > 0) {
 				// To append trailing zeros at end of dividend
-				quotient = GetUnscaledValue().Multiply(Multiplication.PowerOf10(traillingZeros));
+				quotient = GetUnscaledValue() * Multiplication.PowerOf10(traillingZeros);
 				newScale += traillingZeros;
 			}
 			quotient = quotient.DivideAndRemainder(divisor.GetUnscaledValue(), out remainder);
@@ -238,7 +238,7 @@ namespace Deveel.Math {
 				// Checking if:   2 * remainder >= divisor ?
 				compRem = remainder.ShiftLeftOneBit().CompareTo(divisor.GetUnscaledValue());
 				// quot := quot * 10 + r;     with 'r' in {-6,-5,-4, 0,+4,+5,+6}
-				integerQuot = integerQuot.Multiply(BigInteger.Ten)+
+				integerQuot = (integerQuot * BigInteger.Ten)+
 					BigInteger.FromInt64(quotient.Sign * (5 + compRem));
 				newScale++;
 			} else {
@@ -301,12 +301,12 @@ namespace Deveel.Math {
 				integralValue = GetUnscaledValue().Divide(divisor.GetUnscaledValue());
 			} else if (newScale > 0) {
 				powerOfTen = Multiplication.PowerOf10(newScale);
-				integralValue = GetUnscaledValue().Divide(divisor.GetUnscaledValue().Multiply(powerOfTen));
-				integralValue = integralValue.Multiply(powerOfTen);
+				integralValue = GetUnscaledValue().Divide(divisor.GetUnscaledValue() * powerOfTen);
+				integralValue = integralValue * powerOfTen;
 			} else {
 				// (newScale < 0)
 				powerOfTen = Multiplication.PowerOf10(-newScale);
-				integralValue = GetUnscaledValue().Multiply(powerOfTen).Divide(divisor.GetUnscaledValue());
+				integralValue = (GetUnscaledValue() * powerOfTen).Divide(divisor.GetUnscaledValue());
 				// To strip trailing zeros approximating to the preferred scale
 				while (!integralValue.TestBit(0)) {
 					quotient = integralValue.DivideAndRemainder(TenPow[i], out remainder);
@@ -374,11 +374,11 @@ namespace Deveel.Math {
 				quotient = GetUnscaledValue().Divide(divisor.GetUnscaledValue());
 			} else if (diffScale > 0) {
 				// CASE s1 >= s2:  to calculate   u1 / (u2 * 10^(s1-s2)  
-				quotient = GetUnscaledValue().Divide(divisor.GetUnscaledValue().Multiply(Multiplication.PowerOf10(diffScale)));
+				quotient = GetUnscaledValue().Divide(divisor.GetUnscaledValue() * Multiplication.PowerOf10(diffScale));
 				// To chose  10^newScale  to get a quotient with at least 'mc.precision()' digits
 				newScale = System.Math.Min(diffScale, System.Math.Max(mcPrecision - quotPrecision + 1, 0));
 				// To calculate: (u1 / (u2 * 10^(s1-s2)) * 10^newScale
-				quotient = quotient.Multiply(Multiplication.PowerOf10(newScale));
+				quotient = quotient * Multiplication.PowerOf10(newScale);
 			} else {
 				// CASE s2 > s1:   
 				/* To calculate the minimum power of ten, such that the quotient 
@@ -386,8 +386,7 @@ namespace Deveel.Math {
 				long exp = System.Math.Min(-diffScale, System.Math.Max((long)mcPrecision - diffPrecision, 0));
 				long compRemDiv;
 				// Let be:   (u1 * 10^exp) / u2 = [q,r]  
-				quotient = GetUnscaledValue()
-					.Multiply(Multiplication.PowerOf10(exp))
+				quotient = (GetUnscaledValue() * Multiplication.PowerOf10(exp))
 					.DivideAndRemainder(divisor.GetUnscaledValue(), out remainder);
 				newScale += exp; // To fix the scale
 				exp = -newScale; // The remaining power of ten
@@ -398,7 +397,7 @@ namespace Deveel.Math {
 					             + exp - divisor.Precision;
 					if (compRemDiv == 0) {
 						// To calculate:  (r * 10^exp2) / u2
-						remainder = remainder.Multiply(Multiplication.PowerOf10(exp)).Divide(divisor.GetUnscaledValue());
+						remainder = (remainder * Multiplication.PowerOf10(exp)).Divide(divisor.GetUnscaledValue());
 						compRemDiv = System.Math.Abs(remainder.Sign);
 					}
 					if (compRemDiv > 0) {

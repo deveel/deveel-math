@@ -103,5 +103,16 @@ namespace Deveel.Math {
 			return Logical.Xor(a, b);
 		}
 
+		public static BigInteger Multiply(BigInteger a, BigInteger b) {
+			// This let us to throw NullPointerException when val == null
+			if (b.Sign == 0) {
+				return BigInteger.Zero;
+			}
+			if (a.Sign == 0) {
+				return BigInteger.Zero;
+			}
+			return Multiplication.Multiply(a, b);
+		}
+
 	}
 }

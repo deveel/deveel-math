@@ -850,7 +850,7 @@ namespace Deveel.Math {
 			if (_bitLength + multiplicand._bitLength < 64) {
 				return ValueOf(smallValue*multiplicand.smallValue, ToIntScale(newScale));
 			}
-			return new BigDecimal(GetUnscaledValue().Multiply(multiplicand.GetUnscaledValue()), ToIntScale(newScale));
+			return new BigDecimal(GetUnscaledValue() * multiplicand.GetUnscaledValue(), ToIntScale(newScale));
 		}
 
 		/**
@@ -998,9 +998,9 @@ namespace Deveel.Math {
 					BigInteger valUnscaled = val.GetUnscaledValue();
 					// If any of both precision is bigger, append zeros to the shorter one
 					if (diffScale < 0) {
-						thisUnscaled = thisUnscaled.Multiply(Multiplication.PowerOf10(-diffScale));
+						thisUnscaled = thisUnscaled * Multiplication.PowerOf10(-diffScale);
 					} else if (diffScale > 0) {
-						valUnscaled = valUnscaled.Multiply(Multiplication.PowerOf10(diffScale));
+						valUnscaled = valUnscaled * Multiplication.PowerOf10(diffScale);
 					}
 					return thisUnscaled.CompareTo(valUnscaled);
 				}

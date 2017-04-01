@@ -828,12 +828,12 @@ namespace Deveel.Math {
 
 			// STEP 4: Compute q^(-1) (mod 2^j) and y := (x2-x1) * q^(-1) (mod 2^j)
 			BigInteger qInv = ModPow2Inverse(q, j);
-			BigInteger y = (x2 - x1).Multiply(qInv);
+			BigInteger y = (x2 - x1) * qInv;
 			InplaceModPow2(y, j);
 			if (y.Sign < 0)
 				y += BigInteger.GetPowerOfTwo(j);
 			// STEP 5: Compute and return: x1 + q * y
-			return x1 + q.Multiply(y);
+			return x1 + (q * y);
 		}
 
 		/**
@@ -860,9 +860,9 @@ namespace Deveel.Math {
 			for (int i = e.BitLength - 1; i >= 0; i--) {
 				res2 = res.Copy();
 				InplaceModPow2(res2, j);
-				res = res.Multiply(res2);
+				res = res * res2;
 				if (BitLevel.TestBit(e, i)) {
-					res = res.Multiply(baseMod2toN);
+					res = res * baseMod2toN;
 					InplaceModPow2(res, j);
 				}
 			}
@@ -968,7 +968,7 @@ namespace Deveel.Math {
 			y.Sign = 1;
 
 			for (int i = 1; i < n; i++) {
-				if (BitLevel.TestBit(x.Multiply(y), i)) {
+				if (BitLevel.TestBit(x * y, i)) {
 					// Adding 2^i to y (setting the i-th bit)
 					y.Digits[i >> 5] |= (1 << (i & 31));
 				}
