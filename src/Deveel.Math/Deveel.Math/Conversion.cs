@@ -430,7 +430,7 @@ namespace Deveel.Math {
 			long exponent = bitLen - 1;
 			int delta = bitLen - 54;
 			// We need 54 top bits from this, the 53th bit is always 1 in lVal.
-			long lVal = val.Abs().ShiftRight(delta).ToInt64();
+			long lVal = (val.Abs() >> delta).ToInt64();
 			/*
 			 * Take 53 bits from lVal to mantissa. The least significant bit is
 			 * needed for rounding.

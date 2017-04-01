@@ -251,7 +251,7 @@ namespace Deveel.Math {
 			int bitLength = n_minus_1.BitLength; // ~ log2(n-1)
 			// (q,k) such that: n-1 = q * 2^k and q is odd
 			int k = n_minus_1.LowestSetBit;
-			BigInteger q = n_minus_1.ShiftRight(k);
+			BigInteger q = n_minus_1 >> k;
 			Random rnd = new Random();
 
 			for (int i = 0; i < t; i++) {

@@ -818,7 +818,7 @@ namespace Deveel.Math {
 			// PRE: (base > 0), (exponent > 0), (modulus > 0) and (modulus even)
 			// STEP 1: Obtain the factorization 'modulus'= q * 2^j.
 			int j = modulus.LowestSetBit;
-			BigInteger q = modulus.ShiftRight(j);
+			BigInteger q = modulus >> j;
 
 			// STEP 2: Compute x1 := base^exponent (mod q).
 			BigInteger x1 = OddModPow(b, exponent, q);

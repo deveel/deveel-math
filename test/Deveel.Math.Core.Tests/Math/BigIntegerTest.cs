@@ -375,18 +375,18 @@ namespace Deveel.Math {
 
 		[Fact]
 		public void ShiftRightI() {
-			Assert.True(BigInteger.FromInt64(1).ShiftRight(0).Equals(BigInteger.One), "1 >> 0");
-			Assert.True(BigInteger.FromInt64(1).ShiftRight(1).Equals(BigInteger.Zero), "1 >> 1");
-			Assert.True(BigInteger.FromInt64(1).ShiftRight(63).Equals(BigInteger.Zero), "1 >> 63");
-			Assert.True(BigInteger.FromInt64(1).ShiftRight(64).Equals(BigInteger.Zero), "1 >> 64");
-			Assert.True(BigInteger.FromInt64(1).ShiftRight(65).Equals(BigInteger.Zero), "1 >> 65");
-			Assert.True(BigInteger.FromInt64(1).ShiftRight(1000).Equals(BigInteger.Zero), "1 >> 1000");
-			Assert.True(BigInteger.FromInt64(-1).ShiftRight(0).Equals(minusOne), "-1 >> 0");
-			Assert.True(BigInteger.FromInt64(-1).ShiftRight(1).Equals(minusOne), "-1 >> 1");
-			Assert.True(BigInteger.FromInt64(-1).ShiftRight(63).Equals(minusOne), "-1 >> 63");
-			Assert.True(BigInteger.FromInt64(-1).ShiftRight(64).Equals(minusOne), "-1 >> 64");
-			Assert.True(BigInteger.FromInt64(-1).ShiftRight(65).Equals(minusOne), "-1 >> 65");
-			Assert.True(BigInteger.FromInt64(-1).ShiftRight(1000).Equals(minusOne), "-1 >> 1000");
+			Assert.True((BigInteger.FromInt64(1) >> 0).Equals(BigInteger.One), "1 >> 0");
+			Assert.True((BigInteger.FromInt64(1) >> 1).Equals(BigInteger.Zero), "1 >> 1");
+			Assert.True((BigInteger.FromInt64(1) >> 63).Equals(BigInteger.Zero), "1 >> 63");
+			Assert.True((BigInteger.FromInt64(1) >> 64).Equals(BigInteger.Zero), "1 >> 64");
+			Assert.True((BigInteger.FromInt64(1) >> 65).Equals(BigInteger.Zero), "1 >> 65");
+			Assert.True((BigInteger.FromInt64(1) >> 1000).Equals(BigInteger.Zero), "1 >> 1000");
+			Assert.True((BigInteger.FromInt64(-1) >> 0).Equals(minusOne), "-1 >> 0");
+			Assert.True((BigInteger.FromInt64(-1) >> 1).Equals(minusOne), "-1 >> 1");
+			Assert.True((BigInteger.FromInt64(-1) >> 63).Equals(minusOne), "-1 >> 63");
+			Assert.True((BigInteger.FromInt64(-1) >> 64).Equals(minusOne), "-1 >> 64");
+			Assert.True((BigInteger.FromInt64(-1) >> 65).Equals(minusOne), "-1 >> 65");
+			Assert.True((BigInteger.FromInt64(-1) >> 1000).Equals(minusOne), "-1 >> 1000");
 
 			BigInteger a = BigInteger.One;
 			BigInteger c = bi3;
@@ -398,21 +398,21 @@ namespace Deveel.Math {
 				a = a.ShiftLeft(1);
 				Assert.True(a.Sign >= 0, "a non-neg");
 
-				BigInteger d = bi3.ShiftRight(i);
+				BigInteger d = bi3 >> i;
 				Assert.True(c.Equals(d), "c==d");
-				c = c.ShiftRight(1);
+				c = c >> 1;
 				Assert.True(d.Divide(two).Equals(c), ">>1 == /2");
 				Assert.True(c.Sign >= 0, "c non-neg");
 
-				BigInteger f = E.ShiftRight(i);
+				BigInteger f = E >> i;
 				Assert.True(e.Equals(f), "e==f");
-				e = e.ShiftRight(1);
+				e = e >> 1;
 				Assert.True((f - one).Divide(two).Equals(e), ">>1 == /2");
 				Assert.True(e.Sign == -1, "e negative");
 
-				Assert.True(b.ShiftRight(i).Equals(one), "b >> i");
-				Assert.True(b.ShiftRight(i + 1).Equals(zero), "b >> i+1");
-				Assert.True(b.ShiftRight(i - 1).Equals(two), "b >> i-1");
+				Assert.True((b >> i).Equals(one), "b >> i");
+				Assert.True((b >> i + 1).Equals(zero), "b >> i+1");
+				Assert.True((b >> i - 1).Equals(two), "b >> i-1");
 			}
 		}
 
@@ -434,7 +434,7 @@ namespace Deveel.Math {
 			for (int i = 0; i < 200; i++) {
 				BigInteger b = bi3.ShiftLeft(i);
 				Assert.True(a.Equals(b), "a==b");
-				Assert.True(a.ShiftRight(i).Equals(bi3), "a >> i == bi3");
+				Assert.True((a >> i).Equals(bi3), "a >> i == bi3");
 				a = a.ShiftLeft(1);
 				Assert.True(b.Multiply(two).Equals(a), "<<1 == *2");
 				Assert.True(a.Sign >= 0, "a non-neg");
@@ -445,7 +445,7 @@ namespace Deveel.Math {
 				c = c.ShiftLeft(1);
 				Assert.True(d.Multiply(two).Equals(c), "<<1 == *2 negative");
 				Assert.True(c.Sign == -1, "c negative");
-				Assert.True(d.ShiftRight(i).Equals(minusOne), "d >> i == minusOne");
+				Assert.True((d >> i).Equals(minusOne), "d >> i == minusOne");
 			}
 		}
 

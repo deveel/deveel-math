@@ -152,7 +152,7 @@ namespace Deveel.Math {
 			q = q.Divide(gcd);
 			// To simplify all "2" factors of q, dividing by 2^k
 			k = q.LowestSetBit;
-			q = q.ShiftRight(k);
+			q = q >> k;
 			// To simplify all "5" factors of q, dividing by 5^l
 			do {
 				quotient = q.DivideAndRemainder(FivePow[i], out remainder);

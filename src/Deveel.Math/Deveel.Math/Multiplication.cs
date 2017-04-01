@@ -113,8 +113,8 @@ namespace Deveel.Math {
 			 */
 			// ndiv2 = (op1.numberLength / 2) * 32
 			int ndiv2 = (int)(op1.numberLength & 0xFFFFFFFE) << 4;
-			BigInteger upperOp1 = op1.ShiftRight(ndiv2);
-			BigInteger upperOp2 = op2.ShiftRight(ndiv2);
+			BigInteger upperOp1 = op1 >> ndiv2;
+			BigInteger upperOp2 = op2 >> ndiv2;
 			BigInteger lowerOp1 = op1 - upperOp1.ShiftLeft(ndiv2);
 			BigInteger lowerOp2 = op2 - upperOp2.ShiftLeft(ndiv2);
 

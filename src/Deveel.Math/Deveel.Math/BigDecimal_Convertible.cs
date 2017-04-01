@@ -545,7 +545,7 @@ namespace Deveel.Math {
 				if (discardedSize > 0) {
 					// (n > 54)
 					// mantisa = (abs(u) * 10^s) >> (n - 54)
-					bits = mantisa.ShiftRight(discardedSize).ToInt64();
+					bits = (mantisa >> discardedSize).ToInt64();
 					tempBits = bits;
 					// #bits = 54, to check if the discarded fraction produces a carry             
 					if ((((bits & 1) == 1) && (lowestSetBit < discardedSize))

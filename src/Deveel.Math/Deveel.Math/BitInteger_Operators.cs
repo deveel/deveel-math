@@ -14,27 +14,6 @@ namespace Deveel.Math {
 		}
 
 		/**
-		 * Returns a new {@code BigInteger} whose value is {@code this >> n}. For
-		 * negative arguments, the result is also negative. The shift distance may
-		 * be negative which means that {@code this} is shifted left.
-		 * <p>
-		 * <b>Implementation Note:</b> Usage of this method on negative values is
-		 * not recommended as the current implementation is not efficient.
-		 *
-		 * @param n
-		 *            shift distance
-		 * @return {@code this >> n} if {@code n >= 0}; {@code this << (-n)}
-		 *         otherwise
-		 */
-		public BigInteger ShiftRight(int n) {
-			if ((n == 0) || (sign == 0)) {
-				return this;
-			}
-			return ((n > 0) ? BitLevel.ShiftRight(this, n) : BitLevel.ShiftLeft(
-				this, -n));
-		}
-
-		/**
 		 * Returns a new {@code BigInteger} whose value is {@code this << n}. The
 		 * result is equivalent to {@code this * 2^n} if n >= 0. The shift distance
 		 * may be negative which means that {@code this} is shifted right. The
@@ -188,7 +167,7 @@ namespace Deveel.Math {
 				while (!TestBit(x)) {
 					x++;
 				}
-				return GetPowerOfTwo(x * exp).Multiply(this.ShiftRight(x).Pow(exp));
+				return GetPowerOfTwo(x * exp).Multiply((this >> x).Pow(exp));
 			}
 			return Multiplication.Pow(this, exp);
 		}
@@ -496,7 +475,7 @@ namespace Deveel.Math {
 		}
 
 		public static BigInteger operator >>(BigInteger a, int b) {
-			return a.ShiftRight(b);
+			return BigMath.ShiftRight(a, b);
 		}
 
 		public static BigInteger operator <<(BigInteger a, int b) {
