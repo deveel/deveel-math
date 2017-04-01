@@ -157,11 +157,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Deveel.Math\BigDecimal.cs" />
+    <Compile Include="Deveel.Math\BigDecimalMath.cs" />
     <Compile Include="Deveel.Math\BigDecimal_Convertible.cs" />
     <Compile Include="Deveel.Math\BigDecimal_Functions.cs" />
     <Compile Include="Deveel.Math\BigDecimal_Operators.cs" />
     <Compile Include="Deveel.Math\BigDecimal_Parse.cs" />
     <Compile Include="Deveel.Math\BigInteger.cs" />
+    <Compile Include="Deveel.Math\BigIntegerMath.cs" />
     <Compile Include="Deveel.Math\BigMath.cs" />
     <Compile Include="Deveel.Math\BitLevel.cs" />
     <Compile Include="Deveel.Math\CharHelper.cs" />

@@ -31,11 +31,13 @@
 
   <ItemGroup>
     <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal.cs" Link="Math\BigDecimal.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimalMath.cs" Link="Math\BigDecimalMath.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Convertible.cs" Link="Math\BigDecimal_Convertible.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Functions.cs" Link="Math\BigDecimal_Functions.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Operators.cs" Link="Math\BigDecimal_Operators.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Parse.cs" Link="Math\BigDecimal_Parse.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\BigInteger.cs" Link="Math\BigInteger.cs" />
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigIntegerMath.cs" Link="Math\BigIntegerMath.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\BigMath.cs" Link="Math\BigMath.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\BitLevel.cs" Link="Math\BitLevel.cs" />
     <Compile Include="..\Deveel.Math\Deveel.Math\CharHelper.cs" Link="Math\CharHelper.cs" />

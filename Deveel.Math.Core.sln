@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deveel.Math.Core", "src\Dev
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deveel.Math.Core.Tests", "test\Deveel.Math.Core.Tests\Deveel.Math.Core.Tests.csproj", "{A8B327B3-0F93-48F0-BAE2-136F2E7271A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deveel.Math", "src\Deveel.Math\Deveel.Math.csproj", "{DAB16486-ED07-4D2D-8E09-DB259C583F02}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug - Signed|Any CPU = Debug - Signed|Any CPU
@@ -88,36 +86,6 @@ Global
 		{A8B327B3-0F93-48F0-BAE2-136F2E7271A1}.Release-PCL|x64.Build.0 = Release|Any CPU
 		{A8B327B3-0F93-48F0-BAE2-136F2E7271A1}.Release-PCL|x86.ActiveCfg = Release|Any CPU
 		{A8B327B3-0F93-48F0-BAE2-136F2E7271A1}.Release-PCL|x86.Build.0 = Release|Any CPU
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Debug - Signed|Any CPU.ActiveCfg = Debug - Signed|Any CPU
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Debug - Signed|Any CPU.Build.0 = Debug - Signed|Any CPU
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Debug - Signed|x64.ActiveCfg = Debug - Signed|x64
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Debug - Signed|x64.Build.0 = Debug - Signed|x64
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Debug - Signed|x86.ActiveCfg = Debug - Signed|x86
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Debug - Signed|x86.Build.0 = Debug - Signed|x86
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Debug|x64.ActiveCfg = Debug|x64
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Debug|x64.Build.0 = Debug|x64
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Debug|x86.ActiveCfg = Debug|x86
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Debug|x86.Build.0 = Debug|x86
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release - Signed|Any CPU.ActiveCfg = Release - Signed|Any CPU
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release - Signed|Any CPU.Build.0 = Release - Signed|Any CPU
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release - Signed|x64.ActiveCfg = Release - Signed|x64
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release - Signed|x64.Build.0 = Release - Signed|x64
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release - Signed|x86.ActiveCfg = Release - Signed|x86
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release - Signed|x86.Build.0 = Release - Signed|x86
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release|x64.ActiveCfg = Release|x64
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release|x64.Build.0 = Release|x64
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release|x86.ActiveCfg = Release|x86
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release|x86.Build.0 = Release|x86
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release-PCL|Any CPU.ActiveCfg = Release-PCL|Any CPU
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release-PCL|Any CPU.Build.0 = Release-PCL|Any CPU
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release-PCL|x64.ActiveCfg = Release-PCL|x64
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release-PCL|x64.Build.0 = Release-PCL|x64
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release-PCL|x86.ActiveCfg = Release-PCL|x86
-		{DAB16486-ED07-4D2D-8E09-DB259C583F02}.Release-PCL|x86.Build.0 = Release-PCL|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
