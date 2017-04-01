@@ -30,7 +30,7 @@ namespace Deveel.Math {
 				if (quotient.BitLength < 63) {
 					return ValueOf(quotient.ToInt64() + compRem, scale);
 				}
-				quotient = quotient.Add(BigInteger.FromInt64(compRem));
+				quotient = BigMath.Add(quotient, BigInteger.FromInt64(compRem));
 				return new BigDecimal(quotient, scale);
 			}
 			// Constructing the result with the appropriate unscaled value
@@ -238,8 +238,8 @@ namespace Deveel.Math {
 				// Checking if:   2 * remainder >= divisor ?
 				compRem = remainder.ShiftLeftOneBit().CompareTo(divisor.GetUnscaledValue());
 				// quot := quot * 10 + r;     with 'r' in {-6,-5,-4, 0,+4,+5,+6}
-				integerQuot = integerQuot.Multiply(BigInteger.Ten)
-					.Add(BigInteger.FromInt64(quotient.Sign * (5 + compRem)));
+				integerQuot = BigMath.Add(integerQuot.Multiply(BigInteger.Ten),
+					BigInteger.FromInt64(quotient.Sign * (5 + compRem)));
 				newScale++;
 			} else {
 				// To strip trailing zeros until the preferred scale is reached

@@ -637,7 +637,7 @@ namespace Deveel.Math {
 				if (System.Math.Max(_bitLength, augend._bitLength) + 1 < 64) {
 					return ValueOf(smallValue + augend.smallValue, _scale);
 				}
-				return new BigDecimal(GetUnscaledValue().Add(augend.GetUnscaledValue()), _scale);
+				return new BigDecimal(BigMath.Add(GetUnscaledValue(), augend.GetUnscaledValue()), _scale);
 			}
 			if (diffScale > 0)
 				// case s1 > s2 : [(u1 + u2) * 10 ^ (s1 - s2) , s1]
@@ -653,7 +653,7 @@ namespace Deveel.Math {
 				return ValueOf(thisValue.smallValue + augend.smallValue*LongTenPow[diffScale], thisValue._scale);
 			}
 			return new BigDecimal(
-				thisValue.GetUnscaledValue().Add(Multiplication.MultiplyByTenPow(augend.GetUnscaledValue(), diffScale)),
+				BigMath.Add(thisValue.GetUnscaledValue(), Multiplication.MultiplyByTenPow(augend.GetUnscaledValue(), diffScale)),
 				thisValue._scale);
 		}
 
@@ -699,13 +699,13 @@ namespace Deveel.Math {
 			// Cases where it's unnecessary to add two numbers with very different scales 
 			var largerSignum = larger.Sign;
 			if (largerSignum == smaller.Sign) {
-				tempBi = Multiplication.MultiplyByPositiveInt(larger.GetUnscaledValue(), 10)
-					.Add(BigInteger.FromInt64(largerSignum));
+				tempBi = BigMath.Add(Multiplication.MultiplyByPositiveInt(larger.GetUnscaledValue(), 10),
+					BigInteger.FromInt64(largerSignum));
 			} else {
 				tempBi = larger.GetUnscaledValue().Subtract(
 					BigInteger.FromInt64(largerSignum));
-				tempBi = Multiplication.MultiplyByPositiveInt(tempBi, 10)
-					.Add(BigInteger.FromInt64(largerSignum*9));
+				tempBi = BigMath.Add(Multiplication.MultiplyByPositiveInt(tempBi, 10),
+					BigInteger.FromInt64(largerSignum*9));
 			}
 			// Rounding the improved adding 
 			larger = new BigDecimal(tempBi, larger._scale + 1);
@@ -811,12 +811,12 @@ namespace Deveel.Math {
 					var thisSignum = Sign;
 					BigInteger tempBI;
 					if (thisSignum != subtrahend.Sign) {
-						tempBI = Multiplication.MultiplyByPositiveInt(this.GetUnscaledValue(), 10)
-							.Add(BigInteger.FromInt64(thisSignum));
+						tempBI = BigMath.Add(Multiplication.MultiplyByPositiveInt(this.GetUnscaledValue(), 10),
+							BigInteger.FromInt64(thisSignum));
 					} else {
 						tempBI = GetUnscaledValue().Subtract(BigInteger.FromInt64(thisSignum));
-						tempBI = Multiplication.MultiplyByPositiveInt(tempBI, 10)
-							.Add(BigInteger.FromInt64(thisSignum*9));
+						tempBI = BigMath.Add(Multiplication.MultiplyByPositiveInt(tempBI, 10),
+							BigInteger.FromInt64(thisSignum*9));
 					}
 					// Rounding the improved subtracting
 					var leftOperand = new BigDecimal(tempBI, _scale + 1); // it will be only the left operand (this) 
@@ -1150,7 +1150,7 @@ namespace Deveel.Math {
 				compRem = RoundingBehavior(integer.TestBit(0) ? 1 : 0, fraction.Sign*(5 + compRem),
 					mc.RoundingMode);
 				if (compRem != 0) {
-					integer = integer.Add(BigInteger.FromInt64(compRem));
+					integer = BigMath.Add(integer, BigInteger.FromInt64(compRem));
 				}
 				tempBD = new BigDecimal(integer);
 				// If after to add the increment the precision changed, we normalize the size

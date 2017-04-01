@@ -708,7 +708,7 @@ namespace Deveel.Math {
 					r = modulo.Subtract(r);
 			}
 			if (r.Sign < 0)
-				r = r.Add(modulo);
+				r = BigMath.Add(r, modulo);
 
 			return r;
 		}
@@ -831,9 +831,9 @@ namespace Deveel.Math {
 			BigInteger y = (x2.Subtract(x1)).Multiply(qInv);
 			InplaceModPow2(y, j);
 			if (y.Sign < 0)
-				y = y.Add(BigInteger.GetPowerOfTwo(j));
+				y = BigMath.Add(y, BigInteger.GetPowerOfTwo(j));
 			// STEP 5: Compute and return: x1 + q * y
-			return x1.Add(q.Multiply(y));
+			return BigMath.Add(x1, q.Multiply(y));
 		}
 
 		/**

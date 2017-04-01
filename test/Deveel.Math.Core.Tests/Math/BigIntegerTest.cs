@@ -268,30 +268,30 @@ namespace Deveel.Math {
 		[Fact]
 		public void ValueOfJ() {
 			Assert.True(BigInteger.FromInt64(2L).Equals(two), "Incurred number returned for 2");
-			Assert.True(BigInteger.FromInt64(200L).Equals(BigInteger.FromInt64(139).Add(BigInteger.FromInt64(61))),
+			Assert.True(BigInteger.FromInt64(200L).Equals(BigInteger.FromInt64(139) + (BigInteger.FromInt64(61))),
 						  "Incurred number returned for 200");
 		}
 
 		[Fact]
 		public void AddBigInteger() {
-			Assert.True(aZillion.Add(aZillion).Add(aZillion.Negate()).Equals(aZillion), "Incorrect sum--wanted a zillion");
-			Assert.True(zero.Add(zero).Equals(zero), "0+0");
-			Assert.True(zero.Add(one).Equals(one), "0+1");
-			Assert.True(one.Add(zero).Equals(one), "1+0");
-			Assert.True(one.Add(one).Equals(two), "1+1");
-			Assert.True(zero.Add(minusOne).Equals(minusOne), "0+(-1)");
-			Assert.True(minusOne.Add(zero).Equals(minusOne), "(-1)+0");
-			Assert.True(minusOne.Add(minusOne).Equals(minusTwo), "(-1)+(-1)");
-			Assert.True(one.Add(minusOne).Equals(zero), "1+(-1)");
-			Assert.True(minusOne.Add(one).Equals(zero), "(-1)+1");
+			Assert.True((aZillion + aZillion + aZillion.Negate()).Equals(aZillion), "Incorrect sum--wanted a zillion");
+			Assert.True((zero + zero).Equals(zero), "0+0");
+			Assert.True((zero + one).Equals(one), "0+1");
+			Assert.True((one + zero).Equals(one), "1+0");
+			Assert.True((one + one).Equals(two), "1+1");
+			Assert.True((zero + minusOne).Equals(minusOne), "0+(-1)");
+			Assert.True((minusOne + zero).Equals(minusOne), "(-1)+0");
+			Assert.True((minusOne + minusOne).Equals(minusTwo), "(-1)+(-1)");
+			Assert.True((one + minusOne).Equals(zero), "1+(-1)");
+			Assert.True((minusOne + one).Equals(zero), "(-1)+1");
 
 			for (int i = 0; i < 200; i++) {
 				BigInteger midbit = zero.SetBit(i);
-				Assert.True(midbit.Add(midbit).Equals(zero.SetBit(i + 1)), "add fails to carry on bit " + i);
+				Assert.True((midbit +  midbit).Equals(zero.SetBit(i + 1)), "add fails to carry on bit " + i);
 			}
 
-			BigInteger bi2p3 = bi2.Add(bi3);
-			BigInteger bi3p2 = bi3.Add(bi2);
+			BigInteger bi2p3 = bi2 + bi3;
+			BigInteger bi3p2 = bi3 + bi2;
 			Assert.True(bi2p3.Equals(bi3p2), "bi2p3=bi3p2");
 		}
 
@@ -313,7 +313,7 @@ namespace Deveel.Math {
 				BigInteger midbit = zero.SetBit(i);
 				BigInteger negate = midbit.Negate();
 				Assert.True(negate.Negate().Equals(midbit), "negate negate");
-				Assert.True(midbit.Negate().Add(midbit).Equals(zero), "neg fails on bit " + i);
+				Assert.True((midbit.Negate() + midbit).Equals(zero), "neg fails on bit " + i);
 			}
 		}
 
@@ -358,10 +358,10 @@ namespace Deveel.Math {
 				}
 			}
 			for (int j = 1; j < 10; j++) {
-				mod = bi2.Add(BigInteger.FromInt64(j));
+				mod = bi2 + BigInteger.FromInt64(j);
 				for (int i = 0; i < 20; i++) {
 					try {
-						a = bi3.Add(BigInteger.FromInt64(i));
+						a = bi3 + (BigInteger.FromInt64(i));
 						inv = a.ModInverse(mod);
 						Assert.True(one.Equals(a.Multiply(inv).Mod(mod)), "bad inverse: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.True(inv.CompareTo(mod) < 0, "inverse greater than modulo: " + a + " inv mod " + mod + " equals " + inv);
@@ -452,7 +452,7 @@ namespace Deveel.Math {
 		[Fact]
 		public void MultiplyBigInteger() {
             SetUp();
-			Assert.True(aZillion.Add(aZillion).Add(aZillion).Equals(aZillion.Multiply(BigInteger.Parse("3", 10))),
+			Assert.True((aZillion + aZillion + aZillion).Equals(aZillion.Multiply(BigInteger.Parse("3", 10))),
 						  "Incorrect sum--wanted three zillion");
 
 			Assert.True(zero.Multiply(zero).Equals(zero), "0*0");
@@ -665,10 +665,10 @@ namespace Deveel.Math {
 			Assert.True(q.Sign == 0 || q.Sign == i1.Sign * i2.Sign, "wrong sign on quotient");
 			Assert.True(r.Sign == 0 || r.Sign == i1.Sign, "wrong sign on remainder");
 			Assert.True(r.Abs().CompareTo(i2.Abs()) < 0, "remainder out of range");
-			Assert.True(q.Abs().Add(one).Multiply(i2.Abs()).CompareTo(i1.Abs()) > 0, "quotient too small");
+			Assert.True((q.Abs() + one).Multiply(i2.Abs()).CompareTo(i1.Abs()) > 0, "quotient too small");
 			Assert.True(q.Abs().Multiply(i2.Abs()).CompareTo(i1.Abs()) <= 0, "quotient too large");
 			BigInteger p = q.Multiply(i2);
-			BigInteger a = p.Add(r);
+			BigInteger a = p + r;
 			Assert.True(a.Equals(i1), "(a/b)*b+(a%b) != a");
 			try {
 				BigInteger mod = i1.Mod(i2);
@@ -683,11 +683,10 @@ namespace Deveel.Math {
 
 		private void TestDivRanges(BigInteger i) {
 			BigInteger bound = i.Multiply(two);
-			for (BigInteger j = bound.Negate(); j.CompareTo(bound) <= 0; j = j
-					.Add(i)) {
-				BigInteger innerbound = j.Add(two);
+			for (BigInteger j = bound.Negate(); j.CompareTo(bound) <= 0; j = j + i) {
+				BigInteger innerbound = j + two;
 				BigInteger k = j.Subtract(two);
-				for (; k.CompareTo(innerbound) <= 0; k = k.Add(one)) {
+				for (; k.CompareTo(innerbound) <= 0; k = k + one) {
 					TestDiv(k, i);
 				}
 			}

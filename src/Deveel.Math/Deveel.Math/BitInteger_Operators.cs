@@ -14,19 +14,6 @@ namespace Deveel.Math {
 		}
 
 		/**
-		 * Returns a new {@code BigInteger} whose value is {@code this + val}.
-		 *
-		 * @param val
-		 *            value to be added to {@code this}.
-		 * @return {@code this + val}.
-		 * @throws NullPointerException
-		 *             if {@code val == null}.
-		 */
-		public BigInteger Add(BigInteger val) {
-			return Elementary.add(this, val);
-		}
-
-		/**
 		 * Returns a new {@code BigInteger} whose value is {@code this - val}.
 		 *
 		 * @param val
@@ -481,13 +468,13 @@ namespace Deveel.Math {
 				throw new ArithmeticException(Messages.math18); //$NON-NLS-1$
 			}
 			BigInteger rem = Remainder(m);
-			return ((rem.sign < 0) ? rem.Add(m) : rem);
+			return ((rem.sign < 0) ? BigMath.Add(rem, m) : rem);
 		}
 
 		public static BigInteger operator +(BigInteger a, BigInteger b) {
 			if (a == null)
 				throw new InvalidOperationException();
-			return a.Add(b);
+			return BigMath.Add(a, b);
 		}
 
 		public static BigInteger operator -(BigInteger a, BigInteger b) {
