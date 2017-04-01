@@ -8,6 +8,7 @@
         <owners>antonello</owners>
         <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</licenseUrl>
         <projectUrl>http://github.com/deveel/deveel-math</projectUrl>
+		<iconUrl>https://raw.githubusercontent.com/deveel/deveel-math/master/nuget/icon.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Deveel Math is the port to .NET/Mono of the Apache Harmony Math component, that is used to handle operations on big numbers in a fast and secure way.
 		
