@@ -548,7 +548,7 @@ namespace Deveel.Math {
 			if (r.CompareTo(p) >= BigInteger.EQUALS)
 				Elementary.inplaceSubtract(r, p);
 
-			r = p.Subtract(r);
+			r = p - r;
 
 			// Have pair: ((BigInteger)r, (Integer)k) where r == a^(-1) * 2^k mod (module)		
 			int n1 = CalcN(p);
@@ -705,7 +705,7 @@ namespace Deveel.Math {
 				if (r.Sign < 0)
 					r = r.Negate();
 				else
-					r = modulo.Subtract(r);
+					r = modulo - r;
 			}
 			if (r.Sign < 0)
 				r += modulo;
@@ -828,7 +828,7 @@ namespace Deveel.Math {
 
 			// STEP 4: Compute q^(-1) (mod 2^j) and y := (x2-x1) * q^(-1) (mod 2^j)
 			BigInteger qInv = ModPow2Inverse(q, j);
-			BigInteger y = (x2.Subtract(x1)).Multiply(qInv);
+			BigInteger y = (x2 - x1).Multiply(qInv);
 			InplaceModPow2(y, j);
 			if (y.Sign < 0)
 				y += BigInteger.GetPowerOfTwo(j);

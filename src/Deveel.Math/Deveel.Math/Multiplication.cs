@@ -115,13 +115,13 @@ namespace Deveel.Math {
 			int ndiv2 = (int)(op1.numberLength & 0xFFFFFFFE) << 4;
 			BigInteger upperOp1 = op1.ShiftRight(ndiv2);
 			BigInteger upperOp2 = op2.ShiftRight(ndiv2);
-			BigInteger lowerOp1 = op1.Subtract(upperOp1.ShiftLeft(ndiv2));
-			BigInteger lowerOp2 = op2.Subtract(upperOp2.ShiftLeft(ndiv2));
+			BigInteger lowerOp1 = op1 - upperOp1.ShiftLeft(ndiv2);
+			BigInteger lowerOp2 = op2 - upperOp2.ShiftLeft(ndiv2);
 
 			BigInteger upper = Karatsuba(upperOp1, upperOp2);
 			BigInteger lower = Karatsuba(lowerOp1, lowerOp2);
-			BigInteger middle = Karatsuba(upperOp1.Subtract(lowerOp1),
-					lowerOp2.Subtract(upperOp2));
+			BigInteger middle = Karatsuba(upperOp1 - lowerOp1,
+					lowerOp2 - upperOp2);
 			middle = (middle + upper + lower);
 			middle = middle.ShiftLeft(ndiv2);
 			upper = upper.ShiftLeft(ndiv2 << 1);

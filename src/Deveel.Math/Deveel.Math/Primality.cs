@@ -247,7 +247,7 @@ namespace Deveel.Math {
 			// PRE: n >= 0, t >= 0
 			BigInteger x; // x := UNIFORM{2...n-1}
 			BigInteger y; // y := x^(q * 2^j) mod n
-			BigInteger n_minus_1 = n.Subtract(BigInteger.One); // n-1
+			BigInteger n_minus_1 = n - BigInteger.One; // n-1
 			int bitLength = n_minus_1.BitLength; // ~ log2(n-1)
 			// (q,k) such that: n-1 = q * 2^k and q is odd
 			int k = n_minus_1.LowestSetBit;

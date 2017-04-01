@@ -12,5 +12,17 @@ namespace Deveel.Math {
 		public static BigInteger Add(BigInteger a, BigInteger b) {
 			return Elementary.add(a, b);
 		}
+
+		/// <summary>
+		/// Subtracts a big integer value from another 
+		/// </summary>
+		/// <param name="a">The value to subtract from</param>
+		/// <param name="b">The subtractor value</param>
+		/// <returns>
+		/// </returns>
+		public static BigInteger Subtract(BigInteger a, BigInteger b) {
+			return Elementary.subtract(a, b);
+		}
+
 	}
 }

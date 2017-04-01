@@ -14,27 +14,6 @@ namespace Deveel.Math {
 		}
 
 		/**
-		 * Returns a new {@code BigInteger} whose value is {@code this - val}.
-		 *
-		 * @param val
-		 *            value to be subtracted from {@code this}.
-		 * @return {@code this - val}.
-		 * @throws NullPointerException
-		 *             if {@code val == null}.
-		 */
-		public BigInteger Subtract(BigInteger val) {
-			return Elementary.subtract(this, val);
-		}
-
-		/**
-		 * Returns the sign of this {@code BigInteger}.
-		 *
-		 * @return {@code -1} if {@code this < 0},
-		 *         {@code 0} if {@code this == 0},
-		 *         {@code 1} if {@code this > 0}.
-		 */
-
-		/**
 		 * Returns a new {@code BigInteger} whose value is {@code this >> n}. For
 		 * negative arguments, the result is also negative. The shift distance may
 		 * be negative which means that {@code this} is shifted left.
@@ -395,7 +374,7 @@ namespace Deveel.Math {
 				throw new ArithmeticException(Messages.math19); //$NON-NLS-1$
 			}
 
-			res = ((sign < 0) ? m.Subtract(res) : res);
+			res = ((sign < 0) ? m - res : res);
 			return res;
 
 		}
@@ -441,7 +420,7 @@ namespace Deveel.Math {
 				exponent, m) : Division.EvenModPow(b.Abs(), exponent, m);
 			if ((b.sign < 0) && exponent.TestBit(0)) {
 				// -b^e mod m == ((-1 mod m) * (b^e mod m)) mod m
-				res = m.Subtract(BigInteger.One).Multiply(res).Mod(m);
+				res = (m - BigInteger.One).Multiply(res).Mod(m);
 			}
 			// else exponent is even, so base^exp is positive
 			return res;
@@ -480,7 +459,8 @@ namespace Deveel.Math {
 		public static BigInteger operator -(BigInteger a, BigInteger b) {
 			if (a == null)
 				throw new InvalidOperationException();
-			return a.Subtract(b);
+
+			return BigMath.Subtract(a, b);
 		}
 
 		public static BigInteger operator *(BigInteger a, BigInteger b) {

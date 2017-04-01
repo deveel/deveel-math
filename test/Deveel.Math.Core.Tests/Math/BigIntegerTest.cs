@@ -141,7 +141,7 @@ namespace Deveel.Math {
 		public void ConstructorBytes() {
 			var myByteArray = new byte[] { (byte)0x00, (byte)0xFF, (byte)0xFE };
 			bi = new BigInteger(myByteArray);
-			Assert.True(bi.Equals(BigInteger.Zero.SetBit(16).Subtract(two)), "Incorrect value for pos number");
+			Assert.True(bi.Equals(BigInteger.Zero.SetBit(16) - two), "Incorrect value for pos number");
 			myByteArray = new byte[] { (byte)0xFF, (byte)0xFE };
 			bi = new BigInteger(myByteArray);
 			Assert.True(bi.Equals(minusTwo), "Incorrect value for neg number");
@@ -151,9 +151,9 @@ namespace Deveel.Math {
 		public void ConstructorIBytes() {
 			var myByteArray = new byte[] { (byte)0xFF, (byte)0xFE };
 			bi = new BigInteger(1, myByteArray);
-			Assert.True(bi.Equals(BigInteger.Zero.SetBit(16).Subtract(two)), "Incorrect value for pos number");
+			Assert.True(bi.Equals(BigInteger.Zero.SetBit(16) - two), "Incorrect value for pos number");
 			bi = new BigInteger(-1, myByteArray);
-			Assert.True(bi.Equals(BigInteger.Zero.SetBit(16).Subtract(two).Negate()), "Incorrect value for neg number");
+			Assert.True(bi.Equals((BigInteger.Zero.SetBit(16) - two).Negate()), "Incorrect value for neg number");
 			myByteArray = new byte[] { (byte)0, (byte)0 };
 			bi = new BigInteger(0, myByteArray);
 			Assert.True(bi.Equals(zero), "Incorrect value for zero");
@@ -407,7 +407,7 @@ namespace Deveel.Math {
 				BigInteger f = E.ShiftRight(i);
 				Assert.True(e.Equals(f), "e==f");
 				e = e.ShiftRight(1);
-				Assert.True(f.Subtract(one).Divide(two).Equals(e), ">>1 == /2");
+				Assert.True((f - one).Divide(two).Equals(e), ">>1 == /2");
 				Assert.True(e.Sign == -1, "e negative");
 
 				Assert.True(b.ShiftRight(i).Equals(one), "b >> i");
@@ -675,7 +675,7 @@ namespace Deveel.Math {
 				Assert.True(mod.Sign >= 0, "mod is negative");
 				Assert.True(mod.Abs().CompareTo(i2.Abs()) < 0, "mod out of range");
 				Assert.True(r.Sign < 0 || r.Equals(mod), "positive remainder == mod");
-				Assert.True(r.Sign >= 0 || r.Equals(mod.Subtract(i2)), "negative remainder == mod - divisor");
+				Assert.True(r.Sign >= 0 || r.Equals(mod - i2), "negative remainder == mod - divisor");
 			} catch (ArithmeticException e) {
 				Assert.True(i2.Sign <= 0, "mod fails on negative divisor only");
 			}
@@ -685,7 +685,7 @@ namespace Deveel.Math {
 			BigInteger bound = i.Multiply(two);
 			for (BigInteger j = bound.Negate(); j.CompareTo(bound) <= 0; j = j + i) {
 				BigInteger innerbound = j + two;
-				BigInteger k = j.Subtract(two);
+				BigInteger k = j - two;
 				for (; k.CompareTo(innerbound) <= 0; k = k + one) {
 					TestDiv(k, i);
 				}

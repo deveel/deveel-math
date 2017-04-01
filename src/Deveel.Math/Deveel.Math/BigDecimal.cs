@@ -702,8 +702,7 @@ namespace Deveel.Math {
 				tempBi = Multiplication.MultiplyByPositiveInt(larger.GetUnscaledValue(), 10) +
 					BigInteger.FromInt64(largerSignum);
 			} else {
-				tempBi = larger.GetUnscaledValue().Subtract(
-					BigInteger.FromInt64(largerSignum));
+				tempBi = larger.GetUnscaledValue() - BigInteger.FromInt64(largerSignum);
 				tempBi = Multiplication.MultiplyByPositiveInt(tempBi, 10) +
 					BigInteger.FromInt64(largerSignum*9);
 			}
@@ -750,7 +749,7 @@ namespace Deveel.Math {
 				if (System.Math.Max(_bitLength, subtrahend._bitLength) + 1 < 64) {
 					return ValueOf(smallValue - subtrahend.smallValue, _scale);
 				}
-				return new BigDecimal(GetUnscaledValue().Subtract(subtrahend.GetUnscaledValue()), _scale);
+				return new BigDecimal(GetUnscaledValue() - subtrahend.GetUnscaledValue(), _scale);
 			}
 			if (diffScale > 0) {
 				// case s1 > s2 : [ u1 - u2 * 10 ^ (s1 - s2) , s1 ]
@@ -759,7 +758,7 @@ namespace Deveel.Math {
 					return ValueOf(smallValue - subtrahend.smallValue*LongTenPow[diffScale], _scale);
 				}
 				return new BigDecimal(
-					GetUnscaledValue().Subtract(Multiplication.MultiplyByTenPow(subtrahend.GetUnscaledValue(), diffScale)),
+					GetUnscaledValue() - Multiplication.MultiplyByTenPow(subtrahend.GetUnscaledValue(), diffScale),
 					_scale);
 			}
 
@@ -770,8 +769,8 @@ namespace Deveel.Math {
 				return ValueOf(smallValue*LongTenPow[diffScale] - subtrahend.smallValue, subtrahend._scale);
 			}
 
-			return new BigDecimal(Multiplication.MultiplyByTenPow(GetUnscaledValue(), diffScale)
-				.Subtract(subtrahend.GetUnscaledValue()), subtrahend._scale);
+			return new BigDecimal(Multiplication.MultiplyByTenPow(GetUnscaledValue(), diffScale) -
+				subtrahend.GetUnscaledValue(), subtrahend._scale);
 		}
 
 		/// <summary>
@@ -814,7 +813,7 @@ namespace Deveel.Math {
 						tempBI = Multiplication.MultiplyByPositiveInt(this.GetUnscaledValue(), 10) +
 							BigInteger.FromInt64(thisSignum);
 					} else {
-						tempBI = GetUnscaledValue().Subtract(BigInteger.FromInt64(thisSignum));
+						tempBI = GetUnscaledValue()-BigInteger.FromInt64(thisSignum);
 						tempBI = Multiplication.MultiplyByPositiveInt(tempBI, 10) +
 							BigInteger.FromInt64(thisSignum*9);
 					}
