@@ -8,8 +8,8 @@
     ".NETCoreApp,Version=v1.1": {
       "deveel.math.core.tests/1.0.0": {
         "dependencies": {
-          "Deveel.Math.Core": "1.0.0",
           "Microsoft.NET.Test.Sdk": "15.0.0",
+          "dmath.core": "1.0.0",
           "xunit": "2.2.0",
           "xunit.runner.visualstudio": "2.2.0"
         },
@@ -400,7 +400,7 @@
           "Microsoft.TestPlatform.ObjectModel": "15.0.0"
         }
       },
-      "deveel.math.core/1.0.0": {
+      "dmath.core/1.0.0": {
         "runtime": {
           "Deveel.Math.Core.dll": {}
         }
@@ -588,7 +588,7 @@
       "path": "xunit.runner.visualstudio/2.2.0",
       "hashPath": "xunit.runner.visualstudio.2.2.0.nupkg.sha512"
     },
-    "deveel.math.core/1.0.0": {
+    "dmath.core/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

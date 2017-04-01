@@ -2918,7 +2918,7 @@
           "build/netcoreapp1.0/xunit.runner.visualstudio.props": {}
         }
       },
-      "Deveel.Math.Core/1.0.0": {
+      "dmath.core/1.0.0": {
         "type": "project",
         "framework": ".NETStandard,Version=v1.3",
         "dependencies": {
@@ -8555,7 +8555,7 @@
         "xunit.runner.visualstudio.nuspec"
       ]
     },
-    "Deveel.Math.Core/1.0.0": {
+    "dmath.core/1.0.0": {
       "type": "project",
       "path": "../../src/Deveel.Math.Core/Deveel.Math.Core.csproj",
       "msbuildProject": "../../src/Deveel.Math.Core/Deveel.Math.Core.csproj"
@@ -8563,9 +8563,9 @@
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v1.1": [
-      "Deveel.Math.Core >= 1.0.0",
       "Microsoft.NET.Test.Sdk >= 15.0.0",
       "Microsoft.NETCore.App >= 1.1.1",
+      "dmath.core >= 1.0.0",
       "xunit >= 2.2.0",
       "xunit.runner.visualstudio >= 2.2.0"
     ]

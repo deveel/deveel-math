@@ -15,6 +15,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>math decimal bigdecimal integer biginteger int deveel harmony dotnet core netstandard</PackageTags>
     <Product>Deveel Math Core</Product>
+    <Version>1.6.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
