@@ -420,10 +420,10 @@ namespace Deveel.Math {
 				return BigTenPows[intExp];
 			} else if (exp <= 50) {
 				// To calculate:    10^exp
-				return BigInteger.Ten.Pow(intExp);
+				return BigMath.Pow(BigInteger.Ten, intExp);
 			} else if (exp <= 1000) {
 				// To calculate:    5^exp * 2^exp
-				return BigFivePows[1].Pow(intExp) << intExp;
+				return BigMath.Pow(BigFivePows[1], intExp) << intExp;
 			}
 			// "LARGE POWERS"
 			/*
@@ -443,7 +443,7 @@ namespace Deveel.Math {
 
 			if (exp <= Int32.MaxValue) {
 				// To calculate:    5^exp * 2^exp
-				return BigFivePows[1].Pow(intExp) << intExp;
+				return BigMath.Pow(BigFivePows[1], intExp) << intExp;
 			}
 			/*
 			 * "HUGE POWERS"
@@ -452,7 +452,7 @@ namespace Deveel.Math {
 			 * big.
 			 */
 			// To calculate:    5^exp
-			BigInteger powerOfFive = BigFivePows[1].Pow(Int32.MaxValue);
+			BigInteger powerOfFive = BigMath.Pow(BigFivePows[1], Int32.MaxValue);
 			BigInteger res = powerOfFive;
 			long longExp = exp - Int32.MaxValue;
 
@@ -461,7 +461,7 @@ namespace Deveel.Math {
 				res = res * powerOfFive;
 				longExp -= Int32.MaxValue;
 			}
-			res = res * (BigFivePows[1].Pow(intExp));
+			res = res * BigMath.Pow(BigFivePows[1], intExp);
 			// To calculate:    5^exp << exp
 			res = res << Int32.MaxValue;
 			longExp = exp - Int32.MaxValue;
@@ -488,7 +488,7 @@ namespace Deveel.Math {
 			} else if (exp < BigFivePows.Length) {
 				return val * BigFivePows[exp];
 			} else {// Large powers of five
-				return val * BigFivePows[1].Pow(exp);
+				return val * BigMath.Pow(BigFivePows[1], exp);
 			}
 		}
 

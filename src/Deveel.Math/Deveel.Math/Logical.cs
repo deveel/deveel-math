@@ -225,7 +225,7 @@ namespace Deveel.Math {
 				return BigInteger.Zero;
 			}
 			if (val.Equals(BigInteger.MinusOne)) {
-				return that.Not();
+				return ~that;
 			}
 			if (that.Equals(BigInteger.MinusOne)) {
 				return BigInteger.Zero;
@@ -590,10 +590,10 @@ namespace Deveel.Math {
 				return that;
 			}
 			if (that.Equals(BigInteger.MinusOne)) {
-				return val.Not();
+				return ~val;
 			}
 			if (val.Equals(BigInteger.MinusOne)) {
-				return that.Not();
+				return ~that;
 			}
 
 			if (val.Sign > 0) {

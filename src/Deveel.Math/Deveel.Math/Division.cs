@@ -417,7 +417,7 @@ namespace Deveel.Math {
 				// Implements one step of the Euclidean algorithm
 				// To reduce one operand if it's much smaller than the other one
 				if (op2.numberLength > op1.numberLength*1.2) {
-					op2 = op2.Remainder(op1);
+					op2 = BigMath.Remainder(op2, op1);
 					if (op2.Sign != 0)
 						BitLevel.InplaceShiftRight(op2, op2.LowestSetBit);
 				} else {
@@ -699,11 +699,11 @@ namespace Deveel.Math {
 			if (IsPowerOfTwo(v, coefV)) {
 				r = s;
 				if (v.Sign != u.Sign)
-					u = u.Negate();
+					u = -u;
 			}
 			if (u.TestBit(n)) {
 				if (r.Sign < 0)
-					r = r.Negate();
+					r = -r;
 				else
 					r = modulo - r;
 			}
@@ -786,9 +786,9 @@ namespace Deveel.Math {
 			// PRE: (base > 0), (exponent > 0), (modulus > 0) and (odd modulus)
 			int k = (modulus.numberLength << 5); // r = 2^k
 			// n-residue of base [base * r (mod modulus)]
-			BigInteger a2 = (b << k).Mod(modulus);
+			BigInteger a2 = (b << k) % modulus;
 			// n-residue of base [1 * r (mod modulus)]
-			BigInteger x2 = BigInteger.GetPowerOfTwo(k).Mod(modulus);
+			BigInteger x2 = BigInteger.GetPowerOfTwo(k) % modulus;
 			BigInteger res;
 			// Compute (modulus[0]^(-1)) (mod 2^32) for odd modulus
 

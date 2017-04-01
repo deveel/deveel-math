@@ -169,7 +169,7 @@ namespace Deveel.Math {
 				return op1;
 			}
 			if (op1Sign == 0) {
-				return op2.Negate();
+				return -op2;
 			}
 			int op1Len = op1.numberLength;
 			int op2Len = op2.numberLength;

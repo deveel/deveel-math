@@ -5,7 +5,7 @@ namespace Deveel.Math {
 		private static BigDecimal DivideBigIntegers(BigInteger scaledDividend, BigInteger scaledDivisor, int scale,
 			RoundingMode roundingMode) {
 			BigInteger remainder;
-			BigInteger quotient = scaledDividend.DivideAndRemainder(scaledDivisor, out remainder);
+			BigInteger quotient = BigMath.DivideAndRemainder(scaledDividend, scaledDivisor, out remainder);
 			if (remainder.Sign == 0) {
 				return new BigDecimal(quotient, scale);
 			}
@@ -155,7 +155,7 @@ namespace Deveel.Math {
 			q = q >> k;
 			// To simplify all "5" factors of q, dividing by 5^l
 			do {
-				quotient = q.DivideAndRemainder(FivePow[i], out remainder);
+				quotient = BigMath.DivideAndRemainder(q, FivePow[i], out remainder);
 				if (remainder.Sign == 0) {
 					l += i;
 					if (i < lastPow) {
@@ -176,7 +176,7 @@ namespace Deveel.Math {
 			}
 			// The sign of the is fixed and the quotient will be saved in 'p'
 			if (q.Sign < 0) {
-				p = p.Negate();
+				p = -p;
 			}
 			// Checking if the new scale is out of range
 			newScale = ToIntScale(diffScale + System.Math.Max(k, l));
@@ -231,7 +231,7 @@ namespace Deveel.Math {
 				quotient = GetUnscaledValue() * Multiplication.PowerOf10(traillingZeros);
 				newScale += traillingZeros;
 			}
-			quotient = quotient.DivideAndRemainder(divisor.GetUnscaledValue(), out remainder);
+			quotient = BigMath.DivideAndRemainder(quotient, divisor.GetUnscaledValue(), out remainder);
 			integerQuot = quotient;
 			// Calculating the exact quotient with at least 'mc.precision()' digits
 			if (remainder.Sign != 0) {
@@ -244,7 +244,7 @@ namespace Deveel.Math {
 			} else {
 				// To strip trailing zeros until the preferred scale is reached
 				while (!integerQuot.TestBit(0)) {
-					quotient = integerQuot.DivideAndRemainder(TenPow[i], out remainder);
+					quotient = BigMath.DivideAndRemainder(integerQuot, TenPow[i], out remainder);
 					if ((remainder.Sign == 0)
 					    && (newScale - i >= diffScale)) {
 						newScale -= i;
@@ -309,7 +309,7 @@ namespace Deveel.Math {
 				integralValue = (GetUnscaledValue() * powerOfTen) / divisor.GetUnscaledValue();
 				// To strip trailing zeros approximating to the preferred scale
 				while (!integralValue.TestBit(0)) {
-					quotient = integralValue.DivideAndRemainder(TenPow[i], out remainder);
+					quotient = BigMath.DivideAndRemainder(integralValue, TenPow[i], out remainder);
 					if ((remainder.Sign == 0)
 					    && (tempScale - i >= newScale)) {
 						tempScale -= i;
@@ -386,8 +386,8 @@ namespace Deveel.Math {
 				long exp = System.Math.Min(-diffScale, System.Math.Max((long)mcPrecision - diffPrecision, 0));
 				long compRemDiv;
 				// Let be:   (u1 * 10^exp) / u2 = [q,r]  
-				quotient = (GetUnscaledValue() * Multiplication.PowerOf10(exp))
-					.DivideAndRemainder(divisor.GetUnscaledValue(), out remainder);
+				quotient = BigMath.DivideAndRemainder(GetUnscaledValue() * Multiplication.PowerOf10(exp),
+					divisor.GetUnscaledValue(), out remainder);
 				newScale += exp; // To fix the scale
 				exp = -newScale; // The remaining power of ten
 				// If after division there is a remainder...
@@ -417,7 +417,7 @@ namespace Deveel.Math {
 			int i = 1;
 			// To strip trailing zeros until the specified precision is reached
 			while (!strippedBI.TestBit(0)) {
-				quotient = strippedBI.DivideAndRemainder(TenPow[i], out remainder);
+				quotient = BigMath.DivideAndRemainder(strippedBI, TenPow[i], out remainder);
 				if ((remainder.Sign == 0) &&
 				    ((resultPrecision - i >= mcPrecision)
 				     || (newScale - i >= diffScale))) {
@@ -575,7 +575,7 @@ namespace Deveel.Math {
 			// Let be: this = [u,s]   so:  this^n = [u^n, s*n]
 			return ((IsZero)
 				? GetZeroScaledBy(newScale)
-				: new BigDecimal(GetUnscaledValue().Pow(n), ToIntScale(newScale)));
+				: new BigDecimal(BigMath.Pow(GetUnscaledValue(), n), ToIntScale(newScale)));
 		}
 
 		/**

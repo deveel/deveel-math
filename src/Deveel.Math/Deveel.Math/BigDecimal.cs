@@ -1137,7 +1137,7 @@ namespace Deveel.Math {
 			// Getting the integer part and the discarded fraction
 			BigInteger sizeOfFraction = Multiplication.PowerOf10(discardedPrecision);
 			BigInteger fraction;
-			BigInteger integer = GetUnscaledValue().DivideAndRemainder(sizeOfFraction, out fraction);
+			BigInteger integer = BigMath.DivideAndRemainder(GetUnscaledValue(), sizeOfFraction, out fraction);
 			long newScale = (long) _scale - discardedPrecision;
 			int compRem;
 			BigDecimal tempBD;

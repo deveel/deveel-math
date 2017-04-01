@@ -38,7 +38,7 @@ namespace Deveel.Math {
 			if (_bitLength < 63 || (_bitLength == 63 && smallValue != Int64.MinValue)) {
 				return ValueOf(-smallValue, _scale);
 			}
-			return new BigDecimal(GetUnscaledValue().Negate(), _scale);
+			return new BigDecimal(-GetUnscaledValue(), _scale);
 		}
 
 		/**
@@ -295,7 +295,7 @@ namespace Deveel.Math {
 			// while the number is even...
 			while (!strippedBI.TestBit(0)) {
 				// To divide by 10^i
-				quotient = strippedBI.DivideAndRemainder(TenPow[i], out remainder);
+				quotient = BigMath.DivideAndRemainder(strippedBI, TenPow[i], out remainder);
 				// To look the remainder
 				if (remainder.Sign == 0) {
 					// To adjust the scale

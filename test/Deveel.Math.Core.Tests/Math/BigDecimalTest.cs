@@ -236,7 +236,7 @@ namespace Deveel.Math {
 			hash2 = BigDecimal.Parse("-1233456.0000");
 			Assert.True(hash.GetHashCode() != hash2.GetHashCode() && !hash.Equals(hash2),
 			              "hashCode of 123459.08 and -1233456.0000 is not equal");
-			hash2 = new BigDecimal(value.Negate(), 2);
+			hash2 = new BigDecimal(-value, 2);
 			Assert.True(hash.GetHashCode() != hash2.GetHashCode() && !hash.Equals(hash2),
 			              "hashCode of 123459.08 and -123459.08 is not equal");
 		}
@@ -256,7 +256,7 @@ namespace Deveel.Math {
 
 		[Fact]
 		public void ToInt64() {
-			BigDecimal long1 = new BigDecimal(value2.Negate(), 0);
+			BigDecimal long1 = new BigDecimal(-value2, 0);
 			Assert.True(long1.ToInt64() == -12334560000L, "the long value of 12334560000 is not 12334560000");
 			long1 = new BigDecimal(-1345.348E-123D);
 			Assert.True(long1.ToInt64() == 0, "the long value of -1345.348E-123D is not zero");
@@ -294,7 +294,7 @@ namespace Deveel.Math {
 			BigDecimal movePtLeft = BigDecimal.Parse("123456265.34");
 			BigDecimal alreadyMoved = movePtLeft.MovePointLeft(5);
 			Assert.True(alreadyMoved.Scale == 7 && alreadyMoved.ToString().Equals("1234.5626534"), "move point left 5 failed");
-			movePtLeft = new BigDecimal(value2.Negate(), 0);
+			movePtLeft = new BigDecimal(-value2, 0);
 			alreadyMoved = movePtLeft.MovePointLeft(12);
 			Assert.True(alreadyMoved.Scale == 12 && alreadyMoved.ToString().Equals("-0.012334560000"),
 			              "move point left 12 failed");
@@ -415,7 +415,7 @@ namespace Deveel.Math {
 			setScale2 = setScale1.SetScale(1, RoundingMode.Ceiling);
 			Assert.True(setScale2.ToString().Equals("1234.6") && setScale2.Scale == 1,
 			              "the number 1234.5908 after setting scale to 1/ROUND_CEILING is wrong");
-			BigDecimal setNeg = new BigDecimal(value.Negate(), 4);
+			BigDecimal setNeg = new BigDecimal(-value, 4);
 			setScale2 = setNeg.SetScale(1, RoundingMode.Ceiling);
 			Assert.True(setScale2.ToString().Equals("-1234.5") && setScale2.Scale == 1,
 			              "the number -1234.5908 after setting scale to 1/ROUND_CEILING is wrong");

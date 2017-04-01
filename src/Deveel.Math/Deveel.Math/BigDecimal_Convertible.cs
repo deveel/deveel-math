@@ -345,7 +345,7 @@ namespace Deveel.Math {
 						// math.08=Rounding necessary
 						throw new ArithmeticException(Messages.math08); //$NON-NLS-1$
 					}
-					integer = GetUnscaledValue().DivideAndRemainder(Multiplication.PowerOf10(_scale), out fraction);
+					integer = BigMath.DivideAndRemainder(GetUnscaledValue(), Multiplication.PowerOf10(_scale), out fraction);
 					if (fraction.Sign != 0) {
 						// It exists a non-zero fractional part 
 						// math.08=Rounding necessary
@@ -533,7 +533,7 @@ namespace Deveel.Math {
 						exponent -= k;
 					}
 					// Computing (mantisa * 2^k) / 10^s
-					quotient = mantisa.DivideAndRemainder(powerOfTen, out remainder);
+					quotient = BigMath.DivideAndRemainder(mantisa, powerOfTen, out remainder);
 					// To check if the fractional part >= 0.5
 					compRem = remainder.ShiftLeftOneBit().CompareTo(powerOfTen);
 					// To add two rounded bits at end of mantisa
@@ -606,8 +606,8 @@ namespace Deveel.Math {
 
 			// TODO: must be verified
 			public decimal ToDecimal() {
-				var scaleDivisor = BigInteger.FromInt64(10).Pow(_scale);
-				var remainder = GetUnscaledValue().Remainder(scaleDivisor);
+				var scaleDivisor = BigMath.Pow(BigInteger.FromInt64(10), _scale);
+				var remainder = BigMath.Remainder(GetUnscaledValue(), scaleDivisor);
 				var scaledValue = GetUnscaledValue() / scaleDivisor;
 
 				var leftOfDecimal = (decimal)scaledValue;

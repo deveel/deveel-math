@@ -268,7 +268,7 @@ namespace Deveel.Math {
 					} while ((x.CompareTo(n) >= BigInteger.EQUALS) || (x.Sign == 0)
 							|| x.IsOne);
 				}
-				y = x.ModPow(q, n);
+				y = BigMath.ModPow(x, q, n);
 				if (y.IsOne || y.Equals(n_minus_1)) {
 					continue;
 				}
@@ -276,7 +276,7 @@ namespace Deveel.Math {
 					if (y.Equals(n_minus_1)) {
 						continue;
 					}
-					y = (y * y).Mod(n);
+					y = (y * y) % n;
 					if (y.IsOne) {
 						return false;
 					}
