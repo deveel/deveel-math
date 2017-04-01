@@ -537,7 +537,7 @@ namespace Deveel.Math {
 					// To check if the fractional part >= 0.5
 					compRem = remainder.ShiftLeftOneBit().CompareTo(powerOfTen);
 					// To add two rounded bits at end of mantisa
-					mantisa = BigMath.Add(quotient.ShiftLeft(2), BigInteger.FromInt64((compRem * (compRem + 3)) / 2 + 1));
+					mantisa = quotient.ShiftLeft(2) + BigInteger.FromInt64((compRem * (compRem + 3)) / 2 + 1);
 					exponent -= 2;
 				}
 				lowestSetBit = mantisa.LowestSetBit;

@@ -468,7 +468,7 @@ namespace Deveel.Math {
 				throw new ArithmeticException(Messages.math18); //$NON-NLS-1$
 			}
 			BigInteger rem = Remainder(m);
-			return ((rem.sign < 0) ? BigMath.Add(rem, m) : rem);
+			return ((rem.sign < 0) ? rem + m : rem);
 		}
 
 		public static BigInteger operator +(BigInteger a, BigInteger b) {

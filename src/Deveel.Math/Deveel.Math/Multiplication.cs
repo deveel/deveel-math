@@ -122,11 +122,11 @@ namespace Deveel.Math {
 			BigInteger lower = Karatsuba(lowerOp1, lowerOp2);
 			BigInteger middle = Karatsuba(upperOp1.Subtract(lowerOp1),
 					lowerOp2.Subtract(upperOp2));
-			middle = BigMath.Add(BigMath.Add(middle, upper), lower);
+			middle = (middle + upper + lower);
 			middle = middle.ShiftLeft(ndiv2);
 			upper = upper.ShiftLeft(ndiv2 << 1);
 
-			return BigMath.Add(BigMath.Add(upper, middle), lower);
+			return (upper + middle + lower);
 		}
 
 		/**
