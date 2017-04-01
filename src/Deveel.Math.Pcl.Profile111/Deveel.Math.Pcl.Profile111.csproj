@@ -47,8 +47,29 @@
     <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal.cs">
       <Link>Deveel.Math\BigDecimal.cs</Link>
     </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimalMath.cs">
+      <Link>Deveel.Math\BigDecimalMath.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Convertible.cs">
+      <Link>Deveel.Math\BigDecimal_Convertible.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Functions.cs">
+      <Link>Deveel.Math\BigDecimal_Functions.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Operators.cs">
+      <Link>Deveel.Math\BigDecimal_Operators.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Parse.cs">
+      <Link>Deveel.Math\BigDecimal_Parse.cs</Link>
+    </Compile>
     <Compile Include="..\Deveel.Math\Deveel.Math\BigInteger.cs">
       <Link>Deveel.Math\BigInteger.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigIntegerMath.cs">
+      <Link>Deveel.Math\BigIntegerMath.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\BigMath.cs">
+      <Link>Deveel.Math\BigMath.cs</Link>
     </Compile>
     <Compile Include="..\Deveel.Math\Deveel.Math\BitLevel.cs">
       <Link>Deveel.Math\BitLevel.cs</Link>

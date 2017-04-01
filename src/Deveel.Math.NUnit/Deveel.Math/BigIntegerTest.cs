@@ -6,7 +6,7 @@ namespace Deveel.Math {
 	[TestFixture]
 	public class BigIntegerTest {
 		public BigIntegerTest() {
-			twoToTheSeventy = two.Pow(70);
+			twoToTheSeventy = BigMath.Pow(two, 70);
 		}
 
 		private BigInteger minusTwo = BigInteger.Parse("-2", 10);
