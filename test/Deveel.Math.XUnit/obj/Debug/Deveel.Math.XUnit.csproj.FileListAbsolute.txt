@@ -1,4 +1,3 @@
-D:\dev\deveel\deveel-math\test\Deveel.Math.XUnit\obj\Debug\Deveel.Math.XUnit.csprojResolveAssemblyReference.cache
 D:\dev\deveel\deveel-math\test\Deveel.Math.XUnit\bin\Debug\Deveel.Math.XUnit.dll
 D:\dev\deveel\deveel-math\test\Deveel.Math.XUnit\bin\Debug\Deveel.Math.XUnit.pdb
 D:\dev\deveel\deveel-math\test\Deveel.Math.XUnit\bin\Debug\Deveel.Math.dll
@@ -8,5 +7,6 @@ D:\dev\deveel\deveel-math\test\Deveel.Math.XUnit\bin\Debug\Deveel.Math.pdb
 D:\dev\deveel\deveel-math\test\Deveel.Math.XUnit\bin\Debug\Deveel.Math.xml
 D:\dev\deveel\deveel-math\test\Deveel.Math.XUnit\bin\Debug\xunit.xml
 D:\dev\deveel\deveel-math\test\Deveel.Math.XUnit\bin\Debug\xunit.extensions.xml
+D:\dev\deveel\deveel-math\test\Deveel.Math.XUnit\obj\Debug\Deveel.Math.XUnit.csprojResolveAssemblyReference.cache
 D:\dev\deveel\deveel-math\test\Deveel.Math.XUnit\obj\Debug\Deveel.Math.XUnit.dll
 D:\dev\deveel\deveel-math\test\Deveel.Math.XUnit\obj\Debug\Deveel.Math.XUnit.pdb

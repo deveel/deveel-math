@@ -5,13 +5,6 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deveel.Math", "Deveel.Math\Deveel.Math.csproj", "{DAB16486-ED07-4D2D-8E09-DB259C583F02}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{83B688C3-528C-4BA3-A9AD-8A3D62B1D3AB}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deveel.Math.Pcl.Profile328", "Deveel.Math.Pcl.Profile328\Deveel.Math.Pcl.Profile328.csproj", "{3152C775-CFE4-4B4E-B526-1896BD3B0A8C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Deveel.Math.Pcl.Profile111", "Deveel.Math.Pcl.Profile111\Deveel.Math.Pcl.Profile111.csproj", "{DCB71743-D4B1-4571-A821-1EE63159E9C0}"
