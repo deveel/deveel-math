@@ -631,7 +631,7 @@ namespace Deveel.Math {
 		public void AndNotBigInteger() {
 			foreach (BigInteger[] element in booleanPairs) {
 				BigInteger i1 = element[0], i2 = element[1];
-				BigInteger res = i1.AndNot(i2);
+				BigInteger res = BigMath.AndNot(i1, i2);
 				int len = System.Math.Max(i1.BitLength, i2.BitLength) + 66;
 				for (int i = 0; i < len; i++) {
 					Assert.True((i1.TestBit(i) && !i2.TestBit(i)) == res.TestBit(i), "andNot");
@@ -640,16 +640,16 @@ namespace Deveel.Math {
 				// asymmetrical
 				i1 = element[1];
 				i2 = element[0];
-				res = i1.AndNot(i2);
+				res = BigMath.AndNot(i1, i2);
 				for (int i = 0; i < len; i++) {
 					Assert.True((i1.TestBit(i) && !i2.TestBit(i)) == res.TestBit(i), "andNot reversed");
 				}
 			}
 
-			Assert.Throws<NullReferenceException>(() => BigInteger.Zero.AndNot(null));
+			Assert.Throws<NullReferenceException>(() => BigMath.AndNot(BigInteger.Zero, null));
 
 			BigInteger bi = new BigInteger(0, new byte[] { });
-			Assert.Equal(BigInteger.Zero, bi.AndNot(BigInteger.Zero));
+			Assert.Equal(BigInteger.Zero, BigMath.AndNot(bi, BigInteger.Zero));
 		}
 
 		private void TestDiv(BigInteger i1, BigInteger i2) {

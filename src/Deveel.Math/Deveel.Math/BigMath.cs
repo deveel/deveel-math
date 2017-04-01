@@ -1,4 +1,19 @@
-﻿using System;
+﻿// 
+//  Copyright 2009-2017  Deveel
+// 
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+// 
+//        http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+
+using System;
 
 namespace Deveel.Math {
 	public static class BigMath {
@@ -101,6 +116,24 @@ namespace Deveel.Math {
 
 		public static BigInteger XOr(BigInteger a, BigInteger b) {
 			return Logical.Xor(a, b);
+		}
+
+		/**
+		 * Returns a new {@code BigInteger} whose value is {@code this & ~val}.
+		 * Evaluating {@code x.andNot(val)} returns the same result as {@code
+		 * x.and(val.not())}.
+		 * <p>
+		 * <b>Implementation Note:</b> Usage of this method is not recommended as
+		 * the current implementation is not efficient.
+		 *
+		 * @param val
+		 *            value to be not'ed and then and'ed with {@code this}.
+		 * @return {@code this & ~val}.
+		 * @throws NullPointerException
+		 *             if {@code val == null}.
+		 */
+		public static BigInteger AndNot(BigInteger value, BigInteger other) {
+			return Logical.AndNot(value, other);
 		}
 
 		/**

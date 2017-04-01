@@ -165,7 +165,6 @@
     <Compile Include="Deveel.Math\BigInteger_Convertible.cs" />
     <Compile Include="Deveel.Math\BigInteger_Functions.cs" />
     <Compile Include="Deveel.Math\BigMath.cs" />
-    <Compile Include="Deveel.Math\BitInteger_Operators.cs" />
     <Compile Include="Deveel.Math\BitLevel.cs" />
     <Compile Include="Deveel.Math\CharHelper.cs" />
     <Compile Include="Deveel.Math\Conversion.cs" />
