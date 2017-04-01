@@ -133,60 +133,6 @@ namespace Deveel.Math {
 		}
 
 		/**
-		 * Returns a new {@code BigInteger} whose value is {@code this / divisor}.
-		 *
-		 * @param divisor
-		 *            value by which {@code this} is divided.
-		 * @return {@code this / divisor}.
-		 * @throws NullPointerException
-		 *             if {@code divisor == null}.
-		 * @throws ArithmeticException
-		 *             if {@code divisor == 0}.
-		 */
-		public BigInteger Divide(BigInteger divisor) {
-			if (divisor.sign == 0) {
-				// math.17=BigInteger divide by zero
-				throw new ArithmeticException(Messages.math17); //$NON-NLS-1$
-			}
-			int divisorSign = divisor.sign;
-			if (divisor.IsOne) {
-				return ((divisor.sign > 0) ? this : this.Negate());
-			}
-			int thisSign = sign;
-			int thisLen = numberLength;
-			int divisorLen = divisor.numberLength;
-			if (thisLen + divisorLen == 2) {
-				long val = (digits[0] & 0xFFFFFFFFL)
-				           / (divisor.digits[0] & 0xFFFFFFFFL);
-				if (thisSign != divisorSign) {
-					val = -val;
-				}
-				return FromInt64(val);
-			}
-			int cmp = ((thisLen != divisorLen) ? ((thisLen > divisorLen) ? 1 : -1)
-				: Elementary.compareArrays(digits, divisor.digits, thisLen));
-			if (cmp == EQUALS) {
-				return ((thisSign == divisorSign) ? One : MinusOne);
-			}
-			if (cmp == LESS) {
-				return Zero;
-			}
-			int resLength = thisLen - divisorLen + 1;
-			int[] resDigits = new int[resLength];
-			int resSign = ((thisSign == divisorSign) ? 1 : -1);
-			if (divisorLen == 1) {
-				Division.DivideArrayByInt(resDigits, digits, thisLen,
-					divisor.digits[0]);
-			} else {
-				Division.Divide(resDigits, resLength, digits, thisLen,
-					divisor.digits, divisorLen);
-			}
-			BigInteger result = new BigInteger(resSign, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
-		}
-
-		/**
 		 * Returns a new {@code BigInteger} whose value is {@code this % divisor}.
 		 * Regarding signs this methods has the same behavior as the % operator on
 		 * int's, i.e. the sign of the remainder is the same as the sign of this.
@@ -355,7 +301,7 @@ namespace Deveel.Math {
 		}
 
 		public static BigInteger operator /(BigInteger a, BigInteger b) {
-			return a.Divide(b);
+			return BigMath.Divide(a, b);
 		}
 
 		public static BigInteger operator %(BigInteger a, BigInteger b) {

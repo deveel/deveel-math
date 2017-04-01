@@ -317,7 +317,7 @@ namespace Deveel.Math {
 					return GetUnscaledValue() * Multiplication.PowerOf10(-(long)_scale);
 				} else {
 					// (scale > 0)
-					return GetUnscaledValue().Divide(Multiplication.PowerOf10(_scale));
+					return GetUnscaledValue() / Multiplication.PowerOf10(_scale);
 				}
 			}
 
@@ -608,7 +608,7 @@ namespace Deveel.Math {
 			public decimal ToDecimal() {
 				var scaleDivisor = BigInteger.FromInt64(10).Pow(_scale);
 				var remainder = GetUnscaledValue().Remainder(scaleDivisor);
-				var scaledValue = GetUnscaledValue().Divide(scaleDivisor);
+				var scaledValue = GetUnscaledValue() / scaleDivisor;
 
 				var leftOfDecimal = (decimal)scaledValue;
 				var rightOfDecimal = (remainder) / ((decimal)scaleDivisor);

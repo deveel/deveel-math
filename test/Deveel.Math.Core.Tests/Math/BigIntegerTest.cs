@@ -401,13 +401,13 @@ namespace Deveel.Math {
 				BigInteger d = bi3 >> i;
 				Assert.True(c.Equals(d), "c==d");
 				c = c >> 1;
-				Assert.True(d.Divide(two).Equals(c), ">>1 == /2");
+				Assert.True((d / two).Equals(c), ">>1 == /2");
 				Assert.True(c.Sign >= 0, "c non-neg");
 
 				BigInteger f = E >> i;
 				Assert.True(e.Equals(f), "e==f");
 				e = e >> 1;
-				Assert.True((f - one).Divide(two).Equals(e), ">>1 == /2");
+				Assert.True(((f - one) / two).Equals(e), ">>1 == /2");
 				Assert.True(e.Sign == -1, "e negative");
 
 				Assert.True((b >> i).Equals(one), "b >> i");
@@ -504,10 +504,10 @@ namespace Deveel.Math {
 			TestAllDivs(BigInteger.FromInt64(0xCC0225953CL), BigInteger
 					.FromInt64(0x1B937B765L));
 
-			Assert.Throws<ArithmeticException>(() => largePos.Divide(zero));
-			Assert.Throws<ArithmeticException>(() => bi1.Divide(zero));
-			Assert.Throws<ArithmeticException>(() => bi3.Negate().Divide(zero));
-			Assert.Throws<ArithmeticException>(() => zero.Divide(zero));
+			Assert.Throws<ArithmeticException>(() => largePos / zero);
+			Assert.Throws<ArithmeticException>(() => bi1 / zero);
+			Assert.Throws<ArithmeticException>(() => bi3.Negate() / zero);
+			Assert.Throws<ArithmeticException>(() => zero / zero);
 		}
 
 		[Fact]
@@ -653,7 +653,7 @@ namespace Deveel.Math {
 		}
 
 		private void TestDiv(BigInteger i1, BigInteger i2) {
-			BigInteger q = i1.Divide(i2);
+			BigInteger q = i1 / i2;
 			BigInteger r = i1.Remainder(i2);
 			BigInteger remainder;
 			BigInteger quotient = i1.DivideAndRemainder(i2, out remainder);

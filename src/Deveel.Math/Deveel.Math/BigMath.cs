@@ -114,5 +114,58 @@ namespace Deveel.Math {
 			return Multiplication.Multiply(a, b);
 		}
 
+		/**
+ * Returns a new {@code BigInteger} whose value is {@code this / divisor}.
+ *
+ * @param divisor
+ *            value by which {@code this} is divided.
+ * @return {@code this / divisor}.
+ * @throws NullPointerException
+ *             if {@code divisor == null}.
+ * @throws ArithmeticException
+ *             if {@code divisor == 0}.
+ */
+		public static BigInteger Divide(BigInteger dividend, BigInteger divisor) {
+			if (divisor.Sign == 0) {
+				// math.17=BigInteger divide by zero
+				throw new ArithmeticException(Messages.math17); //$NON-NLS-1$
+			}
+			int divisorSign = divisor.Sign;
+			if (divisor.IsOne) {
+				return ((divisor.Sign > 0) ? dividend : dividend.Negate());
+			}
+			int thisSign = dividend.Sign;
+			int thisLen = dividend.numberLength;
+			int divisorLen = divisor.numberLength;
+			if (thisLen + divisorLen == 2) {
+				long val = (dividend.digits[0] & 0xFFFFFFFFL)
+				           / (divisor.digits[0] & 0xFFFFFFFFL);
+				if (thisSign != divisorSign) {
+					val = -val;
+				}
+				return BigInteger.FromInt64(val);
+			}
+			int cmp = ((thisLen != divisorLen) ? ((thisLen > divisorLen) ? 1 : -1)
+				: Elementary.compareArrays(dividend.digits, divisor.digits, thisLen));
+			if (cmp == BigInteger.EQUALS) {
+				return ((thisSign == divisorSign) ? BigInteger.One : BigInteger.MinusOne);
+			}
+			if (cmp == BigInteger.LESS) {
+				return BigInteger.Zero;
+			}
+			int resLength = thisLen - divisorLen + 1;
+			int[] resDigits = new int[resLength];
+			int resSign = ((thisSign == divisorSign) ? 1 : -1);
+			if (divisorLen == 1) {
+				Division.DivideArrayByInt(resDigits, dividend.digits, thisLen,
+					divisor.digits[0]);
+			} else {
+				Division.Divide(resDigits, resLength, dividend.digits, thisLen,
+					divisor.digits, divisorLen);
+			}
+			BigInteger result = new BigInteger(resSign, resLength, resDigits);
+			result.CutOffLeadingZeroes();
+			return result;
+		}
 	}
 }

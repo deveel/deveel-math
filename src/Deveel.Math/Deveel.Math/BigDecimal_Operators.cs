@@ -148,8 +148,8 @@ namespace Deveel.Math {
 			}
 			// To divide both by the GCD
 			gcd = p.Gcd(q);
-			p = p.Divide(gcd);
-			q = q.Divide(gcd);
+			p = p / gcd;
+			q = q / gcd;
 			// To simplify all "2" factors of q, dividing by 2^k
 			k = q.LowestSetBit;
 			q = q >> k;
@@ -298,15 +298,15 @@ namespace Deveel.Math {
 				 * the result must be zero with the appropriate scale */
 				integralValue = BigInteger.Zero;
 			} else if (newScale == 0) {
-				integralValue = GetUnscaledValue().Divide(divisor.GetUnscaledValue());
+				integralValue = GetUnscaledValue() / divisor.GetUnscaledValue();
 			} else if (newScale > 0) {
 				powerOfTen = Multiplication.PowerOf10(newScale);
-				integralValue = GetUnscaledValue().Divide(divisor.GetUnscaledValue() * powerOfTen);
+				integralValue = GetUnscaledValue() / (divisor.GetUnscaledValue() * powerOfTen);
 				integralValue = integralValue * powerOfTen;
 			} else {
 				// (newScale < 0)
 				powerOfTen = Multiplication.PowerOf10(-newScale);
-				integralValue = (GetUnscaledValue() * powerOfTen).Divide(divisor.GetUnscaledValue());
+				integralValue = (GetUnscaledValue() * powerOfTen) / divisor.GetUnscaledValue();
 				// To strip trailing zeros approximating to the preferred scale
 				while (!integralValue.TestBit(0)) {
 					quotient = integralValue.DivideAndRemainder(TenPow[i], out remainder);
@@ -371,10 +371,10 @@ namespace Deveel.Math {
 				quotient = BigInteger.Zero;
 			} else if (diffScale == 0) {
 				// CASE s1 == s2:  to calculate   u1 / u2 
-				quotient = GetUnscaledValue().Divide(divisor.GetUnscaledValue());
+				quotient = GetUnscaledValue() / divisor.GetUnscaledValue();
 			} else if (diffScale > 0) {
 				// CASE s1 >= s2:  to calculate   u1 / (u2 * 10^(s1-s2)  
-				quotient = GetUnscaledValue().Divide(divisor.GetUnscaledValue() * Multiplication.PowerOf10(diffScale));
+				quotient = GetUnscaledValue() / (divisor.GetUnscaledValue() * Multiplication.PowerOf10(diffScale));
 				// To chose  10^newScale  to get a quotient with at least 'mc.precision()' digits
 				newScale = System.Math.Min(diffScale, System.Math.Max(mcPrecision - quotPrecision + 1, 0));
 				// To calculate: (u1 / (u2 * 10^(s1-s2)) * 10^newScale
@@ -397,7 +397,7 @@ namespace Deveel.Math {
 					             + exp - divisor.Precision;
 					if (compRemDiv == 0) {
 						// To calculate:  (r * 10^exp2) / u2
-						remainder = (remainder * Multiplication.PowerOf10(exp)).Divide(divisor.GetUnscaledValue());
+						remainder = (remainder * Multiplication.PowerOf10(exp)) / divisor.GetUnscaledValue();
 						compRemDiv = System.Math.Abs(remainder.Sign);
 					}
 					if (compRemDiv > 0) {

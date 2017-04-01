@@ -546,7 +546,7 @@ namespace Deveel.Math {
 				 * Note that: 2 ^(bitlength() - 1) <= intVal < 10 ^(precision()) */
 					decimalDigits += (int) ((bitLength - 1)*Log10Of2);
 					// If after division the number isn't zero, exists an aditional digit
-					if (GetUnscaledValue().Divide(Multiplication.PowerOf10(decimalDigits)).Sign != 0) {
+					if ((GetUnscaledValue() / Multiplication.PowerOf10(decimalDigits)).Sign != 0) {
 						decimalDigits++;
 					}
 				}
@@ -1154,7 +1154,7 @@ namespace Deveel.Math {
 				tempBD = new BigDecimal(integer);
 				// If after to add the increment the precision changed, we normalize the size
 				if (tempBD.Precision > mcPrecision) {
-					integer = integer.Divide(BigInteger.Ten);
+					integer = integer / BigInteger.Ten;
 					newScale--;
 				}
 			}

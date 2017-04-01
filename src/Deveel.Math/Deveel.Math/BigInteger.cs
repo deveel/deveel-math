@@ -63,7 +63,7 @@ namespace Deveel.Math {
 #if !PORTABLE
 		[NonSerialized] 
 #endif
-		private int[] digits;
+		internal int[] digits;
 
 		/** The length of this in measured in ints. Can be less than digits.length(). */
 #if !PORTABLE
