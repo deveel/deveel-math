@@ -72,7 +72,7 @@ namespace Deveel.Math {
 			}
 			double bitsForRadixDigit;
 			bitsForRadixDigit = System.Math.Log(radix) / System.Math.Log(2);
-			int resLengthInChars = (int)(val.Abs().BitLength / bitsForRadixDigit + ((sign < 0) ? 1
+			int resLengthInChars = (int)(BigMath.Abs(val).BitLength / bitsForRadixDigit + ((sign < 0) ? 1
 					: 0)) + 1;
 
 			char[] result = new char[resLengthInChars];
@@ -426,11 +426,11 @@ namespace Deveel.Math {
 				return ((val.Sign > 0) ? Double.PositiveInfinity
 						: Double.NegativeInfinity);
 			}
-			int bitLen = val.Abs().BitLength;
+			int bitLen = BigMath.Abs(val).BitLength;
 			long exponent = bitLen - 1;
 			int delta = bitLen - 54;
 			// We need 54 top bits from this, the 53th bit is always 1 in lVal.
-			long lVal = (val.Abs() >> delta).ToInt64();
+			long lVal = (BigMath.Abs(val) >> delta).ToInt64();
 			/*
 			 * Take 53 bits from lVal to mantissa. The least significant bit is
 			 * needed for rounding.

@@ -148,7 +148,7 @@ namespace Deveel.Math {
 
 		void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) {
 			info.AddValue("sign", sign);
-			byte[] magn = Abs().ToByteArray();
+			byte[] magn = BigMath.Abs(this).ToByteArray();
 			info.AddValue("magnitude", magn, typeof(byte[]));
 		}
 

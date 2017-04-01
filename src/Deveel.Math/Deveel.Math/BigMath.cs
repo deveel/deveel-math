@@ -373,7 +373,7 @@ namespace Deveel.Math {
 			}
 
 			// From now on: (m > 1)
-			BigInteger res = Division.ModInverseMontgomery(value.Abs() % m, m);
+			BigInteger res = Division.ModInverseMontgomery(Abs(value) % m, m);
 			if (res.Sign == 0) {
 				// math.19=BigInteger not invertible.
 				throw new ArithmeticException(Messages.math19); //$NON-NLS-1$
@@ -422,9 +422,9 @@ namespace Deveel.Math {
 			}
 			// From now on: (m > 0) and (exponent >= 0)
 			BigInteger res = (m.TestBit(0))
-				? Division.OddModPow(b.Abs(),
+				? Division.OddModPow(Abs(b),
 					exponent, m)
-				: Division.EvenModPow(b.Abs(), exponent, m);
+				: Division.EvenModPow(Abs(b), exponent, m);
 			if ((b.Sign < 0) && exponent.TestBit(0)) {
 				// -b^e mod m == ((-1 mod m) * (b^e mod m)) mod m
 				res = ((m - BigInteger.One) * res) % m;
@@ -448,9 +448,9 @@ namespace Deveel.Math {
 				throw new ArithmeticException(Messages.math16); //$NON-NLS-1$
 			}
 			if (exp == 0) {
-				return  BigInteger.One;
-			} else if (exp == 1 || 
-				value.Equals(BigInteger.One) || value.Equals(BigInteger.Zero)) {
+				return BigInteger.One;
+			} else if (exp == 1 ||
+			           value.Equals(BigInteger.One) || value.Equals(BigInteger.Zero)) {
 				return value;
 			}
 
@@ -462,10 +462,81 @@ namespace Deveel.Math {
 					x++;
 				}
 
-				return BigInteger.GetPowerOfTwo(x * exp) * (Pow(value >> x,exp));
+				return BigInteger.GetPowerOfTwo(x * exp) * (Pow(value >> x, exp));
 			}
 
 			return Multiplication.Pow(value, exp);
+		}
+
+		/**
+ * Returns the position of the lowest set bit in the two's complement
+ * representation of this {@code BigInteger}. If all bits are zero (this=0)
+ * then -1 is returned as result.
+ * <p>
+ * <b>Implementation Note:</b> Usage of this method is not recommended as
+ * the current implementation is not efficient.
+ *
+ * @return position of lowest bit if {@code this != 0}, {@code -1} otherwise
+ */
+
+		public static BigInteger Min(BigInteger a, BigInteger b) {
+			return ((a.CompareTo(b) == BigInteger.LESS) ? a : b);
+		}
+
+		/**
+		 * Returns the maximum of this {@code BigInteger} and {@code val}.
+		 *
+		 * @param val
+		 *            value to be used to compute the maximum with {@code this}
+		 * @return {@code max(this, val)}
+		 * @throws NullPointerException
+		 *             if {@code val == null}
+		 */
+		public static BigInteger Max(BigInteger a, BigInteger b) {
+			return ((a.CompareTo(b) == BigInteger.GREATER) ? a : b);
+		}
+
+		/**
+* Returns a new {@code BigInteger} whose value is greatest common divisor
+* of {@code this} and {@code val}. If {@code this==0} and {@code val==0}
+* then zero is returned, otherwise the result is positive.
+*
+* @param val
+*            value with which the greatest common divisor is computed.
+* @return {@code gcd(this, val)}.
+* @throws NullPointerException
+*             if {@code val == null}.
+*/
+		public static BigInteger Gcd(BigInteger a, BigInteger b) {
+			BigInteger val1 = Abs(a);
+			BigInteger val2 = Abs(b);
+			// To avoid a possible division by zero
+			if (val1.Sign == 0) {
+				return val2;
+			} else if (val2.Sign == 0) {
+				return val1;
+			}
+
+			// Optimization for small operands
+			// (op2.bitLength() < 64) and (op1.bitLength() < 64)
+			if (((val1.numberLength == 1) || ((val1.numberLength == 2) && (val1.digits[1] > 0)))
+			    && (val2.numberLength == 1 || (val2.numberLength == 2 && val2.digits[1] > 0))) {
+				return BigInteger.FromInt64(Division.GcdBinary(val1.ToInt64(), val2.ToInt64()));
+			}
+
+			return Division.GcdBinary(val1.Copy(), val2.Copy());
+
+		}
+
+		/// <summary>
+		/// Computes the absolute value of the given <see cref="BigInteger"/>
+		/// </summary>
+		/// <returns>
+		/// Returns an instance of <see cref="BigInteger"/> that represents the
+		/// absolute value of this instance.
+		/// </returns>
+		public static BigInteger Abs(BigInteger value) {
+			return ((value.Sign < 0) ? new BigInteger(1, value.numberLength, value.digits) : value);
 		}
 	}
 }

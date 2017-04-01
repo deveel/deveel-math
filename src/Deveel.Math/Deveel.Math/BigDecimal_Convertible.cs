@@ -528,7 +528,7 @@ namespace Deveel.Math {
 					// Cases which 'this' is very large            
 					return (sign * Double.PositiveInfinity);
 				}
-				mantisa = GetUnscaledValue().Abs();
+				mantisa = BigMath.Abs( GetUnscaledValue());
 				// Let be:  this = [u,s], with s > 0
 				if (_scale <= 0) {
 					// mantisa = abs(u) * 10^s

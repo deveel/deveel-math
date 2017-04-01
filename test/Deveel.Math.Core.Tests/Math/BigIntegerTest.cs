@@ -141,7 +141,7 @@ namespace Deveel.Math {
 		public void ConstructorBytes() {
 			var myByteArray = new byte[] { (byte)0x00, (byte)0xFF, (byte)0xFE };
 			bi = new BigInteger(myByteArray);
-			Assert.True(bi.Equals(BigInteger.Zero.SetBit(16) - two), "Incorrect value for pos number");
+			Assert.True(bi.Equals(BigInteger.SetBit(BigInteger.Zero, 16) - two), "Incorrect value for pos number");
 			myByteArray = new byte[] { (byte)0xFF, (byte)0xFE };
 			bi = new BigInteger(myByteArray);
 			Assert.True(bi.Equals(minusTwo), "Incorrect value for neg number");
@@ -151,9 +151,9 @@ namespace Deveel.Math {
 		public void ConstructorIBytes() {
 			var myByteArray = new byte[] { (byte)0xFF, (byte)0xFE };
 			bi = new BigInteger(1, myByteArray);
-			Assert.True(bi.Equals(BigInteger.Zero.SetBit(16) - two), "Incorrect value for pos number");
+			Assert.True(bi.Equals(BigInteger.SetBit(BigInteger.Zero, 16) - two), "Incorrect value for pos number");
 			bi = new BigInteger(-1, myByteArray);
-			Assert.True(bi.Equals(-(BigInteger.Zero.SetBit(16) - two)), "Incorrect value for neg number");
+			Assert.True(bi.Equals(-(BigInteger.SetBit(BigInteger.Zero, 16) - two)), "Incorrect value for neg number");
 			myByteArray = new byte[] { (byte)0, (byte)0 };
 			bi = new BigInteger(0, myByteArray);
 			Assert.True(bi.Equals(zero), "Incorrect value for zero");
@@ -181,21 +181,21 @@ namespace Deveel.Math {
 		public void IsProbablePrimeI() {
 			int fails = 0;
 			bi = new BigInteger(20, 20, rand);
-			if (!bi.IsProbablePrime(17)) {
+			if (!BigInteger.IsProbablePrime(bi, 17)) {
 				fails++;
 			}
 			bi = BigInteger.Parse("4", 10);
-			if (bi.IsProbablePrime(17)) {
+			if (BigInteger.IsProbablePrime(bi, 17)) {
 				throw new Exception("IsProbablePrime failed for: " + bi.ToString());
 			}
 			bi = BigInteger.FromInt64(17L * 13L);
-			if (bi.IsProbablePrime(17)) {
+			if (BigInteger.IsProbablePrime(bi, 17)) {
 				throw new Exception("IsProbablePrime failed for: " + bi.ToString());
 			}
 			for (long a = 2; a < 1000; a++) {
 				if (isPrime(a)) {
-					Assert.True(BigInteger.FromInt64(a).IsProbablePrime(5), "false negative on prime number <1000");
-				} else if (BigInteger.FromInt64(a).IsProbablePrime(17)) {
+					Assert.True(BigInteger.IsProbablePrime(BigInteger.FromInt64(a), 5), "false negative on prime number <1000");
+				} else if (BigInteger.IsProbablePrime(BigInteger.FromInt64(a), 17)) {
 #if !PORTABLE
 					Console.Out.WriteLine("IsProbablePrime failed for: " + a);
 #endif
@@ -204,7 +204,7 @@ namespace Deveel.Math {
 			}
 			for (int a = 0; a < 1000; a++) {
 				bi = (BigInteger.FromInt64(rand.Next(1000000)) * BigInteger.FromInt64(rand.Next(1000000)));
-				if (bi.IsProbablePrime(17)) {
+				if (BigInteger.IsProbablePrime(bi, 17)) {
 #if !PORTABLE
 					Console.Out.WriteLine("IsProbablePrime failed for: " + bi.ToString());
 #endif
@@ -213,7 +213,7 @@ namespace Deveel.Math {
 			}
 			for (int a = 0; a < 200; a++) {
 				bi = new BigInteger(70, rand) * new BigInteger(70, rand);
-				if (bi.IsProbablePrime(17)) {
+				if (BigInteger.IsProbablePrime(bi, 17)) {
 #if !PORTABLE
 					Console.Out.WriteLine("IsProbablePrime failed for: " + bi.ToString());
 #endif
@@ -286,8 +286,8 @@ namespace Deveel.Math {
 			Assert.True((minusOne + one).Equals(zero), "(-1)+1");
 
 			for (int i = 0; i < 200; i++) {
-				BigInteger midbit = zero.SetBit(i);
-				Assert.True((midbit +  midbit).Equals(zero.SetBit(i + 1)), "add fails to carry on bit " + i);
+				BigInteger midbit = BigInteger.SetBit(zero, i);
+				Assert.True((midbit +  midbit).Equals(BigInteger.SetBit(zero, i + 1)), "add fails to carry on bit " + i);
 			}
 
 			BigInteger bi2p3 = bi2 + bi3;
@@ -310,7 +310,7 @@ namespace Deveel.Math {
 				unchecked((-BigInteger.FromInt64(0x62EB40FEF85AA9EBL*2)).Equals(BigInteger.FromInt64(-0x62EB40FEF85AA9EBL*2))),
 				"0x62EB40FEF85AA9EBL*2.neg");
 			for (int i = 0; i < 200; i++) {
-				BigInteger midbit = zero.SetBit(i);
+				BigInteger midbit = BigInteger.SetBit(zero, i);
 				BigInteger negate = -midbit;
 				Assert.True((-negate).Equals(midbit), "negate negate");
 				Assert.True(((-midbit) + midbit).Equals(zero), "neg fails on bit " + i);
@@ -327,10 +327,10 @@ namespace Deveel.Math {
 
 		[Fact]
 		public void Abs() {
-			Assert.True((-aZillion).Abs().Equals(aZillion.Abs()), "Invalid number returned for zillion");
-			Assert.True((-zero).Abs().Equals(zero), "Invalid number returned for zero neg");
-			Assert.True(zero.Abs().Equals(zero), "Invalid number returned for zero");
-			Assert.True((-two).Abs().Equals(two), "Invalid number returned for two");
+			Assert.True(BigMath.Abs(-aZillion).Equals(BigMath.Abs(aZillion)), "Invalid number returned for zillion");
+			Assert.True(BigMath.Abs(-zero).Equals(zero), "Invalid number returned for zero neg");
+			Assert.True(BigMath.Abs(zero).Equals(zero), "Invalid number returned for zero");
+			Assert.True(BigMath.Abs(-two).Equals(two), "Invalid number returned for two");
 		}
 
 		[Fact]
@@ -353,7 +353,7 @@ namespace Deveel.Math {
 						Assert.True(inv.CompareTo(mod) < 0, "inverse greater than modulo: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.True(inv.CompareTo(BigInteger.Zero) >= 0, "inverse less than zero: " + a + " inv mod " + mod + " equals " + inv);
 					} catch (ArithmeticException) {
-						Assert.True(!one.Equals(a.Gcd(mod)), "should have found inverse for " + a + " mod " + mod);
+						Assert.True(!one.Equals(BigMath.Gcd(a, mod)), "should have found inverse for " + a + " mod " + mod);
 					}
 				}
 			}
@@ -367,7 +367,7 @@ namespace Deveel.Math {
 						Assert.True(inv.CompareTo(mod) < 0, "inverse greater than modulo: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.True(inv.CompareTo(BigInteger.Zero) >= 0, "inverse less than zero: " + a + " inv mod " + mod + " equals " + inv);
 					} catch (ArithmeticException) {
-						Assert.True(!one.Equals(a.Gcd(mod)), "should have found inverse for " + a + " mod " + mod);
+						Assert.True(!one.Equals(BigMath.Gcd(a, mod)), "should have found inverse for " + a + " mod " + mod);
 					}
 				}
 			}
@@ -393,7 +393,7 @@ namespace Deveel.Math {
 			BigInteger E = -bi3;
 			BigInteger e = E;
 			for (int i = 0; i < 200; i++) {
-				BigInteger b = BigInteger.Zero.SetBit(i);
+				BigInteger b = BigInteger.SetBit(BigInteger.Zero, i);
 				Assert.True(a.Equals(b), "a==b");
 				a = a  << 1;
 				Assert.True(a.Sign >= 0, "a non-neg");
@@ -664,16 +664,16 @@ namespace Deveel.Math {
 			Assert.True(r.Sign != 0 || r.Equals(zero), "signum and equals(zero) do not agree on remainder");
 			Assert.True(q.Sign == 0 || q.Sign == i1.Sign * i2.Sign, "wrong sign on quotient");
 			Assert.True(r.Sign == 0 || r.Sign == i1.Sign, "wrong sign on remainder");
-			Assert.True(r.Abs().CompareTo(i2.Abs()) < 0, "remainder out of range");
-			Assert.True(((q.Abs() + one) * i2.Abs()).CompareTo(i1.Abs()) > 0, "quotient too small");
-			Assert.True((q.Abs() * i2.Abs()).CompareTo(i1.Abs()) <= 0, "quotient too large");
+			Assert.True(BigMath.Abs(r).CompareTo(BigMath.Abs(i2)) < 0, "remainder out of range");
+			Assert.True(((BigMath.Abs(q) + one) * BigMath.Abs(i2)).CompareTo(BigMath.Abs(i1)) > 0, "quotient too small");
+			Assert.True((BigMath.Abs(q) * BigMath.Abs(i2)).CompareTo(BigMath.Abs(i1)) <= 0, "quotient too large");
 			BigInteger p = q * i2;
 			BigInteger a = p + r;
 			Assert.True(a.Equals(i1), "(a/b)*b+(a%b) != a");
 			try {
 				BigInteger mod = i1 % i2;
 				Assert.True(mod.Sign >= 0, "mod is negative");
-				Assert.True(mod.Abs().CompareTo(i2.Abs()) < 0, "mod out of range");
+				Assert.True(BigMath.Abs(mod).CompareTo(BigMath.Abs(i2)) < 0, "mod out of range");
 				Assert.True(r.Sign < 0 || r.Equals(mod), "positive remainder == mod");
 				Assert.True(r.Sign >= 0 || r.Equals(mod - i2), "negative remainder == mod - divisor");
 			} catch (ArithmeticException e) {

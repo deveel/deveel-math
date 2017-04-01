@@ -37,7 +37,7 @@ namespace Deveel.Math {
 
 			} else {
 				// Checking if:  remainder * 2 >= scaledDivisor 
-				compRem = remainder.Abs().ShiftLeftOneBit().CompareTo(scaledDivisor.Abs());
+				compRem = BigMath.Abs(remainder).ShiftLeftOneBit().CompareTo(BigMath.Abs(scaledDivisor));
 				compRem = RoundingBehavior(quotient.TestBit(0) ? 1 : 0,
 					sign * (5 + compRem), roundingMode);
 			}
@@ -162,7 +162,7 @@ namespace Deveel.Math {
 				return GetZeroScaledBy(diffScale);
 			}
 			// To divide both by the GCD
-			gcd = p.Gcd(q);
+			gcd = BigMath.Gcd(p, q);
 			p = p / gcd;
 			q = q / gcd;
 			// To simplify all "2" factors of q, dividing by 2^k
@@ -185,7 +185,7 @@ namespace Deveel.Math {
 				}
 			} while (true);
 			// If  abs(q) != 1  then the quotient is periodic
-			if (!q.Abs().Equals(BigInteger.One)) {
+			if (!BigMath.Abs(q).Equals(BigInteger.One)) {
 				// math.05=Non-terminating decimal expansion; no exact representable decimal result.
 				throw new ArithmeticException(Messages.math05); //$NON-NLS-1$
 			}

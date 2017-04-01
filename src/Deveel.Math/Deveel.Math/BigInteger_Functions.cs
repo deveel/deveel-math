@@ -19,17 +19,6 @@ using System.Text;
 
 namespace Deveel.Math {
 	public sealed partial class BigInteger {
-		/// <summary>
-		/// Computes the absolute value of this <see cref="BigInteger"/>
-		/// </summary>
-		/// <returns>
-		/// Returns an instance of <see cref="BigInteger"/> that represents the
-		/// absolute value of this instance.
-		/// </returns>
-		public BigInteger Abs() {
-			return ((sign < 0) ? new BigInteger(1, numberLength, digits) : this);
-		}
-
 		/**
 		 * Tests whether the bit at position n in {@code this} is set. The result is
 		 * equivalent to {@code this & (2^n) != 0}.
@@ -84,11 +73,11 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException
 		 *             if {@code n < 0}.
 		 */
-		public BigInteger SetBit(int n) {
-			if (!TestBit(n)) {
-				return BitLevel.FlipBit(this, n);
+		public static BigInteger SetBit(BigInteger value, int n) {
+			if (!value.TestBit(n)) {
+				return BitLevel.FlipBit(value, n);
 			}
-			return this;
+			return value;
 		}
 
 		/**
@@ -105,94 +94,13 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException
 		 *             if {@code n < 0}.
 		 */
-		public BigInteger ClearBit(int n) {
-			if (TestBit(n)) {
-				return BitLevel.FlipBit(this, n);
+		public static BigInteger ClearBit(BigInteger value, int n) {
+			if (value.TestBit(n)) {
+				return BitLevel.FlipBit(value, n);
 			}
-			return this;
+			return value;
 		}
 
-		/**
-		 * Returns a new {@code BigInteger} which has the same binary representation
-		 * as {@code this} but with the bit at position n flipped. The result is
-		 * equivalent to {@code this ^ 2^n}.
-		 * <p>
-		 * <b>Implementation Note:</b> Usage of this method is not recommended as
-		 * the current implementation is not efficient.
-		 *
-		 * @param n
-		 *            position where the bit in {@code this} has to be flipped.
-		 * @return {@code this ^ 2^n}.
-		 * @throws ArithmeticException
-		 *             if {@code n < 0}.
-		 */
-		public BigInteger FlipBit(int n) {
-			if (n < 0) {
-				// math.15=Negative bit address
-				throw new ArithmeticException(Messages.math15); //$NON-NLS-1$
-			}
-			return BitLevel.FlipBit(this, n);
-		}
-
-		/**
-		 * Returns the position of the lowest set bit in the two's complement
-		 * representation of this {@code BigInteger}. If all bits are zero (this=0)
-		 * then -1 is returned as result.
-		 * <p>
-		 * <b>Implementation Note:</b> Usage of this method is not recommended as
-		 * the current implementation is not efficient.
-		 *
-		 * @return position of lowest bit if {@code this != 0}, {@code -1} otherwise
-		 */
-
-		public BigInteger Min(BigInteger val) {
-			return ((this.CompareTo(val) == LESS) ? this : val);
-		}
-
-		/**
-		 * Returns the maximum of this {@code BigInteger} and {@code val}.
-		 *
-		 * @param val
-		 *            value to be used to compute the maximum with {@code this}
-		 * @return {@code max(this, val)}
-		 * @throws NullPointerException
-		 *             if {@code val == null}
-		 */
-		public BigInteger Max(BigInteger val) {
-			return ((this.CompareTo(val) == GREATER) ? this : val);
-		}
-
-		/**
- * Returns a new {@code BigInteger} whose value is greatest common divisor
- * of {@code this} and {@code val}. If {@code this==0} and {@code val==0}
- * then zero is returned, otherwise the result is positive.
- *
- * @param val
- *            value with which the greatest common divisor is computed.
- * @return {@code gcd(this, val)}.
- * @throws NullPointerException
- *             if {@code val == null}.
- */
-		public BigInteger Gcd(BigInteger val) {
-			BigInteger val1 = Abs();
-			BigInteger val2 = val.Abs();
-			// To avoid a possible division by zero
-			if (val1.Sign == 0) {
-				return val2;
-			} else if (val2.Sign == 0) {
-				return val1;
-			}
-
-			// Optimization for small operands
-			// (op2.bitLength() < 64) and (op1.bitLength() < 64)
-			if (((val1.numberLength == 1) || ((val1.numberLength == 2) && (val1.digits[1] > 0)))
-			    && (val2.numberLength == 1 || (val2.numberLength == 2 && val2.digits[1] > 0))) {
-				return BigInteger.FromInt64(Division.GcdBinary(val1.ToInt64(), val2.ToInt64()));
-			}
-
-			return Division.GcdBinary(val1.Copy(), val2.Copy());
-
-		}
 
 		/**
 		 * Tests whether this {@code BigInteger} is probably prime. If {@code true}
@@ -206,8 +114,8 @@ namespace Deveel.Math {
 		 * @return {@code true}, if {@code this} is probably prime, {@code false}
 		 *         otherwise.
 		 */
-		public bool IsProbablePrime(int certainty) {
-			return Primality.IsProbablePrime(Abs(), certainty);
+		public static bool IsProbablePrime(BigInteger value, int certainty) {
+			return Primality.IsProbablePrime(BigMath.Abs(value), certainty);
 		}
 
 		/**
@@ -219,12 +127,12 @@ namespace Deveel.Math {
 		 * @throws ArithmeticException
 		 *             if {@code this < 0}.
 		 */
-		public BigInteger NextProbablePrime() {
-			if (sign < 0) {
+		public static BigInteger NextProbablePrime(BigInteger value) {
+			if (value.Sign < 0) {
 				// math.1A=start < 0: {0}
-				throw new ArithmeticException(String.Format(Messages.math1A, this)); //$NON-NLS-1$
+				throw new ArithmeticException(String.Format(Messages.math1A, value)); //$NON-NLS-1$
 			}
-			return Primality.NextProbablePrime(this);
+			return Primality.NextProbablePrime(value);
 		}
 
 		/**
@@ -244,6 +152,28 @@ namespace Deveel.Math {
 		 */
 		public static BigInteger ProbablePrime(int bitLength, Random rnd) {
 			return new BigInteger(bitLength, 100, rnd);
+		}
+
+		/**
+* Returns a new {@code BigInteger} which has the same binary representation
+* as {@code this} but with the bit at position n flipped. The result is
+* equivalent to {@code this ^ 2^n}.
+* <p>
+* <b>Implementation Note:</b> Usage of this method is not recommended as
+* the current implementation is not efficient.
+*
+* @param n
+*            position where the bit in {@code this} has to be flipped.
+* @return {@code this ^ 2^n}.
+* @throws ArithmeticException
+*             if {@code n < 0}.
+*/
+		public static BigInteger FlipBit(BigInteger value, int n) {
+			if (n < 0) {
+				// math.15=Negative bit address
+				throw new ArithmeticException(Messages.math15); //$NON-NLS-1$
+			}
+			return BitLevel.FlipBit(value, n);
 		}
 	}
 }
