@@ -115,16 +115,16 @@ namespace Deveel.Math {
 			int ndiv2 = (int)(op1.numberLength & 0xFFFFFFFE) << 4;
 			BigInteger upperOp1 = op1 >> ndiv2;
 			BigInteger upperOp2 = op2 >> ndiv2;
-			BigInteger lowerOp1 = op1 - upperOp1.ShiftLeft(ndiv2);
-			BigInteger lowerOp2 = op2 - upperOp2.ShiftLeft(ndiv2);
+			BigInteger lowerOp1 = op1 - upperOp1 << ndiv2;
+			BigInteger lowerOp2 = op2 - upperOp2 << ndiv2;
 
 			BigInteger upper = Karatsuba(upperOp1, upperOp2);
 			BigInteger lower = Karatsuba(lowerOp1, lowerOp2);
 			BigInteger middle = Karatsuba(upperOp1 - lowerOp1,
 					lowerOp2 - upperOp2);
 			middle = (middle + upper + lower);
-			middle = middle.ShiftLeft(ndiv2);
-			upper = upper.ShiftLeft(ndiv2 << 1);
+			middle = middle << ndiv2;
+			upper = upper << (ndiv2 << 1);
 
 			return (upper + middle + lower);
 		}
@@ -423,7 +423,7 @@ namespace Deveel.Math {
 				return BigInteger.Ten.Pow(intExp);
 			} else if (exp <= 1000) {
 				// To calculate:    5^exp * 2^exp
-				return BigFivePows[1].Pow(intExp).ShiftLeft(intExp);
+				return BigFivePows[1].Pow(intExp) << intExp;
 			}
 			// "LARGE POWERS"
 			/*
@@ -443,7 +443,7 @@ namespace Deveel.Math {
 
 			if (exp <= Int32.MaxValue) {
 				// To calculate:    5^exp * 2^exp
-				return BigFivePows[1].Pow(intExp).ShiftLeft(intExp);
+				return BigFivePows[1].Pow(intExp) << intExp;
 			}
 			/*
 			 * "HUGE POWERS"
@@ -463,13 +463,13 @@ namespace Deveel.Math {
 			}
 			res = res.Multiply(BigFivePows[1].Pow(intExp));
 			// To calculate:    5^exp << exp
-			res = res.ShiftLeft(Int32.MaxValue);
+			res = res << Int32.MaxValue;
 			longExp = exp - Int32.MaxValue;
 			while (longExp > Int32.MaxValue) {
-				res = res.ShiftLeft(Int32.MaxValue);
+				res = res << Int32.MaxValue;
 				longExp -= Int32.MaxValue;
 			}
-			res = res.ShiftLeft(intExp);
+			res = res << intExp;
 			return res;
 		}
 

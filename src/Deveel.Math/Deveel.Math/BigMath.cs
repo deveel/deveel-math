@@ -50,5 +50,30 @@ namespace Deveel.Math {
 					value, -n));
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="value"></param>
+		/// <param name="n"></param>
+		/// <remarks>
+		/// <para>
+		/// The result is equivalent to <c>value * 2^n</c> if n is greater 
+		/// than or equal to 0.
+		/// The shift distance may be negative which means that <paramref name="value"/> is 
+		/// shifted right.The result then corresponds to <c>floor(value / 2 ^ (-n))</c>.
+		/// </para>
+		/// <para>
+		/// <strong>Note:</strong> Usage of this method on negative values is not recommended 
+		/// as the current implementation is not efficient.
+		/// </para>
+		/// </remarks>
+		/// <returns></returns>
+		public static BigInteger ShiftLeft(BigInteger value, int n) {
+			if ((n == 0) || (value.Sign == 0)) {
+				return value;
+			}
+			return ((n > 0) ? BitLevel.ShiftLeft(value, n) : BitLevel.ShiftRight(value, -n));
+		}
+
 	}
 }

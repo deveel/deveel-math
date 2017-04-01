@@ -185,7 +185,7 @@ namespace Deveel.Math {
 
 			p = (i > 0)
 				? Multiplication.MultiplyByFivePow(p, i)
-				: p.ShiftLeft(-i);
+				: p << -i;
 			return new BigDecimal(p, newScale);
 		}
 

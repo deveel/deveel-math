@@ -395,7 +395,7 @@ namespace Deveel.Math {
 			for (int i = 0; i < 200; i++) {
 				BigInteger b = BigInteger.Zero.SetBit(i);
 				Assert.True(a.Equals(b), "a==b");
-				a = a.ShiftLeft(1);
+				a = a  << 1;
 				Assert.True(a.Sign >= 0, "a non-neg");
 
 				BigInteger d = bi3 >> i;
@@ -418,31 +418,31 @@ namespace Deveel.Math {
 
 		[Fact]
 		public void ShiftLeftI() {
-			Assert.True(one.ShiftLeft(0).Equals(one), "1 << 0");
-			Assert.True(one.ShiftLeft(1).Equals(two), "1 << 1");
-			Assert.True(one.ShiftLeft(63).Equals(BigInteger.Parse("8000000000000000", 16)), "1 << 63");
-			Assert.True(one.ShiftLeft(64).Equals(BigInteger.Parse("10000000000000000", 16)), "1 << 64");
-			Assert.True(one.ShiftLeft(65).Equals(BigInteger.Parse("20000000000000000", 16)), "1 << 65");
-			Assert.True(minusOne.ShiftLeft(0).Equals(minusOne), "-1 << 0");
-			Assert.True(minusOne.ShiftLeft(1).Equals(minusTwo), "-1 << 1");
-			Assert.True(minusOne.ShiftLeft(63).Equals(BigInteger.Parse("-9223372036854775808")), "-1 << 63");
-			Assert.True(minusOne.ShiftLeft(64).Equals(BigInteger.Parse("-18446744073709551616")), "-1 << 64");
-			Assert.True(minusOne.ShiftLeft(65).Equals(BigInteger.Parse("-36893488147419103232")), "-1 << 65");
+			Assert.True((one << 0).Equals(one), "1 << 0");
+			Assert.True((one << 1).Equals(two), "1 << 1");
+			Assert.True((one << 63).Equals(BigInteger.Parse("8000000000000000", 16)), "1 << 63");
+			Assert.True((one << 64).Equals(BigInteger.Parse("10000000000000000", 16)), "1 << 64");
+			Assert.True((one << 65).Equals(BigInteger.Parse("20000000000000000", 16)), "1 << 65");
+			Assert.True((minusOne << 0).Equals(minusOne), "-1 << 0");
+			Assert.True((minusOne << 1).Equals(minusTwo), "-1 << 1");
+			Assert.True((minusOne << 63).Equals(BigInteger.Parse("-9223372036854775808")), "-1 << 63");
+			Assert.True((minusOne << 64).Equals(BigInteger.Parse("-18446744073709551616")), "-1 << 64");
+			Assert.True((minusOne << 65).Equals(BigInteger.Parse("-36893488147419103232")), "-1 << 65");
 
 			BigInteger a = bi3;
 			BigInteger c = minusOne;
 			for (int i = 0; i < 200; i++) {
-				BigInteger b = bi3.ShiftLeft(i);
+				BigInteger b = bi3 << i;
 				Assert.True(a.Equals(b), "a==b");
 				Assert.True((a >> i).Equals(bi3), "a >> i == bi3");
-				a = a.ShiftLeft(1);
+				a = a << 1;
 				Assert.True(b.Multiply(two).Equals(a), "<<1 == *2");
 				Assert.True(a.Sign >= 0, "a non-neg");
 				Assert.True(a.BitCount == b.BitCount, "a.bitCount==b.bitCount");
 
-				BigInteger d = minusOne.ShiftLeft(i);
+				BigInteger d = minusOne << i;
 				Assert.True(c.Equals(d), "c==d");
-				c = c.ShiftLeft(1);
+				c = c << 1;
 				Assert.True(d.Multiply(two).Equals(c), "<<1 == *2 negative");
 				Assert.True(c.Sign == -1, "c negative");
 				Assert.True((d >> i).Equals(minusOne), "d >> i == minusOne");

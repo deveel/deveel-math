@@ -432,7 +432,7 @@ namespace Deveel.Math {
 				op2 = op1;
 				op1 = swap;
 			} while (op1.Sign != 0);
-			return op2.ShiftLeft(pow2Count);
+			return op2 << pow2Count;
 		}
 
 		/**
@@ -786,7 +786,7 @@ namespace Deveel.Math {
 			// PRE: (base > 0), (exponent > 0), (modulus > 0) and (odd modulus)
 			int k = (modulus.numberLength << 5); // r = 2^k
 			// n-residue of base [base * r (mod modulus)]
-			BigInteger a2 = b.ShiftLeft(k).Mod(modulus);
+			BigInteger a2 = (b << k).Mod(modulus);
 			// n-residue of base [1 * r (mod modulus)]
 			BigInteger x2 = BigInteger.GetPowerOfTwo(k).Mod(modulus);
 			BigInteger res;

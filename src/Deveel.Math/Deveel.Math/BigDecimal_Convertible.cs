@@ -529,7 +529,7 @@ namespace Deveel.Math {
 					if (k > 0) {
 						/* Computing (mantisa * 2^k) , where 'k' is a enough big
 						 * power of '2' to can divide by 10^s */
-						mantisa = mantisa.ShiftLeft(k);
+						mantisa = mantisa << k;
 						exponent -= k;
 					}
 					// Computing (mantisa * 2^k) / 10^s
@@ -537,7 +537,7 @@ namespace Deveel.Math {
 					// To check if the fractional part >= 0.5
 					compRem = remainder.ShiftLeftOneBit().CompareTo(powerOfTen);
 					// To add two rounded bits at end of mantisa
-					mantisa = quotient.ShiftLeft(2) + BigInteger.FromInt64((compRem * (compRem + 3)) / 2 + 1);
+					mantisa = (quotient << 2) + BigInteger.FromInt64((compRem * (compRem + 3)) / 2 + 1);
 					exponent -= 2;
 				}
 				lowestSetBit = mantisa.LowestSetBit;

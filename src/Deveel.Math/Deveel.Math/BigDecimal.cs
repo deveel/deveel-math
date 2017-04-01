@@ -291,7 +291,7 @@ namespace Deveel.Math {
 				if (_bitLength < 64) {
 					smallValue = mantisa << (-_scale);
 				} else {
-					intVal = BigInteger.FromInt64(mantisa).ShiftLeft(-_scale);
+					intVal = BigInteger.FromInt64(mantisa) << (-_scale);
 				}
 				_scale = 0;
 			} else if (_scale > 0) {
