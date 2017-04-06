@@ -278,6 +278,30 @@ namespace Deveel.Math {
 			return BigDecimalMath.Pow(number, exp, context);
 		}
 
+		public static BigDecimal Abs(BigDecimal number) {
+			return BigDecimalMath.Abs(number);
+		}
+
+		public static BigDecimal Abs(BigDecimal number, MathContext context) {
+			return BigDecimalMath.Abs(number, context);
+		}
+
+		public static BigDecimal Plus(BigDecimal number) {
+			return BigDecimalMath.Plus(number);
+		}
+
+		public static BigDecimal Plus(BigDecimal number, MathContext context) {
+			return BigDecimalMath.Plus(number, context);
+		}
+
+		public static BigDecimal Negate(BigDecimal number) {
+			return BigDecimalMath.Negate(number);
+		}
+
+		public static BigDecimal Negate(BigDecimal number, MathContext context) {
+			return BigDecimalMath.Negate(number, context);
+		}
+
 		/**
  * Returns a new {@code BigInteger} whose value is {@code this % divisor}.
  * Regarding signs this methods has the same behavior as the % operator on

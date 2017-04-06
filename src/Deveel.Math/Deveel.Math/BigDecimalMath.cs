@@ -698,5 +698,82 @@ namespace Deveel.Math {
 			accum.InplaceRound(mc);
 			return accum;
 		}
+
+		/**
+* Returns a new {@code BigDecimal} whose value is the absolute value of
+* {@code this}. The scale of the result is the same as the scale of this.
+*
+* @return {@code abs(this)}
+*/
+
+		public static BigDecimal Abs(BigDecimal value) {
+			return ((value.Sign < 0) ? -value : value);
+		}
+
+		/**
+		 * Returns a new {@code BigDecimal} whose value is the absolute value of
+		 * {@code this}. The result is rounded according to the passed context
+		 * {@code mc}.
+		 *
+		 * @param mc
+		 *            rounding mode and precision for the result of this operation.
+		 * @return {@code abs(this)}
+		 */
+
+		public static BigDecimal Abs(BigDecimal value, MathContext mc) {
+			return Abs(value.Round(mc));
+		}
+
+		/**
+ * Returns a new {@code BigDecimal} whose value is the {@code -this}. The
+ * scale of the result is the same as the scale of this.
+ *
+ * @return {@code -this}
+ */
+
+		public static BigDecimal Negate(BigDecimal number) {
+			if (number._bitLength < 63 || (number._bitLength == 63 && number.smallValue != Int64.MinValue)) {
+				return BigDecimal.ValueOf(-number.smallValue, number._scale);
+			}
+			return new BigDecimal(-number.GetUnscaledValue(), number._scale);
+		}
+
+		/**
+		 * Returns a new {@code BigDecimal} whose value is the {@code -this}. The
+		 * result is rounded according to the passed context {@code mc}.
+		 *
+		 * @param mc
+		 *            rounding mode and precision for the result of this operation.
+		 * @return {@code -this}
+		 */
+
+		public static BigDecimal Negate(BigDecimal number, MathContext mc) {
+			return Negate(number.Round(mc));
+		}
+
+		/**
+		 * Returns a new {@code BigDecimal} whose value is {@code +this}. The scale
+		 * of the result is the same as the scale of this.
+		 *
+		 * @return {@code this}
+		 */
+
+		public static BigDecimal Plus(BigDecimal number) {
+			return number;
+		}
+
+		/// <remarks>
+		/// Returns a new <see cref="BigDecimal"/> whose value is <c>+this</c>.
+		/// </remarks>
+		/// <param name="mc">Rounding mode and precision for the result of this operation.</param>
+		/// <remarks>
+		/// The result is rounded according to the passed context <paramref name="mc"/>.
+		/// </remarks>
+		/// <returns>
+		/// Returns this decimal value rounded.
+		/// </returns>
+		public static BigDecimal Plus(BigDecimal number, MathContext mc) {
+			return number.Round(mc);
+		}
 	}
 }

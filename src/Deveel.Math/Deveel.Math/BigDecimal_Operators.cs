@@ -45,11 +45,11 @@ namespace Deveel.Math {
 		}
 
 		public static BigDecimal operator +(BigDecimal a) {
-			return a.Plus();
+			return BigMath.Plus(a);
 		}
 
 		public static BigDecimal operator -(BigDecimal a) {
-			return a.Negate();
+			return BigMath.Negate(a);
 		}
 
 		public static bool operator ==(BigDecimal a, BigDecimal b) {

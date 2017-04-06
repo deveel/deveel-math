@@ -733,7 +733,7 @@ namespace Deveel.Math {
 			// Fast return when some operand is zero
 			if (IsZero) {
 				if (diffScale <= 0) {
-					return subtrahend.Negate();
+					return -subtrahend;
 				}
 				if (subtrahend.IsZero) {
 					return this;

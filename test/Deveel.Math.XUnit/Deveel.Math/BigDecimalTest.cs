@@ -93,10 +93,10 @@ namespace Deveel.Math {
 		[Fact]
 		public void Abs() {
 			BigDecimal big = BigDecimal.Parse("-1234");
-			BigDecimal bigabs = big.Abs();
+			BigDecimal bigabs = BigMath.Abs(big);
 			Assert.True(bigabs.ToString().Equals("1234"), "the absolute value of -1234 is not 1234");
 			big = new BigDecimal(BigInteger.Parse("2345"), 2);
-			bigabs = big.Abs();
+			bigabs = BigMath.Abs(big);
 			Assert.True(bigabs.ToString().Equals("23.45"), "the absolute value of 23.45 is not 23.45");
 		}
 
@@ -363,11 +363,11 @@ namespace Deveel.Math {
 		[Fact]
 		public void Negate() {
 			BigDecimal negate1 = new BigDecimal(value2, 7);
-			Assert.True(negate1.Negate().ToString().Equals("-1233.4560000"), "the negate of 1233.4560000 is not -1233.4560000");
+			Assert.True((-negate1).ToString().Equals("-1233.4560000"), "the negate of 1233.4560000 is not -1233.4560000");
 			negate1 = BigDecimal.Parse("-23465839");
-			Assert.True(negate1.Negate().ToString().Equals("23465839"), "the negate of -23465839 is not 23465839");
+			Assert.True((-negate1).ToString().Equals("23465839"), "the negate of -23465839 is not 23465839");
 			negate1 = new BigDecimal(-3.456E6);
-			Assert.True(negate1.Negate().Negate().Equals(negate1), "the negate of -3.456E6 is not 3.456E6");
+			Assert.True((-(-negate1)).Equals(negate1), "the negate of -3.456E6 is not 3.456E6");
 		}
 
 		[Fact]
@@ -510,7 +510,7 @@ namespace Deveel.Math {
 			Assert.True(result.ToString().Equals("11108.511") && result.Scale == 3, "13948 - 2839.489 is wrong: " + result);
 			BigDecimal result2 = sub2.Subtract(sub1);
 			Assert.True(result2.ToString().Equals("-11108.511") && result2.Scale == 3, "2839.489 - 13948 is wrong");
-			Assert.True(result.Equals(result2.Negate()), "13948 - 2839.489 is not the negative of 2839.489 - 13948");
+			Assert.True(result.Equals(-result2), "13948 - 2839.489 is not the negative of 2839.489 - 13948");
 			sub1 = new BigDecimal(value, 1);
 			sub2 = BigDecimal.Parse("0");
 			result = sub1.Subtract(sub2);
@@ -624,7 +624,7 @@ namespace Deveel.Math {
 			MathContext mcIntRm = new MathContext(precision, rm);
 			MathContext mcStr = MathContext.Parse("precision=6 roundingMode=HALFDOWN");
 			MathContext mcInt = new MathContext(precision);
-			BigDecimal res = aNumber.Abs(mcInt);
+			BigDecimal res = BigMath.Abs(aNumber, mcInt);
 			Assert.Equal(res, BigDecimal.Parse("1.23809E+68"));
 
 			Assert.Equal(mcIntRm, mcStr);
