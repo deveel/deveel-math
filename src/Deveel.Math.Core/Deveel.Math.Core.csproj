@@ -15,7 +15,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>math decimal bigdecimal integer biginteger int deveel harmony dotnet core netstandard</PackageTags>
     <Product>Deveel Math Core</Product>
-    <VersionPrefix>1.6.1</VersionPrefix>
+    <VersionPrefix>1.7.0</VersionPrefix>
     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     <AssemblyVersion>1.6.1.0</AssemblyVersion>
     <PackageIconUrl>https://raw.githubusercontent.com/deveel/deveel-math/master/nuget/icon.png</PackageIconUrl>
