@@ -1176,6 +1176,7 @@ namespace Deveel.Math {
 
 		#region Pow
 
+		[Theory]
 		[InlineData("123121247898748298842980", 10, 10, "8004424019039195734129783677098845174704975003788210729597" +
 					   "4875206425711159855030832837132149513512555214958035390490" +
 					   "798520842025826.594316163502809818340013610490541783276343" +
@@ -1184,16 +1185,17 @@ namespace Deveel.Math {
 		[InlineData("0", 0, 0, "1", 0)]
 		public void Pow(string a, int aScale, int exp, string c, int cScale) {
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
-			BigDecimal result = aNumber.Pow(exp);
+			BigDecimal result = BigMath.Pow(aNumber, exp);
 			Assert.Equal(c, result.ToString());
 			Assert.Equal(cScale, result.Scale);			
 		}
 
+		[Theory]
 		[InlineData("123121247898748298842980", 10, 10, "8.0044E+130", -126, 5, RoundingMode.HalfUp)]
 		public void PowWithContext(string a, int aScale, int exp, string c, int cScale, int precision, RoundingMode roundingMode) {
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			MathContext mc = new MathContext(precision, roundingMode);
-			BigDecimal result = aNumber.Pow(exp, mc);
+			BigDecimal result = BigMath.Pow(aNumber, exp, mc);
 			Assert.Equal(c, result.ToString());
 			Assert.Equal(cScale, result.Scale);
 		}

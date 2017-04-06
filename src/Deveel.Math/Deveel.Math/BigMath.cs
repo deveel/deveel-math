@@ -270,6 +270,14 @@ namespace Deveel.Math {
 			return BigDecimalMath.Remainder(a, b, context);
 		}
 
+		public static BigDecimal Pow(BigDecimal number, int exp) {
+			return BigDecimalMath.Pow(number, exp);
+		}
+
+		public static BigDecimal Pow(BigDecimal number, int exp, MathContext context) {
+			return BigDecimalMath.Pow(number, exp, context);
+		}
+
 		/**
  * Returns a new {@code BigInteger} whose value is {@code this % divisor}.
  * Regarding signs this methods has the same behavior as the % operator on

@@ -609,5 +609,94 @@ namespace Deveel.Math {
 			remainder = dividend.Subtract(quotient.Multiply(divisor));
 			return quotient;
 		}
+
+		/**
+ * Returns a new {@code BigDecimal} whose value is {@code this ^ n}. The
+ * scale of the result is {@code n} times the scales of {@code this}.
+ * <p>
+ * {@code x.pow(0)} returns {@code 1}, even if {@code x == 0}.
+ * <p>
+ * Implementation Note: The implementation is based on the ANSI standard
+ * X3.274-1996 algorithm.
+ *
+ * @param n
+ *            exponent to which {@code this} is raised.
+ * @return {@code this ^ n}.
+ * @throws ArithmeticException
+ *             if {@code n < 0} or {@code n > 999999999}.
+ */
+
+		public static BigDecimal Pow(BigDecimal number, int n) {
+			if (n == 0) {
+				return BigDecimal.One;
+			}
+			if ((n < 0) || (n > 999999999)) {
+				// math.07=Invalid Operation
+				throw new ArithmeticException(Messages.math07); //$NON-NLS-1$
+			}
+			long newScale = number._scale * (long)n;
+			// Let be: this = [u,s]   so:  this^n = [u^n, s*n]
+			return ((number.IsZero)
+				? BigDecimal.GetZeroScaledBy(newScale)
+				: new BigDecimal(BigMath.Pow(number.GetUnscaledValue(), n), BigDecimal.ToIntScale(newScale)));
+		}
+
+		/**
+		 * Returns a new {@code BigDecimal} whose value is {@code this ^ n}. The
+		 * result is rounded according to the passed context {@code mc}.
+		 * <p>
+		 * Implementation Note: The implementation is based on the ANSI standard
+		 * X3.274-1996 algorithm.
+		 *
+		 * @param n
+		 *            exponent to which {@code this} is raised.
+		 * @param mc
+		 *            rounding mode and precision for the result of this operation.
+		 * @return {@code this ^ n}.
+		 * @throws ArithmeticException
+		 *             if {@code n < 0} or {@code n > 999999999}.
+		 */
+
+		public static BigDecimal Pow(BigDecimal number, int n, MathContext mc) {
+			// The ANSI standard X3.274-1996 algorithm
+			int m = System.Math.Abs(n);
+			int mcPrecision = mc.Precision;
+			int elength = (int)System.Math.Log10(m) + 1; // decimal digits in 'n'
+			int oneBitMask; // mask of bits
+			BigDecimal accum; // the single accumulator
+			MathContext newPrecision = mc; // MathContext by default
+
+			// In particular cases, it reduces the problem to call the other 'pow()'
+			if ((n == 0) || ((number.IsZero) && (n > 0))) {
+				return Pow(number, n);
+			}
+			if ((m > 999999999) || ((mcPrecision == 0) && (n < 0))
+			    || ((mcPrecision > 0) && (elength > mcPrecision))) {
+				// math.07=Invalid Operation
+				throw new ArithmeticException(Messages.math07); //$NON-NLS-1$
+			}
+			if (mcPrecision > 0) {
+				newPrecision = new MathContext(mcPrecision + elength + 1,
+					mc.RoundingMode);
+			}
+			// The result is calculated as if 'n' were positive        
+			accum = number.Round(newPrecision);
+			oneBitMask = Utils.HighestOneBit(m) >> 1;
+
+			while (oneBitMask > 0) {
+				accum = accum.Multiply(accum, newPrecision);
+				if ((m & oneBitMask) == oneBitMask) {
+					accum = accum.Multiply(number, newPrecision);
+				}
+				oneBitMask >>= 1;
+			}
+			// If 'n' is negative, the value is divided into 'ONE'
+			if (n < 0) {
+				accum = Divide(BigDecimal.One, accum, newPrecision);
+			}
+			// The final value is rounded to the destination precision
+			accum.InplaceRound(mc);
+			return accum;
+		}
 	}
 }

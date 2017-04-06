@@ -1119,7 +1119,7 @@ namespace Deveel.Math {
 		 * @see #round(MathContext)
 		 */
 
-		private void InplaceRound(MathContext mc) {
+		internal void InplaceRound(MathContext mc) {
 			int mcPrecision = mc.Precision;
 			if (AproxPrecision() - mcPrecision <= 0 || mcPrecision == 0) {
 				return;
