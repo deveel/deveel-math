@@ -54,12 +54,12 @@ namespace Deveel.Math {
 		}
 
 		public static BigDecimal Divide(BigDecimal dividend, BigDecimal divisor) {
-			BigInteger p = dividend.GetUnscaledValue();
-			BigInteger q = divisor.GetUnscaledValue();
+			BigInteger p = dividend.UnscaledValue;
+			BigInteger q = divisor.UnscaledValue;
 			BigInteger gcd; // greatest common divisor between 'p' and 'q'
 			BigInteger quotient;
 			BigInteger remainder;
-			long diffScale = (long)dividend._scale - divisor._scale;
+			long diffScale = (long)dividend.Scale - divisor.Scale;
 			int newScale; // the new scale for final quotient
 			int k; // number of factors "2" in 'q'
 			int l = 0; // number of factors "5" in 'q'
@@ -121,13 +121,13 @@ namespace Deveel.Math {
 			 * to obtain a  quotient with at least 'mc.precision()' digits */
 			long traillingZeros = mc.Precision + 2L
 			                      + divisor.AproxPrecision() - dividend.AproxPrecision();
-			long diffScale = (long)dividend._scale - divisor._scale;
+			long diffScale = (long)dividend.Scale - divisor.Scale;
 			long newScale = diffScale; // scale of the final quotient
 			int compRem; // to compare the remainder
 			int i = 1; // index   
 			int lastPow = BigDecimal.TenPow.Length - 1; // last power of ten
 			BigInteger integerQuot; // for temporal results
-			BigInteger quotient = dividend.GetUnscaledValue();
+			BigInteger quotient = dividend.UnscaledValue;
 			BigInteger remainder;
 			// In special cases it reduces the problem to call the dual method
 			if ((mc.Precision == 0) || (dividend.IsZero) || (divisor.IsZero))
@@ -135,15 +135,15 @@ namespace Deveel.Math {
 
 			if (traillingZeros > 0) {
 				// To append trailing zeros at end of dividend
-				quotient = dividend.GetUnscaledValue() * Multiplication.PowerOf10(traillingZeros);
+				quotient = dividend.UnscaledValue * Multiplication.PowerOf10(traillingZeros);
 				newScale += traillingZeros;
 			}
-			quotient = BigMath.DivideAndRemainder(quotient, divisor.GetUnscaledValue(), out remainder);
+			quotient = BigMath.DivideAndRemainder(quotient, divisor.UnscaledValue, out remainder);
 			integerQuot = quotient;
 			// Calculating the exact quotient with at least 'mc.precision()' digits
 			if (remainder.Sign != 0) {
 				// Checking if:   2 * remainder >= divisor ?
-				compRem = remainder.ShiftLeftOneBit().CompareTo(divisor.GetUnscaledValue());
+				compRem = remainder.ShiftLeftOneBit().CompareTo(divisor.UnscaledValue);
 				// quot := quot * 10 + r;     with 'r' in {-6,-5,-4, 0,+4,+5,+6}
 				integerQuot = (integerQuot * BigInteger.Ten) +
 				              BigInteger.FromInt64(quotient.Sign * (5 + compRem));
@@ -176,7 +176,7 @@ namespace Deveel.Math {
 			BigInteger powerOfTen; // some power of ten
 			BigInteger quotient;
 			BigInteger remainder;
-			long newScale = (long)dividend._scale - divisor._scale;
+			long newScale = (long)dividend.Scale - divisor.Scale;
 			long tempScale = 0;
 			int i = 1;
 			int lastPow = BigDecimal.TenPow.Length - 1;
@@ -191,15 +191,15 @@ namespace Deveel.Math {
 				 * the result must be zero with the appropriate scale */
 				integralValue = BigInteger.Zero;
 			} else if (newScale == 0) {
-				integralValue = dividend.GetUnscaledValue() / divisor.GetUnscaledValue();
+				integralValue = dividend.UnscaledValue / divisor.UnscaledValue;
 			} else if (newScale > 0) {
 				powerOfTen = Multiplication.PowerOf10(newScale);
-				integralValue = dividend.GetUnscaledValue() / (divisor.GetUnscaledValue() * powerOfTen);
+				integralValue = dividend.UnscaledValue / (divisor.UnscaledValue * powerOfTen);
 				integralValue = integralValue * powerOfTen;
 			} else {
 				// (newScale < 0)
 				powerOfTen = Multiplication.PowerOf10(-newScale);
-				integralValue = (dividend.GetUnscaledValue() * powerOfTen) / divisor.GetUnscaledValue();
+				integralValue = (dividend.UnscaledValue * powerOfTen) / divisor.UnscaledValue;
 				// To strip trailing zeros approximating to the preferred scale
 				while (!BigInteger.TestBit(integralValue, 0)) {
 					quotient = BigMath.DivideAndRemainder(integralValue, BigDecimal.TenPow[i], out remainder);
@@ -228,7 +228,7 @@ namespace Deveel.Math {
 			int mcPrecision = mc.Precision;
 			int diffPrecision = dividend.Precision - divisor.Precision;
 			int lastPow = BigDecimal.TenPow.Length - 1;
-			long diffScale = (long)dividend._scale - divisor._scale;
+			long diffScale = (long)dividend.Scale - divisor.Scale;
 			long newScale = diffScale;
 			long quotPrecision = diffPrecision - diffScale + 1;
 			BigInteger quotient;
@@ -242,10 +242,10 @@ namespace Deveel.Math {
 				quotient = BigInteger.Zero;
 			} else if (diffScale == 0) {
 				// CASE s1 == s2:  to calculate   u1 / u2 
-				quotient = dividend.GetUnscaledValue() / divisor.GetUnscaledValue();
+				quotient = dividend.UnscaledValue / divisor.UnscaledValue;
 			} else if (diffScale > 0) {
 				// CASE s1 >= s2:  to calculate   u1 / (u2 * 10^(s1-s2)  
-				quotient = dividend.GetUnscaledValue() / (divisor.GetUnscaledValue() * Multiplication.PowerOf10(diffScale));
+				quotient = dividend.UnscaledValue / (divisor.UnscaledValue * Multiplication.PowerOf10(diffScale));
 				// To chose  10^newScale  to get a quotient with at least 'mc.precision()' digits
 				newScale = System.Math.Min(diffScale, System.Math.Max(mcPrecision - quotPrecision + 1, 0));
 				// To calculate: (u1 / (u2 * 10^(s1-s2)) * 10^newScale
@@ -257,8 +257,8 @@ namespace Deveel.Math {
 				long exp = System.Math.Min(-diffScale, System.Math.Max((long)mcPrecision - diffPrecision, 0));
 				long compRemDiv;
 				// Let be:   (u1 * 10^exp) / u2 = [q,r]  
-				quotient = BigMath.DivideAndRemainder(dividend.GetUnscaledValue() * Multiplication.PowerOf10(exp),
-					divisor.GetUnscaledValue(), out remainder);
+				quotient = BigMath.DivideAndRemainder(dividend.UnscaledValue * Multiplication.PowerOf10(exp),
+					divisor.UnscaledValue, out remainder);
 				newScale += exp; // To fix the scale
 				exp = -newScale; // The remaining power of ten
 				// If after division there is a remainder...
@@ -268,7 +268,7 @@ namespace Deveel.Math {
 					             + exp - divisor.Precision;
 					if (compRemDiv == 0) {
 						// To calculate:  (r * 10^exp2) / u2
-						remainder = (remainder * Multiplication.PowerOf10(exp)) / divisor.GetUnscaledValue();
+						remainder = (remainder * Multiplication.PowerOf10(exp)) / divisor.UnscaledValue;
 						compRemDiv = System.Math.Abs(remainder.Sign);
 					}
 					if (compRemDiv > 0) {
@@ -310,7 +310,7 @@ namespace Deveel.Math {
 				// math.06=Division impossible
 				throw new ArithmeticException(Messages.math06); //$NON-NLS-1$
 			}
-			integralValue._scale = BigDecimal.ToIntScale(newScale);
+			integralValue.Scale = BigDecimal.ToIntScale(newScale);
 			integralValue.SetUnscaledValue(strippedBI);
 			return integralValue;
 		}
@@ -323,26 +323,26 @@ namespace Deveel.Math {
 				throw new ArithmeticException(Messages.math04); //$NON-NLS-1$
 			}
 
-			long diffScale = ((long)dividend._scale - divisor._scale) - scale;
-			if (dividend._bitLength < 64 && divisor._bitLength < 64) {
+			long diffScale = ((long)dividend.Scale - divisor.Scale) - scale;
+			if (dividend.BitLength < 64 && divisor.BitLength < 64) {
 				if (diffScale == 0)
-					return DividePrimitiveLongs(dividend.smallValue, divisor.smallValue, scale, roundingMode);
+					return DividePrimitiveLongs(dividend.SmallValue, divisor.SmallValue, scale, roundingMode);
 				if (diffScale > 0) {
 					if (diffScale < BigDecimal.LongTenPow.Length &&
-					    divisor._bitLength + BigDecimal.LongTenPowBitLength[(int)diffScale] < 64) {
-						return DividePrimitiveLongs(dividend.smallValue, divisor.smallValue * BigDecimal.LongTenPow[(int)diffScale], scale, roundingMode);
+					    divisor.BitLength + BigDecimal.LongTenPowBitLength[(int)diffScale] < 64) {
+						return DividePrimitiveLongs(dividend.SmallValue, divisor.SmallValue * BigDecimal.LongTenPow[(int)diffScale], scale, roundingMode);
 					}
 				} else {
 					// diffScale < 0
 					if (-diffScale < BigDecimal.LongTenPow.Length &&
-					    dividend._bitLength + BigDecimal.LongTenPowBitLength[(int)-diffScale] < 64) {
-						return DividePrimitiveLongs(dividend.smallValue * BigDecimal.LongTenPow[(int)-diffScale], divisor.smallValue, scale, roundingMode);
+					    dividend.BitLength + BigDecimal.LongTenPowBitLength[(int)-diffScale] < 64) {
+						return DividePrimitiveLongs(dividend.SmallValue * BigDecimal.LongTenPow[(int)-diffScale], divisor.SmallValue, scale, roundingMode);
 					}
 
 				}
 			}
-			BigInteger scaledDividend = dividend.GetUnscaledValue();
-			BigInteger scaledDivisor = divisor.GetUnscaledValue(); // for scaling of 'u2'
+			BigInteger scaledDividend = dividend.UnscaledValue;
+			BigInteger scaledDivisor = divisor.UnscaledValue; // for scaling of 'u2'
 
 			if (diffScale > 0) {
 				// Multiply 'u2'  by:  10^((s1 - s2) - scale)
@@ -375,11 +375,11 @@ namespace Deveel.Math {
 				// math.07=Invalid Operation
 				throw new ArithmeticException(Messages.math07); //$NON-NLS-1$
 			}
-			long newScale = number._scale * (long)n;
+			long newScale = number.Scale * (long)n;
 			// Let be: this = [u,s]   so:  this^n = [u^n, s*n]
 			return ((number.IsZero)
 				? BigDecimal.GetZeroScaledBy(newScale)
-				: new BigDecimal(BigMath.Pow(number.GetUnscaledValue(), n), BigDecimal.ToIntScale(newScale)));
+				: new BigDecimal(BigMath.Pow(number.UnscaledValue, n), BigDecimal.ToIntScale(newScale)));
 		}
 
 		public static BigDecimal Pow(BigDecimal number, int n, MathContext mc) {
@@ -425,7 +425,7 @@ namespace Deveel.Math {
 		}
 
 		public static BigDecimal Scale(BigDecimal number, int newScale, RoundingMode roundingMode) {
-			long diffScale = newScale - (long)number._scale;
+			long diffScale = newScale - (long)number.Scale;
 			// Let be:  'number' = [u,s]        
 			if (diffScale == 0) {
 				return number;
@@ -433,18 +433,18 @@ namespace Deveel.Math {
 			if (diffScale > 0) {
 				// return  [u * 10^(s2 - s), newScale]
 				if (diffScale < BigDecimal.LongTenPow.Length &&
-				    (number._bitLength + BigDecimal.LongTenPowBitLength[(int)diffScale]) < 64) {
-					return BigDecimal.ValueOf(number.smallValue * BigDecimal.LongTenPow[(int)diffScale], newScale);
+				    (number.BitLength + BigDecimal.LongTenPowBitLength[(int)diffScale]) < 64) {
+					return BigDecimal.ValueOf(number.SmallValue * BigDecimal.LongTenPow[(int)diffScale], newScale);
 				}
-				return new BigDecimal(Multiplication.MultiplyByTenPow(number.GetUnscaledValue(), (int)diffScale), newScale);
+				return new BigDecimal(Multiplication.MultiplyByTenPow(number.UnscaledValue, (int)diffScale), newScale);
 			}
 			// diffScale < 0
 			// return  [u,s] / [1,newScale]  with the appropriate scale and rounding
-			if (number._bitLength < 64 && -diffScale < BigDecimal.LongTenPow.Length) {
-				return BigDecimalMath.DividePrimitiveLongs(number.smallValue, BigDecimal.LongTenPow[(int)-diffScale], newScale, roundingMode);
+			if (number.BitLength < 64 && -diffScale < BigDecimal.LongTenPow.Length) {
+				return DividePrimitiveLongs(number.SmallValue, BigDecimal.LongTenPow[(int)-diffScale], newScale, roundingMode);
 			}
 
-			return DivideBigIntegers(number.GetUnscaledValue(), Multiplication.PowerOf10(-diffScale), newScale, roundingMode);
+			return DivideBigIntegers(number.UnscaledValue, Multiplication.PowerOf10(-diffScale), newScale, roundingMode);
 		}
 
 		public static BigDecimal MovePoint(BigDecimal number, long newScale) {
@@ -454,16 +454,16 @@ namespace Deveel.Math {
 			/* When:  'n'== Integer.MIN_VALUE  isn't possible to call to movePointRight(-n)  
 			 * since  -Integer.MIN_VALUE == Integer.MIN_VALUE */
 			if (newScale >= 0) {
-				if (number._bitLength < 64) {
-					return BigDecimal.ValueOf(number.smallValue, BigDecimal.ToIntScale(newScale));
+				if (number.BitLength < 64) {
+					return BigDecimal.ValueOf(number.SmallValue, BigDecimal.ToIntScale(newScale));
 				}
-				return new BigDecimal(number.GetUnscaledValue(), BigDecimal.ToIntScale(newScale));
+				return new BigDecimal(number.UnscaledValue, BigDecimal.ToIntScale(newScale));
 			}
 			if (-newScale < BigDecimal.LongTenPow.Length &&
-			    number._bitLength + BigDecimal.LongTenPowBitLength[(int)-newScale] < 64) {
-				return BigDecimal.ValueOf(number.smallValue * BigDecimal.LongTenPow[(int)-newScale], 0);
+			    number.BitLength + BigDecimal.LongTenPowBitLength[(int)-newScale] < 64) {
+				return BigDecimal.ValueOf(number.SmallValue * BigDecimal.LongTenPow[(int)-newScale], 0);
 			}
-			return new BigDecimal(Multiplication.MultiplyByTenPow(number.GetUnscaledValue(), (int)-newScale), 0);
+			return new BigDecimal(Multiplication.MultiplyByTenPow(number.UnscaledValue, (int)-newScale), 0);
 		}
 	}
 }

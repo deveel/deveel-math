@@ -136,7 +136,7 @@ namespace Deveel.Math {
 						return false;
 					}
 
-					v._bitLength = BitLength(v.smallValue);
+					v._bitLength = CalcBitLength(v.smallValue);
 				} else {
 					v.SetUnscaledValue(BigInteger.Parse(unscaledBuffer.ToString()));
 				}

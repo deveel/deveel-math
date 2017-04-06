@@ -224,7 +224,7 @@ namespace Deveel.Math {
 			if (!Enum.IsDefined(typeof(RoundingMode), roundingMode))
 				throw new ArgumentException();
 
-			return Divide(a, b, a._scale, roundingMode);
+			return Divide(a, b, a.Scale, roundingMode);
 		}
 
 		/**
@@ -518,11 +518,11 @@ namespace Deveel.Math {
  */
 
 		public static BigDecimal Negate(BigDecimal number) {
-			if (number._bitLength < 63 || (number._bitLength == 63 && number.smallValue != Int64.MinValue)) {
-				return BigDecimal.ValueOf(-number.smallValue, number._scale);
+			if (number.BitLength < 63 || (number.BitLength == 63 && number.SmallValue != Int64.MinValue)) {
+				return BigDecimal.ValueOf(-number.SmallValue, number.Scale);
 			}
 
-			return new BigDecimal(-number.GetUnscaledValue(), number._scale);
+			return new BigDecimal(-number.UnscaledValue, number.Scale);
 		}
 
 		/**
@@ -538,8 +538,26 @@ namespace Deveel.Math {
 			return Negate(Round(number, mc));
 		}
 
+		/**
+ * Returns a new {@code BigDecimal} whose value is {@code this}, rounded
+ * according to the passed context {@code mc}.
+ * <p>
+ * If {@code mc.precision = 0}, then no rounding is performed.
+ * <p>
+ * If {@code mc.precision > 0} and {@code mc.roundingMode == UNNECESSARY},
+ * then an {@code ArithmeticException} is thrown if the result cannot be
+ * represented exactly within the given precision.
+ *
+ * @param mc
+ *            rounding mode and precision for the result of this operation.
+ * @return {@code this} rounded according to the passed context.
+ * @throws ArithmeticException
+ *             if {@code mc.precision > 0} and {@code mc.roundingMode ==
+ *             UNNECESSARY} and this cannot be represented within the given
+ *             precision.
+ */
 		public static BigDecimal Round(BigDecimal number, MathContext mc) {
-			var thisBD = new BigDecimal(number.GetUnscaledValue(), number._scale);
+			var thisBD = new BigDecimal(number.UnscaledValue, number.Scale);
 
 			thisBD.InplaceRound(mc);
 			return thisBD;
@@ -578,17 +596,17 @@ namespace Deveel.Math {
  */
 
 		public static BigDecimal ScaleByPowerOfTen(BigDecimal number, int n) {
-			long newScale = number._scale - (long) n;
-			if (number._bitLength < 64) {
+			long newScale = number.Scale - (long) n;
+			if (number.BitLength < 64) {
 				//Taking care when a 0 is to be scaled
-				if (number.smallValue == 0) {
+				if (number.SmallValue == 0) {
 					return BigDecimal.GetZeroScaledBy(newScale);
 				}
 
-				return BigDecimal.ValueOf(number.smallValue, BigDecimal.ToIntScale(newScale));
+				return BigDecimal.ValueOf(number.SmallValue, BigDecimal.ToIntScale(newScale));
 			}
 
-			return new BigDecimal(number.GetUnscaledValue(), BigDecimal.ToIntScale(newScale));
+			return new BigDecimal(number.UnscaledValue, BigDecimal.ToIntScale(newScale));
 		}
 
 		/**
@@ -822,7 +840,7 @@ namespace Deveel.Math {
 */
 
 		public static BigDecimal MovePointLeft(BigDecimal number, int n) {
-			return BigDecimalMath.MovePoint(number, number._scale + (long)n);
+			return BigDecimalMath.MovePoint(number, number.Scale + (long) n);
 		}
 
 		/**
@@ -843,7 +861,27 @@ namespace Deveel.Math {
  */
 
 		public static BigDecimal MovePointRight(BigDecimal number, int n) {
-			return BigDecimalMath.MovePoint(number, number._scale - (long)n);
+			return BigDecimalMath.MovePoint(number, number.Scale - (long) n);
+		}
+
+		/**
+ * Returns the unit in the last place (ULP) of this {@code BigDecimal}
+ * instance. An ULP is the distance to the nearest big decimal with the same
+ * precision.
+ * <p>
+ * The amount of a rounding error in the evaluation of a floating-point
+ * operation is often expressed in ULPs. An error of 1 ULP is often seen as
+ * a tolerable error.
+ * <p>
+ * For class {@code BigDecimal}, the ULP of a number is simply 10^(-scale).
+ * <p>
+ * For example, {@code new BigDecimal(0.1).ulp()} returns {@code 1E-55}.
+ *
+ * @return unit in the last place (ULP) of this {@code BigDecimal} instance.
+ */
+
+		public static BigDecimal Ulp(BigDecimal value) {
+			return BigDecimal.ValueOf(1, value.Scale);
 		}
 	}
 }

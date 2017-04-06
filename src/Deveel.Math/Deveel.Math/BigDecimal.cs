@@ -173,10 +173,10 @@ namespace Deveel.Math {
 				ChZeros[i] = '0';
 			}
 			for (int j = 0; j < LongFivePowBitLength.Length; j++) {
-				LongFivePowBitLength[j] = BitLength(LongFivePow[j]);
+				LongFivePowBitLength[j] = CalcBitLength(LongFivePow[j]);
 			}
 			for (int j = 0; j < LongTenPowBitLength.Length; j++) {
-				LongTenPowBitLength[j] = BitLength(LongTenPow[j]);
+				LongTenPowBitLength[j] = CalcBitLength(LongTenPow[j]);
 			}
 
 			// Taking the references of useful powers.
@@ -193,18 +193,18 @@ namespace Deveel.Math {
 #if !PORTABLE
 		[NonSerialized]
 #endif
-		internal int _bitLength;
+		private int _bitLength;
 
 #if !PORTABLE
 		[NonSerialized]
 #endif
-		internal long smallValue;
+		private long smallValue;
 
 		/// <summary>
 		/// The 32-bit integer scale in the internal representation 
 		/// of <see cref="BigDecimal"/>.
 		/// </summary>
-		internal int _scale;
+		private int _scale;
 
 		/// <summary>
 		/// Represent the number of decimal digits in the unscaled value.
@@ -226,13 +226,13 @@ namespace Deveel.Math {
 		private BigDecimal(long smallValue, int scale) {
 			this.smallValue = smallValue;
 			_scale = scale;
-			_bitLength = BitLength(smallValue);
+			_bitLength = CalcBitLength(smallValue);
 		}
 
 		private BigDecimal(int smallValue, int scale) {
 			this.smallValue = smallValue;
 			_scale = scale;
-			_bitLength = BitLength(smallValue);
+			_bitLength = CalcBitLength(smallValue);
 		}
 
 		private BigDecimal() {
@@ -285,7 +285,7 @@ namespace Deveel.Math {
 			if ((bits >> 63) != 0) {
 				mantisa = -mantisa;
 			}
-			int mantisaBits = BitLength(mantisa);
+			int mantisaBits = CalcBitLength(mantisa);
 			if (_scale < 0) {
 				_bitLength = mantisaBits == 0 ? 0 : mantisaBits - _scale;
 				if (_bitLength < 64) {
@@ -298,7 +298,7 @@ namespace Deveel.Math {
 				// m * 2^e =  (m * 5^(-e)) * 10^e
 				if (_scale < LongFivePow.Length && mantisaBits + LongFivePowBitLength[_scale] < 64) {
 					smallValue = mantisa*LongFivePow[_scale];
-					_bitLength = BitLength(smallValue);
+					_bitLength = CalcBitLength(smallValue);
 				} else {
 					SetUnscaledValue(Multiplication.MultiplyByFivePow(BigInteger.FromInt64(mantisa), _scale));
 				}
@@ -316,7 +316,7 @@ namespace Deveel.Math {
 		/// </summary>
 		/// <param name="val">The double value to be converted to a 
 		/// <see cref="BigDecimal"/> instance.</param>
-		/// <param name="mc">The rounding mode and precision for the result of 
+		/// <param name="context">The rounding mode and precision for the result of 
 		/// this operation.</param>
 		/// <remarks>
 		/// For example, <c>new BigDecimal(0.1)</c> is equal to <c>0.1000000000000000055511151231257827021181583404541015625</c>. 
@@ -330,13 +330,13 @@ namespace Deveel.Math {
 		/// If <paramref name="val"/> is infinity or not a number.
 		/// </exception>
 		/// <exception cref="ArithmeticException">
-		/// if <see cref="MathContext.Precision"/> of <paramref name="mc"/> is greater than 0
+		/// if <see cref="MathContext.Precision"/> of <paramref name="context"/> is greater than 0
 		/// and <see cref="MathContext.RoundingMode"/> is equal to <see cref="RoundingMode.Unnecessary"/>
 		/// and the new big decimal cannot be represented within the given precision without rounding.
 		/// </exception>
-		public BigDecimal(double val, MathContext mc)
+		public BigDecimal(double val, MathContext context)
 			: this(val) {
-			InplaceRound(mc);
+			InplaceRound(context);
 		}
 
 
@@ -357,7 +357,7 @@ namespace Deveel.Math {
 		/// <paramref name="val">given big integer</paramref>.
 		/// </summary>
 		/// <param name="val">The value to be converted to a <see cref="BigDecimal"/> instance.</param>
-		/// <param name="mc">The rounding mode and precision for the result of this operation.</param>
+		/// <param name="context">The rounding mode and precision for the result of this operation.</param>
 		/// <remarks>
 		/// The <see cref="Scale"/> of the result is <c>0</c>.
 		/// </remarks>
@@ -366,9 +366,9 @@ namespace Deveel.Math {
 		/// equal to <see cref="RoundingMode.Unnecessary"/> and the new big decimal cannot be represented  within the 
 		/// given precision without rounding.
 		/// </exception>
-		public BigDecimal(BigInteger val, MathContext mc)
+		public BigDecimal(BigInteger val, MathContext context)
 			: this(val) {
-			InplaceRound(mc);
+			InplaceRound(context);
 		}
 
 		/// <summary>
@@ -397,7 +397,7 @@ namespace Deveel.Math {
 		/// </summary>
 		/// <param name="unscaledValue">Represents the unscaled value of this big decimal.</param>
 		/// <param name="scale">The scale factor of the decimal.</param>
-		/// <param name="mc">The context used to round the result of the operations.</param>
+		/// <param name="context">The context used to round the result of the operations.</param>
 		/// <remarks>
 		/// The value of this instance is <c><paramref name="unscaledValue"/> 10^(-<paramref name="scale"/>)</c>. 
 		/// The result is rounded according to the specified math context.
@@ -410,28 +410,28 @@ namespace Deveel.Math {
 		/// <exception cref="ArgumentNullException">
 		/// If the given <paramref name="unscaledValue"/> is null.
 		/// </exception>
-		public BigDecimal(BigInteger unscaledValue, int scale, MathContext mc)
+		public BigDecimal(BigInteger unscaledValue, int scale, MathContext context)
 			: this(unscaledValue, scale) {
-			InplaceRound(mc);
+			InplaceRound(context);
 		}
 
 		/// <summary>
 		/// Constructs a new <see cref="BigDecimal"/> instance from the given int 
-		/// <paramref name="val"/>.
+		/// <paramref name="value"/>.
 		/// </summary>
-		/// <param name="val">The integer value to convert to a decimal.</param>
+		/// <param name="value">The integer value to convert to a decimal.</param>
 		/// <remarks>
 		/// The scale factor of the result is zero.
 		/// </remarks>
-		public BigDecimal(int val)
-			: this(val, 0) {
+		public BigDecimal(int value)
+			: this(value, 0) {
 		}
 
 		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from the given <paramref name="val">integer value</paramref>. 
+		/// Constructs a new <see cref="BigDecimal"/> instance from the given <paramref name="value">integer value</paramref>. 
 		/// </summary>
-		/// <param name="val">Integer value to be converted to a <see cref="BigDecimal"/> instance.</param>
-		/// <param name="mc">The rounding mode and precision for the result of this operation.</param>
+		/// <param name="value">Integer value to be converted to a <see cref="BigDecimal"/> instance.</param>
+		/// <param name="context">The rounding mode and precision for the result of this operation.</param>
 		/// <remarks>
 		/// The scale of the result is {@code 0}. The result is rounded according to the specified math context.
 		/// </remarks>
@@ -440,27 +440,27 @@ namespace Deveel.Math {
 		/// <see cref="RoundingMode.Unnecessary"/> and the new big decimal cannot be represented
 		/// within the given precision without rounding. 
 		/// </exception>
-		public BigDecimal(int val, MathContext mc)
-			: this(val, 0) {
-			InplaceRound(mc);
+		public BigDecimal(int value, MathContext context)
+			: this(value, 0) {
+			InplaceRound(context);
 		}
 
 		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from the given long <paramref name="val"/>,
+		/// Constructs a new <see cref="BigDecimal"/> instance from the given long <paramref name="value"/>,
 		/// with a scale of <c>0</c>.
 		/// </summary>
-		/// <param name="val">The long value to be converted to a <see cref="BigDecimal"/></param>
-		public BigDecimal(long val)
-			: this(val, 0) {
+		/// <param name="value">The long value to be converted to a <see cref="BigDecimal"/></param>
+		public BigDecimal(long value)
+			: this(value, 0) {
 		}
 
 
 		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from the given long <paramref name="val"/>,
+		/// Constructs a new <see cref="BigDecimal"/> instance from the given long <paramref name="value"/>,
 		/// with a scale of <c>0</c> and the value rounded according to the specified context.
 		/// </summary>
-		/// <param name="val">The long value to be converted to a <see cref="BigDecimal"/></param>
-		/// <param name="mc">The context that defines the rounding mode and precision to apply to the
+		/// <param name="value">The long value to be converted to a <see cref="BigDecimal"/></param>
+		/// <param name="context">The context that defines the rounding mode and precision to apply to the
 		/// value obtained from the given integer.</param>
 		/// <exception cref="ArithmeticException">
 		/// If the <see cref="MathContext.Precision"/> value specified is greater than <c>0</c> and
@@ -468,9 +468,9 @@ namespace Deveel.Math {
 		/// the new <see cref="BigDecimal"/> cannot be represented within the given precision
 		/// without rounding.
 		/// </exception>
-		public BigDecimal(long val, MathContext mc)
-			: this(val) {
-			InplaceRound(mc);
+		public BigDecimal(long value, MathContext context)
+			: this(value) {
+			InplaceRound(context);
 		}
 
 		#endregion
@@ -486,6 +486,14 @@ namespace Deveel.Math {
 					return System.Math.Sign(smallValue);
 				return GetUnscaledValue().Sign;
 			}
+		}
+
+		internal int BitLength {
+			get { return _bitLength; }
+		}
+
+		internal long SmallValue {
+			get { return smallValue; }
 		}
 
 		/// <summary>
@@ -508,6 +516,7 @@ namespace Deveel.Math {
 		/// </remarks>
 		public int Scale {
 			get { return _scale; }
+			internal set { _scale = value; }
 		}
 
 		/// <summary>
@@ -874,92 +883,12 @@ namespace Deveel.Math {
 			return result;
 		}
 
-		///**
-		// * Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
-		// * As scale of the result the parameter {@code scale} is used. If rounding
-		// * is required to meet the specified scale, then the specified rounding mode
-		// * {@code roundingMode} is applied.
-		// *
-		// * @param divisor
-		// *            value by which {@code this} is divided.
-		// * @param scale
-		// *            the scale of the result returned.
-		// * @param roundingMode
-		// *            rounding mode to be used to round the result.
-		// * @return {@code this / divisor} rounded according to the given rounding
-		// *         mode.
-		// * @throws NullPointerException
-		// *             if {@code divisor == null} or {@code roundingMode == null}.
-		// * @throws ArithmeticException
-		// *             if {@code divisor == 0}.
-		// * @throws ArithmeticException
-		// *             if {@code roundingMode == RoundingMode.UNNECESSAR}Y and
-		// *             rounding is necessary according to the given scale and given
-		// *             precision.
-		// */
-
-		//public BigDecimal Divide(BigDecimal divisor, int scale, RoundingMode roundingMode) {
-		//	// Let be: this = [u1,s1]  and  divisor = [u2,s2]
-		//	if (divisor.IsZero) {
-		//		// math.04=Division by zero
-		//		throw new ArithmeticException(Messages.math04); //$NON-NLS-1$
-		//	}
-
-		//	long diffScale = ((long) _scale - divisor._scale) - scale;
-		//	if (_bitLength < 64 && divisor._bitLength < 64) {
-		//		if (diffScale == 0)
-		//			return DividePrimitiveLongs(smallValue, divisor.smallValue, scale, roundingMode);
-		//		if (diffScale > 0) {
-		//			if (diffScale < LongTenPow.Length &&
-		//			    divisor._bitLength + LongTenPowBitLength[(int) diffScale] < 64) {
-		//				return DividePrimitiveLongs(smallValue, divisor.smallValue*LongTenPow[(int) diffScale], scale, roundingMode);
-		//			}
-		//		} else {
-		//			// diffScale < 0
-		//			if (-diffScale < LongTenPow.Length &&
-		//			    _bitLength + LongTenPowBitLength[(int) -diffScale] < 64) {
-		//				return DividePrimitiveLongs(smallValue*LongTenPow[(int) -diffScale], divisor.smallValue, scale, roundingMode);
-		//			}
-
-		//		}
-		//	}
-		//	BigInteger scaledDividend = GetUnscaledValue();
-		//	BigInteger scaledDivisor = divisor.GetUnscaledValue(); // for scaling of 'u2'
-
-		//	if (diffScale > 0) {
-		//		// Multiply 'u2'  by:  10^((s1 - s2) - scale)
-		//		scaledDivisor = Multiplication.MultiplyByTenPow(scaledDivisor, (int) diffScale);
-		//	} else if (diffScale < 0) {
-		//		// Multiply 'u1'  by:  10^(scale - (s1 - s2))
-		//		scaledDividend = Multiplication.MultiplyByTenPow(scaledDividend, (int) -diffScale);
-		//	}
-		//	return DivideBigIntegers(scaledDividend, scaledDivisor, scale, roundingMode);
-		//}
-
 		#endregion
 
 		#region Operations
 
 		#endregion
 
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code this}, rounded
-		 * according to the passed context {@code mc}.
-		 * <p>
-		 * If {@code mc.precision = 0}, then no rounding is performed.
-		 * <p>
-		 * If {@code mc.precision > 0} and {@code mc.roundingMode == UNNECESSARY},
-		 * then an {@code ArithmeticException} is thrown if the result cannot be
-		 * represented exactly within the given precision.
-		 *
-		 * @param mc
-		 *            rounding mode and precision for the result of this operation.
-		 * @return {@code this} rounded according to the passed context.
-		 * @throws ArithmeticException
-		 *             if {@code mc.precision > 0} and {@code mc.roundingMode ==
-		 *             UNNECESSARY} and this cannot be represented within the given
-		 *             precision.
-		 */
 
 		/**
 		 * Compares this {@code BigDecimal} with {@code val}. Returns one of the
@@ -1047,16 +976,6 @@ namespace Deveel.Math {
 		}
 
 		/**
-		 * Returns the minimum of this {@code BigDecimal} and {@code val}.
-		 *
-		 * @param val
-		 *            value to be used to compute the minimum with this.
-		 * @return {@code min(this, val}.
-		 * @throws NullPointerException
-		 *             if {@code val == null}.
-		 */
-
-		/**
 		 * Returns a hash code for this {@code BigDecimal}.
 		 *
 		 * @return hash code for {@code this}.
@@ -1073,38 +992,6 @@ namespace Deveel.Math {
 
 			hashCode = 17*intVal.GetHashCode() + _scale;
 			return hashCode;
-		}
-
-		/**
-		 * Returns a canonical string representation of this {@code BigDecimal}. If
-		 * necessary, scientific notation is used. This representation always prints
-		 * all significant digits of this value.
-		 * <p>
-		 * If the scale is negative or if {@code scale - precision >= 6} then
-		 * scientific notation is used.
-		 *
-		 * @return a string representation of {@code this} in scientific notation if
-		 *         necessary.
-		 */
-
-		/**
-		 * Returns the unit in the last place (ULP) of this {@code BigDecimal}
-		 * instance. An ULP is the distance to the nearest big decimal with the same
-		 * precision.
-		 * <p>
-		 * The amount of a rounding error in the evaluation of a floating-point
-		 * operation is often expressed in ULPs. An error of 1 ULP is often seen as
-		 * a tolerable error.
-		 * <p>
-		 * For class {@code BigDecimal}, the ULP of a number is simply 10^(-scale).
-		 * <p>
-		 * For example, {@code new BigDecimal(0.1).ulp()} returns {@code 1E-55}.
-		 *
-		 * @return unit in the last place (ULP) of this {@code BigDecimal} instance.
-		 */
-
-		public BigDecimal Ulp() {
-			return ValueOf(1, _scale);
 		}
 
 		/* Private Methods */
@@ -1204,7 +1091,7 @@ namespace Deveel.Math {
 			_scale = ToIntScale(newScale);
 			_precision = mc.Precision;
 			smallValue = integer;
-			_bitLength = BitLength(integer);
+			_bitLength = CalcBitLength(integer);
 			intVal = null;
 		}
 
@@ -1351,7 +1238,7 @@ namespace Deveel.Math {
 			return new BigDecimal(0, Int32.MinValue);
 		}
 
-		internal BigInteger GetUnscaledValue() {
+		private BigInteger GetUnscaledValue() {
 			if (intVal == null)
 				intVal = BigInteger.FromInt64(smallValue);
 			return intVal;
@@ -1365,14 +1252,14 @@ namespace Deveel.Math {
 			}
 		}
 
-		private static int BitLength(long smallValue) {
+		private static int CalcBitLength(long smallValue) {
 			if (smallValue < 0) {
 				smallValue = ~smallValue;
 			}
 			return 64 - Utils.NumberOfLeadingZeros(smallValue);
 		}
 
-		private static int BitLength(int smallValue) {
+		private static int CalcBitLength(int smallValue) {
 			if (smallValue < 0) {
 				smallValue = ~smallValue;
 			}

@@ -1342,7 +1342,7 @@ namespace Deveel.Math {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = -45;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
-			BigDecimal result = aNumber.Ulp();
+			BigDecimal result = BigMath.Ulp(aNumber);
 			String res = "1E+45";
 			int resScale = -45;
 			Assert.Equal(res, result.ToString());
@@ -1357,7 +1357,7 @@ namespace Deveel.Math {
 			String a = "-3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
-			BigDecimal result = aNumber.Ulp();
+			BigDecimal result = BigMath.Ulp(aNumber);
 			String res = "1E-45";
 			int resScale = 45;
 			Assert.Equal(res, result.ToString());
@@ -1372,7 +1372,7 @@ namespace Deveel.Math {
 			String a = "0";
 			int aScale = 2;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
-			BigDecimal result = aNumber.Ulp();
+			BigDecimal result = BigMath.Ulp(aNumber);
 			String res = "0.01";
 			int resScale = 2;
 			Assert.Equal(res, result.ToString());
