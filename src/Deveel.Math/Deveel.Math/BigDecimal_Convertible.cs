@@ -87,7 +87,7 @@ namespace Deveel.Math {
 		}
 
 		decimal IConvertible.ToDecimal(IFormatProvider provider) {
-			throw new NotSupportedException();
+			return ToDecimal();
 		}
 
 		DateTime IConvertible.ToDateTime(IFormatProvider provider) {
@@ -99,21 +99,6 @@ namespace Deveel.Math {
 		}
 
 		object IConvertible.ToType(Type conversionType, IFormatProvider provider) {
-			if (conversionType == typeof(bool))
-				return (this as IConvertible).ToBoolean(provider);
-			if (conversionType == typeof(byte))
-				return (this as IConvertible).ToByte(provider);
-			if (conversionType == typeof(short))
-				return ToInt16Exact();
-			if (conversionType == typeof(int))
-				return ToInt32();
-			if (conversionType == typeof(long))
-				return ToInt64();
-			if (conversionType == typeof(float))
-				return ToSingle();
-			if (conversionType == typeof(double))
-				return ToDouble();
-
 			if (conversionType == typeof(BigInteger))
 				return ToBigInteger();
 
@@ -181,23 +166,51 @@ namespace Deveel.Math {
 			return toStringImage;
 		}
 
-		/**
-		 * Returns a string representation of this {@code BigDecimal}. This
-		 * representation always prints all significant digits of this value.
-		 * <p>
-		 * If the scale is negative or if {@code scale - precision >= 6} then
-		 * engineering notation is used. Engineering notation is similar to the
-		 * scientific notation except that the exponent is made to be a multiple of
-		 * 3 such that the integer part is >= 1 and < 1000.
-		 *
-		 * @return a string representation of {@code this} in engineering notation
-		 *         if necessary.
-		 */
 
+		/// <summary>
+		/// Returns a string representation of this number,
+		/// including all significant digits of this value
+		/// </summary>
+		/// <remarks>
+		/// <para>
+		/// If the scale is negative or if <c>scale - precision >= 6</c> 
+		/// then engineering notation is used. Engineering notation is 
+		/// similar to the scientific notation except that the exponent 
+		/// is made to be a multiple of 3 such that the integer part 
+		/// is &gt= 1 and &lt 1000.
+		/// </para>
+		/// <para>
+		/// This overload uses the invariant culture to resolve the
+		/// format information for the string.
+		/// </para>
+		/// </remarks>
+		/// <returns>
+		/// Returns a string representation of this number in engineering 
+		/// notation if necessary.
+		/// </returns>
 		public String ToEngineeringString() {
 			return ToEngineeringString(null);
 		}
 
+			/// <summary>
+			/// Returns a string representation of this number,
+			/// including all significant digits of this value
+			/// </summary>
+			/// <param name="provider">The provider used to resolve the
+			/// format information to use.</param>
+			/// <remarks>
+			/// <para>
+			/// If the scale is negative or if <c>scale - precision >= 6</c> 
+			/// then engineering notation is used. Engineering notation is 
+			/// similar to the scientific notation except that the exponent 
+			/// is made to be a multiple of 3 such that the integer part 
+			/// is &gt= 1 and &lt 1000.
+			/// </para>
+			/// </remarks>
+			/// <returns>
+			/// Returns a string representation of this number in engineering 
+			/// notation if necessary.
+			/// </returns>
 		public String ToEngineeringString(IFormatProvider provider) {
 			var numberInfo = provider.GetFormat(typeof(NumberFormatInfo)) as NumberFormatInfo;
 			if (numberInfo == null)

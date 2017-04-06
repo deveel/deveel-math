@@ -141,9 +141,9 @@ namespace Deveel.Math {
 			// diffScale < 0
 			// return  [u,s] / [1,newScale]  with the appropriate scale and rounding
 			if (_bitLength < 64 && -diffScale < LongTenPow.Length) {
-				return DividePrimitiveLongs(smallValue, LongTenPow[(int)-diffScale], newScale, roundingMode);
+				return BigDecimalMath.DividePrimitiveLongs(smallValue, LongTenPow[(int)-diffScale], newScale, roundingMode);
 			}
-			return DivideBigIntegers(GetUnscaledValue(), Multiplication.PowerOf10(-diffScale), newScale, roundingMode);
+			return BigDecimalMath.DivideBigIntegers(GetUnscaledValue(), Multiplication.PowerOf10(-diffScale), newScale, roundingMode);
 		}
 
 		/**

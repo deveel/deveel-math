@@ -127,31 +127,31 @@ namespace Deveel.Math {
 		public void DivideBigDecimalI() {
 			BigDecimal divd1 = new BigDecimal(value, 2);
 			BigDecimal divd2 = BigDecimal.Parse("2.335");
-			BigDecimal divd3 = divd1.Divide(divd2, RoundingMode.Up);
+			BigDecimal divd3 = BigMath.Divide(divd1, divd2, RoundingMode.Up);
 			Assert.True(divd3.ToString().Equals("52873.27") && divd3.Scale == divd1.Scale, "123459.08/2.335 is not correct");
 			Assert.True(divd3.UnscaledValue.ToString().Equals("5287327"),
 						  "the unscaledValue representation of 123459.08/2.335 is not correct");
 			divd2 = new BigDecimal(123.4D);
-			divd3 = divd1.Divide(divd2, RoundingMode.Down);
+			divd3 = BigMath.Divide(divd1, divd2, RoundingMode.Down);
 			Assert.True(divd3.ToString().Equals("1000.47") && divd3.Scale == 2, "123459.08/123.4  is not correct");
 			divd2 = new BigDecimal(000D);
 
-			Assert.Throws<ArithmeticException>(() => divd1.Divide(divd2, RoundingMode.Down));
+			Assert.Throws<ArithmeticException>(() => BigMath. Divide(divd1, divd2, RoundingMode.Down));
 		}
 
 		[Fact]
 		public void DivideBigDecimalII() {
 			BigDecimal divd1 = new BigDecimal(value2, 4);
 			BigDecimal divd2 = BigDecimal.Parse("0.0023");
-			BigDecimal divd3 = divd1.Divide(divd2, 3, RoundingMode.HalfUp);
+			BigDecimal divd3 = BigMath.Divide(divd1, divd2, 3, RoundingMode.HalfUp);
 			Assert.True(divd3.ToString().Equals("536285217.391") && divd3.Scale == 3, "1233456/0.0023 is not correct");
 			divd2 = new BigDecimal(1345.5E-02D);
-			divd3 = divd1.Divide(divd2, 0, RoundingMode.Down);
+			divd3 = BigMath.Divide(divd1, divd2, 0, RoundingMode.Down);
 			Assert.True(divd3.ToString().Equals("91672") && divd3.Scale == 0,
 						  "1233456/13.455 is not correct or does not have the correct scale");
 			divd2 = new BigDecimal(0000D);
 
-			Assert.Throws<ArithmeticException>(() => divd1.Divide(divd2, 4, RoundingMode.Down));
+			Assert.Throws<ArithmeticException>(() => BigMath.Divide(divd1, divd2, 4, RoundingMode.Down));
 		}
 
 		[Fact]

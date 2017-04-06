@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\Deveel.Math.XUnit\Deveel.Math\BigDecimalArithmeticTest.cs" Link="Math\BigDecimalArithmeticTest.cs" />
+    <Compile Include="..\Deveel.Math.XUnit\Deveel.Math\BigDecimalTest.cs" Link="Math\BigDecimalTest.cs" />
+    <Compile Include="..\Deveel.Math.XUnit\Deveel.Math\BigIntegerTest.cs" Link="Math\BigIntegerTest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
@@ -13,6 +19,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Deveel.Math.Core\Deveel.Math.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Math\" />
   </ItemGroup>
 
 </Project>
