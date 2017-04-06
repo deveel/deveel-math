@@ -65,7 +65,7 @@ namespace Deveel.Math {
 #if !PORTABLE
 		[NonSerialized]
 #endif
-		private string toStringImage;
+		internal string toStringImage;
 
 		/// <summary>
 		/// An array with powers of five that fit in the type <see cref="long"/>
@@ -152,12 +152,7 @@ namespace Deveel.Math {
 		/// An array with the zero number scaled by the first positive scales.
 		/// (<c>0*10^0, 0*10^1, ..., 0*10^10</c>).
 		/// </summary>
-		private static readonly BigDecimal[] ZeroScaledBy = new BigDecimal[11];
-
-		/// <summary>
-		/// An array filled with character <c>'0'</c>.
-		/// </summary>
-		private static readonly char[] ChZeros = new char[100];
+		internal static readonly BigDecimal[] ZeroScaledBy = new BigDecimal[11];
 
 		static BigDecimal() {
 			// To fill all static arrays.
@@ -166,12 +161,8 @@ namespace Deveel.Math {
 			for (; i < ZeroScaledBy.Length; i++) {
 				BiScaledByZero[i] = new BigDecimal(i, 0);
 				ZeroScaledBy[i] = new BigDecimal(0, i);
-				ChZeros[i] = '0';
 			}
 
-			for (; i < ChZeros.Length; i++) {
-				ChZeros[i] = '0';
-			}
 			for (int j = 0; j < LongFivePowBitLength.Length; j++) {
 				LongFivePowBitLength[j] = CalcBitLength(LongFivePow[j]);
 			}
@@ -235,7 +226,7 @@ namespace Deveel.Math {
 			_bitLength = CalcBitLength(smallValue);
 		}
 
-		private BigDecimal() {
+		internal BigDecimal() {
 
 		}
 
@@ -490,10 +481,12 @@ namespace Deveel.Math {
 
 		internal int BitLength {
 			get { return _bitLength; }
+			set { _bitLength = value; }
 		}
 
 		internal long SmallValue {
 			get { return smallValue; }
+			set { smallValue = value; }
 		}
 
 		/// <summary>
@@ -562,6 +555,7 @@ namespace Deveel.Math {
 				_precision = decimalDigits;
 				return _precision;
 			}
+			internal set { _precision = value; }
 		}
 
 		/// <summary>
@@ -589,9 +583,9 @@ namespace Deveel.Math {
 		/// Returns a <see cref="BigDecimal"/> instance with the value <c><see cref="unscaledVal"/> 
 		/// * 10^(-<see cref="scale"/>)</c>.
 		/// </returns>
-		public static BigDecimal ValueOf(long unscaledVal, int scale) {
+		public static BigDecimal Create(long unscaledVal, int scale) {
 			if (scale == 0)
-				return ValueOf(unscaledVal);
+				return Create(unscaledVal);
 			if ((unscaledVal == 0) && (scale >= 0) &&
 			    (scale < ZeroScaledBy.Length)) {
 				return ZeroScaledBy[scale];
@@ -609,7 +603,7 @@ namespace Deveel.Math {
 		/// <returns>
 		/// Returns a <see cref="BigDecimal"/> instance with the value <paramref name="unscaledVal"/>.
 		/// </returns>
-		public static BigDecimal ValueOf(long unscaledVal) {
+		public static BigDecimal Create(long unscaledVal) {
 			if ((unscaledVal >= 0) && (unscaledVal < BiScaledByZeroLength)) {
 				return BiScaledByZero[(int) unscaledVal];
 			}
@@ -618,11 +612,6 @@ namespace Deveel.Math {
 
 
 		#endregion
-
-		#region Operations
-
-		#endregion
-
 
 		/**
 		 * Compares this {@code BigDecimal} with {@code val}. Returns one of the
@@ -937,15 +926,15 @@ namespace Deveel.Math {
 	 */
 
 		internal static int ToIntScale(long longScale) {
-			if (longScale < Int32.MinValue) {
+			if (longScale < Int32.MinValue)
 				// math.09=Overflow
 				throw new ArithmeticException(Messages.math09); //$NON-NLS-1$
-			} else if (longScale > Int32.MaxValue) {
+
+			if (longScale > Int32.MaxValue)
 				// math.0A=Underflow
 				throw new ArithmeticException(Messages.math0A); //$NON-NLS-1$
-			} else {
-				return (int) longScale;
-			}
+
+			return (int) longScale;
 		}
 
 		/**
@@ -964,7 +953,7 @@ namespace Deveel.Math {
 
 		internal static BigDecimal GetZeroScaledBy(long longScale) {
 			if (longScale == (int) longScale) {
-				return ValueOf(0, (int) longScale);
+				return Create(0, (int) longScale);
 			}
 			if (longScale >= 0) {
 				return new BigDecimal(0, Int32.MaxValue);
@@ -986,14 +975,14 @@ namespace Deveel.Math {
 			}
 		}
 
-		private static int CalcBitLength(long smallValue) {
+		internal static int CalcBitLength(long smallValue) {
 			if (smallValue < 0) {
 				smallValue = ~smallValue;
 			}
 			return 64 - Utils.NumberOfLeadingZeros(smallValue);
 		}
 
-		private static int CalcBitLength(int smallValue) {
+		internal static int CalcBitLength(int smallValue) {
 			if (smallValue < 0) {
 				smallValue = ~smallValue;
 			}
@@ -1033,5 +1022,274 @@ namespace Deveel.Math {
 		}
 
 #endif
+
+		#region Parse
+
+		public static bool TryParse(char[] chars, int offset, int length, out BigDecimal value) {
+			return TryParse(chars, offset, length, NumberFormatInfo.InvariantInfo, out value);
+		}
+
+		public static bool TryParse(char[] chars, int offset, int length, IFormatProvider provider, out BigDecimal value) {
+			return TryParse(chars, offset, length, null, provider, out value);
+		}
+
+		public static bool TryParse(char[] chars, int offset, int length, MathContext context, out BigDecimal value) {
+			return TryParse(chars, offset, length, context, null, out value);
+		}
+
+		public static bool TryParse(char[] chars, int offset, int length, MathContext context, IFormatProvider provider,
+			out BigDecimal value) {
+			Exception error;
+			if (!DecimalString.TryParse(chars, offset, length, provider, out value, out error))
+				return false;
+
+			if (context != null)
+				value.InplaceRound(context);
+
+			return true;
+		}
+
+		public static bool TryParse(char[] chars, out BigDecimal value) {
+			return TryParse(chars, (MathContext)null, out value);
+		}
+
+		public static bool TryParse(char[] chars, MathContext context, out BigDecimal value) {
+			return TryParse(chars, context, NumberFormatInfo.InvariantInfo, out value);
+		}
+
+		public static bool TryParse(char[] chars, IFormatProvider provider, out BigDecimal value) {
+			return TryParse(chars, null, provider, out value);
+		}
+
+		public static bool TryParse(char[] chars, MathContext context, IFormatProvider provider, out BigDecimal value) {
+			if (chars == null) {
+				value = null;
+				return false;
+			}
+
+			return TryParse(chars, 0, chars.Length, context, provider, out value);
+		}
+
+		public static BigDecimal Parse(char[] chars, int offset, int length, IFormatProvider provider) {
+			return Parse(chars, offset, length, null, provider);
+		}
+
+		public static BigDecimal Parse(char[] chars, int offset, int length) {
+			return Parse(chars, offset, length, (MathContext)null);
+		}
+
+		public static BigDecimal Parse(char[] chars, int offset, int length, MathContext context) {
+			return Parse(chars, offset, length, context, NumberFormatInfo.InvariantInfo);
+		}
+
+		public static BigDecimal Parse(char[] chars, int offset, int length, MathContext context, IFormatProvider provider) {
+			Exception error;
+			BigDecimal value;
+			if (!DecimalString.TryParse(chars, offset, length, provider, out value, out error))
+				throw error;
+
+			if (context != null)
+				value.InplaceRound(context);
+
+			return value;
+		}
+
+		public static BigDecimal Parse(char[] chars, IFormatProvider provider) {
+			return Parse(chars, null, provider);
+		}
+
+		public static BigDecimal Parse(char[] chars) {
+			return Parse(chars, (MathContext)null);
+		}
+
+		public static BigDecimal Parse(char[] chars, MathContext context) {
+			return Parse(chars, context, NumberFormatInfo.InvariantInfo);
+		}
+
+		public static BigDecimal Parse(char[] chars, MathContext context, IFormatProvider provider) {
+			if (chars == null)
+				throw new ArgumentNullException("chars");
+
+			return Parse(chars, 0, chars.Length, context, provider);
+		}
+
+		public static bool TryParse(string s, out BigDecimal value) {
+			return TryParse(s, (MathContext)null, out value);
+		}
+
+		public static bool TryParse(string s, MathContext context, out BigDecimal value) {
+			return TryParse(s, context, NumberFormatInfo.InvariantInfo, out value);
+		}
+
+		public static bool TryParse(string s, IFormatProvider provider, out BigDecimal value) {
+			return TryParse(s, null, provider, out value);
+		}
+
+		public static bool TryParse(string s, MathContext context, IFormatProvider provider, out BigDecimal value) {
+			if (String.IsNullOrEmpty(s)) {
+				value = null;
+				return false;
+			}
+
+			var data = s.ToCharArray();
+
+			Exception error;
+			if (!DecimalString.TryParse(data, 0, data.Length, provider, out value, out error))
+				return false;
+
+			if (context != null)
+				value.InplaceRound(context);
+
+			return true;
+		}
+
+		public static BigDecimal Parse(string s, IFormatProvider provider) {
+			return Parse(s, null, provider);
+		}
+
+		public static BigDecimal Parse(string s) {
+			return Parse(s, (MathContext)null);
+		}
+
+		public static BigDecimal Parse(string s, MathContext context) {
+			return Parse(s, context, NumberFormatInfo.InvariantInfo);
+		}
+
+		public static BigDecimal Parse(string s, MathContext context, IFormatProvider provider) {
+			if (String.IsNullOrEmpty(s))
+				throw new FormatException();
+
+			var data = s.ToCharArray();
+
+			Exception error;
+			BigDecimal value;
+			if (!DecimalString.TryParse(data, 0, data.Length, provider, out value, out error))
+				throw error;
+
+			if (context != null)
+				value.InplaceRound(context);
+
+			return value;
+		}
+
+
+		#endregion
+
+		#region Arithmetic Operators
+
+		public static BigDecimal operator +(BigDecimal a, BigDecimal b) {
+			// In case of implicit operators apply the precision of the dividend
+			return BigMath.Add(a, b);
+		}
+
+		public static BigDecimal operator -(BigDecimal a, BigDecimal b) {
+			// In case of implicit operators apply the precision of the dividend
+			return BigMath.Subtract(a, b);
+		}
+
+		public static BigDecimal operator /(BigDecimal a, BigDecimal b) {
+			// In case of implicit operators apply the precision of the dividend
+			return BigDecimalMath.Divide(a, b);
+		}
+
+		public static BigDecimal operator %(BigDecimal a, BigDecimal b) {
+			// In case of implicit operators apply the precision of the dividend
+			return BigMath.Remainder(a, b);
+		}
+
+		public static BigDecimal operator *(BigDecimal a, BigDecimal b) {
+			// In case of implicit operators apply the precision of the dividend
+			return BigMath.Multiply(a, b);
+		}
+
+		public static BigDecimal operator +(BigDecimal a) {
+			return BigMath.Plus(a);
+		}
+
+		public static BigDecimal operator -(BigDecimal a) {
+			return BigMath.Negate(a);
+		}
+
+		public static bool operator ==(BigDecimal a, BigDecimal b) {
+			if ((object)a == null && (object)b == null)
+				return true;
+			if ((object)a == null)
+				return false;
+			return a.Equals(b);
+		}
+
+		public static bool operator !=(BigDecimal a, BigDecimal b) {
+			return !(a == b);
+		}
+
+		public static bool operator >(BigDecimal a, BigDecimal b) {
+			return a.CompareTo(b) < 0;
+		}
+
+		public static bool operator <(BigDecimal a, BigDecimal b) {
+			return a.CompareTo(b) > 0;
+		}
+
+		public static bool operator >=(BigDecimal a, BigDecimal b) {
+			return a == b || a > b;
+		}
+
+		public static bool operator <=(BigDecimal a, BigDecimal b) {
+			return a == b || a < b;
+		}
+
+		public static BigDecimal operator >>(BigDecimal a, int b) {
+			return BigMath.ShiftRight(a, b);
+		}
+
+		public static BigDecimal operator <<(BigDecimal a, int b) {
+			return BigMath.ShiftLeft(a, b);
+		}
+
+		#endregion
+
+		#region Implicit Operators
+
+		public static implicit operator short(BigDecimal d) {
+			return d.ToInt16Exact();
+		}
+
+		public static implicit operator int(BigDecimal d) {
+			return d.ToInt32();
+		}
+
+		public static implicit operator long(BigDecimal d) {
+			return d.ToInt64();
+		}
+
+		public static implicit operator float(BigDecimal d) {
+			return d.ToSingle();
+		}
+
+		public static implicit operator double(BigDecimal d) {
+			return d.ToDouble();
+		}
+
+		public static implicit operator BigInteger(BigDecimal d) {
+			return d.ToBigInteger();
+		}
+
+		public static implicit operator BigDecimal(long value) {
+			return new BigDecimal(value);
+		}
+
+		public static implicit operator BigDecimal(double value) {
+			return new BigDecimal(value);
+		}
+
+		public static implicit operator BigDecimal(int value) {
+			return new BigDecimal(value);
+		}
+
+		public static implicit operator BigDecimal(BigInteger value) {
+			return new BigDecimal(value);
+		}
+
+		#endregion
 	}
 }

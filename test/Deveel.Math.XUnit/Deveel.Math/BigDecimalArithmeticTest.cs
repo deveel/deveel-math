@@ -2,6 +2,7 @@
 using System.Globalization;
 
 using Xunit;
+using Xunit.Extensions;
 
 namespace Deveel.Math {
 	public class BigDecimalArithmeticTest {
@@ -174,7 +175,7 @@ namespace Deveel.Math {
 			String a = "1231212478987482988429808779810457634781384756794987";
 			int aScale = 15;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
-			BigDecimal bNumber = BigDecimal.ValueOf(0L);
+			BigDecimal bNumber = BigDecimal.Create(0L);
 			Assert.Throws<ArithmeticException>(() => BigMath.Divide(aNumber, bNumber));
 		}
 

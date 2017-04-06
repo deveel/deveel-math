@@ -26,11 +26,7 @@ namespace Deveel.Math {
  * </ul>
  * In addition to this, some <i><b>Inplace</b></i> (mutable) methods are provided.
  */
-	class Elementary {
-
-		/** Just to denote that this class can't be instantiated */
-		private Elementary() {
-		}
+	static class Elementary {
 
 		/**
 		 * Compares two arrays. All elements are treated as unsigned integers. The
@@ -42,7 +38,7 @@ namespace Deveel.Math {
 		 * @return 1 if a > b, -1 if a < b, 0 if a == b
 		 */
 
-		internal static int compareArrays(int[] a, int[] b, int size) {
+		internal static int CompareArrays(int[] a, int[] b, int size) {
 			int i;
 			for (i = size - 1; (i >= 0) && (a[i] == b[i]); i--) {
 				;
@@ -53,7 +49,7 @@ namespace Deveel.Math {
 		}
 
 		/** @see BigInteger#add(BigInteger) */
-		internal static BigInteger add(BigInteger op1, BigInteger op2) {
+		internal static BigInteger Add(BigInteger op1, BigInteger op2) {
 			int[] resDigits;
 			int resSign;
 			int op1Sign = op1.Sign;
@@ -99,7 +95,7 @@ namespace Deveel.Math {
 				// signs are different
 				int cmp = ((op1Len != op2Len)
 				           	? ((op1Len > op2Len) ? 1 : -1)
-				           	: compareArrays(op1.Digits, op2.Digits, op1Len));
+				           	: CompareArrays(op1.Digits, op2.Digits, op1Len));
 
 				if (cmp == BigInteger.EQUALS) {
 					return BigInteger.Zero;
@@ -185,7 +181,7 @@ namespace Deveel.Math {
 				return BigInteger.FromInt64(a - b);
 			}
 			int cmp = ((op1Len != op2Len) ? ((op1Len > op2Len) ? 1 : -1)
-					: Elementary.compareArrays(op1.Digits, op2.Digits, op1Len));
+					: Elementary.CompareArrays(op1.Digits, op2.Digits, op1Len));
 
 			if (cmp == BigInteger.LESS) {
 				resSign = -op2Sign;

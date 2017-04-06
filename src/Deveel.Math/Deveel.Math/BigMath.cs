@@ -25,7 +25,7 @@ namespace Deveel.Math {
 		/// <returns>Returns a new <see cref="BigInteger"/> that
 		/// is the result of the addition of the two integers specified</returns>
 		public static BigInteger Add(BigInteger a, BigInteger b) {
-			return Elementary.add(a, b);
+			return Elementary.Add(a, b);
 		}
 
 		/// <summary>
@@ -557,7 +557,7 @@ namespace Deveel.Math {
 
 		public static BigDecimal Negate(BigDecimal number) {
 			if (number.BitLength < 63 || (number.BitLength == 63 && number.SmallValue != Int64.MinValue)) {
-				return BigDecimal.ValueOf(-number.SmallValue, number.Scale);
+				return BigDecimal.Create(-number.SmallValue, number.Scale);
 			}
 
 			return new BigDecimal(-number.UnscaledValue, number.Scale);
@@ -641,7 +641,7 @@ namespace Deveel.Math {
 					return BigDecimal.GetZeroScaledBy(newScale);
 				}
 
-				return BigDecimal.ValueOf(number.SmallValue, BigDecimal.ToIntScale(newScale));
+				return BigDecimal.Create(number.SmallValue, BigDecimal.ToIntScale(newScale));
 			}
 
 			return new BigDecimal(number.UnscaledValue, BigDecimal.ToIntScale(newScale));
@@ -919,7 +919,7 @@ namespace Deveel.Math {
  */
 
 		public static BigDecimal Ulp(BigDecimal value) {
-			return BigDecimal.ValueOf(1, value.Scale);
+			return BigDecimal.Create(1, value.Scale);
 		}
 
 		/// <summary>
@@ -992,5 +992,53 @@ namespace Deveel.Math {
 		public static BigDecimal Subtract(BigDecimal value, BigDecimal subtrahend, MathContext mc) {
 			return BigDecimalMath.Subtract(value, subtrahend, mc);
 		}
+
+		/**
+ * Returns a new {@code BigDecimal} instance with the same value as {@code
+ * this} but with a unscaled value where the trailing zeros have been
+ * removed. If the unscaled value of {@code this} has n trailing zeros, then
+ * the scale and the precision of the result has been reduced by n.
+ *
+ * @return a new {@code BigDecimal} instance equivalent to this where the
+ *         trailing zeros of the unscaled value have been removed.
+ */
+
+		public static BigDecimal StripTrailingZeros(BigDecimal value) {
+			int i = 1; // 1 <= i <= 18
+			int lastPow = BigDecimal.TenPow.Length - 1;
+			long newScale = value.Scale;
+
+			if (value.IsZero) {
+				return BigDecimal.Parse("0");
+			}
+			BigInteger strippedBI = value.UnscaledValue;
+			BigInteger quotient;
+			BigInteger remainder;
+
+			// while the number is even...
+			while (!BigInteger.TestBit(strippedBI, 0)) {
+				// To divide by 10^i
+				quotient = DivideAndRemainder(strippedBI, BigDecimal.TenPow[i], out remainder);
+				// To look the remainder
+				if (remainder.Sign == 0) {
+					// To adjust the scale
+					newScale -= i;
+					if (i < lastPow) {
+						// To set to the next power
+						i++;
+					}
+					strippedBI = quotient;
+				} else {
+					if (i == 1) {
+						// 'this' has no more trailing zeros
+						break;
+					}
+					// To set to the smallest power of ten
+					i = 1;
+				}
+			}
+			return new BigDecimal(strippedBI, BigDecimal.ToIntScale(newScale));
+		}
+
 	}
 }

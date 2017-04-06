@@ -45,7 +45,7 @@ namespace Deveel.Math {
 			}
 			int cmp = ((thisLen != divisorLen)
 				? ((thisLen > divisorLen) ? 1 : -1)
-				: Elementary.compareArrays(dividend.digits, divisor.digits, thisLen));
+				: Elementary.CompareArrays(dividend.digits, divisor.digits, thisLen));
 			if (cmp == BigInteger.EQUALS) {
 				return ((thisSign == divisorSign) ? BigInteger.One : BigInteger.MinusOne);
 			}
@@ -76,7 +76,7 @@ namespace Deveel.Math {
 			int divisorLen = divisor.numberLength;
 			if (((thisLen != divisorLen)
 				    ? ((thisLen > divisorLen) ? 1 : -1)
-				    : Elementary.compareArrays(dividend.digits, divisor.digits, thisLen)) == BigInteger.LESS) {
+				    : Elementary.CompareArrays(dividend.digits, divisor.digits, thisLen)) == BigInteger.LESS) {
 				return dividend;
 			}
 			int resLength = divisorLen;
@@ -112,7 +112,7 @@ namespace Deveel.Math {
 			int thisLen = dividend.numberLength;
 			int cmp = (thisLen != divisorLen)
 				? ((thisLen > divisorLen) ? 1 : -1)
-				: Elementary.compareArrays(thisDigits, divisorDigits, thisLen);
+				: Elementary.CompareArrays(thisDigits, divisorDigits, thisLen);
 			if (cmp < 0) {
 				remainder = dividend;
 				return BigInteger.Zero;

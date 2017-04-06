@@ -41,7 +41,7 @@ namespace Deveel.Math {
 #if !PORTABLE
 	[Serializable]
 #endif
-	public sealed partial class BigInteger : IComparable<BigInteger>, IEquatable<BigInteger>
+	public sealed class BigInteger : IComparable<BigInteger>, IEquatable<BigInteger>
 #if !PORTABLE
 		, ISerializable, IConvertible
 #endif 
@@ -433,7 +433,7 @@ namespace Deveel.Math {
 				return -other.sign;
 			}
 			// Equal sign and equal numberLength
-			return (sign * Elementary.compareArrays(digits, other.digits,
+			return (sign * Elementary.CompareArrays(digits, other.digits,
 				        numberLength));
 		}
 

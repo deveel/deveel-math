@@ -28,7 +28,7 @@ namespace Deveel.Math {
 			}
 			if (compRem != 0) {
 				if (quotient.BitLength < 63) {
-					return BigDecimal.ValueOf(quotient.ToInt64() + compRem, scale);
+					return BigDecimal.Create(quotient.ToInt64() + compRem, scale);
 				}
 				quotient += BigInteger.FromInt64(compRem);
 				return new BigDecimal(quotient, scale);
@@ -50,7 +50,7 @@ namespace Deveel.Math {
 				quotient += BigDecimal.RoundingBehavior(((int)quotient) & 1, sign * (5 + compRem), roundingMode);
 			}
 			// Constructing the result with the appropriate unscaled value
-			return BigDecimal.ValueOf(quotient, scale);
+			return BigDecimal.Create(quotient, scale);
 		}
 
 		public static BigDecimal Divide(BigDecimal dividend, BigDecimal divisor) {
@@ -387,7 +387,7 @@ namespace Deveel.Math {
 			/* Let be: this = [u1,s1] and multiplicand = [u2,s2] so:
 			 * this x multiplicand = [ s1 * s2 , s1 + s2 ] */
 			if (value.BitLength + multiplicand.BitLength < 64) {
-				return BigDecimal.ValueOf(value.SmallValue * multiplicand.SmallValue, BigDecimal.ToIntScale(newScale));
+				return BigDecimal.Create(value.SmallValue * multiplicand.SmallValue, BigDecimal.ToIntScale(newScale));
 			}
 			return new BigDecimal(value.UnscaledValue * multiplicand.UnscaledValue, BigDecimal.ToIntScale(newScale));
 		}
@@ -460,7 +460,7 @@ namespace Deveel.Math {
 				// return  [u * 10^(s2 - s), newScale]
 				if (diffScale < BigDecimal.LongTenPow.Length &&
 				    (number.BitLength + BigDecimal.LongTenPowBitLength[(int)diffScale]) < 64) {
-					return BigDecimal.ValueOf(number.SmallValue * BigDecimal.LongTenPow[(int)diffScale], newScale);
+					return BigDecimal.Create(number.SmallValue * BigDecimal.LongTenPow[(int)diffScale], newScale);
 				}
 				return new BigDecimal(Multiplication.MultiplyByTenPow(number.UnscaledValue, (int)diffScale), newScale);
 			}
@@ -481,13 +481,13 @@ namespace Deveel.Math {
 			 * since  -Integer.MIN_VALUE == Integer.MIN_VALUE */
 			if (newScale >= 0) {
 				if (number.BitLength < 64) {
-					return BigDecimal.ValueOf(number.SmallValue, BigDecimal.ToIntScale(newScale));
+					return BigDecimal.Create(number.SmallValue, BigDecimal.ToIntScale(newScale));
 				}
 				return new BigDecimal(number.UnscaledValue, BigDecimal.ToIntScale(newScale));
 			}
 			if (-newScale < BigDecimal.LongTenPow.Length &&
 			    number.BitLength + BigDecimal.LongTenPowBitLength[(int)-newScale] < 64) {
-				return BigDecimal.ValueOf(number.SmallValue * BigDecimal.LongTenPow[(int)-newScale], 0);
+				return BigDecimal.Create(number.SmallValue * BigDecimal.LongTenPow[(int)-newScale], 0);
 			}
 			return new BigDecimal(Multiplication.MultiplyByTenPow(number.UnscaledValue, (int)-newScale), 0);
 		}
@@ -508,7 +508,7 @@ namespace Deveel.Math {
 			if (diffScale == 0) {
 				// case s1 == s2: [u1 + u2 , s1]
 				if (System.Math.Max(value.BitLength, augend.BitLength) + 1 < 64) {
-					return BigDecimal.ValueOf(value.SmallValue + augend.SmallValue, value.Scale);
+					return BigDecimal.Create(value.SmallValue + augend.SmallValue, value.Scale);
 				}
 				return new BigDecimal(value.UnscaledValue + augend.UnscaledValue, value.Scale);
 			}
@@ -523,7 +523,7 @@ namespace Deveel.Math {
 		private static BigDecimal AddAndMult10(BigDecimal thisValue, BigDecimal augend, int diffScale) {
 			if (diffScale < BigDecimal.LongTenPow.Length &&
 			    System.Math.Max(thisValue.BitLength, augend.BitLength + BigDecimal.LongTenPowBitLength[diffScale]) + 1 < 64) {
-				return BigDecimal.ValueOf(thisValue.SmallValue + augend.SmallValue * BigDecimal.LongTenPow[diffScale], thisValue.Scale);
+				return BigDecimal.Create(thisValue.SmallValue + augend.SmallValue * BigDecimal.LongTenPow[diffScale], thisValue.Scale);
 			}
 			return new BigDecimal(
 				thisValue.UnscaledValue + Multiplication.MultiplyByTenPow(augend.UnscaledValue, diffScale),
@@ -594,7 +594,7 @@ namespace Deveel.Math {
 			if (diffScale == 0) {
 				// case s1 = s2 : [u1 - u2 , s1]
 				if (System.Math.Max(value.BitLength, subtrahend.BitLength) + 1 < 64) {
-					return BigDecimal.ValueOf(value.SmallValue - subtrahend.SmallValue, value.Scale);
+					return BigDecimal.Create(value.SmallValue - subtrahend.SmallValue, value.Scale);
 				}
 				return new BigDecimal(value.UnscaledValue - subtrahend.UnscaledValue, value.Scale);
 			}
@@ -602,7 +602,7 @@ namespace Deveel.Math {
 				// case s1 > s2 : [ u1 - u2 * 10 ^ (s1 - s2) , s1 ]
 				if (diffScale < BigDecimal.LongTenPow.Length &&
 				    System.Math.Max(value.BitLength, subtrahend.BitLength + BigDecimal.LongTenPowBitLength[diffScale]) + 1 < 64) {
-					return BigDecimal.ValueOf(value.SmallValue - subtrahend.SmallValue * BigDecimal.LongTenPow[diffScale], value.Scale);
+					return BigDecimal.Create(value.SmallValue - subtrahend.SmallValue * BigDecimal.LongTenPow[diffScale], value.Scale);
 				}
 				return new BigDecimal(
 					value.UnscaledValue - Multiplication.MultiplyByTenPow(subtrahend.UnscaledValue, diffScale),
@@ -613,7 +613,7 @@ namespace Deveel.Math {
 			diffScale = -diffScale;
 			if (diffScale < BigDecimal.LongTenPow.Length &&
 			    System.Math.Max(value.BitLength + BigDecimal.LongTenPowBitLength[diffScale], subtrahend.BitLength) + 1 < 64) {
-				return BigDecimal.ValueOf(value.SmallValue * BigDecimal.LongTenPow[diffScale] - subtrahend.SmallValue, subtrahend.Scale);
+				return BigDecimal.Create(value.SmallValue * BigDecimal.LongTenPow[diffScale] - subtrahend.SmallValue, subtrahend.Scale);
 			}
 
 			return new BigDecimal(Multiplication.MultiplyByTenPow(value.UnscaledValue, diffScale) -

@@ -53,15 +53,6 @@
     <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Convertible.cs">
       <Link>Deveel.Math\BigDecimal_Convertible.cs</Link>
     </Compile>
-    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Functions.cs">
-      <Link>Deveel.Math\BigDecimal_Functions.cs</Link>
-    </Compile>
-    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Operators.cs">
-      <Link>Deveel.Math\BigDecimal_Operators.cs</Link>
-    </Compile>
-    <Compile Include="..\Deveel.Math\Deveel.Math\BigDecimal_Parse.cs">
-      <Link>Deveel.Math\BigDecimal_Parse.cs</Link>
-    </Compile>
     <Compile Include="..\Deveel.Math\Deveel.Math\BigInteger.cs">
       <Link>Deveel.Math\BigInteger.cs</Link>
     </Compile>
@@ -79,6 +70,9 @@
     </Compile>
     <Compile Include="..\Deveel.Math\Deveel.Math\Conversion.cs">
       <Link>Deveel.Math\Conversion.cs</Link>
+    </Compile>
+    <Compile Include="..\Deveel.Math\Deveel.Math\DecimalString.cs">
+      <Link>Deveel.Math\DecimalString.cs</Link>
     </Compile>
     <Compile Include="..\Deveel.Math\Deveel.Math\Division.cs">
       <Link>Deveel.Math\Division.cs</Link>

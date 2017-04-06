@@ -244,26 +244,26 @@ namespace Deveel.Math {
 		[Fact]
 		public void ToInt32() {
 			BigDecimal int1 = new BigDecimal(value, 3);
-			Assert.True(int1.ToInt32() == 12345, "the int value of 12345.908 is not 12345");
+			Assert.True((int)int1 == 12345, "the int value of 12345.908 is not 12345");
 			int1 = BigDecimal.Parse("1.99");
-			Assert.True(int1.ToInt32() == 1, "the int value of 1.99 is not 1");
+			Assert.True((int)int1 == 1, "the int value of 1.99 is not 1");
 			int1 = BigDecimal.Parse("23423419083091823091283933");
 			// ran JDK and found representation for the above was -249268259
-			Assert.True(int1.ToInt32() == -249268259, "the int value of 23423419083091823091283933 is wrong");
+			Assert.True((int)int1 == -249268259, "the int value of 23423419083091823091283933 is wrong");
 			int1 = new BigDecimal(-1235D);
-			Assert.True(int1.ToInt32() == -1235, "the int value of -1235 is not -1235");
+			Assert.True((int)int1 == -1235, "the int value of -1235 is not -1235");
 		}
 
 		[Fact]
 		public void ToInt64() {
 			BigDecimal long1 = new BigDecimal(-value2, 0);
-			Assert.True(long1.ToInt64() == -12334560000L, "the long value of 12334560000 is not 12334560000");
+			Assert.True((long) long1 == -12334560000L, "the long value of 12334560000 is not 12334560000");
 			long1 = new BigDecimal(-1345.348E-123D);
-			Assert.True(long1.ToInt64() == 0, "the long value of -1345.348E-123D is not zero");
+			Assert.True((long) long1 == 0, "the long value of -1345.348E-123D is not zero");
 			long1 = BigDecimal.Parse("31323423423419083091823091283933");
 			// ran JDK and found representation for the above was
 			// -5251313250005125155
-			Assert.True(long1.ToInt64() == -5251313250005125155L, "the long value of 31323423423419083091823091283933 is wrong");
+			Assert.True((long) long1 == -5251313250005125155L, "the long value of 31323423423419083091823091283933 is wrong");
 		}
 
 		[Fact]
@@ -569,29 +569,29 @@ namespace Deveel.Math {
 
 		[Fact]
 		public void ValueOfJ() {
-			BigDecimal valueOfL = BigDecimal.ValueOf(9223372036854775806L);
+			BigDecimal valueOfL = BigDecimal.Create(9223372036854775806L);
 			Assert.True(valueOfL.UnscaledValue.ToString().Equals("9223372036854775806") && valueOfL.Scale == 0,
 			              "the bigDecimal equivalent of 9223372036854775806 is wrong");
 			Assert.True(valueOfL.ToString().Equals("9223372036854775806"),
 			              "the ToString representation of 9223372036854775806 is wrong");
-			valueOfL = BigDecimal.ValueOf(0L);
+			valueOfL = BigDecimal.Create(0L);
 			Assert.True(valueOfL.UnscaledValue.ToString().Equals("0") && valueOfL.Scale == 0,
 			              "the bigDecimal equivalent of 0 is wrong");
 		}
 
 		[Fact]
 		public void ValueOfJI() {
-			BigDecimal valueOfJI = BigDecimal.ValueOf(9223372036854775806L, 5);
+			BigDecimal valueOfJI = BigDecimal.Create(9223372036854775806L, 5);
 			Assert.True(valueOfJI.UnscaledValue.ToString().Equals("9223372036854775806") && valueOfJI.Scale == 5,
 			              "the bigDecimal equivalent of 92233720368547.75806 is wrong");
 			Assert.True(valueOfJI.ToString().Equals("92233720368547.75806"),
 			              "the ToString representation of 9223372036854775806 is wrong");
-			valueOfJI = BigDecimal.ValueOf(1234L, 8);
+			valueOfJI = BigDecimal.Create(1234L, 8);
 			Assert.True(valueOfJI.UnscaledValue.ToString().Equals("1234") && valueOfJI.Scale == 8,
 			              "the bigDecimal equivalent of 92233720368547.75806 is wrong");
 			Assert.True(valueOfJI.ToString().Equals("0.00001234"),
 			              "the ToString representation of 9223372036854775806 is wrong");
-			valueOfJI = BigDecimal.ValueOf(0, 3);
+			valueOfJI = BigDecimal.Create(0, 3);
 			Assert.True(valueOfJI.UnscaledValue.ToString().Equals("0") && valueOfJI.Scale == 3,
 			              "the bigDecimal equivalent of 92233720368547.75806 is wrong");
 			Assert.True(valueOfJI.ToString().Equals("0.000"), "the ToString representation of 9223372036854775806 is wrong");
@@ -601,16 +601,16 @@ namespace Deveel.Math {
 		[Fact]
 		public void StripTrailingZero() {
 			BigDecimal sixhundredtest = BigDecimal.Parse("600.0");
-			Assert.True(((sixhundredtest.StripTrailingZeros()).Scale == -2), "stripTrailingZero failed for 600.0");
+			Assert.True(BigMath.StripTrailingZeros(sixhundredtest).Scale == -2, "stripTrailingZero failed for 600.0");
 
 			/* Single digit, no trailing zero, odd number */
 			BigDecimal notrailingzerotest = BigDecimal.Parse("1");
-			Assert.True(((notrailingzerotest.StripTrailingZeros()).Scale == 0), "stripTrailingZero failed for 1");
+			Assert.True(BigMath.StripTrailingZeros(notrailingzerotest).Scale == 0, "stripTrailingZero failed for 1");
 
 			/* Zero */
 			//regression for HARMONY-4623, NON-BUG DIFF with RI
 			BigDecimal zerotest =BigDecimal.Parse("0.0000");
-			Assert.True(((zerotest.StripTrailingZeros()).Scale == 0), "stripTrailingZero failed for 0.0000");
+			Assert.True(BigMath.StripTrailingZeros(zerotest).Scale == 0, "stripTrailingZero failed for 0.0000");
 		}
 
 		[Fact]
