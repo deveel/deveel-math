@@ -507,5 +507,107 @@ namespace Deveel.Math {
 			return DivideBigIntegers(scaledDividend, scaledDivisor, scale, roundingMode);
 		}
 
+		/**
+ * Returns a new {@code BigDecimal} whose value is {@code this % divisor}.
+ * <p>
+ * The remainder is defined as {@code this -
+ * this.divideToIntegralValue(divisor) * divisor}.
+ *
+ * @param divisor
+ *            value by which {@code this} is divided.
+ * @return {@code this % divisor}.
+ * @throws NullPointerException
+ *             if {@code divisor == null}.
+ * @throws ArithmeticException
+ *             if {@code divisor == 0}.
+ */
+
+		public static BigDecimal Remainder(BigDecimal dividend, BigDecimal divisor) {
+			BigDecimal remainder;
+			DivideAndRemainder(dividend, divisor, out remainder);
+			return remainder;
+		}
+
+		/**
+		 * Returns a new {@code BigDecimal} whose value is {@code this % divisor}.
+		 * <p>
+		 * The remainder is defined as {@code this -
+		 * this.divideToIntegralValue(divisor) * divisor}.
+		 * <p>
+		 * The specified rounding mode {@code mc} is used for the division only.
+		 *
+		 * @param divisor
+		 *            value by which {@code this} is divided.
+		 * @param mc
+		 *            rounding mode and precision to be used.
+		 * @return {@code this % divisor}.
+		 * @throws NullPointerException
+		 *             if {@code divisor == null}.
+		 * @throws ArithmeticException
+		 *             if {@code divisor == 0}.
+		 * @throws ArithmeticException
+		 *             if {@code mc.getPrecision() > 0} and the result of {@code
+		 *             this.divideToIntegralValue(divisor, mc)} requires more digits
+		 *             to be represented.
+		 */
+
+		public static BigDecimal Remainder(BigDecimal dividend, BigDecimal divisor, MathContext mc) {
+			BigDecimal remainder;
+			DivideAndRemainder(dividend, divisor, mc, out remainder);
+			return remainder;
+		}
+
+		/**
+		 * Returns a {@code BigDecimal} array which contains the integral part of
+		 * {@code this / divisor} at index 0 and the remainder {@code this %
+		 * divisor} at index 1. The quotient is rounded down towards zero to the
+		 * next integer.
+		 *
+		 * @param divisor
+		 *            value by which {@code this} is divided.
+		 * @return {@code [this.divideToIntegralValue(divisor),
+		 *         this.remainder(divisor)]}.
+		 * @throws NullPointerException
+		 *             if {@code divisor == null}.
+		 * @throws ArithmeticException
+		 *             if {@code divisor == 0}.
+		 * @see #divideToIntegralValue
+		 * @see #remainder
+		 */
+
+		public static BigDecimal DivideAndRemainder(BigDecimal dividend, BigDecimal divisor, out BigDecimal remainder) {
+			var quotient = BigDecimalMath.DivideToIntegralValue(dividend, divisor);
+			remainder = dividend.Subtract(quotient.Multiply(divisor));
+			return quotient;
+		}
+
+		/**
+		 * Returns a {@code BigDecimal} array which contains the integral part of
+		 * {@code this / divisor} at index 0 and the remainder {@code this %
+		 * divisor} at index 1. The quotient is rounded down towards zero to the
+		 * next integer. The rounding mode passed with the parameter {@code mc} is
+		 * not considered. But if the precision of {@code mc > 0} and the integral
+		 * part requires more digits, then an {@code ArithmeticException} is thrown.
+		 *
+		 * @param divisor
+		 *            value by which {@code this} is divided.
+		 * @param mc
+		 *            math context which determines the maximal precision of the
+		 *            result.
+		 * @return {@code [this.divideToIntegralValue(divisor),
+		 *         this.remainder(divisor)]}.
+		 * @throws NullPointerException
+		 *             if {@code divisor == null}.
+		 * @throws ArithmeticException
+		 *             if {@code divisor == 0}.
+		 * @see #divideToIntegralValue
+		 * @see #remainder
+		 */
+
+		public static BigDecimal DivideAndRemainder(BigDecimal dividend, BigDecimal divisor, MathContext mc, out BigDecimal remainder) {
+			var quotient = BigDecimalMath.DivideToIntegralValue(dividend, divisor, mc);
+			remainder = dividend.Subtract(quotient.Multiply(divisor));
+			return quotient;
+		}
 	}
 }

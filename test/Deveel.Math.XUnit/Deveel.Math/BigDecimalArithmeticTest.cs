@@ -1088,7 +1088,7 @@ namespace Deveel.Math {
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal remainder;
-			BigDecimal quotient = aNumber.DivideAndRemainder(bNumber, out remainder);
+			BigDecimal quotient = BigMath.DivideAndRemainder(aNumber, bNumber, out remainder);
 			Assert.Equal(res, quotient.ToString());
 			Assert.Equal(resScale, quotient.Scale);
 			Assert.Equal(rem, remainder.ToString());
@@ -1113,7 +1113,7 @@ namespace Deveel.Math {
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal remainder;
-			BigDecimal quotient = aNumber.DivideAndRemainder(bNumber, out remainder);
+			BigDecimal quotient = BigMath.DivideAndRemainder(aNumber, bNumber, out remainder);
 			Assert.Equal(res, quotient.ToString());
 			Assert.Equal(resScale, quotient.Scale);
 			Assert.Equal(rem, remainder.ToString());
@@ -1139,7 +1139,7 @@ namespace Deveel.Math {
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal remainder;
-			BigDecimal quotient = aNumber.DivideAndRemainder(bNumber, mc, out remainder);
+			BigDecimal quotient = BigMath.DivideAndRemainder(aNumber, bNumber, mc, out remainder);
 			Assert.Equal(res, quotient.ToString());
 			Assert.Equal(resScale, quotient.Scale);
 			Assert.Equal(rem, remainder.ToString());
@@ -1165,7 +1165,7 @@ namespace Deveel.Math {
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			BigDecimal remainder;
-			BigDecimal quotient = aNumber.DivideAndRemainder(bNumber, mc, out remainder);
+			BigDecimal quotient = BigMath.DivideAndRemainder(aNumber, bNumber, mc, out remainder);
 			Assert.Equal(res, quotient.ToString());
 			Assert.Equal(resScale, quotient.Scale);
 			Assert.Equal(rem, remainder.ToString());
@@ -1213,7 +1213,7 @@ namespace Deveel.Math {
 			int resScale = 45;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
-			BigDecimal result = aNumber.Remainder(bNumber);
+			BigDecimal result = BigMath.Remainder(aNumber, bNumber);
 			Assert.Equal(res, result.ToString());
 			Assert.Equal(resScale, result.Scale);
 		}
@@ -1231,7 +1231,7 @@ namespace Deveel.Math {
 			int resScale = 10;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
-			BigDecimal result = aNumber.Remainder(bNumber);
+			BigDecimal result = BigMath.Remainder(aNumber, bNumber);
 			Assert.Equal(res, result.ToString());
 			Assert.Equal(resScale, result.Scale);
 		}
@@ -1252,7 +1252,7 @@ namespace Deveel.Math {
 			int resScale = 45;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
-			BigDecimal result = aNumber.Remainder(bNumber, mc);
+			BigDecimal result = BigMath.Remainder(aNumber, bNumber, mc);
 			Assert.Equal(res, result.ToString());
 			Assert.Equal(resScale, result.Scale);
 		}
@@ -1273,7 +1273,7 @@ namespace Deveel.Math {
 			int resScale = 10;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
-			BigDecimal result = aNumber.Remainder(bNumber, mc);
+			BigDecimal result = BigMath.Remainder(aNumber, bNumber, mc);
 			Assert.Equal(res, result.ToString());
 			Assert.Equal(resScale, result.Scale);
 		}

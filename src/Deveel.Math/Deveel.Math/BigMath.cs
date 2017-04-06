@@ -254,6 +254,22 @@ namespace Deveel.Math {
 			return BigDecimalMath.DivideToIntegralValue(a, b, context);
 		}
 
+		public static BigDecimal DivideAndRemainder(BigDecimal a, BigDecimal b, out BigDecimal remainder) {
+			return BigDecimalMath.DivideAndRemainder(a, b, out remainder);
+		}
+
+		public static BigDecimal DivideAndRemainder(BigDecimal a, BigDecimal b, MathContext context, out BigDecimal remainder) {
+			return BigDecimalMath.DivideAndRemainder(a, b, context, out remainder);
+		}
+
+		public static BigDecimal Remainder(BigDecimal a, BigDecimal b) {
+			return BigDecimalMath.Remainder(a, b);
+		}
+
+		public static BigDecimal Remainder(BigDecimal a, BigDecimal b, MathContext context) {
+			return BigDecimalMath.Remainder(a, b, context);
+		}
+
 		/**
  * Returns a new {@code BigInteger} whose value is {@code this % divisor}.
  * Regarding signs this methods has the same behavior as the % operator on
