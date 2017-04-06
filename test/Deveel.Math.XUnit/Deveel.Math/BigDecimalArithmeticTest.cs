@@ -2,7 +2,6 @@
 using System.Globalization;
 
 using Xunit;
-using Xunit.Extensions;
 
 namespace Deveel.Math {
 	public class BigDecimalArithmeticTest {
@@ -104,6 +103,7 @@ namespace Deveel.Math {
 
 		#region Multiply
 
+		[Theory]
 		[InlineData("1231212478987482988429808779810457634781384756794987", 15,
 			"747233429293018787918347987234564568", 10,
 			"92000312286217574978643009574114545567010139156902666284589309.1880727173060570190220616", 25)]
@@ -119,11 +119,12 @@ namespace Deveel.Math {
 		public void Multiply(string a, int aScale, string b, int bScale, string c, int cScale) {
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
-			BigDecimal result = aNumber.Multiply(bNumber);
+			BigDecimal result = BigMath.Multiply(aNumber, bNumber);
 			Assert.Equal(c, result.ToString());
 			Assert.Equal(cScale, result.Scale);			
 		}
 
+		[Theory]
 		[InlineData("97665696756578755423325476545428779810457634781384756794987", -25,
 			"87656965586786097685674786576598865", 10,
 			"8.561078619600910561431314228543672720908E+108", -69,
@@ -140,7 +141,7 @@ namespace Deveel.Math {
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			MathContext mc = new MathContext(precision, roundingMode);
-			BigDecimal result = aNumber.Multiply(bNumber, mc);
+			BigDecimal result = BigMath.Multiply(aNumber, bNumber, mc);
 			Assert.Equal(c, result.ToString());
 			Assert.Equal(cScale, result.Scale);			
 		}

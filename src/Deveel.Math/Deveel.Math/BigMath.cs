@@ -424,6 +424,44 @@ namespace Deveel.Math {
 		}
 
 		/**
+* Returns a new {@code BigDecimal} whose value is {@code this *
+* multiplicand}. The scale of the result is the sum of the scales of the
+* two arguments.
+*
+* @param multiplicand
+*            value to be multiplied with {@code this}.
+* @return {@code this * multiplicand}.
+* @throws NullPointerException
+*             if {@code multiplicand == null}.
+*/
+
+		public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand) {
+			return BigDecimalMath.Multiply(value, multiplicand);
+		}
+
+		/**
+ * Returns a new {@code BigDecimal} whose value is {@code this *
+ * multiplicand}. The result is rounded according to the passed context
+ * {@code mc}.
+ *
+ * @param multiplicand
+ *            value to be multiplied with {@code this}.
+ * @param mc
+ *            rounding mode and precision for the result of this operation.
+ * @return {@code this * multiplicand}.
+ * @throws NullPointerException
+ *             if {@code multiplicand == null} or {@code mc == null}.
+ */
+
+			public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand, MathContext mc) {
+			BigDecimal result = Multiply(value, multiplicand);
+
+			result.InplaceRound(mc);
+			return result;
+		}
+
+
+		/**
 * Returns a new {@code BigDecimal} whose value is {@code this ^ n}. The
 * scale of the result is {@code n} times the scales of {@code this}.
 * <p>

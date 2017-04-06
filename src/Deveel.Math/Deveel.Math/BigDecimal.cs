@@ -617,53 +617,6 @@ namespace Deveel.Math {
 		}
 
 
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code this *
-		 * multiplicand}. The scale of the result is the sum of the scales of the
-		 * two arguments.
-		 *
-		 * @param multiplicand
-		 *            value to be multiplied with {@code this}.
-		 * @return {@code this * multiplicand}.
-		 * @throws NullPointerException
-		 *             if {@code multiplicand == null}.
-		 */
-
-		public BigDecimal Multiply(BigDecimal multiplicand) {
-			long newScale = (long) _scale + multiplicand._scale;
-
-			if ((IsZero) || (multiplicand.IsZero)) {
-				return GetZeroScaledBy(newScale);
-			}
-			/* Let be: this = [u1,s1] and multiplicand = [u2,s2] so:
-			 * this x multiplicand = [ s1 * s2 , s1 + s2 ] */
-			if (_bitLength + multiplicand._bitLength < 64) {
-				return ValueOf(smallValue*multiplicand.smallValue, ToIntScale(newScale));
-			}
-			return new BigDecimal(GetUnscaledValue() * multiplicand.GetUnscaledValue(), ToIntScale(newScale));
-		}
-
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code this *
-		 * multiplicand}. The result is rounded according to the passed context
-		 * {@code mc}.
-		 *
-		 * @param multiplicand
-		 *            value to be multiplied with {@code this}.
-		 * @param mc
-		 *            rounding mode and precision for the result of this operation.
-		 * @return {@code this * multiplicand}.
-		 * @throws NullPointerException
-		 *             if {@code multiplicand == null} or {@code mc == null}.
-		 */
-
-		public BigDecimal Multiply(BigDecimal multiplicand, MathContext mc) {
-			BigDecimal result = Multiply(multiplicand);
-
-			result.InplaceRound(mc);
-			return result;
-		}
-
 		#endregion
 
 		#region Operations

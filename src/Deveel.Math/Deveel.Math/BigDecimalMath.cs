@@ -356,14 +356,40 @@ namespace Deveel.Math {
 
 		public static BigDecimal DivideAndRemainder(BigDecimal dividend, BigDecimal divisor, out BigDecimal remainder) {
 			var quotient = DivideToIntegralValue(dividend, divisor);
-			remainder = Subtract(dividend, quotient.Multiply(divisor));
+			remainder = Subtract(dividend, Multiply(quotient, divisor));
 			return quotient;
 		}
 
 		public static BigDecimal DivideAndRemainder(BigDecimal dividend, BigDecimal divisor, MathContext mc, out BigDecimal remainder) {
 			var quotient = DivideToIntegralValue(dividend, divisor, mc);
-			remainder = Subtract(dividend, quotient.Multiply(divisor));
+			remainder = Subtract(dividend, Multiply(quotient, divisor));
 			return quotient;
+		}
+
+		/**
+ * Returns a new {@code BigDecimal} whose value is {@code this *
+ * multiplicand}. The scale of the result is the sum of the scales of the
+ * two arguments.
+ *
+ * @param multiplicand
+ *            value to be multiplied with {@code this}.
+ * @return {@code this * multiplicand}.
+ * @throws NullPointerException
+ *             if {@code multiplicand == null}.
+ */
+
+		public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand) {
+			long newScale = (long)value.Scale + multiplicand.Scale;
+
+			if ((value.IsZero) || (multiplicand.IsZero)) {
+				return BigDecimal.GetZeroScaledBy(newScale);
+			}
+			/* Let be: this = [u1,s1] and multiplicand = [u2,s2] so:
+			 * this x multiplicand = [ s1 * s2 , s1 + s2 ] */
+			if (value.BitLength + multiplicand.BitLength < 64) {
+				return BigDecimal.ValueOf(value.SmallValue * multiplicand.SmallValue, BigDecimal.ToIntScale(newScale));
+			}
+			return new BigDecimal(value.UnscaledValue * multiplicand.UnscaledValue, BigDecimal.ToIntScale(newScale));
 		}
 
 
@@ -409,9 +435,9 @@ namespace Deveel.Math {
 			oneBitMask = Utils.HighestOneBit(m) >> 1;
 
 			while (oneBitMask > 0) {
-				accum = accum.Multiply(accum, newPrecision);
+				accum = BigMath.Multiply(accum, accum, newPrecision);
 				if ((m & oneBitMask) == oneBitMask) {
-					accum = accum.Multiply(number, newPrecision);
+					accum = BigMath.Multiply(accum, number, newPrecision);
 				}
 				oneBitMask >>= 1;
 			}

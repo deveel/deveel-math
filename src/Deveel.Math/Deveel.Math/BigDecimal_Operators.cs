@@ -41,7 +41,7 @@ namespace Deveel.Math {
 
 		public static BigDecimal operator *(BigDecimal a, BigDecimal b) {
 			// In case of implicit operators apply the precision of the dividend
-			return a.Multiply(b, new MathContext(a.Precision));
+			return BigMath.Multiply(a, b);
 		}
 
 		public static BigDecimal operator +(BigDecimal a) {
@@ -78,6 +78,14 @@ namespace Deveel.Math {
 
 		public static bool operator <=(BigDecimal a, BigDecimal b) {
 			return a == b || a < b;
+		}
+
+		public static BigDecimal operator >>(BigDecimal a, int b) {
+			return BigMath.ShiftRight(a, b);
+		}
+
+		public static BigDecimal operator <<(BigDecimal a, int b) {
+			return BigMath.ShiftLeft(a, b);
 		}
 
 		#endregion

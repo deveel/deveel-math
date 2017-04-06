@@ -337,25 +337,25 @@ namespace Deveel.Math {
 		public void MultiplyBigDecimal() {
 			BigDecimal multi1 = new BigDecimal(value, 5);
 			BigDecimal multi2 = new BigDecimal(2.345D);
-			BigDecimal result = multi1.Multiply(multi2);
+			BigDecimal result = BigMath.Multiply(multi1, multi2);
 			Assert.True(result.ToString().StartsWith("289.51154260") && result.Scale == multi1.Scale + multi2.Scale,
 			              "123.45908 * 2.345 is not correct: " + result);
 			multi1 = BigDecimal.Parse("34656");
 			multi2 = BigDecimal.Parse("-2");
-			result = multi1.Multiply(multi2);
+			result = BigMath.Multiply(multi1, multi2);
 			Assert.True(result.ToString().Equals("-69312") && result.Scale == 0, "34656 * 2 is not correct");
 			multi1 = new BigDecimal(-2.345E-02);
 			multi2 = new BigDecimal(-134E130);
-			result = multi1.Multiply(multi2);
+			result = BigMath.Multiply(multi1, multi2);
 			Assert.True(result.ToDouble() == 3.1422999999999997E130 && result.Scale == multi1.Scale + multi2.Scale,
 			              "-2.345E-02 * -134E130 is not correct " + result.ToDouble());
 			multi1 = BigDecimal.Parse("11235");
 			multi2 = BigDecimal.Parse("0");
-			result = multi1.Multiply(multi2);
+			result = BigMath.Multiply(multi1, multi2);
 			Assert.True(result.ToDouble() == 0 && result.Scale == 0, "11235 * 0 is not correct");
 			multi1 = BigDecimal.Parse("-0.00234");
 			multi2 = new BigDecimal(13.4E10);
-			result = multi1.Multiply(multi2);
+			result = BigMath.Multiply(multi1, multi2);
 			Assert.True(result.ToDouble() == -313560000 && result.Scale == multi1.Scale + multi2.Scale,
 			              "-0.00234 * 13.4E10 is not correct");
 		}
