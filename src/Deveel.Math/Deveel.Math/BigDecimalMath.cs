@@ -356,13 +356,13 @@ namespace Deveel.Math {
 
 		public static BigDecimal DivideAndRemainder(BigDecimal dividend, BigDecimal divisor, out BigDecimal remainder) {
 			var quotient = DivideToIntegralValue(dividend, divisor);
-			remainder = dividend.Subtract(quotient.Multiply(divisor));
+			remainder = Subtract(dividend, quotient.Multiply(divisor));
 			return quotient;
 		}
 
 		public static BigDecimal DivideAndRemainder(BigDecimal dividend, BigDecimal divisor, MathContext mc, out BigDecimal remainder) {
-			var quotient = BigDecimalMath.DivideToIntegralValue(dividend, divisor, mc);
-			remainder = dividend.Subtract(quotient.Multiply(divisor));
+			var quotient = DivideToIntegralValue(dividend, divisor, mc);
+			remainder = Subtract(dividend, quotient.Multiply(divisor));
 			return quotient;
 		}
 
@@ -465,5 +465,170 @@ namespace Deveel.Math {
 			}
 			return new BigDecimal(Multiplication.MultiplyByTenPow(number.UnscaledValue, (int)-newScale), 0);
 		}
+
+		public static BigDecimal Add(BigDecimal value, BigDecimal augend) {
+			int diffScale = value.Scale - augend.Scale;
+			// Fast return when some operand is zero
+			if (value.IsZero) {
+				if (diffScale <= 0)
+					return augend;
+				if (augend.IsZero)
+					return value;
+			} else if (augend.IsZero) {
+				if (diffScale >= 0)
+					return value;
+			}
+			// Let be:  this = [u1,s1]  and  augend = [u2,s2]
+			if (diffScale == 0) {
+				// case s1 == s2: [u1 + u2 , s1]
+				if (System.Math.Max(value.BitLength, augend.BitLength) + 1 < 64) {
+					return BigDecimal.ValueOf(value.SmallValue + augend.SmallValue, value.Scale);
+				}
+				return new BigDecimal(value.UnscaledValue + augend.UnscaledValue, value.Scale);
+			}
+			if (diffScale > 0)
+				// case s1 > s2 : [(u1 + u2) * 10 ^ (s1 - s2) , s1]
+				return AddAndMult10(value, augend, diffScale);
+
+			// case s2 > s1 : [(u2 + u1) * 10 ^ (s2 - s1) , s2]
+			return AddAndMult10(augend, value, -diffScale);
+		}
+
+		private static BigDecimal AddAndMult10(BigDecimal thisValue, BigDecimal augend, int diffScale) {
+			if (diffScale < BigDecimal.LongTenPow.Length &&
+			    System.Math.Max(thisValue.BitLength, augend.BitLength + BigDecimal.LongTenPowBitLength[diffScale]) + 1 < 64) {
+				return BigDecimal.ValueOf(thisValue.SmallValue + augend.SmallValue * BigDecimal.LongTenPow[diffScale], thisValue.Scale);
+			}
+			return new BigDecimal(
+				thisValue.UnscaledValue + Multiplication.MultiplyByTenPow(augend.UnscaledValue, diffScale),
+				thisValue.Scale);
+		}
+
+		public static BigDecimal Add(BigDecimal value, BigDecimal augend, MathContext mc) {
+			BigDecimal larger; // operand with the largest unscaled value
+			BigDecimal smaller; // operand with the smallest unscaled value
+			BigInteger tempBi;
+			long diffScale = (long)value.Scale - augend.Scale;
+
+			// Some operand is zero or the precision is infinity  
+			if ((augend.IsZero) || (value.IsZero) || (mc.Precision == 0)) {
+				return BigMath.Round(Add(value, augend), mc);
+			}
+			// Cases where there is room for optimizations
+			if (value.AproxPrecision() < diffScale - 1) {
+				larger = augend;
+				smaller = value;
+			} else if (augend.AproxPrecision() < -diffScale - 1) {
+				larger = value;
+				smaller = augend;
+			} else {
+				// No optimization is done 
+				return BigMath.Round(Add(value, augend), mc);
+			}
+			if (mc.Precision >= larger.AproxPrecision()) {
+				// No optimization is done
+				return BigMath.Round(Add(value, augend), mc);
+			}
+
+			// Cases where it's unnecessary to add two numbers with very different scales 
+			var largerSignum = larger.Sign;
+			if (largerSignum == smaller.Sign) {
+				tempBi = Multiplication.MultiplyByPositiveInt(larger.UnscaledValue, 10) +
+				         BigInteger.FromInt64(largerSignum);
+			} else {
+				tempBi = larger.UnscaledValue - BigInteger.FromInt64(largerSignum);
+				tempBi = Multiplication.MultiplyByPositiveInt(tempBi, 10) +
+				         BigInteger.FromInt64(largerSignum * 9);
+			}
+			// Rounding the improved adding 
+			larger = new BigDecimal(tempBi, larger.Scale + 1);
+			return BigMath.Round(larger, mc);
+		}
+
+		public static BigDecimal Subtract(BigDecimal value, BigDecimal subtrahend) {
+			if (subtrahend == null)
+				throw new ArgumentNullException("subtrahend");
+
+			int diffScale = value.Scale - subtrahend.Scale;
+
+			// Fast return when some operand is zero
+			if (value.IsZero) {
+				if (diffScale <= 0) {
+					return -subtrahend;
+				}
+				if (subtrahend.IsZero) {
+					return value;
+				}
+			} else if (subtrahend.IsZero) {
+				if (diffScale >= 0) {
+					return value;
+				}
+			}
+			// Let be: this = [u1,s1] and subtrahend = [u2,s2] so:
+			if (diffScale == 0) {
+				// case s1 = s2 : [u1 - u2 , s1]
+				if (System.Math.Max(value.BitLength, subtrahend.BitLength) + 1 < 64) {
+					return BigDecimal.ValueOf(value.SmallValue - subtrahend.SmallValue, value.Scale);
+				}
+				return new BigDecimal(value.UnscaledValue - subtrahend.UnscaledValue, value.Scale);
+			}
+			if (diffScale > 0) {
+				// case s1 > s2 : [ u1 - u2 * 10 ^ (s1 - s2) , s1 ]
+				if (diffScale < BigDecimal.LongTenPow.Length &&
+				    System.Math.Max(value.BitLength, subtrahend.BitLength + BigDecimal.LongTenPowBitLength[diffScale]) + 1 < 64) {
+					return BigDecimal.ValueOf(value.SmallValue - subtrahend.SmallValue * BigDecimal.LongTenPow[diffScale], value.Scale);
+				}
+				return new BigDecimal(
+					value.UnscaledValue - Multiplication.MultiplyByTenPow(subtrahend.UnscaledValue, diffScale),
+					value.Scale);
+			}
+
+			// case s2 > s1 : [ u1 * 10 ^ (s2 - s1) - u2 , s2 ]
+			diffScale = -diffScale;
+			if (diffScale < BigDecimal.LongTenPow.Length &&
+			    System.Math.Max(value.BitLength + BigDecimal.LongTenPowBitLength[diffScale], subtrahend.BitLength) + 1 < 64) {
+				return BigDecimal.ValueOf(value.SmallValue * BigDecimal.LongTenPow[diffScale] - subtrahend.SmallValue, subtrahend.Scale);
+			}
+
+			return new BigDecimal(Multiplication.MultiplyByTenPow(value.UnscaledValue, diffScale) -
+			                      subtrahend.UnscaledValue, subtrahend.Scale);
+		}
+
+		public static BigDecimal Subtract(BigDecimal value, BigDecimal subtrahend, MathContext mc) {
+			if (subtrahend == null)
+				throw new ArgumentNullException("subtrahend");
+			if (mc == null)
+				throw new ArgumentNullException("mc");
+
+			long diffScale = subtrahend.Scale - (long)value.Scale;
+
+			// Some operand is zero or the precision is infinity  
+			if ((subtrahend.IsZero) || (value.IsZero) || (mc.Precision == 0))
+				return BigMath.Round(Subtract(value, subtrahend), mc);
+
+			// Now:   this != 0   and   subtrahend != 0
+			if (subtrahend.AproxPrecision() < diffScale - 1) {
+				// Cases where it is unnecessary to subtract two numbers with very different scales
+				if (mc.Precision < value.AproxPrecision()) {
+					var thisSignum = value.Sign;
+					BigInteger tempBI;
+					if (thisSignum != subtrahend.Sign) {
+						tempBI = Multiplication.MultiplyByPositiveInt(value.UnscaledValue, 10) +
+						         BigInteger.FromInt64(thisSignum);
+					} else {
+						tempBI = value.UnscaledValue - BigInteger.FromInt64(thisSignum);
+						tempBI = Multiplication.MultiplyByPositiveInt(tempBI, 10) +
+						         BigInteger.FromInt64(thisSignum * 9);
+					}
+					// Rounding the improved subtracting
+					var leftOperand = new BigDecimal(tempBI, value.Scale + 1); // it will be only the left operand (this) 
+					return BigMath.Round(leftOperand, mc);
+				}
+			}
+
+			// No optimization is done
+			return BigMath.Round(Subtract(value, subtrahend), mc);
+		}
+
 	}
 }

@@ -21,22 +21,22 @@ namespace Deveel.Math {
 
 		public static BigDecimal operator +(BigDecimal a, BigDecimal b) {
 			// In case of implicit operators apply the precision of the dividend
-			return a.Add(b, new MathContext(a.Precision));
+			return BigMath.Add(a, b);
 		}
 
 		public static BigDecimal operator -(BigDecimal a, BigDecimal b) {
 			// In case of implicit operators apply the precision of the dividend
-			return a.Subtract(b, new MathContext(a.Precision));
+			return BigMath.Subtract(a, b);
 		}
 
 		public static BigDecimal operator /(BigDecimal a, BigDecimal b) {
 			// In case of implicit operators apply the precision of the dividend
-			return BigDecimalMath.Divide(a, b, new MathContext(a.Precision));
+			return BigDecimalMath.Divide(a, b);
 		}
 
 		public static BigDecimal operator %(BigDecimal a, BigDecimal b) {
 			// In case of implicit operators apply the precision of the dividend
-			return BigMath.Remainder(a, b, new MathContext(a.Precision));
+			return BigMath.Remainder(a, b);
 		}
 
 		public static BigDecimal operator *(BigDecimal a, BigDecimal b) {

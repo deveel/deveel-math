@@ -25,7 +25,7 @@ namespace Deveel.Math {
 		public void Add(string a, int aScale, string b, int bScale, string c, int cScale) {
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
-			BigDecimal result = aNumber.Add(bNumber);
+			BigDecimal result = BigMath.Add(aNumber, bNumber);
 			Assert.Equal(c, result.ToString());
 			Assert.Equal(cScale, result.Scale);
 		}
@@ -47,7 +47,7 @@ namespace Deveel.Math {
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			MathContext mc = new MathContext(precision, mode);
-			BigDecimal result = aNumber.Add(bNumber, mc);
+			BigDecimal result = BigMath.Add(aNumber, bNumber, mc);
 			Assert.Equal(c, result.ToString());
 			Assert.Equal(cScale, result.Scale);
 		}
@@ -56,6 +56,7 @@ namespace Deveel.Math {
 
 		#region Subtract
 
+		[Theory]
 		[InlineData("1231212478987482988429808779810457634781384756794987", 10,
 			"747233429293018787918347987234564568", 10,
 			"123121247898748224119637948679166971643339.7522230419", 10)]
@@ -71,11 +72,12 @@ namespace Deveel.Math {
 		public void Subtract(string a, int aScale, string b, int bScale, string c, int cScale) {
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
-			BigDecimal result = aNumber.Subtract(bNumber);
+			BigDecimal result = BigMath.Subtract(aNumber, bNumber);
 			Assert.Equal(c, result.ToString());
 			Assert.Equal(cScale, result.Scale);			
 		}
 
+		[Theory]
 		[InlineData("1231212478987482988429808779810457634781384756794987", 10,
 			"747233429293018787918347987234564568", 10,
 			"1.23121247898749E+41", -27,
@@ -92,7 +94,7 @@ namespace Deveel.Math {
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
 			MathContext mc = new MathContext(precision, RoundingMode.Ceiling);
-			BigDecimal result = aNumber.Subtract(bNumber, mc);
+			BigDecimal result = BigMath.Subtract(aNumber, bNumber, mc);
 			Assert.Equal(c, result.ToString());
 			Assert.Equal(cScale, result.Scale);			
 		}
@@ -159,7 +161,7 @@ namespace Deveel.Math {
 			BigDecimal bd2 = new BigDecimal(b);
 
 			BigDecimal result = null;
-			 result = bd1 / bd2;
+			 result = BigMath.Divide(bd1, bd2, new MathContext(bd1.Precision));
 			Assert.NotNull(result);
 		}
 

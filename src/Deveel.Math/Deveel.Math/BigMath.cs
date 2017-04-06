@@ -883,5 +883,76 @@ namespace Deveel.Math {
 		public static BigDecimal Ulp(BigDecimal value) {
 			return BigDecimal.ValueOf(1, value.Scale);
 		}
+
+		/// <summary>
+		/// Adds a value to the current instance of <see cref="BigDecimal"/>,
+		/// rounding the result according to the provided context.
+		/// </summary>
+		/// <param name="augend">The value to be added to this instance.</param>
+		/// <param name="mc">The rounding mode and precision for the result of 
+		/// this operation.</param>
+		/// <returns>
+		/// Returns a new <see cref="BigDecimal"/> whose value is <c>this + <paramref name="augend"/></c>.
+		/// </returns>
+		/// <exception cref="ArgumentNullException">
+		/// If the given <paramref name="augend"/> or <paramref name="mc"/> is <c>null</c>.
+		/// </exception>
+		public static BigDecimal Add(BigDecimal value, BigDecimal augend, MathContext mc) {
+			return BigDecimalMath.Add(value, augend, mc);
+		}
+
+		/// <summary>
+		/// Adds a value to the current instance of <see cref="BigDecimal"/>.
+		/// The scale of the result is the maximum of the scales of the two arguments.
+		/// </summary>
+		/// <param name="augend">The value to be added to this instance.</param>
+		/// <returns>
+		/// Returns a new {@code BigDecimal} whose value is <c>this + <paramref name="augend"/></c>.
+		/// </returns>
+		/// <exception cref="ArgumentNullException">
+		/// If the given <paramref name="augend"/> is <c>null</c>.
+		/// </exception>
+		public static BigDecimal Add(BigDecimal value, BigDecimal augend) {
+			return BigDecimalMath.Add(value, augend);
+		}
+
+		/// <summary>
+		/// Subtracts the given value from this instance of <see cref="BigDecimal"/>.
+		/// </summary>
+		/// <remarks>
+		/// </remarks>
+		/// <param name="subtrahend">The value to be subtracted from this <see cref="BigDecimal"/>.</param>
+		/// <returns>
+		/// Returns an instance of <see cref="BigDecimal"/> that is the result of the
+		/// subtraction of the given <paramref name="subtrahend"/> from this instance.
+		/// </returns>
+		/// <exception cref="ArgumentNullException">
+		/// If the given <paramref name="subtrahend"/> is <c>null</c>.
+		/// </exception>
+		public static BigDecimal Subtract(BigDecimal value, BigDecimal subtrahend) {
+			return BigDecimalMath.Subtract(value, subtrahend);
+		}
+
+		/// <summary>
+		/// Subtracts the given value from this instance of <see cref="BigDecimal"/>.
+		/// </summary>
+		/// <remarks>
+		/// <para>
+		/// This overload rounds the result of the operation to the <paramref name="mc">context</paramref>
+		/// provided as argument.
+		/// </para>
+		/// </remarks>
+		/// <param name="subtrahend">The value to be subtracted from this <see cref="BigDecimal"/>.</param>
+		/// <param name="mc">The context used to round the result of this operation.</param>
+		/// <returns>
+		/// Returns an instance of <see cref="BigDecimal"/> that is the result of the
+		/// subtraction of the given <paramref name="subtrahend"/> from this instance.
+		/// </returns>
+		/// <exception cref="ArgumentNullException">
+		/// If either of the given <paramref name="subtrahend"/> or <paramref name="mc"/> are <c>null</c>.
+		/// </exception>
+		public static BigDecimal Subtract(BigDecimal value, BigDecimal subtrahend, MathContext mc) {
+			return BigDecimalMath.Subtract(value, subtrahend, mc);
+		}
 	}
 }

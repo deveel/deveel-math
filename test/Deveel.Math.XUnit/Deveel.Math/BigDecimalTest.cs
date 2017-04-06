@@ -104,12 +104,12 @@ namespace Deveel.Math {
 		public void AddBigDecimal() {
 			BigDecimal add1 = BigDecimal.Parse("23.456");
 			BigDecimal add2 = BigDecimal.Parse("3849.235");
-			BigDecimal sum = add1.Add(add2);
+			BigDecimal sum = BigMath.Add(add1, add2);
 			Assert.True(sum.UnscaledValue.ToString().Equals("3872691") && sum.Scale == 3,
 						  "the sum of 23.456 + 3849.235 is wrong");
 			Assert.True(sum.ToString().Equals("3872.691"), "the sum of 23.456 + 3849.235 is not printed correctly");
 			BigDecimal add3 = new BigDecimal(12.34E02D);
-			Assert.True((add1.Add(add3)).ToString().Equals("1257.456"), "the sum of 23.456 + 12.34E02 is not printed correctly");
+			Assert.True((BigMath.Add(add1, add3)).ToString().Equals("1257.456"), "the sum of 23.456 + 12.34E02 is not printed correctly");
 		}
 
 		[Fact]
@@ -170,11 +170,11 @@ namespace Deveel.Math {
 			Assert.True(bigDB.ToDouble() == -2.33E102 && bigDB.Scale == 0,
 						  "the double representation of bigDecimal -2.33E102 is not correct");
 			bigDB = new BigDecimal(Double.MaxValue);
-			bigDB = bigDB.Add(bigDB);
+			bigDB = BigMath.Add(bigDB, bigDB);
 			Assert.True(bigDB.ToDouble() == Double.PositiveInfinity,
 						  "a  + number out of the double range should return infinity");
 			bigDB = new BigDecimal(-Double.MaxValue);
-			bigDB = bigDB.Add(bigDB);
+			bigDB = BigMath.Add(bigDB, bigDB);
 			Assert.True(bigDB.ToDouble() == Double.NegativeInfinity,
 						  "a  - number out of the double range should return neg infinity");
 		}
@@ -504,22 +504,22 @@ namespace Deveel.Math {
 		public void SubtractBigDecimal() {
 			BigDecimal sub1 = BigDecimal.Parse("13948");
 			BigDecimal sub2 = BigDecimal.Parse("2839.489");
-			BigDecimal result = sub1.Subtract(sub2);
+			BigDecimal result =  BigMath.Subtract(sub1, sub2);
 			Assert.True(result.ToString().Equals("11108.511") && result.Scale == 3, "13948 - 2839.489 is wrong: " + result);
-			BigDecimal result2 = sub2.Subtract(sub1);
+			BigDecimal result2 = BigMath.Subtract(sub2, sub1);
 			Assert.True(result2.ToString().Equals("-11108.511") && result2.Scale == 3, "2839.489 - 13948 is wrong");
 			Assert.True(result.Equals(-result2), "13948 - 2839.489 is not the negative of 2839.489 - 13948");
 			sub1 = new BigDecimal(value, 1);
 			sub2 = BigDecimal.Parse("0");
-			result = sub1.Subtract(sub2);
+			result = BigMath.Subtract(sub1, sub2);
 			Assert.True(result.Equals(sub1), "1234590.8 - 0 is wrong");
 			sub1 = new BigDecimal(1.234E-03);
 			sub2 = new BigDecimal(3.423E-10);
-			result = sub1.Subtract(sub2);
+			result = BigMath.Subtract(sub1, sub2);
 			Assert.True(result.ToDouble() == 0.0012339996577, "1.234E-03 - 3.423E-10 is wrong, " + result.ToDouble());
 			sub1 = new BigDecimal(1234.0123);
 			sub2 = new BigDecimal(1234.0123000);
-			result = sub1.Subtract(sub2);
+			result = BigMath.Subtract(sub1, sub2);
 			Assert.True(result.ToDouble() == 0.0, "1234.0123 - 1234.0123000 is wrong, " + result.ToDouble());
 		}
 
