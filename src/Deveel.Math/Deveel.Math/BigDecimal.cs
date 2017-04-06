@@ -678,7 +678,7 @@ namespace Deveel.Math {
 
 			// Some operand is zero or the precision is infinity  
 			if ((augend.IsZero) || (IsZero) || (mc.Precision == 0)) {
-				return Add(augend).Round(mc);
+				return BigMath.Round(Add(augend), mc);
 			}
 			// Cases where there is room for optimizations
 			if (AproxPrecision() < diffScale - 1) {
@@ -689,11 +689,11 @@ namespace Deveel.Math {
 				smaller = augend;
 			} else {
 // No optimization is done 
-				return Add(augend).Round(mc);
+				return BigMath.Round(Add(augend), mc);
 			}
 			if (mc.Precision >= larger.AproxPrecision()) {
 				// No optimization is done
-				return Add(augend).Round(mc);
+				return BigMath.Round(Add(augend), mc);
 			}
 
 			// Cases where it's unnecessary to add two numbers with very different scales 
@@ -708,7 +708,7 @@ namespace Deveel.Math {
 			}
 			// Rounding the improved adding 
 			larger = new BigDecimal(tempBi, larger._scale + 1);
-			return larger.Round(mc);
+			return BigMath.Round(larger, mc);
 		}
 
 		/// <summary>
@@ -801,7 +801,7 @@ namespace Deveel.Math {
 
 			// Some operand is zero or the precision is infinity  
 			if ((subtrahend.IsZero) || (IsZero) || (mc.Precision == 0))
-				return Subtract(subtrahend).Round(mc);
+				return BigMath.Round(Subtract(subtrahend), mc);
 
 			// Now:   this != 0   and   subtrahend != 0
 			if (subtrahend.AproxPrecision() < diffScale - 1) {
@@ -819,12 +819,12 @@ namespace Deveel.Math {
 					}
 					// Rounding the improved subtracting
 					var leftOperand = new BigDecimal(tempBI, _scale + 1); // it will be only the left operand (this) 
-					return leftOperand.Round(mc);
+					return BigMath.Round(leftOperand, mc);
 				}
 			}
 
 			// No optimization is done
-			return Subtract(subtrahend).Round(mc);
+			return BigMath.Round(Subtract(subtrahend), mc);
 		}
 
 		/**

@@ -270,44 +270,44 @@ namespace Deveel.Math {
 		public void MaxBigDecimal() {
 			BigDecimal max1 = new BigDecimal(value2, 1);
 			BigDecimal max2 = new BigDecimal(value2, 4);
-			Assert.True(max1.Max(max2).Equals(max1), "1233456000.0 is not greater than 1233456");
+			Assert.True(BigMath.Max(max1, max2).Equals(max1), "1233456000.0 is not greater than 1233456");
 			max1 = new BigDecimal(-1.224D);
 			max2 = new BigDecimal(-1.2245D);
-			Assert.True(max1.Max(max2).Equals(max1), "-1.224 is not greater than -1.2245");
+			Assert.True(BigMath.Max( max1, max2).Equals(max1), "-1.224 is not greater than -1.2245");
 			max1 = new BigDecimal(123E18);
 			max2 = new BigDecimal(123E19);
-			Assert.True(max1.Max(max2).Equals(max2), "123E19 is the not the max");
+			Assert.True(BigMath.Max(max1, max2).Equals(max2), "123E19 is the not the max");
 		}
 
 		[Fact]
 		public void MinBigDecimal() {
 			BigDecimal min1 = new BigDecimal(-12345.4D);
 			BigDecimal min2 = new BigDecimal(-12345.39D);
-			Assert.True(min1.Min(min2).Equals(min1), "-12345.39 should have been returned");
+			Assert.True(BigMath.Min(min1, min2).Equals(min1), "-12345.39 should have been returned");
 			min1 = new BigDecimal(value2, 5);
 			min2 = new BigDecimal(value2, 0);
-			Assert.True(min1.Min(min2).Equals(min1), "123345.6 should have been returned");
+			Assert.True(BigMath.Min(min1, min2).Equals(min1), "123345.6 should have been returned");
 		}
 
 		[Fact]
 		public void MovePointLeftI() {
 			BigDecimal movePtLeft = BigDecimal.Parse("123456265.34");
-			BigDecimal alreadyMoved = movePtLeft.MovePointLeft(5);
+			BigDecimal alreadyMoved = BigMath. MovePointLeft(movePtLeft, 5);
 			Assert.True(alreadyMoved.Scale == 7 && alreadyMoved.ToString().Equals("1234.5626534"), "move point left 5 failed");
 			movePtLeft = new BigDecimal(-value2, 0);
-			alreadyMoved = movePtLeft.MovePointLeft(12);
+			alreadyMoved = BigMath.MovePointLeft(movePtLeft, 12);
 			Assert.True(alreadyMoved.Scale == 12 && alreadyMoved.ToString().Equals("-0.012334560000"),
 			              "move point left 12 failed");
 			movePtLeft = new BigDecimal(123E18);
-			alreadyMoved = movePtLeft.MovePointLeft(2);
+			alreadyMoved = BigMath.MovePointLeft(movePtLeft, 2);
 			Assert.True(alreadyMoved.Scale == movePtLeft.Scale + 2 && alreadyMoved.ToDouble() == 1.23E18,
 			              "move point left 2 failed");
 			movePtLeft = new BigDecimal(1.123E-12);
-			alreadyMoved = movePtLeft.MovePointLeft(3);
+			alreadyMoved = BigMath.MovePointLeft(movePtLeft, 3);
 			Assert.True(alreadyMoved.Scale == movePtLeft.Scale + 3 && alreadyMoved.ToDouble() == 1.123E-15,
 			              "move point left 3 failed");
 			movePtLeft = new BigDecimal(value, 2);
-			alreadyMoved = movePtLeft.MovePointLeft(-2);
+			alreadyMoved = BigMath.MovePointLeft(movePtLeft, - 2);
 			Assert.True(alreadyMoved.Scale == movePtLeft.Scale - 2 && alreadyMoved.ToString().Equals("12345908"),
 			              "move point left -2 failed");
 		}
@@ -315,21 +315,21 @@ namespace Deveel.Math {
 		[Fact]
 		public void MovePointRightI() {
 			BigDecimal movePtRight = BigDecimal.Parse("-1.58796521458");
-			BigDecimal alreadyMoved = movePtRight.MovePointRight(8);
+			BigDecimal alreadyMoved = BigMath.MovePointRight(movePtRight, 8);
 			Assert.True(alreadyMoved.Scale == 3 && alreadyMoved.ToString().Equals("-158796521.458"),
 			              "move point right 8 failed");
 			movePtRight = new BigDecimal(value, 2);
-			alreadyMoved = movePtRight.MovePointRight(4);
+			alreadyMoved = BigMath.MovePointRight(movePtRight, 4);
 			Assert.True(alreadyMoved.Scale == 0 && alreadyMoved.ToString().Equals("1234590800"), "move point right 4 failed");
 			movePtRight = new BigDecimal(134E12);
-			alreadyMoved = movePtRight.MovePointRight(2);
+			alreadyMoved = BigMath.MovePointRight(movePtRight, 2);
 			Assert.True(alreadyMoved.Scale == 0 && alreadyMoved.ToString().Equals("13400000000000000"),
 			              "move point right 2 failed");
 			movePtRight = new BigDecimal(-3.4E-10);
-			alreadyMoved = movePtRight.MovePointRight(5);
+			alreadyMoved = BigMath.MovePointRight(movePtRight, 5);
 			Assert.True(alreadyMoved.Scale == movePtRight.Scale - 5 && alreadyMoved.ToDouble() == -0.000034,
 			              "move point right 5 failed");
-			alreadyMoved = alreadyMoved.MovePointRight(-5);
+			alreadyMoved = BigMath.MovePointRight(alreadyMoved, - 5);
 			Assert.True(alreadyMoved.Equals(movePtRight), "move point right -5 failed");
 		}
 
@@ -390,106 +390,104 @@ namespace Deveel.Math {
 		public void SetScaleI() {
 			// rounding mode defaults to zero
 			BigDecimal setScale1 = new BigDecimal(value, 3);
-			BigDecimal setScale2 = setScale1.SetScale(5);
+			BigDecimal setScale2 = BigMath.Scale(setScale1, 5);
 			BigInteger setresult = BigInteger.Parse("1234590800");
 			Assert.True(setScale2.UnscaledValue.Equals(setresult) && setScale2.Scale == 5,
 			              "the number 12345.908 after setting scale is wrong");
 
-			Assert.Throws<ArithmeticException>(() => setScale1.SetScale(2, RoundingMode.Unnecessary));
+			Assert.Throws<ArithmeticException>(() => BigMath.Scale(setScale1, 2, RoundingMode.Unnecessary));
 		}
 
 		[Fact]
 		public void SetScaleII() {
 			BigDecimal setScale1 = new BigDecimal(2.323E102);
-			BigDecimal setScale2 = setScale1.SetScale(4);
+			BigDecimal setScale2 = BigMath.Scale(setScale1, 4);
 			Assert.True(setScale2.Scale == 4, "the number 2.323E102 after setting scale is wrong");
 			Assert.True(setScale2.ToDouble() == 2.323E102, "the representation of the number 2.323E102 is wrong");
 			setScale1 = BigDecimal.Parse("-1.253E-12");
-			setScale2 = setScale1.SetScale(17, RoundingMode.Ceiling);
+			setScale2 = BigMath.Scale(setScale1, 17, RoundingMode.Ceiling);
 			Assert.True(setScale2.Scale == 17, "the number -1.253E-12 after setting scale is wrong");
 			Assert.True(setScale2.ToString().Equals("-1.25300E-12"),
 			              "the representation of the number -1.253E-12 after setting scale is wrong, " + setScale2);
 
 			// testing rounding Mode ROUND_CEILING
 			setScale1 = new BigDecimal(value, 4);
-			setScale2 = setScale1.SetScale(1, RoundingMode.Ceiling);
+			setScale2 = BigMath.Scale(setScale1, 1, RoundingMode.Ceiling);
 			Assert.True(setScale2.ToString().Equals("1234.6") && setScale2.Scale == 1,
 			              "the number 1234.5908 after setting scale to 1/ROUND_CEILING is wrong");
 			BigDecimal setNeg = new BigDecimal(-value, 4);
-			setScale2 = setNeg.SetScale(1, RoundingMode.Ceiling);
+			setScale2 = BigMath.Scale(setNeg, 1, RoundingMode.Ceiling);
 			Assert.True(setScale2.ToString().Equals("-1234.5") && setScale2.Scale == 1,
 			              "the number -1234.5908 after setting scale to 1/ROUND_CEILING is wrong");
 
 			// testing rounding Mode ROUND_DOWN
-			setScale2 = setNeg.SetScale(1, RoundingMode.Down);
+			setScale2 = BigMath.Scale(setNeg, 1, RoundingMode.Down);
 			Assert.True(setScale2.ToString().Equals("-1234.5") && setScale2.Scale == 1,
 			              "the number -1234.5908 after setting scale to 1/ROUND_DOWN is wrong");
 			setScale1 = new BigDecimal(value, 4);
-			setScale2 = setScale1.SetScale(1, RoundingMode.Down);
+			setScale2 = BigMath.Scale(setScale1, 1, RoundingMode.Down);
 			Assert.True(setScale2.ToString().Equals("1234.5") && setScale2.Scale == 1,
 			              "the number 1234.5908 after setting scale to 1/ROUND_DOWN is wrong");
 
 			// testing rounding Mode ROUND_FLOOR
-			setScale2 = setScale1.SetScale(1, RoundingMode.Floor);
+			setScale2 = BigMath.Scale(setScale1, 1, RoundingMode.Floor);
 			Assert.True(setScale2.ToString().Equals("1234.5") && setScale2.Scale == 1,
 			              "the number 1234.5908 after setting scale to 1/ROUND_FLOOR is wrong");
-			setScale2 = setNeg.SetScale(1, RoundingMode.Floor);
+			setScale2 = BigMath.Scale(setNeg, 1, RoundingMode.Floor);
 			Assert.True(setScale2.ToString().Equals("-1234.6") && setScale2.Scale == 1,
 			              "the number -1234.5908 after setting scale to 1/ROUND_FLOOR is wrong");
 
 			// testing rounding Mode ROUND_HALF_DOWN
-			setScale2 = setScale1.SetScale(3, RoundingMode.HalfDown);
+			setScale2 = BigMath.Scale(setScale1, 3, RoundingMode.HalfDown);
 			Assert.True(setScale2.ToString().Equals("1234.591") && setScale2.Scale == 3,
 			              "the number 1234.5908 after setting scale to 3/ROUND_HALF_DOWN is wrong");
 			setScale1 = new BigDecimal(BigInteger.Parse("12345000"), 5);
-			setScale2 = setScale1.SetScale(1, RoundingMode.HalfDown);
+			setScale2 = BigMath.Scale(setScale1, 1, RoundingMode.HalfDown);
 			Assert.True(setScale2.ToString().Equals("123.4") && setScale2.Scale == 1,
 			              "the number 123.45908 after setting scale to 1/ROUND_HALF_DOWN is wrong");
-			setScale2 = BigDecimal.Parse("-1234.5000").SetScale(0, RoundingMode.HalfDown);
+			setScale2 = BigMath.Scale(BigDecimal.Parse("-1234.5000"), 0, RoundingMode.HalfDown);
 			Assert.True(setScale2.ToString().Equals("-1234") && setScale2.Scale == 0,
 			              "the number -1234.5908 after setting scale to 0/ROUND_HALF_DOWN is wrong");
 
 			// testing rounding Mode ROUND_HALF_EVEN
 			setScale1 = new BigDecimal(1.2345789D);
-			setScale2 = setScale1.SetScale(4, RoundingMode.HalfEven);
+			setScale2 = BigMath.Scale(setScale1, 4, RoundingMode.HalfEven);
 			Assert.True(setScale2.ToDouble() == 1.2346D && setScale2.Scale == 4,
 			              "the number 1.2345789 after setting scale to 4/ROUND_HALF_EVEN is wrong");
 			setNeg = new BigDecimal(-1.2335789D);
-			setScale2 = setNeg.SetScale(2, RoundingMode.HalfEven);
+			setScale2 = BigMath.Scale(setNeg, 2, RoundingMode.HalfEven);
 			Assert.True(setScale2.ToDouble() == -1.23D && setScale2.Scale == 2,
 			              "the number -1.2335789 after setting scale to 2/ROUND_HALF_EVEN is wrong");
-			setScale2 = BigDecimal.Parse("1.2345000").SetScale(3,
-					RoundingMode.HalfEven);
+			setScale2 = BigMath.Scale(BigDecimal.Parse("1.2345000"), 3, RoundingMode.HalfEven);
 			Assert.True(setScale2.ToDouble() == 1.234D && setScale2.Scale == 3,
 			              "the number 1.2345789 after setting scale to 3/ROUND_HALF_EVEN is wrong");
-			setScale2 = BigDecimal.Parse("-1.2345000").SetScale(3,
-					RoundingMode.HalfEven);
+			setScale2 = BigMath.Scale(BigDecimal.Parse("-1.2345000"), 3, RoundingMode.HalfEven);
 			Assert.True(setScale2.ToDouble() == -1.234D && setScale2.Scale == 3,
 			              "the number -1.2335789 after setting scale to 3/ROUND_HALF_EVEN is wrong");
 
 			// testing rounding Mode ROUND_HALF_UP
 			setScale1 = BigDecimal.Parse("134567.34650");
-			setScale2 = setScale1.SetScale(3, RoundingMode.HalfUp);
+			setScale2 = BigMath.Scale(setScale1, 3, RoundingMode.HalfUp);
 			Assert.True(setScale2.ToString().Equals("134567.347") && setScale2.Scale == 3,
 			              "the number 134567.34658 after setting scale to 3/ROUND_HALF_UP is wrong");
 			setNeg = BigDecimal.Parse("-1234.4567");
-			setScale2 = setNeg.SetScale(0, RoundingMode.HalfUp);
+			setScale2 = BigMath.Scale(setNeg, 0, RoundingMode.HalfUp);
 			Assert.True(setScale2.ToString().Equals("-1234") && setScale2.Scale == 0,
 			              "the number -1234.4567 after setting scale to 0/ROUND_HALF_UP is wrong");
 
-			Assert.Throws<ArithmeticException>(() => setScale1.SetScale(3, RoundingMode.Unnecessary));
+			Assert.Throws<ArithmeticException>(() => BigMath.Scale(setScale1, 3, RoundingMode.Unnecessary));
 
 			// testing rounding Mode ROUND_UP
 			setScale1 = BigDecimal.Parse("100000.374");
-			setScale2 = setScale1.SetScale(2, RoundingMode.Up);
+			setScale2 = BigMath.Scale(setScale1, 2, RoundingMode.Up);
 			Assert.True(setScale2.ToString().Equals("100000.38") && setScale2.Scale == 2,
 			              "the number 100000.374 after setting scale to 2/ROUND_UP is wrong");
 			setNeg = new BigDecimal(-134.34589D);
-			setScale2 = setNeg.SetScale(2, RoundingMode.Up);
+			setScale2 = BigMath.Scale(setNeg, 2, RoundingMode.Up);
 			Assert.True(setScale2.ToDouble() == -134.35D && setScale2.Scale == 2,
 			              "the number -134.34589 after setting scale to 2/ROUND_UP is wrong");
 
-			Assert.Throws<ArgumentException>(() => setScale1.SetScale(0, -123));
+			Assert.Throws<ArgumentException>(() => BigMath.Scale(setScale1, 0, (RoundingMode) 123));
 		}
 
 		[Fact]

@@ -194,7 +194,7 @@ namespace Deveel.Math {
 			const int bScale = 10;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
-			Assert.Throws<ArgumentException>(() => BigMath.Divide(aNumber, bNumber, 100));
+			Assert.Throws<ArgumentException>(() => BigMath.Divide(aNumber, bNumber, (RoundingMode) 100));
 		}
 
 		[Fact]
@@ -1293,7 +1293,7 @@ namespace Deveel.Math {
 			String res = "3.736186567876876578956958765675671119238118911893939591735E+102";
 			int resScale = -45;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
-			BigDecimal result = aNumber.Round(mc);
+			BigDecimal result = BigMath.Round(aNumber, mc);
 			Assert.Equal(res, result.ToString());
 			Assert.Equal(resScale, result.Scale);
 		}
@@ -1311,7 +1311,7 @@ namespace Deveel.Math {
 			String res = "3736186567876.88";
 			int resScale = 2;
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
-			BigDecimal result = aNumber.Round(mc);
+			BigDecimal result = BigMath.Round(aNumber, mc);
 			Assert.Equal(res, result.ToString());
 			Assert.Equal(resScale, result.Scale);
 		}
@@ -1328,7 +1328,7 @@ namespace Deveel.Math {
 			MathContext mc = new MathContext(precision, rm);
 			String res = "3736186567876.876578956958765675671119238118911893939591735";
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
-			BigDecimal result = aNumber.Round(mc);
+			BigDecimal result = BigMath.Round(aNumber, mc);
 			Assert.Equal(res, result.ToString());
 			Assert.Equal(aScale, result.Scale);
 		}

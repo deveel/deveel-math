@@ -2,7 +2,7 @@
 
 namespace Deveel.Math {
 	static class BigDecimalMath {
-		internal static BigDecimal DivideBigIntegers(BigInteger scaledDividend, BigInteger scaledDivisor, int scale,
+		public static BigDecimal DivideBigIntegers(BigInteger scaledDividend, BigInteger scaledDivisor, int scale,
 			RoundingMode roundingMode) {
 			BigInteger remainder;
 			BigInteger quotient = BigMath.DivideAndRemainder(scaledDividend, scaledDivisor, out remainder);
@@ -37,7 +37,7 @@ namespace Deveel.Math {
 			return new BigDecimal(quotient, scale);
 		}
 
-		internal static BigDecimal DividePrimitiveLongs(long scaledDividend, long scaledDivisor, int scale,
+		public static BigDecimal DividePrimitiveLongs(long scaledDividend, long scaledDivisor, int scale,
 			RoundingMode roundingMode) {
 			long quotient = scaledDividend / scaledDivisor;
 			long remainder = scaledDividend % scaledDivisor;
@@ -52,79 +52,6 @@ namespace Deveel.Math {
 			// Constructing the result with the appropriate unscaled value
 			return BigDecimal.ValueOf(quotient, scale);
 		}
-
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
-		 * The scale of the result is the scale of {@code this}. If rounding is
-		 * required to meet the specified scale, then the specified rounding mode
-		 * {@code roundingMode} is applied.
-		 *
-		 * @param divisor
-		 *            value by which {@code this} is divided.
-		 * @param roundingMode
-		 *            rounding mode to be used to round the result.
-		 * @return {@code this / divisor} rounded according to the given rounding
-		 *         mode.
-		 * @throws NullPointerException
-		 *             if {@code divisor == null}.
-		 * @throws IllegalArgumentException
-		 *             if {@code roundingMode} is not a valid rounding mode.
-		 * @throws ArithmeticException
-		 *             if {@code divisor == 0}.
-		 * @throws ArithmeticException
-		 *             if {@code roundingMode == ROUND_UNNECESSARY} and rounding is
-		 *             necessary according to the scale of this.
-		 */
-
-		public static BigDecimal Divide(BigDecimal dividend, BigDecimal divisor, int roundingMode) {
-			if (!Enum.IsDefined(typeof(RoundingMode), roundingMode))
-				throw new ArgumentException();
-
-			return Divide(divisor, dividend._scale, (RoundingMode)roundingMode);
-		}
-
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
-		 * The scale of the result is the scale of {@code this}. If rounding is
-		 * required to meet the specified scale, then the specified rounding mode
-		 * {@code roundingMode} is applied.
-		 *
-		 * @param divisor
-		 *            value by which {@code this} is divided.
-		 * @param roundingMode
-		 *            rounding mode to be used to round the result.
-		 * @return {@code this / divisor} rounded according to the given rounding
-		 *         mode.
-		 * @throws NullPointerException
-		 *             if {@code divisor == null} or {@code roundingMode == null}.
-		 * @throws ArithmeticException
-		 *             if {@code divisor == 0}.
-		 * @throws ArithmeticException
-		 *             if {@code roundingMode == RoundingMode.UNNECESSARY} and
-		 *             rounding is necessary according to the scale of this.
-		 */
-
-		public static BigDecimal Divide(BigDecimal dividend, BigDecimal divisor, RoundingMode roundingMode) {
-			return Divide(dividend, divisor, dividend._scale, roundingMode);
-		}
-
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
-		 * The scale of the result is the difference of the scales of {@code this}
-		 * and {@code divisor}. If the exact result requires more digits, then the
-		 * scale is adjusted accordingly. For example, {@code 1/128 = 0.0078125}
-		 * which has a scale of {@code 7} and precision {@code 5}.
-		 *
-		 * @param divisor
-		 *            value by which {@code this} is divided.
-		 * @return {@code this / divisor}.
-		 * @throws NullPointerException
-		 *             if {@code divisor == null}.
-		 * @throws ArithmeticException
-		 *             if {@code divisor == 0}.
-		 * @throws ArithmeticException
-		 *             if the result cannot be represented exactly.
-		 */
 
 		public static BigDecimal Divide(BigDecimal dividend, BigDecimal divisor) {
 			BigInteger p = dividend.GetUnscaledValue();
@@ -189,26 +116,6 @@ namespace Deveel.Math {
 			return new BigDecimal(p, newScale);
 		}
 
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
-		 * The result is rounded according to the passed context {@code mc}. If the
-		 * passed math context specifies precision {@code 0}, then this call is
-		 * equivalent to {@code this.divide(divisor)}.
-		 *
-		 * @param divisor
-		 *            value by which {@code this} is divided.
-		 * @param mc
-		 *            rounding mode and precision for the result of this operation.
-		 * @return {@code this / divisor}.
-		 * @throws NullPointerException
-		 *             if {@code divisor == null} or {@code mc == null}.
-		 * @throws ArithmeticException
-		 *             if {@code divisor == 0}.
-		 * @throws ArithmeticException
-		 *             if {@code mc.getRoundingMode() == UNNECESSARY} and rounding
-		 *             is necessary according {@code mc.getPrecision()}.
-		 */
-
 		public static BigDecimal Divide(BigDecimal dividend, BigDecimal divisor, MathContext mc) {
 			/* Calculating how many zeros must be append to 'dividend'
 			 * to obtain a  quotient with at least 'mc.precision()' digits */
@@ -264,20 +171,6 @@ namespace Deveel.Math {
 			return new BigDecimal(integerQuot, BigDecimal.ToIntScale(newScale), mc);
 		}
 
-		/**
-		 * Returns a new {@code BigDecimal} whose value is the integral part of
-		 * {@code this / divisor}. The quotient is rounded down towards zero to the
-		 * next integer. For example, {@code 0.5/0.2 = 2}.
-		 *
-		 * @param divisor
-		 *            value by which {@code this} is divided.
-		 * @return integral part of {@code this / divisor}.
-		 * @throws NullPointerException
-		 *             if {@code divisor == null}.
-		 * @throws ArithmeticException
-		 *             if {@code divisor == 0}.
-		 */
-
 		public static BigDecimal DivideToIntegralValue(BigDecimal dividend, BigDecimal divisor) {
 			BigInteger integralValue; // the integer of result
 			BigInteger powerOfTen; // some power of ten
@@ -330,28 +223,6 @@ namespace Deveel.Math {
 				? BigDecimal.GetZeroScaledBy(newScale)
 				: new BigDecimal(integralValue, BigDecimal.ToIntScale(newScale)));
 		}
-
-		/**
-		 * Returns a new {@code BigDecimal} whose value is the integral part of
-		 * {@code this / divisor}. The quotient is rounded down towards zero to the
-		 * next integer. The rounding mode passed with the parameter {@code mc} is
-		 * not considered. But if the precision of {@code mc > 0} and the integral
-		 * part requires more digits, then an {@code ArithmeticException} is thrown.
-		 *
-		 * @param divisor
-		 *            value by which {@code this} is divided.
-		 * @param mc
-		 *            math context which determines the maximal precision of the
-		 *            result.
-		 * @return integral part of {@code this / divisor}.
-		 * @throws NullPointerException
-		 *             if {@code divisor == null} or {@code mc == null}.
-		 * @throws ArithmeticException
-		 *             if {@code divisor == 0}.
-		 * @throws ArithmeticException
-		 *             if {@code mc.getPrecision() > 0} and the result requires more
-		 *             digits to be represented.
-		 */
 
 		public static BigDecimal DivideToIntegralValue(BigDecimal dividend, BigDecimal divisor, MathContext mc) {
 			int mcPrecision = mc.Precision;
@@ -445,30 +316,6 @@ namespace Deveel.Math {
 		}
 
 
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
-		 * As scale of the result the parameter {@code scale} is used. If rounding
-		 * is required to meet the specified scale, then the specified rounding mode
-		 * {@code roundingMode} is applied.
-		 *
-		 * @param divisor
-		 *            value by which {@code this} is divided.
-		 * @param scale
-		 *            the scale of the result returned.
-		 * @param roundingMode
-		 *            rounding mode to be used to round the result.
-		 * @return {@code this / divisor} rounded according to the given rounding
-		 *         mode.
-		 * @throws NullPointerException
-		 *             if {@code divisor == null} or {@code roundingMode == null}.
-		 * @throws ArithmeticException
-		 *             if {@code divisor == 0}.
-		 * @throws ArithmeticException
-		 *             if {@code roundingMode == RoundingMode.UNNECESSAR}Y and
-		 *             rounding is necessary according to the given scale and given
-		 *             precision.
-		 */
-
 		public static BigDecimal Divide(BigDecimal dividend, BigDecimal divisor, int scale, RoundingMode roundingMode) {
 			// Let be: this = [u1,s1]  and  divisor = [u2,s2]
 			if (divisor.IsZero) {
@@ -507,102 +354,11 @@ namespace Deveel.Math {
 			return DivideBigIntegers(scaledDividend, scaledDivisor, scale, roundingMode);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} whose value is {@code this % divisor}.
- * <p>
- * The remainder is defined as {@code this -
- * this.divideToIntegralValue(divisor) * divisor}.
- *
- * @param divisor
- *            value by which {@code this} is divided.
- * @return {@code this % divisor}.
- * @throws NullPointerException
- *             if {@code divisor == null}.
- * @throws ArithmeticException
- *             if {@code divisor == 0}.
- */
-
-		public static BigDecimal Remainder(BigDecimal dividend, BigDecimal divisor) {
-			BigDecimal remainder;
-			DivideAndRemainder(dividend, divisor, out remainder);
-			return remainder;
-		}
-
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code this % divisor}.
-		 * <p>
-		 * The remainder is defined as {@code this -
-		 * this.divideToIntegralValue(divisor) * divisor}.
-		 * <p>
-		 * The specified rounding mode {@code mc} is used for the division only.
-		 *
-		 * @param divisor
-		 *            value by which {@code this} is divided.
-		 * @param mc
-		 *            rounding mode and precision to be used.
-		 * @return {@code this % divisor}.
-		 * @throws NullPointerException
-		 *             if {@code divisor == null}.
-		 * @throws ArithmeticException
-		 *             if {@code divisor == 0}.
-		 * @throws ArithmeticException
-		 *             if {@code mc.getPrecision() > 0} and the result of {@code
-		 *             this.divideToIntegralValue(divisor, mc)} requires more digits
-		 *             to be represented.
-		 */
-
-		public static BigDecimal Remainder(BigDecimal dividend, BigDecimal divisor, MathContext mc) {
-			BigDecimal remainder;
-			DivideAndRemainder(dividend, divisor, mc, out remainder);
-			return remainder;
-		}
-
-		/**
-		 * Returns a {@code BigDecimal} array which contains the integral part of
-		 * {@code this / divisor} at index 0 and the remainder {@code this %
-		 * divisor} at index 1. The quotient is rounded down towards zero to the
-		 * next integer.
-		 *
-		 * @param divisor
-		 *            value by which {@code this} is divided.
-		 * @return {@code [this.divideToIntegralValue(divisor),
-		 *         this.remainder(divisor)]}.
-		 * @throws NullPointerException
-		 *             if {@code divisor == null}.
-		 * @throws ArithmeticException
-		 *             if {@code divisor == 0}.
-		 * @see #divideToIntegralValue
-		 * @see #remainder
-		 */
-
 		public static BigDecimal DivideAndRemainder(BigDecimal dividend, BigDecimal divisor, out BigDecimal remainder) {
-			var quotient = BigDecimalMath.DivideToIntegralValue(dividend, divisor);
+			var quotient = DivideToIntegralValue(dividend, divisor);
 			remainder = dividend.Subtract(quotient.Multiply(divisor));
 			return quotient;
 		}
-
-		/**
-		 * Returns a {@code BigDecimal} array which contains the integral part of
-		 * {@code this / divisor} at index 0 and the remainder {@code this %
-		 * divisor} at index 1. The quotient is rounded down towards zero to the
-		 * next integer. The rounding mode passed with the parameter {@code mc} is
-		 * not considered. But if the precision of {@code mc > 0} and the integral
-		 * part requires more digits, then an {@code ArithmeticException} is thrown.
-		 *
-		 * @param divisor
-		 *            value by which {@code this} is divided.
-		 * @param mc
-		 *            math context which determines the maximal precision of the
-		 *            result.
-		 * @return {@code [this.divideToIntegralValue(divisor),
-		 *         this.remainder(divisor)]}.
-		 * @throws NullPointerException
-		 *             if {@code divisor == null}.
-		 * @throws ArithmeticException
-		 *             if {@code divisor == 0}.
-		 * @see #divideToIntegralValue
-		 * @see #remainder
-		 */
 
 		public static BigDecimal DivideAndRemainder(BigDecimal dividend, BigDecimal divisor, MathContext mc, out BigDecimal remainder) {
 			var quotient = BigDecimalMath.DivideToIntegralValue(dividend, divisor, mc);
@@ -610,21 +366,6 @@ namespace Deveel.Math {
 			return quotient;
 		}
 
-		/**
- * Returns a new {@code BigDecimal} whose value is {@code this ^ n}. The
- * scale of the result is {@code n} times the scales of {@code this}.
- * <p>
- * {@code x.pow(0)} returns {@code 1}, even if {@code x == 0}.
- * <p>
- * Implementation Note: The implementation is based on the ANSI standard
- * X3.274-1996 algorithm.
- *
- * @param n
- *            exponent to which {@code this} is raised.
- * @return {@code this ^ n}.
- * @throws ArithmeticException
- *             if {@code n < 0} or {@code n > 999999999}.
- */
 
 		public static BigDecimal Pow(BigDecimal number, int n) {
 			if (n == 0) {
@@ -640,22 +381,6 @@ namespace Deveel.Math {
 				? BigDecimal.GetZeroScaledBy(newScale)
 				: new BigDecimal(BigMath.Pow(number.GetUnscaledValue(), n), BigDecimal.ToIntScale(newScale)));
 		}
-
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code this ^ n}. The
-		 * result is rounded according to the passed context {@code mc}.
-		 * <p>
-		 * Implementation Note: The implementation is based on the ANSI standard
-		 * X3.274-1996 algorithm.
-		 *
-		 * @param n
-		 *            exponent to which {@code this} is raised.
-		 * @param mc
-		 *            rounding mode and precision for the result of this operation.
-		 * @return {@code this ^ n}.
-		 * @throws ArithmeticException
-		 *             if {@code n < 0} or {@code n > 999999999}.
-		 */
 
 		public static BigDecimal Pow(BigDecimal number, int n, MathContext mc) {
 			// The ANSI standard X3.274-1996 algorithm
@@ -680,7 +405,7 @@ namespace Deveel.Math {
 					mc.RoundingMode);
 			}
 			// The result is calculated as if 'n' were positive        
-			accum = number.Round(newPrecision);
+			accum = BigMath.Round(number, newPrecision);
 			oneBitMask = Utils.HighestOneBit(m) >> 1;
 
 			while (oneBitMask > 0) {
@@ -699,81 +424,46 @@ namespace Deveel.Math {
 			return accum;
 		}
 
-		/**
-* Returns a new {@code BigDecimal} whose value is the absolute value of
-* {@code this}. The scale of the result is the same as the scale of this.
-*
-* @return {@code abs(this)}
-*/
-
-		public static BigDecimal Abs(BigDecimal value) {
-			return ((value.Sign < 0) ? -value : value);
-		}
-
-		/**
-		 * Returns a new {@code BigDecimal} whose value is the absolute value of
-		 * {@code this}. The result is rounded according to the passed context
-		 * {@code mc}.
-		 *
-		 * @param mc
-		 *            rounding mode and precision for the result of this operation.
-		 * @return {@code abs(this)}
-		 */
-
-		public static BigDecimal Abs(BigDecimal value, MathContext mc) {
-			return Abs(value.Round(mc));
-		}
-
-		/**
- * Returns a new {@code BigDecimal} whose value is the {@code -this}. The
- * scale of the result is the same as the scale of this.
- *
- * @return {@code -this}
- */
-
-		public static BigDecimal Negate(BigDecimal number) {
-			if (number._bitLength < 63 || (number._bitLength == 63 && number.smallValue != Int64.MinValue)) {
-				return BigDecimal.ValueOf(-number.smallValue, number._scale);
+		public static BigDecimal Scale(BigDecimal number, int newScale, RoundingMode roundingMode) {
+			long diffScale = newScale - (long)number._scale;
+			// Let be:  'number' = [u,s]        
+			if (diffScale == 0) {
+				return number;
 			}
-			return new BigDecimal(-number.GetUnscaledValue(), number._scale);
+			if (diffScale > 0) {
+				// return  [u * 10^(s2 - s), newScale]
+				if (diffScale < BigDecimal.LongTenPow.Length &&
+				    (number._bitLength + BigDecimal.LongTenPowBitLength[(int)diffScale]) < 64) {
+					return BigDecimal.ValueOf(number.smallValue * BigDecimal.LongTenPow[(int)diffScale], newScale);
+				}
+				return new BigDecimal(Multiplication.MultiplyByTenPow(number.GetUnscaledValue(), (int)diffScale), newScale);
+			}
+			// diffScale < 0
+			// return  [u,s] / [1,newScale]  with the appropriate scale and rounding
+			if (number._bitLength < 64 && -diffScale < BigDecimal.LongTenPow.Length) {
+				return BigDecimalMath.DividePrimitiveLongs(number.smallValue, BigDecimal.LongTenPow[(int)-diffScale], newScale, roundingMode);
+			}
+
+			return DivideBigIntegers(number.GetUnscaledValue(), Multiplication.PowerOf10(-diffScale), newScale, roundingMode);
 		}
 
-		/**
-		 * Returns a new {@code BigDecimal} whose value is the {@code -this}. The
-		 * result is rounded according to the passed context {@code mc}.
-		 *
-		 * @param mc
-		 *            rounding mode and precision for the result of this operation.
-		 * @return {@code -this}
-		 */
-
-		public static BigDecimal Negate(BigDecimal number, MathContext mc) {
-			return Negate(number.Round(mc));
-		}
-
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code +this}. The scale
-		 * of the result is the same as the scale of this.
-		 *
-		 * @return {@code this}
-		 */
-
-		public static BigDecimal Plus(BigDecimal number) {
-			return number;
-		}
-
-		/// <remarks>
-		/// Returns a new <see cref="BigDecimal"/> whose value is <c>+this</c>.
-		/// </remarks>
-		/// <param name="mc">Rounding mode and precision for the result of this operation.</param>
-		/// <remarks>
-		/// The result is rounded according to the passed context <paramref name="mc"/>.
-		/// </remarks>
-		/// <returns>
-		/// Returns this decimal value rounded.
-		/// </returns>
-		public static BigDecimal Plus(BigDecimal number, MathContext mc) {
-			return number.Round(mc);
+		public static BigDecimal MovePoint(BigDecimal number, long newScale) {
+			if (number.IsZero) {
+				return BigDecimal.GetZeroScaledBy(System.Math.Max(newScale, 0));
+			}
+			/* When:  'n'== Integer.MIN_VALUE  isn't possible to call to movePointRight(-n)  
+			 * since  -Integer.MIN_VALUE == Integer.MIN_VALUE */
+			if (newScale >= 0) {
+				if (number._bitLength < 64) {
+					return BigDecimal.ValueOf(number.smallValue, BigDecimal.ToIntScale(newScale));
+				}
+				return new BigDecimal(number.GetUnscaledValue(), BigDecimal.ToIntScale(newScale));
+			}
+			if (-newScale < BigDecimal.LongTenPow.Length &&
+			    number._bitLength + BigDecimal.LongTenPowBitLength[(int)-newScale] < 64) {
+				return BigDecimal.ValueOf(number.smallValue * BigDecimal.LongTenPow[(int)-newScale], 0);
+			}
+			return new BigDecimal(Multiplication.MultiplyByTenPow(number.GetUnscaledValue(), (int)-newScale), 0);
 		}
 	}
 }
