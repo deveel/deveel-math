@@ -17,6 +17,8 @@ using System;
 
 namespace Deveel.Math {
 	public static class BigMath {
+		#region BigInteger
+
 		/// <summary>
 		/// Computes an addition between two big integer numbers
 		/// </summary>
@@ -178,6 +180,9 @@ namespace Deveel.Math {
 			return BigIntegerMath.Divide(dividend, divisor);
 		}
 
+		#endregion
+
+		#region BigDecimal
 
 		/**
  * Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
@@ -453,7 +458,7 @@ namespace Deveel.Math {
  *             if {@code multiplicand == null} or {@code mc == null}.
  */
 
-			public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand, MathContext mc) {
+		public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand, MathContext mc) {
 			BigDecimal result = Multiply(value, multiplicand);
 
 			result.InplaceRound(mc);
@@ -902,22 +907,29 @@ namespace Deveel.Math {
 			return BigDecimalMath.MovePoint(number, number.Scale - (long) n);
 		}
 
-		/**
- * Returns the unit in the last place (ULP) of this {@code BigDecimal}
- * instance. An ULP is the distance to the nearest big decimal with the same
- * precision.
- * <p>
- * The amount of a rounding error in the evaluation of a floating-point
- * operation is often expressed in ULPs. An error of 1 ULP is often seen as
- * a tolerable error.
- * <p>
- * For class {@code BigDecimal}, the ULP of a number is simply 10^(-scale).
- * <p>
- * For example, {@code new BigDecimal(0.1).ulp()} returns {@code 1E-55}.
- *
- * @return unit in the last place (ULP) of this {@code BigDecimal} instance.
- */
 
+		/// <summary>
+		/// Returns the <c>unit in the last place (ULP)</c> of the given <see cref="BigDecimal"/> instance.
+		/// </summary>
+		/// <param name="value"></param>
+		/// <summary>
+		/// <para>
+		/// A ULP is the distance to the nearest big decimal with the same precision.
+		/// </para>
+		/// <para>
+		/// The amount of a rounding error in the evaluation of a floating-point operation is often 
+		/// expressed in ULPs.An error of 1 ULP is often seen as a tolerable error.
+		/// </para>
+		/// <para>
+		/// For <see cref="BigDecimal"/>, the ULP of a number is simply <c>10^(-scale)</c>.
+		/// </para>
+		/// <para>
+		/// For example, <c>Ulp(new BigDecimal(0.1))</c> returns <c>1E-55</c>.
+		/// </para>
+		/// </summary>
+		/// <returns>
+		/// Returns unit in the last place (ULP) of the given <paramref name="value"/> instance.
+		/// </returns>
 		public static BigDecimal Ulp(BigDecimal value) {
 			return BigDecimal.Create(1, value.Scale);
 		}
@@ -993,16 +1005,19 @@ namespace Deveel.Math {
 			return BigDecimalMath.Subtract(value, subtrahend, mc);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} instance with the same value as {@code
- * this} but with a unscaled value where the trailing zeros have been
- * removed. If the unscaled value of {@code this} has n trailing zeros, then
- * the scale and the precision of the result has been reduced by n.
- *
- * @return a new {@code BigDecimal} instance equivalent to this where the
- *         trailing zeros of the unscaled value have been removed.
- */
-
+		/// <summary>
+		/// Returns a new <see cref="BigDecimal"/> instance with the same value as the given value 
+		/// but with a unscaled value where the trailing zeros have been removed.
+		/// </summary>
+		/// <param name="value">The decimal value to process</param>
+		/// <remarks>
+		/// If the unscaled value of <paramref name="value"/> has n trailing zeros, then the scale 
+		/// and the precision of the result has been reduced by n.
+		/// </remarks>
+		/// <returns>
+		/// Returns a new <see cref="BigDecimal"/> instance equivalent to the given <paramref name="value"/>
+		///  where the trailing zeros of the unscaled value have been removed.
+		/// </returns>
 		public static BigDecimal StripTrailingZeros(BigDecimal value) {
 			int i = 1; // 1 <= i <= 18
 			int lastPow = BigDecimal.TenPow.Length - 1;
@@ -1011,14 +1026,16 @@ namespace Deveel.Math {
 			if (value.IsZero) {
 				return BigDecimal.Parse("0");
 			}
-			BigInteger strippedBI = value.UnscaledValue;
+
+			BigInteger strippedBi = value.UnscaledValue;
 			BigInteger quotient;
 			BigInteger remainder;
 
 			// while the number is even...
-			while (!BigInteger.TestBit(strippedBI, 0)) {
+			while (!BigInteger.TestBit(strippedBi, 0)) {
 				// To divide by 10^i
-				quotient = DivideAndRemainder(strippedBI, BigDecimal.TenPow[i], out remainder);
+				quotient = DivideAndRemainder(strippedBi, BigDecimal.TenPow[i], out remainder);
+
 				// To look the remainder
 				if (remainder.Sign == 0) {
 					// To adjust the scale
@@ -1027,18 +1044,178 @@ namespace Deveel.Math {
 						// To set to the next power
 						i++;
 					}
-					strippedBI = quotient;
+					strippedBi = quotient;
 				} else {
 					if (i == 1) {
 						// 'this' has no more trailing zeros
 						break;
 					}
+
 					// To set to the smallest power of ten
 					i = 1;
 				}
 			}
-			return new BigDecimal(strippedBI, BigDecimal.ToIntScale(newScale));
+
+			return new BigDecimal(strippedBi, BigDecimal.ToIntScale(newScale));
 		}
 
+		public static int Exponent(BigDecimal value) {
+			return value.Precision - value.Scale - 1;
+		}
+
+		public static BigDecimal Mantissa(BigDecimal value) {
+			int exponent = Exponent(value);
+			if (exponent == 0) {
+				return value;
+			}
+
+			return MovePointLeft(value, exponent);
+		}
+
+		public static BigDecimal IntegralPart(BigDecimal value) {
+			return Scale(value, 0, RoundingMode.Down);
+		}
+
+		public static BigDecimal FractionalPart(BigDecimal value) {
+			return Subtract(value, IntegralPart(value));
+		}
+
+		public static BigDecimal Factorial(int n) {
+			return BigDecimalMath.Factorial(n);
+		}
+
+		public static BigDecimal Bernoulli(int n, MathContext mathContext) {
+			if (n < 0)
+				throw new ArithmeticException("Illegal bernoulli(n) for n < 0: n = " + n);
+
+			BigRational b = BigRationalMath.Bernoulli(n);
+			return b.ToBigDecimal(mathContext);
+		}
+
+		public static BigDecimal Sqrt(BigDecimal x, MathContext mathContext) {
+			return BigDecimalMath.Sqrt(x, mathContext);
+		}
+
+		public static BigDecimal Root(BigDecimal n, BigDecimal x, MathContext context) {
+			return BigDecimalMath.Root(n, x, context);
+		}
+
+		#endregion
+
+		#region BigRational
+
+		public static BigRational Reduce(BigRational value) {
+			return BigRationalMath.Reduce(value);
+		}
+
+		public static BigRational IntegerPart(BigRational value) {
+			return BigRationalMath.IntegerPart(value);
+		}
+
+		public static BigRational FractionPart(BigRational value) {
+			return BigRationalMath.FractionPart(value);
+		}
+
+		public static BigRational Negate(BigRational value) {
+			return BigRationalMath.Negate(value);
+		}
+
+		public static BigRational Reciprocal(BigRational value) {
+			return BigRationalMath.Reciprocal(value);
+		}
+
+		public static BigRational Abs(BigRational value) {
+			return value.IsPositive ? value : Negate(value);
+		}
+
+		public static BigRational Increment(BigRational value) {
+			return BigRationalMath.Increment(value);
+		}
+
+		public static BigRational Decrement(BigRational value) {
+			return BigRationalMath.Decrement(value);
+		}
+
+		public static BigRational Add(BigRational a, BigRational b) {
+			return BigRationalMath.Add(a, b);
+		}
+
+		public static BigRational Add(BigRational a, BigDecimal b) {
+			return BigRationalMath.Add(a, b);
+		}
+
+		public static BigRational Add(BigRational a, BigInteger b) {
+			if (b == BigInteger.Zero)
+				return a;
+
+			return BigRationalMath.Add(a, new BigDecimal(b));
+		}
+
+		public static BigRational Subtract(BigRational a, BigRational b) {
+			return BigRationalMath.Subtract(a, b);
+		}
+
+		public static BigRational Subtract(BigRational a, BigDecimal b) {
+			return BigRationalMath.Subtract(a, b);
+		}
+
+		public static BigRational Subtract(BigRational a, BigInteger b) {
+			if (b == BigInteger.Zero)
+				return a;
+
+			return BigRationalMath.Subtract(a, b);
+		}
+
+		public static BigRational Multiply(BigRational a, BigRational b) {
+			return BigRationalMath.Multiply(a, b);
+		}
+
+		public static BigRational Multiply(BigRational a, BigDecimal b) {
+			if (a.IsZero || b.Sign == 0)
+				return BigRational.Zero;
+			if (a.Equals(BigRational.One))
+				return (BigRational) b;
+			if (b.Equals(BigInteger.One)) {
+				return a;
+			}
+
+			return BigRationalMath.Multiply(a, b);
+		}
+
+		public static BigRational Multiply(BigRational a, BigInteger b) {
+			return Multiply(a, new BigDecimal(b));
+		}
+
+		public static BigRational Divide(BigRational a, BigRational b) {
+			return BigRationalMath.Divide(a, b);
+		}
+
+		public static BigRational Divide(BigRational a, BigDecimal b) {
+			if (b == BigDecimal.One)
+				return a;
+
+			return BigRationalMath.Divide(a, b);
+		}
+
+		public static BigRational Divide(BigRational a, BigInteger b) {
+			if (b == BigInteger.One)
+				return a;
+
+			return Divide(a, new BigDecimal(b));
+		}
+
+		public static BigRational Pow(BigRational a, int exp) {
+			return BigRationalMath.Pow(a, exp);
+		}
+
+		public static BigRational Scale(BigRational value, int scale) {
+			return (BigRational)(Scale(value.ToBigDecimal(), scale, RoundingMode.HalfUp));
+		}
+
+		public static BigRational Precise(BigRational value, int precision) {
+			return (BigRational) value.ToBigDecimal(new MathContext(precision));
+		}
+
+		#endregion
 	}
 }

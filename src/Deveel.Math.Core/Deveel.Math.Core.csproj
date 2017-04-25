@@ -51,6 +51,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Linq.Parallel" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Math\Messages.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -72,10 +76,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Messages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Math\" />
   </ItemGroup>
 
 </Project>

@@ -172,6 +172,7 @@ namespace Deveel.Math {
 				// math.1B=numBits must be non-negative
 				throw new ArgumentException(Messages.math1B); //$NON-NLS-1$
 			}
+
 			if (numBits == 0) {
 				sign = 0;
 				numberLength = 1;
@@ -183,6 +184,7 @@ namespace Deveel.Math {
 				for (int i = 0; i < numberLength; i++) {
 					digits[i] = rnd.Next();
 				}
+
 				// Using only the necessary bits
 				digits[numberLength - 1] = Utils.URShift(digits[numberLength - 1], (-numBits) & 31);
 				CutOffLeadingZeroes();
@@ -208,6 +210,7 @@ namespace Deveel.Math {
 				// math.1C=bitLength < 2
 				throw new ArithmeticException(Messages.math1C); //$NON-NLS-1$
 			}
+
 			BigInteger me = Primality.ConsBigInteger(bitLength, certainty, random);
 			sign = me.sign;
 			numberLength = me.numberLength;
@@ -232,6 +235,7 @@ namespace Deveel.Math {
 				throw new ArgumentNullException("magnitude");
 
 			if ((signum < -1) || (signum > 1))
+
 				// math.13=Invalid signum value
 				throw new FormatException(Messages.math13); //$NON-NLS-1$
 
@@ -276,6 +280,7 @@ namespace Deveel.Math {
 				// math.12=Zero length BigInteger
 				throw new FormatException(Messages.math12); //$NON-NLS-1$
 			}
+
 			if (val[0] > sbyte.MaxValue) {
 				sign = -1;
 				PutBytesNegativeToIntegers(val);
@@ -370,6 +375,7 @@ namespace Deveel.Math {
 				if (sign == 0) {
 					return -1;
 				}
+
 				// (sign != 0) implies that exists some non zero digit
 				int i = FirstNonZeroDigit;
 				return ((i << 5) + Utils.NumberOfTrailingZeros(digits[i]));
@@ -407,8 +413,10 @@ namespace Deveel.Math {
 							// Empty
 						}
 					}
+
 					firstNonzeroDigit = i;
 				}
+
 				return firstNonzeroDigit;
 			}
 		}
@@ -432,8 +440,10 @@ namespace Deveel.Math {
 			if (numberLength < other.numberLength) {
 				return -other.sign;
 			}
+
 			// Equal sign and equal numberLength
-			return (sign * Elementary.CompareArrays(digits, other.digits,
+			return (sign * Elementary.CompareArrays(digits,
+				        other.digits,
 				        numberLength));
 		}
 
@@ -442,9 +452,11 @@ namespace Deveel.Math {
 			if (hashCode != 0) {
 				return hashCode;
 			}
+
 			for (int i = 0; i < digits.Length; i++) {
 				hashCode = (int) (hashCode * 33 + (digits[i] & 0xffffffff));
 			}
+
 			hashCode = hashCode * sign;
 			return hashCode;
 		}
@@ -455,6 +467,7 @@ namespace Deveel.Math {
 				return true;
 			if (!(obj is BigInteger))
 				return false;
+
 			return Equals((BigInteger) obj);
 		}
 
@@ -473,6 +486,7 @@ namespace Deveel.Math {
 			for (i = numberLength - 1; (i >= 0) && (digits[i] == b[i]); i--) {
 				// Empty
 			}
+
 			return i < 0;
 		}
 
@@ -482,6 +496,7 @@ namespace Deveel.Math {
 			while ((numberLength > 0) && (digits[--numberLength] == 0)) {
 				// Empty
 			}
+
 			if (digits[numberLength++] == 0) {
 				sign = 0;
 			}
@@ -504,6 +519,7 @@ namespace Deveel.Math {
 			numberLength = (bytesLen >> 2) + ((highBytes == 0) ? 0 : 1);
 			digits = new int[numberLength];
 			int i = 0;
+
 			// Put bytes to the int array starting from the end of the byte array
 			while (bytesLen > highBytes) {
 				digits[i++] = (byteValues[--bytesLen] & 0xFF)
@@ -511,6 +527,7 @@ namespace Deveel.Math {
 				              | (byteValues[--bytesLen] & 0xFF) << 16
 				              | (byteValues[--bytesLen] & 0xFF) << 24;
 			}
+
 			// Put the first bytes in the highest element of the int array
 			for (int j = 0; j < bytesLen; j++) {
 				digits[i] = (digits[i] << 8) | (byteValues[j] & 0xFF);
@@ -527,8 +544,10 @@ namespace Deveel.Math {
 			numberLength = (bytesLen >> 2) + ((highBytes == 0) ? 0 : 1);
 			digits = new int[numberLength];
 			int i = 0;
+
 			// Setting the sign
 			digits[numberLength - 1] = -1;
+
 			// Put bytes to the int array starting from the end of the byte array
 			while (bytesLen > highBytes) {
 				digits[i] = (byteValues[--bytesLen] & 0xFF)
@@ -547,21 +566,26 @@ namespace Deveel.Math {
 						digits[i] = ~digits[i];
 						i++;
 					}
+
 					break;
 				}
+
 				i++;
 			}
+
 			if (highBytes != 0) {
 				// Put the first bytes in the highest element of the int array
 				if (firstNonzeroDigit != -2) {
 					for (int j = 0; j < bytesLen; j++) {
 						digits[i] = (digits[i] << 8) | (byteValues[j] & 0xFF);
 					}
+
 					digits[i] = ~digits[i];
 				} else {
 					for (int j = 0; j < bytesLen; j++) {
 						digits[i] = (digits[i] << 8) | (byteValues[j] & 0xFF);
 					}
+
 					digits[i] = -digits[i];
 				}
 			}
@@ -585,6 +609,7 @@ namespace Deveel.Math {
 			if (exp < TwoPows.Length) {
 				return TwoPows[exp];
 			}
+
 			int intCount = exp >> 5;
 			int bitN = exp & 31;
 			int[] resDigits = new int[intCount + 1];
@@ -607,6 +632,7 @@ namespace Deveel.Math {
 				if (value != -1) {
 					return new BigInteger(-1, -value);
 				}
+
 				return MinusOne;
 			} else if (value <= 10) {
 				return SmallValues[(int) value];
@@ -627,6 +653,7 @@ namespace Deveel.Math {
 				value = null;
 				return false;
 			}
+
 			if ((radix < CharHelper.MIN_RADIX) || (radix > CharHelper.MAX_RADIX)) {
 				// math.11=Radix out of range
 				exception = new FormatException(Messages.math12);
@@ -666,8 +693,10 @@ namespace Deveel.Math {
 					bigRadixDigitsLength++;
 				}
 				digits = new int[bigRadixDigitsLength];
+
 				// Get the maximal power of radix that fits in int
 				int bigRadix = Conversion.bigRadices[radix - 2];
+
 				// Parse an input string and accumulate the BigInteger's magnitude
 				int digitIndex = 0; // index of digits array
 				int substrEnd = startChar + ((topChars == 0) ? charsPerInt : topChars);
@@ -791,6 +820,7 @@ namespace Deveel.Math {
 				return true;
 			if ((object) a == null)
 				return false;
+
 			return a.Equals(b);
 		}
 
@@ -804,6 +834,14 @@ namespace Deveel.Math {
 
 		public static bool operator <=(BigInteger a, BigInteger b) {
 			return a == b || a < b;
+		}
+
+		public static BigInteger operator ++(BigInteger a) {
+			return BigMath.Add(a, One);
+		}
+
+		public static BigInteger operator --(BigInteger a) {
+			return BigMath.Subtract(a, One);
 		}
 
 		#region Implicit Operators
@@ -859,14 +897,17 @@ namespace Deveel.Math {
 			if (n == 0) {
 				return ((value.digits[0] & 1) != 0);
 			}
+
 			if (n < 0) {
 				// math.15=Negative bit address
 				throw new ArithmeticException(Messages.math15); //$NON-NLS-1$
 			}
+
 			int intCount = n >> 5;
 			if (intCount >= value.numberLength) {
 				return (value.sign < 0);
 			}
+
 			int digit = value.digits[intCount];
 			n = (1 << (n & 31)); // int with 1 set to the needed position
 			if (value.Sign < 0) {
@@ -879,6 +920,7 @@ namespace Deveel.Math {
 					digit = ~digit;
 				}
 			}
+
 			return ((digit & n) != 0);
 		}
 
@@ -900,6 +942,7 @@ namespace Deveel.Math {
 			if (!TestBit(value, n)) {
 				return BitLevel.FlipBit(value, n);
 			}
+
 			return value;
 		}
 
@@ -921,6 +964,7 @@ namespace Deveel.Math {
 			if (TestBit(value, n)) {
 				return BitLevel.FlipBit(value, n);
 			}
+
 			return value;
 		}
 
@@ -955,6 +999,7 @@ namespace Deveel.Math {
 				// math.1A=start < 0: {0}
 				throw new ArithmeticException(String.Format(Messages.math1A, value)); //$NON-NLS-1$
 			}
+
 			return Primality.NextProbablePrime(value);
 		}
 
@@ -996,6 +1041,7 @@ namespace Deveel.Math {
 				// math.15=Negative bit address
 				throw new ArithmeticException(Messages.math15); //$NON-NLS-1$
 			}
+
 			return BitLevel.FlipBit(value, n);
 		}
 
@@ -1098,140 +1144,142 @@ namespace Deveel.Math {
 
 #endif
 
-			/**
-	 * Returns the two's complement representation of this BigInteger in a byte
-	 * array.
-	 *
-	 * @return two's complement representation of {@code this}.
-	 */
-			public byte[] ToByteArray() {
-				if (sign == 0) {
-					return new byte[] { 0 };
+		/**
+ * Returns the two's complement representation of this BigInteger in a byte
+ * array.
+ *
+ * @return two's complement representation of {@code this}.
+ */
+		public byte[] ToByteArray() {
+			if (sign == 0) {
+				return new byte[] {0};
+			}
+
+			BigInteger temp = this;
+			int bitLen = BitLength;
+			int iThis = FirstNonZeroDigit;
+			int bytesLen = (bitLen >> 3) + 1;
+			/*
+			 * Puts the little-endian int array representing the magnitude of this
+			 * BigInteger into the big-endian byte array.
+			 */
+			byte[] bytes = new byte[bytesLen];
+			int firstByteNumber = 0;
+			int highBytes;
+			int digitIndex = 0;
+			int bytesInInteger = 4;
+			int digit;
+			int hB;
+
+			if (bytesLen - (numberLength << 2) == 1) {
+				bytes[0] = (byte) ((sign < 0) ? -1 : 0);
+				highBytes = 4;
+				firstByteNumber++;
+			} else {
+				hB = bytesLen & 3;
+				highBytes = (hB == 0) ? 4 : hB;
+			}
+
+			digitIndex = iThis;
+			bytesLen -= iThis << 2;
+
+			if (sign < 0) {
+				digit = -temp.digits[digitIndex];
+				digitIndex++;
+				if (digitIndex == numberLength) {
+					bytesInInteger = highBytes;
 				}
-				BigInteger temp = this;
-				int bitLen = BitLength;
-				int iThis = FirstNonZeroDigit;
-				int bytesLen = (bitLen >> 3) + 1;
-				/*
-				 * Puts the little-endian int array representing the magnitude of this
-				 * BigInteger into the big-endian byte array.
-				 */
-				byte[] bytes = new byte[bytesLen];
-				int firstByteNumber = 0;
-				int highBytes;
-				int digitIndex = 0;
-				int bytesInInteger = 4;
-				int digit;
-				int hB;
-
-				if (bytesLen - (numberLength << 2) == 1) {
-					bytes[0] = (byte)((sign < 0) ? -1 : 0);
-					highBytes = 4;
-					firstByteNumber++;
-				} else {
-					hB = bytesLen & 3;
-					highBytes = (hB == 0) ? 4 : hB;
+				for (int i = 0; i < bytesInInteger; i++, digit >>= 8) {
+					bytes[--bytesLen] = (byte) digit;
 				}
-
-				digitIndex = iThis;
-				bytesLen -= iThis << 2;
-
-				if (sign < 0) {
-					digit = -temp.digits[digitIndex];
+				while (bytesLen > firstByteNumber) {
+					digit = ~temp.digits[digitIndex];
 					digitIndex++;
 					if (digitIndex == numberLength) {
 						bytesInInteger = highBytes;
 					}
 					for (int i = 0; i < bytesInInteger; i++, digit >>= 8) {
-						bytes[--bytesLen] = (byte)digit;
-					}
-					while (bytesLen > firstByteNumber) {
-						digit = ~temp.digits[digitIndex];
-						digitIndex++;
-						if (digitIndex == numberLength) {
-							bytesInInteger = highBytes;
-						}
-						for (int i = 0; i < bytesInInteger; i++, digit >>= 8) {
-							bytes[--bytesLen] = (byte)digit;
-						}
-					}
-				} else {
-					while (bytesLen > firstByteNumber) {
-						digit = temp.digits[digitIndex];
-						digitIndex++;
-						if (digitIndex == numberLength) {
-							bytesInInteger = highBytes;
-						}
-						for (int i = 0; i < bytesInInteger; i++, digit >>= 8) {
-							bytes[--bytesLen] = (byte)digit;
-						}
+						bytes[--bytesLen] = (byte) digit;
 					}
 				}
-				return bytes;
+			} else {
+				while (bytesLen > firstByteNumber) {
+					digit = temp.digits[digitIndex];
+					digitIndex++;
+					if (digitIndex == numberLength) {
+						bytesInInteger = highBytes;
+					}
+					for (int i = 0; i < bytesInInteger; i++, digit >>= 8) {
+						bytes[--bytesLen] = (byte) digit;
+					}
+				}
 			}
 
-			public int ToInt32() {
-				return (sign * digits[0]);
-			}
+			return bytes;
+		}
 
-			/**
-			 * Returns this {@code BigInteger} as an long value. If {@code this} is too
-			 * big to be represented as an long, then {@code this} % 2^64 is returned.
-			 *
-			 * @return this {@code BigInteger} as a long value.
-			 */
-			public long ToInt64() {
-				long value = (numberLength > 1) ? (((long)digits[1]) << 32) | (digits[0] & 0xFFFFFFFFL) : (digits[0] & 0xFFFFFFFFL);
-				return (sign * value);
-			}
+		public int ToInt32() {
+			return (sign * digits[0]);
+		}
 
-			/**
-			 * Returns this {@code BigInteger} as an float value. If {@code this} is too
-			 * big to be represented as an float, then {@code Float.POSITIVE_INFINITY}
-			 * or {@code Float.NEGATIVE_INFINITY} is returned. Note, that not all
-			 * integers x in the range [-Float.MAX_VALUE, Float.MAX_VALUE] can be
-			 * represented as a float. The float representation has a mantissa of length
-			 * 24. For example, 2^24+1 = 16777217 is returned as float 16777216.0.
-			 *
-			 * @return this {@code BigInteger} as a float value.
-			 */
-			public float ToSingle() {
-				return (float)ToDouble();
-			}
+		/**
+		 * Returns this {@code BigInteger} as an long value. If {@code this} is too
+		 * big to be represented as an long, then {@code this} % 2^64 is returned.
+		 *
+		 * @return this {@code BigInteger} as a long value.
+		 */
+		public long ToInt64() {
+			long value = (numberLength > 1) ? (((long) digits[1]) << 32) | (digits[0] & 0xFFFFFFFFL) : (digits[0] & 0xFFFFFFFFL);
+			return (sign * value);
+		}
 
-			/**
-			 * Returns this {@code BigInteger} as an double value. If {@code this} is
-			 * too big to be represented as an double, then {@code
-			 * Double.POSITIVE_INFINITY} or {@code Double.NEGATIVE_INFINITY} is
-			 * returned. Note, that not all integers x in the range [-Double.MAX_VALUE,
-			 * Double.MAX_VALUE] can be represented as a double. The double
-			 * representation has a mantissa of length 53. For example, 2^53+1 =
-			 * 9007199254740993 is returned as double 9007199254740992.0.
-			 *
-			 * @return this {@code BigInteger} as a double value
-			 */
-			public double ToDouble() {
-				return Conversion.BigInteger2Double(this);
-			}
+		/**
+		 * Returns this {@code BigInteger} as an float value. If {@code this} is too
+		 * big to be represented as an float, then {@code Float.POSITIVE_INFINITY}
+		 * or {@code Float.NEGATIVE_INFINITY} is returned. Note, that not all
+		 * integers x in the range [-Float.MAX_VALUE, Float.MAX_VALUE] can be
+		 * represented as a float. The float representation has a mantissa of length
+		 * 24. For example, 2^24+1 = 16777217 is returned as float 16777216.0.
+		 *
+		 * @return this {@code BigInteger} as a float value.
+		 */
+		public float ToSingle() {
+			return (float) ToDouble();
+		}
 
-			public override String ToString() {
-				return Conversion.ToDecimalScaledString(this, 0);
-			}
+		/**
+		 * Returns this {@code BigInteger} as an double value. If {@code this} is
+		 * too big to be represented as an double, then {@code
+		 * Double.POSITIVE_INFINITY} or {@code Double.NEGATIVE_INFINITY} is
+		 * returned. Note, that not all integers x in the range [-Double.MAX_VALUE,
+		 * Double.MAX_VALUE] can be represented as a double. The double
+		 * representation has a mantissa of length 53. For example, 2^53+1 =
+		 * 9007199254740993 is returned as double 9007199254740992.0.
+		 *
+		 * @return this {@code BigInteger} as a double value
+		 */
+		public double ToDouble() {
+			return Conversion.BigInteger2Double(this);
+		}
 
-			/**
-			 * Returns a string containing a string representation of this {@code
-			 * BigInteger} with base radix. If {@code radix < CharHelper.MIN_RADIX} or
-			 * {@code radix > CharHelper.MAX_RADIX} then a decimal representation is
-			 * returned. The CharHelpers of the string representation are generated with
-			 * method {@code CharHelper.forDigit}.
-			 *
-			 * @param radix
-			 *            base to be used for the string representation.
-			 * @return a string representation of this with radix 10.
-			 */
-			public String ToString(int radix) {
-				return Conversion.BigInteger2String(this, radix);
-			}
+		public override String ToString() {
+			return Conversion.ToDecimalScaledString(this, 0);
+		}
+
+		/**
+		 * Returns a string containing a string representation of this {@code
+		 * BigInteger} with base radix. If {@code radix < CharHelper.MIN_RADIX} or
+		 * {@code radix > CharHelper.MAX_RADIX} then a decimal representation is
+		 * returned. The CharHelpers of the string representation are generated with
+		 * method {@code CharHelper.forDigit}.
+		 *
+		 * @param radix
+		 *            base to be used for the string representation.
+		 * @return a string representation of this with radix 10.
+		 */
+		public String ToString(int radix) {
+			return Conversion.BigInteger2String(this, radix);
+		}
 
 
 		#endregion
