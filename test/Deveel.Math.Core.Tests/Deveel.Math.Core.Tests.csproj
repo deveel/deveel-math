@@ -9,6 +9,7 @@
     <Compile Include="..\Deveel.Math.XUnit\Deveel.Math\BigDecimalArithmeticTest.cs" Link="Math\BigDecimalArithmeticTest.cs" />
     <Compile Include="..\Deveel.Math.XUnit\Deveel.Math\BigDecimalTest.cs" Link="Math\BigDecimalTest.cs" />
     <Compile Include="..\Deveel.Math.XUnit\Deveel.Math\BigIntegerTest.cs" Link="Math\BigIntegerTest.cs" />
+    <Compile Include="..\Deveel.Math.XUnit\Deveel.Math\BigRationalTest .cs" Link="Math\BigRationalTest .cs" />
   </ItemGroup>
 
   <ItemGroup>

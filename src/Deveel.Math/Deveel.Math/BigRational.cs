@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Deveel.Math {
 	public struct BigRational : IComparable<BigRational> {
@@ -24,6 +25,22 @@ namespace Deveel.Math {
 			Denominator = d;
 		}
 
+		public BigRational(BigInteger numerator, BigInteger denominator)
+			: this(new BigDecimal(numerator), new BigDecimal(denominator)) {
+		}
+
+		public BigRational(int numerator, int denominator)
+			: this(new BigDecimal(numerator), new BigDecimal(denominator)) {
+		}
+
+		public BigRational(double value)
+			: this(BigDecimal.Parse(value.ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture), BigDecimal.One) {
+			if (Double.IsInfinity(value))
+				throw new FormatException("Infinite");
+			if (Double.IsNaN(value))
+				throw new FormatException("NaN");
+		}
+
 		private BigRational(int value)
 			: this(new BigDecimal(value), BigDecimal.One) {
 		}
@@ -32,16 +49,16 @@ namespace Deveel.Math {
 
 		public BigDecimal Denominator { get; }
 
-		public bool IsZero {
-			get { return Numerator.Sign == 0; }
-		}
+		public bool IsZero => Numerator.Sign == 0;
 
-		public bool IsPositive {
-			get { return Numerator.Sign > 0; }
-		}
+		public bool IsPositive => Numerator.Sign > 0;
 
 		private int Precision {
 			get { return CountDigits(Numerator.ToBigInteger()) + CountDigits(Denominator.ToBigInteger()); }
+		}
+
+		private bool IsIntegerInternal() {
+			return Denominator.CompareTo(BigDecimal.One) == 0;
 		}
 
 		private static int CountDigits(BigInteger number) {
@@ -87,7 +104,55 @@ namespace Deveel.Math {
 			return Denominator.Equals(other.Denominator);
 		}
 
+		public override string ToString() {
+			if (IsZero)
+				return "0";
+			if (IsIntegerInternal())
+				return Numerator.ToString();
+
+			return ToBigDecimal().ToString();
+		}
+
+		public String ToRationalString() {
+			if (IsZero)
+				return "0";
+			if (IsIntegerInternal())
+				return Numerator.ToString();
+
+			return String.Format("{0}/{1}", Numerator, Denominator);
+		}
+
+		public BigRational Reduce() {
+			var n = Numerator.ToBigInteger();
+			var d = Denominator.ToBigInteger();
+
+			BigInteger gcd = BigMath.Gcd(n, d);
+			n = BigMath.Divide(n, gcd);
+			d = BigMath.Divide(d, gcd);
+
+			return new BigRational(n, d);
+		}
+
+		public static BigRational From(int integer, int fractionNumerator, int fractionDenominator) {
+			if (fractionNumerator < 0 || fractionDenominator < 0) {
+				throw new ArithmeticException("Negative value");
+			}
+
+			var integerPart = (BigRational) integer;
+			var fractionPart = new BigRational(fractionNumerator, fractionDenominator);
+			return integerPart.IsPositive ? BigRationalMath.Add(integerPart, fractionPart) : BigRationalMath.Subtract(integerPart, fractionPart);
+		}
+
 		#region Operators
+
+		public static explicit operator BigRational(int value) {
+			if (value == 0)
+				return Zero;
+			if (value == 1)
+				return One;
+
+			return new BigRational(value);
+		}
 
 		public static explicit operator BigRational(BigInteger value) {
 			if (value == BigInteger.Zero)
