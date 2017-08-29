@@ -791,7 +791,7 @@ namespace Deveel.Math {
 				return true;
 			if ((object) a == null)
 				return false;
-			return a.Equals(b);
+			return a.CompareTo(b) == 0;
 		}
 
 		public static bool operator !=(BigInteger a, BigInteger b) {
