@@ -1213,8 +1213,8 @@ namespace Deveel.Math {
 		public static bool operator ==(BigDecimal a, BigDecimal b) {
 			if ((object)a == null && (object)b == null)
 				return true;
-			if ((object)a == null)
-				return false;
+            if ((object)a == null || (object)b == null)
+                return false;
 			return a.CompareTo(b) == 0;
 		}
 
@@ -1239,27 +1239,37 @@ namespace Deveel.Math {
 		}
 
 		public static BigDecimal operator >>(BigDecimal a, int b) {
-			return BigMath.ShiftRight(a, b);
+			return BigMath.ShiftRight((BigInteger)a, b);
 		}
 
 		public static BigDecimal operator <<(BigDecimal a, int b) {
-			return BigMath.ShiftLeft(a, b);
+			return BigMath.ShiftLeft((BigInteger)a, b);
 		}
 
-		#endregion
+        #endregion
 
-		#region Implicit Operators
+        #region Cast Operators
 
-		public static implicit operator short(BigDecimal d) {
+        public static explicit operator char(BigDecimal d)
+        {
+            return (char)d.ValueExact(8);
+        }
+
+        public static explicit operator byte(BigDecimal d)
+        {
+            return (byte)d.ValueExact(8);
+        }
+
+        public static explicit operator short(BigDecimal d) {
 			return d.ToInt16Exact();
 		}
 
-		public static implicit operator int(BigDecimal d) {
-			return d.ToInt32();
+		public static explicit operator int(BigDecimal d) {
+			return d.ToInt32Exact();
 		}
 
-		public static implicit operator long(BigDecimal d) {
-			return d.ToInt64();
+		public static explicit operator long(BigDecimal d) {
+			return d.ToInt64Exact();
 		}
 
 		public static implicit operator float(BigDecimal d) {
@@ -1270,19 +1280,34 @@ namespace Deveel.Math {
 			return d.ToDouble();
 		}
 
-		public static implicit operator BigInteger(BigDecimal d) {
-			return d.ToBigInteger();
-		}
+        public static implicit operator decimal(BigDecimal d)
+        {
+            return d.ToDecimal();
+        }
 
-		public static implicit operator BigDecimal(long value) {
+        public static explicit operator BigInteger(BigDecimal d) {
+            return d.ToBigInteger();
+        }
+
+        public static explicit operator BigDecimal(long value) {
 			return new BigDecimal(value);
 		}
 
-		public static implicit operator BigDecimal(double value) {
+        public static implicit operator BigDecimal(float value)
+        {
+            return new BigDecimal(value);
+        }
+
+        public static implicit operator BigDecimal(double value) {
 			return new BigDecimal(value);
 		}
 
-		public static implicit operator BigDecimal(int value) {
+        public static implicit operator BigDecimal(decimal value)
+        {
+            return Parse(value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        public static explicit operator BigDecimal(int value) {
 			return new BigDecimal(value);
 		}
 
