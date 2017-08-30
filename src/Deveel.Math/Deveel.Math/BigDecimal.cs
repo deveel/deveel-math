@@ -1246,6 +1246,16 @@ namespace Deveel.Math {
 			return BigMath.ShiftLeft((BigInteger)a, b);
 		}
 
+        public static BigDecimal operator ++(BigDecimal a)
+        {
+            return a + One;
+        }
+
+        public static BigDecimal operator --(BigDecimal a)
+        {
+            return a - One;
+        }
+
         #endregion
 
         #region Cast Operators

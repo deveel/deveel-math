@@ -770,7 +770,17 @@ namespace Deveel.Math {
 			return BigMath.Negate(a);
 		}
 
-		public static BigInteger operator >>(BigInteger a, int b) {
+        public static BigInteger operator ++(BigInteger a)
+        {
+            return a + One;
+        }
+
+        public static BigInteger operator --(BigInteger a)
+        {
+            return a - One;
+        }
+
+        public static BigInteger operator >>(BigInteger a, int b) {
 			return BigMath.ShiftRight(a, b);
 		}
 
