@@ -48,7 +48,7 @@ namespace Deveel.Math.Deveel.Math
 
             Assert.Equal<double>(valueDouble, valueBigDecimal);
 
-            Assert.Equal<decimal>(valueDecimal, valueBigDecimal);
+            Assert.Equal<decimal>(valueDecimal, valueBigDecimal); // TODO check why this fails
         }
     }
 }
