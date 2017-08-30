@@ -1252,24 +1252,29 @@ namespace Deveel.Math {
 
         public static explicit operator char(BigDecimal d)
         {
-            return (char)d.ValueExact(8);
+            return (char)d.ToInt32();
+        }
+
+        public static explicit operator sbyte(BigDecimal d)
+        {
+            return (sbyte)d.ToInt32();
         }
 
         public static explicit operator byte(BigDecimal d)
         {
-            return (byte)d.ValueExact(8);
+            return (byte)d.ToInt32();
         }
 
         public static explicit operator short(BigDecimal d) {
-			return d.ToInt16Exact();
+			return (short)d.ToInt32();
 		}
 
 		public static explicit operator int(BigDecimal d) {
-			return d.ToInt32Exact();
+			return d.ToInt32();
 		}
 
 		public static explicit operator long(BigDecimal d) {
-			return d.ToInt64Exact();
+			return d.ToInt64();
 		}
 
 		public static implicit operator float(BigDecimal d) {
