@@ -639,7 +639,7 @@ namespace Deveel.Math {
 					return (smallValue < val.smallValue) ? -1 : (smallValue > val.smallValue) ? 1 : 0;
 				}
 				long diffScale = (long) this._scale - val._scale;
-				int diffPrecision = this.AproxPrecision() - val.AproxPrecision();
+				int diffPrecision = this.Precision - val.Precision;
 				if (diffPrecision > diffScale + 1) {
 					return thisSign;
 				} else if (diffPrecision < diffScale - 1) {
@@ -731,7 +731,7 @@ namespace Deveel.Math {
 
 		internal void InplaceRound(MathContext mc) {
 			int mcPrecision = mc.Precision;
-			if (AproxPrecision() - mcPrecision <= 0 || mcPrecision == 0) {
+			if (Precision - mcPrecision <= 0 || mcPrecision == 0) {
 				return;
 			}
 			int discardedPrecision = Precision - mcPrecision;
