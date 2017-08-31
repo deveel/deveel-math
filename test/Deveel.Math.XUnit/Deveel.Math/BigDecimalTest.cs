@@ -123,7 +123,28 @@ namespace Deveel.Math {
 			Assert.True(comp4.CompareTo(comp1) == -1, "0.98 should be less than 1.00");
 		}
 
-		[Fact]
+        [Fact]
+        public void CompareToBigDecimal2()
+        {
+            BigDecimal comp1 = BigDecimal.Parse("1.00", new MathContext(2));
+            Assert.Equal(2, comp1.Precision);
+            BigDecimal comp2 = new BigDecimal(100, 2);
+            Assert.True(comp2.CompareTo(comp1) == 0, "1.0 and 1.00 should be equal, regardeless of the initializing math context");
+            Assert.True(comp1.CompareTo(comp2) == 0, "1.00 and 1.0 should be equal, regardeless of the initializing math context");
+        }
+
+        [Fact]
+        public void CompareToBigDecimal3()
+        {
+            BigDecimal comp1 = BigDecimal.Parse("-16.00");
+            BigDecimal comp2 = new BigDecimal(-1600, 2);
+            BigInteger comp3 = -16;
+            Assert.True(comp1.CompareTo(comp3) == 0);
+            Assert.True(comp2.CompareTo(comp3) == 0);
+            Assert.True(comp1.CompareTo(comp2) == 0);
+        }
+
+        [Fact]
 		public void DivideBigDecimalI() {
 			BigDecimal divd1 = new BigDecimal(value, 2);
 			BigDecimal divd2 = BigDecimal.Parse("2.335");

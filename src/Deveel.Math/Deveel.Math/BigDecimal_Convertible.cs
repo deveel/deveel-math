@@ -518,12 +518,12 @@ namespace Deveel.Math {
 
 		// TODO: must be verified
 		public decimal ToDecimal() {
-			var scaleDivisor = BigMath.Pow(BigInteger.FromInt64(10), _scale);
-			var remainder = BigMath.Remainder(GetUnscaledValue(), scaleDivisor);
-			var scaledValue = GetUnscaledValue() / scaleDivisor;
+			BigInteger scaleDivisor = BigMath.Pow(BigInteger.FromInt64(10), _scale);
+            BigInteger remainder = BigMath.Remainder(GetUnscaledValue(), scaleDivisor);
+            BigInteger scaledValue = GetUnscaledValue() / scaleDivisor;
 
-			var leftOfDecimal = (decimal) scaledValue;
-			var rightOfDecimal = (remainder) / ((decimal) scaleDivisor);
+			decimal leftOfDecimal = (decimal) scaledValue;
+			decimal rightOfDecimal = (remainder) / ((decimal) scaleDivisor);
 
 			return leftOfDecimal + rightOfDecimal;
 		}

@@ -770,7 +770,17 @@ namespace Deveel.Math {
 			return BigMath.Negate(a);
 		}
 
-		public static BigInteger operator >>(BigInteger a, int b) {
+        public static BigInteger operator ++(BigInteger a)
+        {
+            return a + One;
+        }
+
+        public static BigInteger operator --(BigInteger a)
+        {
+            return a - One;
+        }
+
+        public static BigInteger operator >>(BigInteger a, int b) {
 			return BigMath.ShiftRight(a, b);
 		}
 
@@ -787,11 +797,11 @@ namespace Deveel.Math {
 		}
 
 		public static bool operator ==(BigInteger a, BigInteger b) {
-			if ((object) a == null && (object) b == null)
+			if ((object)a == null && (object)b == null)
 				return true;
-			if ((object) a == null)
+			if ((object)a == null || (object)b == null)
 				return false;
-			return a.Equals(b);
+			return a.CompareTo(b) == 0;
 		}
 
 		public static bool operator !=(BigInteger a, BigInteger b) {
@@ -806,13 +816,18 @@ namespace Deveel.Math {
 			return a == b || a < b;
 		}
 
-		#region Implicit Operators
+        #region Cast Operators
 
-		public static implicit operator Int32(BigInteger i) {
+        public static explicit operator Int16(BigInteger i)
+        {
+            return (short)i.ToInt32();
+        }
+
+        public static explicit operator Int32(BigInteger i) {
 			return i.ToInt32();
 		}
 
-		public static implicit operator Int64(BigInteger i) {
+		public static explicit operator Int64(BigInteger i) {
 			return i.ToInt64();
 		}
 
@@ -824,11 +839,27 @@ namespace Deveel.Math {
 			return i.ToDouble();
 		}
 
-		public static implicit operator String(BigInteger i) {
-			return i.ToString();
-		}
+        public static implicit operator Decimal(BigInteger i)
+        {
+            return (decimal)i.ToInt64();
+        }
 
-		public static implicit operator BigInteger(int value) {
+        public static implicit operator BigInteger(byte value)
+        {
+            return FromInt64(value);
+        }
+
+        public static implicit operator BigInteger(sbyte value)
+        {
+            return FromInt64(value);
+        }
+
+        public static implicit operator BigInteger(short value)
+        {
+            return FromInt64(value);
+        }
+
+        public static implicit operator BigInteger(int value) {
 			return FromInt64(value);
 		}
 

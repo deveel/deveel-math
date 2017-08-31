@@ -639,7 +639,7 @@ namespace Deveel.Math {
 					return (smallValue < val.smallValue) ? -1 : (smallValue > val.smallValue) ? 1 : 0;
 				}
 				long diffScale = (long) this._scale - val._scale;
-				int diffPrecision = this.AproxPrecision() - val.AproxPrecision();
+				int diffPrecision = this.Precision - val.Precision;
 				if (diffPrecision > diffScale + 1) {
 					return thisSign;
 				} else if (diffPrecision < diffScale - 1) {
@@ -731,7 +731,7 @@ namespace Deveel.Math {
 
 		internal void InplaceRound(MathContext mc) {
 			int mcPrecision = mc.Precision;
-			if (AproxPrecision() - mcPrecision <= 0 || mcPrecision == 0) {
+			if (Precision - mcPrecision <= 0 || mcPrecision == 0) {
 				return;
 			}
 			int discardedPrecision = Precision - mcPrecision;
@@ -1172,12 +1172,20 @@ namespace Deveel.Math {
 			return value;
 		}
 
+        public static BigDecimal CreateExact(float x) =>
+            Parse(x.ToString(NumberFormatInfo.InvariantInfo));
 
-		#endregion
+        public static BigDecimal CreateExact(decimal x) =>
+            Parse(x.ToString(NumberFormatInfo.InvariantInfo));
 
-		#region Arithmetic Operators
+        public static BigDecimal CreateExact(double x) =>
+            Parse(x.ToString(NumberFormatInfo.InvariantInfo));
 
-		public static BigDecimal operator +(BigDecimal a, BigDecimal b) {
+        #endregion
+
+        #region Arithmetic Operators
+
+        public static BigDecimal operator +(BigDecimal a, BigDecimal b) {
 			// In case of implicit operators apply the precision of the dividend
 			return BigMath.Add(a, b);
 		}
@@ -1213,9 +1221,9 @@ namespace Deveel.Math {
 		public static bool operator ==(BigDecimal a, BigDecimal b) {
 			if ((object)a == null && (object)b == null)
 				return true;
-			if ((object)a == null)
-				return false;
-			return a.Equals(b);
+            if ((object)a == null || (object)b == null)
+                return false;
+			return a.CompareTo(b) == 0;
 		}
 
 		public static bool operator !=(BigDecimal a, BigDecimal b) {
@@ -1223,11 +1231,11 @@ namespace Deveel.Math {
 		}
 
 		public static bool operator >(BigDecimal a, BigDecimal b) {
-			return a.CompareTo(b) < 0;
+			return a.CompareTo(b) > 0;
 		}
 
 		public static bool operator <(BigDecimal a, BigDecimal b) {
-			return a.CompareTo(b) > 0;
+			return a.CompareTo(b) < 0;
 		}
 
 		public static bool operator >=(BigDecimal a, BigDecimal b) {
@@ -1239,26 +1247,51 @@ namespace Deveel.Math {
 		}
 
 		public static BigDecimal operator >>(BigDecimal a, int b) {
-			return BigMath.ShiftRight(a, b);
+			return BigMath.ShiftRight((BigInteger)a, b);
 		}
 
 		public static BigDecimal operator <<(BigDecimal a, int b) {
-			return BigMath.ShiftLeft(a, b);
+			return BigMath.ShiftLeft((BigInteger)a, b);
 		}
 
-		#endregion
+        public static BigDecimal operator ++(BigDecimal a)
+        {
+            return a + One;
+        }
 
-		#region Implicit Operators
+        public static BigDecimal operator --(BigDecimal a)
+        {
+            return a - One;
+        }
 
-		public static implicit operator short(BigDecimal d) {
-			return d.ToInt16Exact();
+        #endregion
+
+        #region Cast Operators
+
+        public static explicit operator char(BigDecimal d)
+        {
+            return (char)d.ToInt32();
+        }
+
+        public static explicit operator sbyte(BigDecimal d)
+        {
+            return (sbyte)d.ToInt32();
+        }
+
+        public static explicit operator byte(BigDecimal d)
+        {
+            return (byte)d.ToInt32();
+        }
+
+        public static explicit operator short(BigDecimal d) {
+			return (short)d.ToInt32();
 		}
 
-		public static implicit operator int(BigDecimal d) {
+		public static explicit operator int(BigDecimal d) {
 			return d.ToInt32();
 		}
 
-		public static implicit operator long(BigDecimal d) {
+		public static explicit operator long(BigDecimal d) {
 			return d.ToInt64();
 		}
 
@@ -1270,19 +1303,34 @@ namespace Deveel.Math {
 			return d.ToDouble();
 		}
 
-		public static implicit operator BigInteger(BigDecimal d) {
-			return d.ToBigInteger();
-		}
+        public static implicit operator decimal(BigDecimal d)
+        {
+            return d.ToDecimal();
+        }
 
-		public static implicit operator BigDecimal(long value) {
+        public static explicit operator BigInteger(BigDecimal d) {
+            return d.ToBigInteger();
+        }
+
+        public static explicit operator BigDecimal(long value) {
 			return new BigDecimal(value);
 		}
 
-		public static implicit operator BigDecimal(double value) {
+        public static implicit operator BigDecimal(float value)
+        {
+            return new BigDecimal(value);
+        }
+
+        public static implicit operator BigDecimal(double value) {
 			return new BigDecimal(value);
 		}
 
-		public static implicit operator BigDecimal(int value) {
+        public static implicit operator BigDecimal(decimal value)
+        {
+            return Parse(value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        public static explicit operator BigDecimal(int value) {
 			return new BigDecimal(value);
 		}
 
