@@ -1172,12 +1172,20 @@ namespace Deveel.Math {
 			return value;
 		}
 
+        public static BigDecimal CreateExact(float x) =>
+            Parse(x.ToString(NumberFormatInfo.InvariantInfo));
 
-		#endregion
+        public static BigDecimal CreateExact(decimal x) =>
+            Parse(x.ToString(NumberFormatInfo.InvariantInfo));
 
-		#region Arithmetic Operators
+        public static BigDecimal CreateExact(double x) =>
+            Parse(x.ToString(NumberFormatInfo.InvariantInfo));
 
-		public static BigDecimal operator +(BigDecimal a, BigDecimal b) {
+        #endregion
+
+        #region Arithmetic Operators
+
+        public static BigDecimal operator +(BigDecimal a, BigDecimal b) {
 			// In case of implicit operators apply the precision of the dividend
 			return BigMath.Add(a, b);
 		}
