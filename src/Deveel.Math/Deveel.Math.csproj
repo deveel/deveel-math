@@ -7,7 +7,6 @@
     <Authors>Antonello Provenzano</Authors>
     <Description>Deveel Math is the port to .NET Standard of the Apache Harmony Math component, that is used to handle operations on big numbers in a fast and secure way.</Description>
     <Copyright>(c) 2017-2024 Deveel</Copyright>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0.txt</PackageLicenseUrl>
     <PackageProjectUrl>http://github.com/deveel/deveel-math</PackageProjectUrl>
     <PackageId>dmath</PackageId>
     <RepositoryUrl>http://github.com/deveel/deveel-math</RepositoryUrl>
