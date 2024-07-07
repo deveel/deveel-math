@@ -21,17 +21,29 @@ jobs:
       steps:
       - uses: actions/checkout@v4
     
-      - name: Emit .NET 6.0 Framework Version
-        if: ${{ inputs.dotnet-version }} == '6.0.x'
+      - name: Emit .NET 6.0 Framework Version (Ubuntu)
+        if: ${{ inputs.dotnet-version }} == '6.0.x' && startsWith(${{ inputs.os }}, 'ubuntu-')
         run: echo "DOTNET_FX_VERSION=net6.0" >> $GITHUB_ENV
+
+      - name: Emit .NET 6.0 Framework Version (Windows)
+        if: ${{ inputs.dotnet-version }} == '6.0.x' && startsWith(${{ inputs.os }}, 'windows-')
+        run: echo "DOTNET_FX_VERSION=net6.0" >> $env:GITHUB_ENV
     
-      - name: Emit .NET 7.0 Framework Version
-        if: ${{ inputs.dotnet-version }} == '7.0.x'
+      - name: Emit .NET 7.0 Framework Version (Ubuntu)
+        if: ${{ inputs.dotnet-version }} == '7.0.x' && startsWith(${{ inputs.os }}, 'ubuntu-')
         run: echo "DOTNET_FX_VERSION=net7.0" >> $GITHUB_ENV
+
+      - name: Emit .NET 7.0 Framework Version (Windows)
+        if: ${{ inputs.dotnet-version }} == '7.0.x' && startsWith(${{ inputs.os }}, 'windows-')
+        run: echo "DOTNET_FX_VERSION=net7.0" >> $env:GITHUB_ENV
     
-      - name: Emit .NET 8.0 Framework Version
-        if: ${{ inputs.dotnet-version }} == '8.0.x'
+      - name: Emit .NET 8.0 Framework Version (Ubuntu)
+        if: ${{ inputs.dotnet-version }} == '8.0.x' && startsWith(${{ inputs.os }}, 'ubuntu-')
         run: echo "DOTNET_FX_VERSION=net8.0" >> $GITHUB_ENV
+
+      - name: Emit .NET 8.0 Framework Version (Windows)
+        if: ${{ inputs.dotnet-version }} == '8.0.x' && startsWith(${{ inputs.os }}, 'windows-')
+        run: echo "DOTNET_FX_VERSION=net8.0" >> $env:GITHUB_ENV
             
       - name: Setup .NET ${{ inputs.dotnet-version }} Framework
         uses: actions/setup-dotnet@v4
@@ -41,8 +53,18 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
         
-      - name: Build
+      - name: Build (Ubuntu)
         run: dotnet build --no-restore -c Release -f ${{ env.DOTNET_FX_VERSION }}
+        if: startsWith(${{ inputs.os }}, 'ubuntu-')
+
+      - name: Build (Windows)
+        run: dotnet build --no-restore -c Release -f $env:DOTNET_FX_VERSION
+        if: startsWith(${{ inputs.os }}, 'windows-')
         
-      - name: Test
+      - name: Test (Ubuntu)
         run: dotnet test --no-build --verbosity normal -c Release -f ${{ env.DOTNET_FX_VERSION }}
+        if: startsWith(${{ inputs.os }}, 'ubuntu-')
+
+      - name: Test (Windows)
+        run: dotnet test --no-build --verbosity normal -c Release -f $env:DOTNET_FX_VERSION
+        if: startsWith(${{ inputs.os }}, 'windows-')
