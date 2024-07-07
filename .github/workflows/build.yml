@@ -55,16 +55,16 @@ jobs:
         
       - name: Build (Ubuntu)
         run: dotnet build --no-restore -c Release -f ${{ env.DOTNET_FX_VERSION }}
-        if: startsWith(${{ inputs.os }}, 'ubuntu-')
+        if: ${{ startsWith(inputs.os, 'ubuntu-') }}
 
       - name: Build (Windows)
         run: dotnet build --no-restore -c Release -f $env:DOTNET_FX_VERSION
-        if: startsWith(${{ inputs.os }}, 'windows-')
+        if: ${{ startsWith(inputs.os, 'windows-') }}
         
       - name: Test (Ubuntu)
         run: dotnet test --no-build --verbosity normal -c Release -f ${{ env.DOTNET_FX_VERSION }}
-        if: startsWith(${{ inputs.os }}, 'ubuntu-')
+        if: ${{ startsWith(inputs.os, 'ubuntu-') }}
 
       - name: Test (Windows)
         run: dotnet test --no-build --verbosity normal -c Release -f $env:DOTNET_FX_VERSION
-        if: startsWith(${{ inputs.os }}, 'windows-')
+        if: ${{ startsWith(inputs.os, 'windows-') }}
