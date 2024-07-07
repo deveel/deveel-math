@@ -49,8 +49,8 @@ jobs:
     - name: Pack the Nuget Packages
       run: dotnet pack -c Release --no-build --no-restore --include-symbols --include-source --output nupkgs /p:PackageVersion="${{ env.GitVersion_NuGetVersionV2 }}" 
 
-    - name: Publish the Nuget Packages to the GitHub Package Registry
-      run: dotnet nuget push **/*.nupkg --skip-duplicate --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/deveel/index.json"
+    # - name: Publish the Nuget Packages to the GitHub Package Registry
+    #   run: dotnet nuget push **/*.nupkg --skip-duplicate --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/deveel/index.json"
 
-    - name: Publish the Nuget Packages to the Nuget Gallery
-      run: dotnet nuget push **/*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json"
+    # - name: Publish the Nuget Packages to the Nuget Gallery
+    #   run: dotnet nuget push **/*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_API_KEY }} --source "https://api.nuget.org/v3/index.json"
