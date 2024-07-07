@@ -1,4 +1,5 @@
- [![NuGet](https://img.shields.io/nuget/v/dmath.svg?label=dmath&logo=nuget)](https://www.nuget.org/packages/dmath/) ![NuGet Downloads](https://img.shields.io/nuget/dt/dmath?logo=nuget&label=downloads)
+ [![NuGet](https://img.shields.io/nuget/v/dmath.svg?label=dmath&logo=nuget)](https://www.nuget.org/packages/dmath/) ![NuGet Downloads](https://img.shields.io/nuget/dt/dmath?logo=nuget&label=downloads) ![Coverage](https://img.shields.io/codecov/c/github/deveel/deveel-math?logo=codecov)
+
 
 
 # Deveel Math
@@ -80,6 +81,18 @@ var number = BigDecimal.Parse("1234567890");
 If you want to contribute to the development of this library, you can fork the repository and submit a pull request with your changes.
 
 Please make sure to follow the coding style and conventions used in the project, and to provide a clear description of the changes you are proposing.
+
+### Future Development
+
+#### BigInteger Porting
+
+When the library was first ported from Java, the `BigInteger` class was not included in the porting process, as the `System.Numerics.BigInteger` class was not available in the .NET framework yet, and thus we had to port also the `BigInteger` class from the Harmony framework.
+
+Now that the `System.Numerics.BigInteger` class is available in the .NET framework, we can consider to remove the `BigInteger` class from the library, and to use the native class instead.
+
+#### Performance Benchmarks
+
+We should consider to add performance benchmarks to the library, to measure the performance of the arithmetic operations on big numbers and decimals, and to compare the performance of the library with the native .NET classes.
 
 ## License
 
