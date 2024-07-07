@@ -19,7 +19,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       os: ${{ matrix.os }}
-      dotnet-version: ${{ matrix.dotnet }}
+      dotnet-version: ${{ matrix.dotnet-version }}
 
     # runs-on: ${{ matrix.os }}
 
