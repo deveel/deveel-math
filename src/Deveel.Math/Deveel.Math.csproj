@@ -54,8 +54,5 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <None Include="..\..\Deveel.Math.licenseheader">
-      <Pack>False</Pack>
-    </None>
   </ItemGroup>
 </Project>
