@@ -22,27 +22,27 @@ jobs:
       - uses: actions/checkout@v4
     
       - name: Emit .NET 6.0 Framework Version (Ubuntu)
-        if: ${{ inputs.dotnet-version }} == '6.0.x' && startsWith(${{ inputs.os }}, 'ubuntu-')
+        if: ${{ inputs.dotnet-version == '6.0.x' && startsWith(inputs.os, 'ubuntu-') }}
         run: echo "DOTNET_FX_VERSION=net6.0" >> $GITHUB_ENV
 
       - name: Emit .NET 6.0 Framework Version (Windows)
-        if: ${{ inputs.dotnet-version }} == '6.0.x' && startsWith(${{ inputs.os }}, 'windows-')
+        if: ${{ inputs.dotnet-version == '6.0.x' && startsWith(inputs.os, 'windows-' }}
         run: echo "DOTNET_FX_VERSION=net6.0" >> $env:GITHUB_ENV
     
       - name: Emit .NET 7.0 Framework Version (Ubuntu)
-        if: ${{ inputs.dotnet-version }} == '7.0.x' && startsWith(${{ inputs.os }}, 'ubuntu-')
+        if: ${{ inputs.dotnet-version == '7.0.x' && startsWith(inputs.os, 'ubuntu-') }}
         run: echo "DOTNET_FX_VERSION=net7.0" >> $GITHUB_ENV
 
       - name: Emit .NET 7.0 Framework Version (Windows)
-        if: ${{ inputs.dotnet-version }} == '7.0.x' && startsWith(${{ inputs.os }}, 'windows-')
+        if: ${{ inputs.dotnet-version == '7.0.x' && startsWith(inputs.os, 'windows-') }}
         run: echo "DOTNET_FX_VERSION=net7.0" >> $env:GITHUB_ENV
     
       - name: Emit .NET 8.0 Framework Version (Ubuntu)
-        if: ${{ inputs.dotnet-version }} == '8.0.x' && startsWith(${{ inputs.os }}, 'ubuntu-')
+        if: ${{ inputs.dotnet-version == '8.0.x' && startsWith(inputs.os, 'ubuntu-') }}
         run: echo "DOTNET_FX_VERSION=net8.0" >> $GITHUB_ENV
 
       - name: Emit .NET 8.0 Framework Version (Windows)
-        if: ${{ inputs.dotnet-version }} == '8.0.x' && startsWith(${{ inputs.os }}, 'windows-')
+        if: ${{ inputs.dotnet-version == '8.0.x' && startsWith(inputs.os, 'windows-') }}
         run: echo "DOTNET_FX_VERSION=net8.0" >> $env:GITHUB_ENV
             
       - name: Setup .NET ${{ inputs.dotnet-version }} Framework
