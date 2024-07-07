@@ -1,0 +1,69 @@
+name: Deveel.Math CI
+
+permissions:
+  packages: write
+  contents: read
+
+on:
+  push:
+    branches: [ master, main]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        dotnet-version: [ 6.0.x, 7.0.x, 8.0.x]
+        os: [ubuntu-latest, windows-latest, macos-latest ]
+    
+    uses: ./.github/workflows/build.yml
+    with:
+      os: ${{ matrix.os }}
+      dotnet-version: ${{ matrix.dotnet-version }}  
+
+  coverage:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET 8.0 Framework
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Run Tests with Coverage
+      run: dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[*.XUnit]*"
+
+    - name: Publish Coverage Report
+      uses: codecov/codecov-action@v4
+      with:
+         token: ${{ secrets.CODECOV_TOKEN }}
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+  
+    - name: Setup .NET 8.0 Framework
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Setup GitVersion
+      uses: gittools/actions/gitversion/setup@v1.1.1
+      with:
+         versionSpec: '5.x'
+            
+    - name: Determine Version
+      uses: gittools/actions/gitversion/execute@v1.1.1
+
+    - name: Build
+      run: dotnet build -c Release /p:Version="${{ env.GitVersion_SemVer }}" /p:AssemblyVersion="${{ env.GitVersion_AssemblySemVer }}" /p:FileVersion="${{ env.GitVersion_AssemblySemFileVer }}"
+
+    - name: Pack the Nuget Packages
+      run: dotnet pack -c Release --no-build --no-restore --include-symbols --include-source --output nupkgs /p:PackageVersion="${{ env.GitVersion_NuGetVersionV2 }}" 
+
+    - name: Publish the Nuget Packages to the GitHub Package Registry
+      run: dotnet nuget push **/*.nupkg --skip-duplicate --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/deveel/index.json"
+

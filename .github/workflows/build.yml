@@ -1,0 +1,70 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        required: true
+        type: string
+        description: 'The version of .NET to use for the build'
+        default: '8.0.x'
+      os:
+        required: true
+        type: string
+        description: 'The operating system to use for the build'
+        default: 'ubuntu-latest'
+
+jobs:
+  build:
+      runs-on: ${{ inputs.os }}
+    
+      steps:
+      - uses: actions/checkout@v4
+    
+      - name: Emit .NET 6.0 Framework Version (Ubuntu or MacOS)
+        if: ${{ inputs.dotnet-version == '6.0.x' && (startsWith(inputs.os, 'ubuntu-') || startsWith(inputs.os, 'macos-')) }}
+        run: echo "DOTNET_FX_VERSION=net6.0" >> $GITHUB_ENV
+
+      - name: Emit .NET 6.0 Framework Version (Windows)
+        if: ${{ inputs.dotnet-version == '6.0.x' && startsWith(inputs.os, 'windows-') }}
+        run: echo "DOTNET_FX_VERSION=net6.0" >> $env:GITHUB_ENV
+    
+      - name: Emit .NET 7.0 Framework Version (Ubuntu or MacOS)
+        if: ${{ inputs.dotnet-version == '7.0.x' && (startsWith(inputs.os, 'ubuntu-') || startsWith(inputs.os, 'macos-')) }}
+        run: echo "DOTNET_FX_VERSION=net7.0" >> $GITHUB_ENV
+
+      - name: Emit .NET 7.0 Framework Version (Windows)
+        if: ${{ inputs.dotnet-version == '7.0.x' && startsWith(inputs.os, 'windows-') }}
+        run: echo "DOTNET_FX_VERSION=net7.0" >> $env:GITHUB_ENV
+    
+      - name: Emit .NET 8.0 Framework Version (Ubuntu or MacOS)
+        if: ${{ inputs.dotnet-version == '8.0.x' && (startsWith(inputs.os, 'ubuntu-') || startsWith(inputs.os, 'macos-')) }}
+        run: echo "DOTNET_FX_VERSION=net8.0" >> $GITHUB_ENV
+
+      - name: Emit .NET 8.0 Framework Version (Windows)
+        if: ${{ inputs.dotnet-version == '8.0.x' && startsWith(inputs.os, 'windows-') }}
+        run: echo "DOTNET_FX_VERSION=net8.0" >> $env:GITHUB_ENV
+            
+      - name: Setup .NET ${{ inputs.dotnet-version }} Framework
+        uses: actions/setup-dotnet@v4
+        with:
+            dotnet-version: ${{ inputs.dotnet-version }}
+    
+      - name: Restore dependencies
+        run: dotnet restore
+        
+      - name: Build (Ubuntu or MacOS)
+        run: dotnet build --no-restore -c Release -f ${{ env.DOTNET_FX_VERSION }}
+        if: ${{ startsWith(inputs.os, 'ubuntu-') || startsWith(inputs.os, 'macos-') }}
+
+      - name: Build (Windows)
+        run: dotnet build --no-restore -c Release -f $env:DOTNET_FX_VERSION
+        if: ${{ startsWith(inputs.os, 'windows-') }}
+        
+      - name: Test (Ubuntu or MacOS)
+        run: dotnet test --no-build --verbosity normal -c Release -f ${{ env.DOTNET_FX_VERSION }}
+        if: ${{ startsWith(inputs.os, 'ubuntu-') || startsWith(inputs.os, 'macos-') }}
+
+      - name: Test (Windows)
+        run: dotnet test --no-build --verbosity normal -c Release -f $env:DOTNET_FX_VERSION
+        if: ${{ startsWith(inputs.os, 'windows-') }}

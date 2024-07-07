@@ -648,11 +648,11 @@ namespace Deveel.Math {
 
 			Assert.Equal(mcIntRm, mcStr);
 
-			Assert.Equal(mcInt.Equals(mcStr), false);
+			Assert.False(mcInt.Equals(mcStr));
 
 			Assert.Equal(mcIntRm.GetHashCode(), mcStr.GetHashCode());
 
-			Assert.Equal(mcIntRm.ToString(), "precision=6 roundingMode=HalfDown");
+			Assert.Equal("precision=6 roundingMode=HalfDown", mcIntRm.ToString());
 		}
 	}
 }
