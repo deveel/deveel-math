@@ -423,79 +423,118 @@ namespace Deveel.Math {
 
 		}
 
-		/**
-* Returns a new {@code BigDecimal} whose value is {@code this *
-* multiplicand}. The scale of the result is the sum of the scales of the
-* two arguments.
-*
-* @param multiplicand
-*            value to be multiplied with {@code this}.
-* @return {@code this * multiplicand}.
-* @throws NullPointerException
-*             if {@code multiplicand == null}.
-*/
-
-		public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand) {
+        /// <summary>
+        /// Multiplies two <see cref="BigDecimal"/> numbers and the result
+		/// scale is the sum of the scales of the two numbers.
+        /// </summary>
+        /// <param name="value">
+        /// The <see cref="BigDecimal"/> number to be multiplied.
+        /// </param>
+        /// <param name="multiplicand">
+        /// The <see cref="BigDecimal"/> number to multiply <paramref name="value"/> by.
+        /// </param>
+        /// <returns>
+        /// Returns an instance of <see cref="BigDecimal"/> that is the result of the multiplication 
+        /// of the two numbers, whose scale is the sum of the scales of the two numbers.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="value"/> or <paramref name="multiplicand"/> is <c>null</c>.
+        /// </exception>
+        public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand) {
 			return BigDecimalMath.Multiply(value, multiplicand);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} whose value is {@code this *
- * multiplicand}. The result is rounded according to the passed context
- * {@code mc}.
- *
- * @param multiplicand
- *            value to be multiplied with {@code this}.
- * @param mc
- *            rounding mode and precision for the result of this operation.
- * @return {@code this * multiplicand}.
- * @throws NullPointerException
- *             if {@code multiplicand == null} or {@code mc == null}.
- */
-
-			public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand, MathContext mc) {
+        /// <summary>
+        /// Multiplies two <see cref="BigDecimal"/> numbers and rounds the result
+		/// to the given precision.
+        /// </summary>
+        /// <param name="value">
+		/// The <see cref="BigDecimal"/> number to be multiplied.
+		/// </param>
+        /// <param name="multiplicand">
+		/// The <see cref="BigDecimal"/> number to multiply <paramref name="value"/> by.
+		/// </param>
+        /// <param name="mc">
+		/// The <see cref="MathContext"/> object that specifies the precision and rounding mode
+		/// applied to the result of the operation.
+		/// </param>
+        /// <returns>
+		/// Returns an instance of <see cref="BigDecimal"/> that is the result of the multiplication 
+		/// of the two numbers, rounded to the given precision.
+		/// </returns>
+		/// <exception cref="ArgumentNullException">
+		/// Thrown when <paramref name="value"/>, <paramref name="multiplicand"/> or <paramref name="mc"/> is <c>null</c>.
+		/// </exception>
+        public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand, MathContext mc) {
 			BigDecimal result = Multiply(value, multiplicand);
 
 			result.InplaceRound(mc);
 			return result;
-		}
+        }
 
-
-		/**
-* Returns a new {@code BigDecimal} whose value is {@code this ^ n}. The
-* scale of the result is {@code n} times the scales of {@code this}.
-* <p>
-* {@code x.pow(0)} returns {@code 1}, even if {@code x == 0}.
-* <p>
-* Implementation Note: The implementation is based on the ANSI standard
-* X3.274-1996 algorithm.
-*
-* @param n
-*            exponent to which {@code this} is raised.
-* @return {@code this ^ n}.
-* @throws ArithmeticException
-*             if {@code n < 0} or {@code n > 999999999}.
-*/
-		public static BigDecimal Pow(BigDecimal number, int exp) {
+        /// <summary>
+        /// Performs the power operation on a <see cref="BigDecimal"/> number
+		/// for the given exponent.
+        /// </summary>
+        /// <param name="number">
+		/// The <see cref="BigDecimal"/> number to raise to the power of <paramref name="exp"/>.
+		/// </param>
+        /// <param name="exp">
+		/// The exponent to which <paramref name="number"/> is raised.
+		/// </param>
+		/// <remarks>
+		/// <para>
+		/// The scale of the result is <paramref name="exp"/> times the scales 
+		/// of <paramref name="number"/>.
+		/// </para>
+		/// <para>
+		/// <c>BigMath.Pow(x, 0)</c> returns <c>1</c>, even if <c>c == 0</c>.
+		/// </para>
+		/// <para>
+		/// Implementation Note: The implementation is based on the ANSI standard X3.274-1996 algorithm.
+        /// </para>
+        /// </remarks>
+        /// <returns>
+		/// </returns>
+		/// <exception cref="ArithmeticException">
+		/// Thrown when <paramref name="exp"/> is less than 0 or greater than 999999999.
+		/// </exception>
+        public static BigDecimal Pow(BigDecimal number, int exp) {
 			return BigDecimalMath.Pow(number, exp);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} whose value is {@code this ^ n}. The
- * result is rounded according to the passed context {@code mc}.
- * <p>
- * Implementation Note: The implementation is based on the ANSI standard
- * X3.274-1996 algorithm.
- *
- * @param n
- *            exponent to which {@code this} is raised.
- * @param mc
- *            rounding mode and precision for the result of this operation.
- * @return {@code this ^ n}.
- * @throws ArithmeticException
- *             if {@code n < 0} or {@code n > 999999999}.
- */
-		public static BigDecimal Pow(BigDecimal number, int exp, MathContext context) {
+        /// <summary>
+        /// Performs the power operation on a <see cref="BigDecimal"/> number
+        /// for the given exponent.
+        /// </summary>
+        /// <param name="number">
+        /// The <see cref="BigDecimal"/> number to raise to the power of <paramref name="exp"/>.
+        /// </param>
+        /// <param name="exp">
+        /// The exponent to which <paramref name="number"/> is raised.
+        /// </param>
+		/// <param name="context">
+		/// The <see cref="MathContext"/> object that specifies the precision and rounding mode
+		/// for the result of the operation.
+		/// </param>
+        /// <remarks>
+        /// <para>
+        /// The scale of the result is <paramref name="exp"/> times the scales 
+        /// of <paramref name="number"/>.
+        /// </para>
+        /// <para>
+        /// <c>BigMath.Pow(x, 0)</c> returns <c>1</c>, even if <c>c == 0</c>.
+        /// </para>
+        /// <para>
+        /// Implementation Note: The implementation is based on the ANSI standard X3.274-1996 algorithm.
+        /// </para>
+        /// </remarks>
+        /// <returns>
+        /// </returns>
+        /// <exception cref="ArithmeticException">
+        /// Thrown when <paramref name="exp"/> is less than 0 or greater than 999999999.
+        /// </exception>
+        public static BigDecimal Pow(BigDecimal number, int exp, MathContext context) {
 			return BigDecimalMath.Pow(number, exp, context);
 		}
 
@@ -531,13 +570,19 @@ namespace Deveel.Math {
 		 */
 
 		public static BigDecimal Plus(BigDecimal number) {
-			return number;
+			return Plus(number, null);
 		}
 
 		/// <remarks>
-		/// Returns a new <see cref="BigDecimal"/> whose value is <c>+this</c>.
+		/// Returns a new <see cref="BigDecimal"/> whose value is
+		/// computed by rounding the value of <paramref name="number"/>
 		/// </remarks>
-		/// <param name="mc">Rounding mode and precision for the result of this operation.</param>
+		/// <param name="number">
+		/// The <see cref="BigDecimal"/> number to be rounded.
+		/// </param>
+		/// <param name="mc">
+		/// Rounding mode and precision for the result of this operation.
+		/// </param>
 		/// <remarks>
 		/// The result is rounded according to the passed context <paramref name="mc"/>.
 		/// </remarks>

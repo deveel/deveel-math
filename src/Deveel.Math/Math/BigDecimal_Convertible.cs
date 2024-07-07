@@ -15,6 +15,7 @@
 
 using System;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Deveel.Math
@@ -22,14 +23,11 @@ namespace Deveel.Math
     public sealed partial class BigDecimal : IConvertible
     {
 
-        TypeCode IConvertible.GetTypeCode()
-        {
-            return TypeCode.Object;
-        }
+        TypeCode IConvertible.GetTypeCode() => TypeCode.Object;
 
         bool IConvertible.ToBoolean(IFormatProvider provider)
         {
-            int value = ToInt32();
+            int value = ToByteExact();
             if (value == 1)
                 return true;
             if (value == 0)
@@ -38,63 +36,71 @@ namespace Deveel.Math
             throw new InvalidCastException();
         }
 
-        char IConvertible.ToChar(IFormatProvider provider)
-        {
-            short value = ToInt16Exact();
-            return (char)value;
-        }
+        char IConvertible.ToChar(IFormatProvider provider) => (char)ToInt16Exact();
 
-        sbyte IConvertible.ToSByte(IFormatProvider provider)
-        {
-            throw new NotSupportedException();
-        }
+        sbyte IConvertible.ToSByte(IFormatProvider provider) => throw new NotSupportedException();
 
         byte IConvertible.ToByte(IFormatProvider provider)
         {
-            int value = ToInt32();
+            int value = ToInt32Exact();
             if (value > Byte.MaxValue || value < Byte.MinValue)
                 throw new InvalidCastException();
+
             return (byte)value;
         }
 
         short IConvertible.ToInt16(IFormatProvider provider)
         {
-            return ToInt16Exact();
+            var value = ToInt16Exact();
+            if (value > Int16.MaxValue || value < Int16.MinValue)
+                throw new InvalidCastException();
+
+            return value;
         }
 
-        ushort IConvertible.ToUInt16(IFormatProvider provider)
-        {
-            throw new NotSupportedException();
-        }
+        ushort IConvertible.ToUInt16(IFormatProvider provider) => throw new NotSupportedException();
 
+        // TODO: use the IFormatProvider
         int IConvertible.ToInt32(IFormatProvider provider)
         {
-            return ToInt32();
+            var value = ToInt32Exact();
+            if (value > Int32.MaxValue || value < Int32.MinValue)
+                throw new InvalidCastException();
+
+            return value;
         }
 
-        uint IConvertible.ToUInt32(IFormatProvider provider)
-        {
-            throw new NotSupportedException();
-        }
+        // TODO: verify if it is possible to convert to uint
+        uint IConvertible.ToUInt32(IFormatProvider provider) => throw new NotSupportedException();
 
         long IConvertible.ToInt64(IFormatProvider provider)
         {
-            return ToInt64();
+            var value = ToInt64Exact();
+            if (value > Int64.MaxValue || value < Int64.MinValue)
+                throw new InvalidCastException();
+
+            return value;
         }
 
-        ulong IConvertible.ToUInt64(IFormatProvider provider)
-        {
-            throw new NotSupportedException();
-        }
+        // TODO: verify if it is possible to convert to ulong
+        ulong IConvertible.ToUInt64(IFormatProvider provider) => throw new NotSupportedException();
 
         float IConvertible.ToSingle(IFormatProvider provider)
         {
-            return ToSingle();
+            var value = ToSingle();
+            if (value > Single.MaxValue || value < Single.MinValue)
+                throw new InvalidCastException();
+
+            return value;
         }
 
         double IConvertible.ToDouble(IFormatProvider provider)
         {
-            return ToDouble();
+            var value = ToDouble();
+            if (value > Double.MaxValue || value < Double.MinValue)
+                throw new InvalidCastException();
+
+            return value;
         }
 
         decimal IConvertible.ToDecimal(IFormatProvider provider)
@@ -102,10 +108,7 @@ namespace Deveel.Math
             return ToDecimal();
         }
 
-        DateTime IConvertible.ToDateTime(IFormatProvider provider)
-        {
-            throw new NotSupportedException();
-        }
+        DateTime IConvertible.ToDateTime(IFormatProvider provider) => throw new NotSupportedException();
 
         string IConvertible.ToString(IFormatProvider provider)
         {
@@ -131,6 +134,11 @@ namespace Deveel.Math
             return ToString(null);
         }
 
+        /// <summary>
+        /// Converts this <see cref="BigDecimal"/> to a string representation
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <returns></returns>
         public string ToString(IFormatProvider provider)
         {
             if (provider == null)
@@ -139,6 +147,7 @@ namespace Deveel.Math
             return DecimalString.ToString(this, provider);
         }
 
+        // TODO: use a IFormattable for the Engineering and the Plain string
 
         /// <summary>
         /// Returns a string representation of this number,
@@ -178,7 +187,7 @@ namespace Deveel.Math
         /// then engineering notation is used. Engineering notation is 
         /// similar to the scientific notation except that the exponent 
         /// is made to be a multiple of 3 such that the integer part 
-        /// is &gt= 1 and &lt 1000.
+        /// is <c>>= 1 and < 1000</c>.
         /// </para>
         /// </remarks>
         /// <returns>
@@ -219,13 +228,14 @@ namespace Deveel.Math
             return ToPlainString(null);
         }
 
-        /**
- * Returns this {@code BigDecimal} as a big integer instance. A fractional
- * part is discarded.
- *
- * @return this {@code BigDecimal} as a big integer instance.
- */
-
+        /// <summary>
+        /// Converts this <see cref="BigDecimal"/> to a <see cref="BigInteger"/>
+        /// instance, discarding any fractional part.
+        /// </summary>
+        /// <returns>
+        /// Returns a <see cref="BigInteger"/> instance that represents the
+        /// decimal value of this instance, discarding any fractional part.
+        /// </returns>
         public BigInteger ToBigInteger()
         {
             if ((_scale == 0) || (IsZero))
@@ -241,16 +251,18 @@ namespace Deveel.Math
             }
         }
 
-        /**
-		 * Returns this {@code BigDecimal} as a big integer instance if it has no
-		 * fractional part. If this {@code BigDecimal} has a fractional part, i.e.
-		 * if rounding would be necessary, an {@code ArithmeticException} is thrown.
-		 *
-		 * @return this {@code BigDecimal} as a big integer value.
-		 * @throws ArithmeticException
-		 *             if rounding is necessary.
-		 */
-
+        /// <summary>
+        /// Converts this <see cref="BigDecimal"/> to a <see cref="BigInteger"/>
+        /// if it has no fractional part.
+        /// </summary>
+        /// <returns>
+        /// Returns a <see cref="BigInteger"/> instance that represents the
+        /// decimal value of this instance, if it has no fractional part.
+        /// </returns>
+        /// <exception cref="ArithmeticException">
+        /// Thrown when the value of this instance has a fractional part
+        /// and rounding would be necessary.
+        /// </exception>
         public BigInteger ToBigIntegerExact()
         {
             if ((_scale == 0) || (IsZero))
@@ -284,14 +296,18 @@ namespace Deveel.Math
             }
         }
 
-        /**
-		 * Returns this {@code BigDecimal} as an long value. Any fractional part is
-		 * discarded. If the integral part of {@code this} is too big to be
-		 * represented as an long, then {@code this} % 2^64 is returned.
-		 *
-		 * @return this {@code BigDecimal} as a long value.
-		 */
-
+        /// <summary>
+        /// Converts this <see cref="BigDecimal"/> to a <see cref="long"/>,
+        /// discarding any fractional part.
+        /// </summary>
+        /// <remarks>
+        /// If the integral part of {@code this} is too big to be represented as 
+        /// a long integer, then <c>this % 2^64</c> is returned.
+        /// </remarks>
+        /// <returns>
+        /// Returns a <see cref="long"/> value that represents the decimal value
+        /// of this instance, discarding any fractional part.
+        /// </returns>
         public long ToInt64()
         {
             /* If scale <= -64 there are at least 64 trailing bits zero in 10^(-scale).
@@ -299,29 +315,38 @@ namespace Deveel.Math
             return ((_scale <= -64) || (_scale > AproxPrecision()) ? 0L : ToBigInteger().ToInt64());
         }
 
-        /**
-		 * Returns this {@code BigDecimal} as a long value if it has no fractional
-		 * part and if its value fits to the int range ([-2^{63}..2^{63}-1]). If
-		 * these conditions are not met, an {@code ArithmeticException} is thrown.
-		 *
-		 * @return this {@code BigDecimal} as a long value.
-		 * @throws ArithmeticException
-		 *             if rounding is necessary or the number doesn't fit in a long.
-		 */
-
+        /// <summary>
+        /// Converts this <see cref="BigDecimal"/> to a <see cref="long"/>,
+        /// if it has no fractional part, and the value fits in the range
+        /// <c>[-2^63..2^63-1]</c>.
+        /// </summary>
+        /// <returns>
+        /// Returns a <see cref="long"/> value that represents the decimal value
+        /// of this instance, if it has no fractional part and fits in the range
+        /// of <c>[-2^63..2^63-1]</c>.
+        /// </returns>
+        /// <exception cref="ArithmeticException">
+        /// Thrown when the value of this instance has a fractional part
+        /// and rounding would be necessary, or the value doesn't fit in the
+        /// range of <c>[-2^63..2^63-1]</c>.
+        /// </exception>
         public long ToInt64Exact()
         {
             return ValueExact(64);
         }
 
-        /**
-		 * Returns this {@code BigDecimal} as an int value. Any fractional part is
-		 * discarded. If the integral part of {@code this} is too big to be
-		 * represented as an int, then {@code this} % 2^32 is returned.
-		 *
-		 * @return this {@code BigDecimal} as a int value.
-		 */
-
+        /// <summary>
+        ///  Converts this <see cref="BigDecimal"/> to an <see cref="int"/>,
+        ///  discarding any fractional part.
+        /// </summary>
+        /// <remarks>
+        /// If the integral part of this instance is too big to be represented 
+        /// as an integer, then <c>this % 2^32</c> is returned.
+        /// </remarks>
+        /// <returns>
+        /// Returns an <see cref="int"/> value that represents the decimal value
+        /// of this instance, discarding any fractional part.
+        /// </returns>
         public int ToInt32()
         {
             /* If scale <= -32 there are at least 32 trailing bits zero in 10^(-scale).
@@ -329,32 +354,41 @@ namespace Deveel.Math
             return ((_scale <= -32) || (_scale > AproxPrecision()) ? 0 : ToBigInteger().ToInt32());
         }
 
-        /**
-		 * Returns this {@code BigDecimal} as a int value if it has no fractional
-		 * part and if its value fits to the int range ([-2^{31}..2^{31}-1]). If
-		 * these conditions are not met, an {@code ArithmeticException} is thrown.
-		 *
-		 * @return this {@code BigDecimal} as a int value.
-		 * @throws ArithmeticException
-		 *             if rounding is necessary or the number doesn't fit in a int.
-		 */
-
+        /// <summary>
+        /// Converts this <see cref="BigDecimal"/> to an <see cref="int"/>,
+        /// if it has no fractional part, and the value fits in the range
+        /// <c>[-2^31..2^31-1]</c>.
+        /// </summary>
+        /// <returns>
+        /// Returns an <see cref="int"/> value that represents the decimal value
+        /// of this instance, if it has no fractional part and fits in the range
+        /// <c>[-2^31..2^31-1]</c>.
+        /// </returns>
+        /// <exception cref="ArithmeticException">
+        /// Thrown when the value of this instance has a fractional part
+        /// and rounding would be necessary, or the value doesn't fit in the
+        /// range of <c>[-2^31..2^31-1]</c>.
+        /// </exception>
         public int ToInt32Exact()
         {
             return (int)ValueExact(32);
         }
 
-        /**
-		 * Returns this {@code BigDecimal} as a short value if it has no fractional
-		 * part and if its value fits to the short range ([-2^{15}..2^{15}-1]). If
-		 * these conditions are not met, an {@code ArithmeticException} is thrown.
-		 *
-		 * @return this {@code BigDecimal} as a short value.
-		 * @throws ArithmeticException
-		 *             if rounding is necessary of the number doesn't fit in a
-		 *             short.
-		 */
-
+        /// <summary>
+        /// Converts this <see cref="BigDecimal"/> to a <see cref="short"/>,
+        /// if it has no fractional part, and the value fits in the range
+        /// <c>[-2^15..2^15-1]</c>.
+        /// </summary>
+        /// <returns>
+        /// Returns a <see cref="short"/> value that represents the decimal value
+        /// of this instance, if it has no fractional part and fits in the range
+        /// <c>[-2^15..2^15-1]</c>.
+        /// </returns>
+        /// <exception cref="ArithmeticException">
+        /// Thrown when the value of this instance has a fractional part
+        /// and rounding would be necessary, or the value doesn't fit in the
+        /// range of <c>[-2^15..2^15-1]</c>.
+        /// </exception>
         public short ToInt16Exact()
         {
             return (short)ValueExact(16);
@@ -375,31 +409,37 @@ namespace Deveel.Math
             return (byte)ValueExact(8);
         }
 
-        /**
-		 * Returns this {@code BigDecimal} as a float value. If {@code this} is too
-		 * big to be represented as an float, then {@code Float.POSITIVE_INFINITY}
-		 * or {@code Float.NEGATIVE_INFINITY} is returned.
-		 * <p>
-		 * Note, that if the unscaled value has more than 24 significant digits,
-		 * then this decimal cannot be represented exactly in a float variable. In
-		 * this case the result is rounded.
-		 * <p>
-		 * For example, if the instance {@code x1 = new BigDecimal("0.1")} cannot be
-		 * represented exactly as a float, and thus {@code x1.equals(new
-		 * BigDecimal(x1.folatValue())} returns {@code false} for this case.
-		 * <p>
-		 * Similarly, if the instance {@code new BigDecimal(16777217)} is converted
-		 * to a float, the result is {@code 1.6777216E}7.
-		 *
-		 * @return this {@code BigDecimal} as a float value.
-		 */
-
+        /// <summary>
+        /// Converts this <see cref="BigDecimal"/> to a <see cref="float"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// If this instance is too big to be represented as an float, 
+        /// then <see cref="Single.PositiveInfinity"/> or 
+        /// <see cref="Single.NegativeInfinity"/> is returned.
+        /// </para>
+        /// <para>
+        /// Note, that if the unscaled value has more than 24 significant digits, 
+        /// then this decimal cannot be represented exactly in a float variable: in 
+        /// this case the result is rounded.
+        /// </para>
+        /// <para>
+        /// For example, if the instance <c>x1 = BigDecimal.Parse("0.1")</c> cannot be represented 
+        /// exactly as a float, and thus <c>x1.Equals(new BigDecimal(x1.ToSingle())</c> 
+        /// returns <c>false</c> for this case.
+        /// </para>
+        /// <para>
+        /// Similarly, if the instance <c>new BigDecimal(16777217)</c> is converted to 
+        /// a float, the result is <c>1.6777216E7</c>.
+        /// </para>
+        /// </remarks>
+        /// <returns></returns>
         public float ToSingle()
         {
             /* A similar code like in ToDouble() could be repeated here,
 			 * but this simple implementation is quite efficient. */
             float floatResult = Sign;
-            long powerOfTwo = this._bitLength - (long)(_scale / Log10Of2);
+            long powerOfTwo = this.BitLength - (long)(_scale / Log10Of2);
             if ((powerOfTwo < -149) || (floatResult == 0.0f))
             {
                 // Cases which 'this' is very small
@@ -441,7 +481,7 @@ namespace Deveel.Math
             int exponent = 1076; // bias + 53
             int lowestSetBit;
             int discardedSize;
-            long powerOfTwo = this._bitLength - (long)(_scale / Log10Of2);
+            long powerOfTwo = this.BitLength - (long)(_scale / Log10Of2);
             long bits; // IEEE-754 Standard
             long tempBits; // for temporal calculations     
             BigInteger mantisa;

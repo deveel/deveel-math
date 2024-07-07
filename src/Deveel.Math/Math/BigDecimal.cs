@@ -16,9 +16,8 @@
 using System;
 using System.Globalization;
 using System.Text;
-#if !PORTABLE
 using System.Runtime.Serialization;
-#endif
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Deveel.Math {
 	/// <summary>
@@ -29,14 +28,9 @@ namespace Deveel.Math {
 	/// arbitrary precision mantissa (the unscaled value) and a scale. The value 
 	/// of the <see cref="BigDecimal"/> is <see cref="UnscaledValue"/> 10^(-<see cref="Scale"/>).
 	/// </remarks>
-#if !PORTABLE
 	[Serializable]
-#endif
 	[System.Diagnostics.DebuggerDisplay("{ToString()}")]
-	public sealed partial class BigDecimal : IComparable<BigDecimal>, IEquatable<BigDecimal>
-#if !PORTABLE
-		, ISerializable
-#endif
+	public sealed partial class BigDecimal : IComparable<BigDecimal>, IEquatable<BigDecimal>, ISerializable
 	{
 
 		/// <summary>
@@ -62,9 +56,7 @@ namespace Deveel.Math {
 		/// <summary>
 		/// The <see cref="string"/> representation is cached.
 		/// </summary>
-#if !PORTABLE
 		[NonSerialized]
-#endif
 		internal string toStringImage;
 
 		/// <summary>
@@ -154,42 +146,11 @@ namespace Deveel.Math {
 		/// </summary>
 		internal static readonly BigDecimal[] ZeroScaledBy = new BigDecimal[11];
 
-		static BigDecimal() {
-			// To fill all static arrays.
-			int i = 0;
-
-			for (; i < ZeroScaledBy.Length; i++) {
-				BiScaledByZero[i] = new BigDecimal(i, 0);
-				ZeroScaledBy[i] = new BigDecimal(0, i);
-			}
-
-			for (int j = 0; j < LongFivePowBitLength.Length; j++) {
-				LongFivePowBitLength[j] = CalcBitLength(LongFivePow[j]);
-			}
-			for (int j = 0; j < LongTenPowBitLength.Length; j++) {
-				LongTenPowBitLength[j] = CalcBitLength(LongTenPow[j]);
-			}
-
-			// Taking the references of useful powers.
-			TenPow = Multiplication.BigTenPows;
-			FivePow = Multiplication.BigFivePows;
-		}
-
 		/// <summary>
 		/// The arbitrary precision integer (unscaled value) in the internal
 		/// representation of <see cref="BigDecimal"/>.
 		/// </summary>
 		private BigInteger intVal;
-
-#if !PORTABLE
-		[NonSerialized]
-#endif
-		private int _bitLength;
-
-#if !PORTABLE
-		[NonSerialized]
-#endif
-		private long smallValue;
 
 		/// <summary>
 		/// The 32-bit integer scale in the internal representation 
@@ -207,36 +168,57 @@ namespace Deveel.Math {
 		/// </remarks>
 		/// <seealso cref="Precision"/>
 		/// <seealso cref="InplaceRound"/>
-#if !PORTABLE
 		[NonSerialized]
-#endif
 		private int _precision = 0;
 
-		#region .ctor
+        #region .ctor
 
-		private BigDecimal(long smallValue, int scale) {
-			this.smallValue = smallValue;
+        static BigDecimal()
+        {
+            // To fill all static arrays.
+            int i = 0;
+
+            for (; i < ZeroScaledBy.Length; i++)
+            {
+                BiScaledByZero[i] = new BigDecimal(i, 0);
+                ZeroScaledBy[i] = new BigDecimal(0, i);
+            }
+
+            for (int j = 0; j < LongFivePowBitLength.Length; j++)
+            {
+                LongFivePowBitLength[j] = CalcBitLength(LongFivePow[j]);
+            }
+            for (int j = 0; j < LongTenPowBitLength.Length; j++)
+            {
+                LongTenPowBitLength[j] = CalcBitLength(LongTenPow[j]);
+            }
+
+            // Taking the references of useful powers.
+            TenPow = Multiplication.BigTenPows;
+            FivePow = Multiplication.BigFivePows;
+        }
+
+        private BigDecimal(long smallValue, int scale) {
+			this.SmallValue = smallValue;
 			_scale = scale;
-			_bitLength = CalcBitLength(smallValue);
+			BitLength = CalcBitLength(smallValue);
 		}
 
 		private BigDecimal(int smallValue, int scale) {
-			this.smallValue = smallValue;
+			this.SmallValue = smallValue;
 			_scale = scale;
-			_bitLength = CalcBitLength(smallValue);
+			BitLength = CalcBitLength(smallValue);
 		}
 
 		internal BigDecimal() {
-
 		}
-
 
 		/// <summary>
 		/// Constructs a new <see cref="BigDecimal"/> instance from the 64bit 
-		/// double <paramref name="val"/>. The constructed big decimal is 
+		/// double <paramref name="value"/>. The constructed big decimal is 
 		/// equivalent to the given double.
 		/// </summary>
-		/// <param name="val">The double value to be converted to a 
+		/// <param name="value">The double value to be converted to a 
 		/// <see cref="BigDecimal"/> instance.</param>
 		/// <remarks>
 		/// For example, <c>new BigDecimal(0.1)</c> is equal to <c>0.1000000000000000055511151231257827021181583404541015625</c>. 
@@ -247,15 +229,15 @@ namespace Deveel.Math {
 		/// </para>
 		/// </remarks>
 		/// <exception cref="FormatException">
-		/// If <paramref name="val"/> is infinity or not a number.
+		/// If <paramref name="value"/> is infinity or not a number.
 		/// </exception>
-		public BigDecimal(double val) {
-			if (Double.IsInfinity(val) || Double.IsNaN(val)) {
+		public BigDecimal(double value) {
+			if (Double.IsInfinity(value) || Double.IsNaN(value)) {
 				// math.03=Infinity or NaN
 				throw new FormatException(Messages.math03); //$NON-NLS-1$
 			}
 
-			long bits = BitConverter.DoubleToInt64Bits(val); // IEEE-754
+			long bits = BitConverter.DoubleToInt64Bits(value); // IEEE-754
 
 			// Extracting the exponent, note that the bias is 1023
 			_scale = 1075 - (int) ((bits >> 52) & 0x7FFL);
@@ -278,9 +260,9 @@ namespace Deveel.Math {
 			}
 			int mantisaBits = CalcBitLength(mantisa);
 			if (_scale < 0) {
-				_bitLength = mantisaBits == 0 ? 0 : mantisaBits - _scale;
-				if (_bitLength < 64) {
-					smallValue = mantisa << (-_scale);
+				BitLength = mantisaBits == 0 ? 0 : mantisaBits - _scale;
+				if (BitLength < 64) {
+					SmallValue = mantisa << (-_scale);
 				} else {
 					intVal = BigInteger.FromInt64(mantisa) << (-_scale);
 				}
@@ -288,24 +270,24 @@ namespace Deveel.Math {
 			} else if (_scale > 0) {
 				// m * 2^e =  (m * 5^(-e)) * 10^e
 				if (_scale < LongFivePow.Length && mantisaBits + LongFivePowBitLength[_scale] < 64) {
-					smallValue = mantisa*LongFivePow[_scale];
-					_bitLength = CalcBitLength(smallValue);
+					SmallValue = mantisa*LongFivePow[_scale];
+					BitLength = CalcBitLength(SmallValue);
 				} else {
 					SetUnscaledValue(Multiplication.MultiplyByFivePow(BigInteger.FromInt64(mantisa), _scale));
 				}
 			} else {
 				// scale == 0
-				smallValue = mantisa;
-				_bitLength = mantisaBits;
+				SmallValue = mantisa;
+				BitLength = mantisaBits;
 			}
 		}
 
 		/// <summary>
 		/// Constructs a new <see cref="BigDecimal"/> instance from the 64bit 
-		/// double <paramref name="val"/>. The constructed big decimal is 
+		/// double <paramref name="value"/>. The constructed big decimal is 
 		/// equivalent to the given double.
 		/// </summary>
-		/// <param name="val">The double value to be converted to a 
+		/// <param name="value">The double value to be converted to a 
 		/// <see cref="BigDecimal"/> instance.</param>
 		/// <param name="context">The rounding mode and precision for the result of 
 		/// this operation.</param>
@@ -314,41 +296,45 @@ namespace Deveel.Math {
 		/// This happens as <c>0.1</c> cannot be represented exactly in binary.
 		/// <para>
 		/// To generate a big decimal instance which is equivalent to <c>0.1</c> use the
-		/// <see cref="BigDecimal(string)"/> constructor.
+		/// <see cref="BigDecimal.Parse(string)"/> method.
 		/// </para>
 		/// </remarks>
 		/// <exception cref="FormatException">
-		/// If <paramref name="val"/> is infinity or not a number.
+		/// If <paramref name="value"/> is infinity or not a number.
 		/// </exception>
 		/// <exception cref="ArithmeticException">
 		/// if <see cref="MathContext.Precision"/> of <paramref name="context"/> is greater than 0
 		/// and <see cref="MathContext.RoundingMode"/> is equal to <see cref="RoundingMode.Unnecessary"/>
 		/// and the new big decimal cannot be represented within the given precision without rounding.
 		/// </exception>
-		public BigDecimal(double val, MathContext context)
-			: this(val) {
+		public BigDecimal(double value, MathContext context)
+			: this(value) {
 			InplaceRound(context);
 		}
 
 
 		/// <summary>
 		/// Constructs a new <see cref="BigDecimal"/> instance from the
-		/// <paramref name="val">given big integer</paramref>.
+		/// <paramref name="value">given big integer</paramref>.
 		/// </summary>
-		/// <param name="val">The value to be converted to a <see cref="BigDecimal"/> instance.</param>
+		/// <param name="value">The value to be converted to a <see cref="BigDecimal"/> instance.</param>
 		/// <remarks>
 		/// The <see cref="Scale"/> of the result is <c>0</c>.
 		/// </remarks>
-		public BigDecimal(BigInteger val)
-			: this(val, 0) {
+		public BigDecimal(BigInteger value)
+			: this(value, 0) {
 		}
 
 		/// <summary>
 		/// Constructs a new <see cref="BigDecimal"/> instance from the
-		/// <paramref name="val">given big integer</paramref>.
+		/// <paramref name="value">given big integer</paramref>.
 		/// </summary>
-		/// <param name="val">The value to be converted to a <see cref="BigDecimal"/> instance.</param>
-		/// <param name="context">The rounding mode and precision for the result of this operation.</param>
+		/// <param name="value">
+		/// The value to be converted to a <see cref="BigDecimal"/> instance.
+		/// </param>
+		/// <param name="context">
+		/// The rounding mode and precision for the result of this operation.
+		/// </param>
 		/// <remarks>
 		/// The <see cref="Scale"/> of the result is <c>0</c>.
 		/// </remarks>
@@ -357,17 +343,22 @@ namespace Deveel.Math {
 		/// equal to <see cref="RoundingMode.Unnecessary"/> and the new big decimal cannot be represented  within the 
 		/// given precision without rounding.
 		/// </exception>
-		public BigDecimal(BigInteger val, MathContext context)
-			: this(val) {
+		public BigDecimal(BigInteger value, MathContext context)
+			: this(value) {
 			InplaceRound(context);
 		}
 
 		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from a <paramref name="unscaledValue">given unscaled value</paramref> 
+		/// Constructs a new <see cref="BigDecimal"/> instance from a 
+		/// <paramref name="unscaledValue">given unscaled value</paramref> 
 		/// and a given scale.
 		/// </summary>
-		/// <param name="unscaledValue">Represents the unscaled value of the decimal.</param>
-		/// <param name="scale">The scale of this <see cref="BigDecimal"/></param>
+		/// <param name="unscaledValue">
+		/// Represents the unscaled value of the decimal.
+		/// </param>
+		/// <param name="scale">
+		/// The scale of this <see cref="BigDecimal"/>
+		/// </param>
 		/// <remarks>
 		/// The value of this instance is <c><paramref name="unscaledValue"/> 10^(-<paramref name="scale"/>)</c>
 		/// </remarks>
@@ -375,42 +366,54 @@ namespace Deveel.Math {
 		/// If <paramref name="unscaledValue"/> is <b>null</b>.
 		/// </exception>
 		public BigDecimal(BigInteger unscaledValue, int scale) {
-			if (unscaledValue == null) {
-				throw new NullReferenceException();
-			}
+			ArgumentNullException.ThrowIfNull(unscaledValue);
+
 			_scale = scale;
 			SetUnscaledValue(unscaledValue);
 		}
 
-		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from a <paramref name="unscaledValue">given unscaled 
-		/// value</paramref> and a given scale.
-		/// </summary>
-		/// <param name="unscaledValue">Represents the unscaled value of this big decimal.</param>
-		/// <param name="scale">The scale factor of the decimal.</param>
-		/// <param name="context">The context used to round the result of the operations.</param>
-		/// <remarks>
-		/// The value of this instance is <c><paramref name="unscaledValue"/> 10^(-<paramref name="scale"/>)</c>. 
+        /// <summary>
+        /// Constructs a new <see cref="BigDecimal"/> instance from 
+        /// a <paramref name="unscaledValue">given unscaled value</paramref> 
+        /// and a given scale.
+        /// </summary>
+        /// <param name="unscaledValue">
+        /// Represents the unscaled value of this big decimal.
+        /// </param>
+        /// <param name="scale">
+        /// The scale factor of the decimal.
+        /// </param>
+        /// <param name="context">
+        /// The context used to round the result of the operations.
+        /// </param>
+        /// <remarks>
+        /// <para>
+        /// The value of this instance is <c><paramref name="unscaledValue"/> 10^(-<paramref name="scale"/>)</c>. 
+        /// </para>
+        /// <para>
 		/// The result is rounded according to the specified math context.
-		/// </remarks>
-		/// <exception cref="ArithmeticException">
-		/// If <see cref="MathContext.Precision"/> is greater than zero, the
-		/// <see cref="MathContext.RoundingMode"/> is set to <see cref="RoundingMode.Unnecessary"/>
-		/// and the decimal cannot be represented within the given precision without rounding.
-		/// </exception>
-		/// <exception cref="ArgumentNullException">
-		/// If the given <paramref name="unscaledValue"/> is null.
-		/// </exception>
-		public BigDecimal(BigInteger unscaledValue, int scale, MathContext context)
+		/// </para>
+        /// </remarks>
+        /// <exception cref="ArithmeticException">
+        /// If <see cref="MathContext.Precision"/> is greater than zero, the
+        /// <see cref="MathContext.RoundingMode"/> is set to <see cref="RoundingMode.Unnecessary"/>
+        /// and the decimal cannot be represented within the given precision without rounding.
+        /// </exception>
+        /// <exception cref="ArgumentNullException">
+        /// If the given <paramref name="unscaledValue"/> is null.
+        /// </exception>
+        public BigDecimal(BigInteger unscaledValue, int scale, MathContext context)
 			: this(unscaledValue, scale) {
 			InplaceRound(context);
 		}
 
 		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from the given int 
-		/// <paramref name="value"/>.
+		/// Constructs a new <see cref="BigDecimal"/> instance from the 
+		/// given integer <paramref name="value"/>.
 		/// </summary>
-		/// <param name="value">The integer value to convert to a decimal.</param>
+		/// <param name="value">
+		/// The integer value to convert to a decimal.
+		/// </param>
 		/// <remarks>
 		/// The scale factor of the result is zero.
 		/// </remarks>
@@ -418,41 +421,58 @@ namespace Deveel.Math {
 			: this(value, 0) {
 		}
 
-		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from the given <paramref name="value">integer value</paramref>. 
-		/// </summary>
-		/// <param name="value">Integer value to be converted to a <see cref="BigDecimal"/> instance.</param>
-		/// <param name="context">The rounding mode and precision for the result of this operation.</param>
-		/// <remarks>
-		/// The scale of the result is {@code 0}. The result is rounded according to the specified math context.
-		/// </remarks>
-		/// <exception cref="ArithmeticException">
-		/// Thrown if precision is greater than 0 and <see cref="RoundingMode"/> is
-		/// <see cref="RoundingMode.Unnecessary"/> and the new big decimal cannot be represented
-		/// within the given precision without rounding. 
-		/// </exception>
-		public BigDecimal(int value, MathContext context)
+        /// <summary>
+        /// Constructs a new <see cref="BigDecimal"/> instance from the 
+        /// given <paramref name="value">integer value</paramref>.
+        /// </summary>
+        /// <param name="value">
+        /// Integer value to be converted to a <see cref="BigDecimal"/> instance.
+        /// </param>
+        /// <param name="context">
+        /// The rounding mode and precision for the result of this operation.
+        /// </param>
+        /// <remarks>
+        /// <para>
+        /// The scale of the result is <c>0</c>. 
+        /// </para>
+        /// <para>
+		/// The result is rounded according to the specified math context.
+		/// </para>
+        /// </remarks>
+        /// <exception cref="ArithmeticException">
+        /// Thrown if precision is greater than 0 and <see cref="RoundingMode"/> is
+        /// <see cref="RoundingMode.Unnecessary"/> and the new big decimal cannot be represented
+        /// within the given precision without rounding. 
+        /// </exception>
+        public BigDecimal(int value, MathContext context)
 			: this(value, 0) {
 			InplaceRound(context);
 		}
 
 		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from the given long <paramref name="value"/>,
-		/// with a scale of <c>0</c>.
+		/// Constructs a new <see cref="BigDecimal"/> instance from the 
+		/// given long integer <paramref name="value"/>, with a scale of <c>0</c>.
 		/// </summary>
-		/// <param name="value">The long value to be converted to a <see cref="BigDecimal"/></param>
+		/// <param name="value">
+		/// The long integer value to be converted to a <see cref="BigDecimal"/>
+		/// </param>
 		public BigDecimal(long value)
 			: this(value, 0) {
 		}
 
 
 		/// <summary>
-		/// Constructs a new <see cref="BigDecimal"/> instance from the given long <paramref name="value"/>,
-		/// with a scale of <c>0</c> and the value rounded according to the specified context.
+		/// Constructs a new <see cref="BigDecimal"/> instance from the 
+		/// given long <paramref name="value"/>, with a scale of <c>0</c> 
+		/// and the value rounded according to the specified context.
 		/// </summary>
-		/// <param name="value">The long value to be converted to a <see cref="BigDecimal"/></param>
-		/// <param name="context">The context that defines the rounding mode and precision to apply to the
-		/// value obtained from the given integer.</param>
+		/// <param name="value">
+		/// The long value to be converted to a <see cref="BigDecimal"/>
+		/// </param>
+		/// <param name="context">
+		/// The context that defines the rounding mode and precision to apply to the
+		/// value obtained from the given integer.
+		/// </param>
 		/// <exception cref="ArithmeticException">
 		/// If the <see cref="MathContext.Precision"/> value specified is greater than <c>0</c> and
 		/// the <see cref="MathContext.RoundingMode"/> is <see cref="RoundingMode.Unnecessary"/> and
@@ -473,41 +493,33 @@ namespace Deveel.Math {
 		/// <seealso cref="Sign"/>
 		public int Sign {
 			get {
-				if (_bitLength < 64)
-					return System.Math.Sign(smallValue);
+				if (BitLength < 64)
+					return System.Math.Sign(SmallValue);
+
 				return GetUnscaledValue().Sign;
 			}
 		}
 
-		internal int BitLength {
-			get { return _bitLength; }
-			set { _bitLength = value; }
-		}
+		internal int BitLength { get; set; }
 
-		internal long SmallValue {
-			get { return smallValue; }
-			set { smallValue = value; }
-		}
+		internal long SmallValue { get; set; }
 
-		/// <summary>
-		/// Gets a value indicating if the decimal is equivalent to zero.
-		/// </summary>
-		public bool IsZero {
-			get {
-				//Watch out: -1 has a bitLength=0
-				return _bitLength == 0 && smallValue != -1;
-			}
-		}
+        /// <summary>
+        /// Gets a value indicating if the decimal is equivalent to zero.
+        /// </summary>
+        public bool IsZero =>
+                //Watch out: -1 has a BitLength=0
+                BitLength == 0 && SmallValue != -1;
 
-		/// <summary>
-		/// Gets the scale value of this <see cref="BigDecimal"/> instance
-		/// </summary>
-		/// <remarks>
-		/// The scale is the number of digits behind the decimal point. The value of 
-		/// this <see cref="BigDecimal"/> is the <c>unsignedValue * 10^(-scale)</c>. 
-		/// If the scale is negative, then this <see cref="BigDecimal"/> represents a big integer.
-		/// </remarks>
-		public int Scale {
+        /// <summary>
+        /// Gets the scale value of this <see cref="BigDecimal"/> instance
+        /// </summary>
+        /// <remarks>
+        /// The scale is the number of digits behind the decimal point. The value of 
+        /// this <see cref="BigDecimal"/> is the <c>unsignedValue * 10^(-scale)</c>. 
+        /// If the scale is negative, then this <see cref="BigDecimal"/> represents a big integer.
+        /// </remarks>
+        public int Scale {
 			get { return _scale; }
 			internal set { _scale = value; }
 		}
@@ -530,7 +542,7 @@ namespace Deveel.Math {
 				if (_precision > 0) {
 					return _precision;
 				}
-				int bitLength = this._bitLength;
+				int bitLength = this.BitLength;
 				int decimalDigits = 1; // the precision to be calculated
 				double doubleUnsc = 1; // intVal in 'double'
 
@@ -539,13 +551,13 @@ namespace Deveel.Math {
 					if (bitLength >= 64) {
 						doubleUnsc = GetUnscaledValue().ToDouble();
 					} else if (bitLength >= 1) {
-						doubleUnsc = smallValue;
+						doubleUnsc = SmallValue;
 					}
 					decimalDigits += (int) System.Math.Log10(System.Math.Abs(doubleUnsc));
 				} else {
 					// (bitLength >= 1024)
 					/* To calculate the precision for large numbers
-				 * Note that: 2 ^(bitlength() - 1) <= intVal < 10 ^(precision()) */
+				 * Note that: 2 ^(Bitlength - 1) <= intVal < 10 ^(precision()) */
 					decimalDigits += (int) ((bitLength - 1)*Log10Of2);
 					// If after division the number isn't zero, exists an aditional digit
 					if ((GetUnscaledValue() / Multiplication.PowerOf10(decimalDigits)).Sign != 0) {
@@ -558,96 +570,107 @@ namespace Deveel.Math {
 			internal set { _precision = value; }
 		}
 
-		/// <summary>
-		/// Gets the unscaled value (mantissa) of this <see cref="BigDecimal"/> instance as 
-		/// a <see cref="BigInteger"/>.
-		/// </summary>
-		/// <remarks>
-		/// The unscaled value can be computed as <c>(this * 10^(scale))</c>.
-		/// </remarks>
-		public BigInteger UnscaledValue {
-			get { return GetUnscaledValue(); }
-		}
+        /// <summary>
+        /// Gets the unscaled value (mantissa) of this <see cref="BigDecimal"/> instance as 
+        /// a <see cref="BigInteger"/>.
+        /// </summary>
+        /// <remarks>
+        /// The unscaled value can be computed as <c>(this * 10^(scale))</c>.
+        /// </remarks>
+        public BigInteger UnscaledValue => GetUnscaledValue();
 
-		#region Public Methods
+        #region Public Methods
 
-		/// <summary>
-		/// Returns a new <see cref="BigDecimal"/> instance whose value is equal to 
-		/// <paramref name="unscaledVal"/> 10^(-<paramref name="scale"/>). The scale 
-		/// of the result is <see cref="scale"/>, and its unscaled value is <see cref="unscaledVal"/>.
-		/// </summary>
-		/// <param name="unscaledVal">The unscaled value to be used to construct 
-		/// the new <see cref="BigDecimal"/>.</param>
-		/// <param name="scale">The scale to be used to construct the new <see cref="BigDecimal"/>.</param>
-		/// <returns>
-		/// Returns a <see cref="BigDecimal"/> instance with the value <c><see cref="unscaledVal"/> 
-		/// * 10^(-<see cref="scale"/>)</c>.
-		/// </returns>
-		public static BigDecimal Create(long unscaledVal, int scale) {
+        /// <summary>
+        /// Returns a new <see cref="BigDecimal"/> instance whose value is equal to 
+        /// <paramref name="unscaledValue"/> 10^(-<paramref name="scale"/>). The scale 
+        /// of the result is <see cref="Scale"/>, and its unscaled value is <see cref="UnscaledValue"/>.
+        /// </summary>
+        /// <param name="unscaledValue">The unscaled value to be used to construct 
+        /// the new <see cref="BigDecimal"/>.</param>
+        /// <param name="scale">The scale to be used to construct the new <see cref="BigDecimal"/>.</param>
+        /// <returns>
+        /// Returns a <see cref="BigDecimal"/> instance with the value <c><see cref="UnscaledValue"/> 
+        /// * 10^(-<see cref="Scale"/>)</c>.
+        /// </returns>
+        public static BigDecimal Create(long unscaledValue, int scale) {
 			if (scale == 0)
-				return Create(unscaledVal);
-			if ((unscaledVal == 0) && (scale >= 0) &&
+				return Create(unscaledValue);
+			if ((unscaledValue == 0) && (scale >= 0) &&
 			    (scale < ZeroScaledBy.Length)) {
 				return ZeroScaledBy[scale];
 			}
 
-			return new BigDecimal(unscaledVal, scale);
+			return new BigDecimal(unscaledValue, scale);
 		}
 
 		/// <summary>
 		/// Returns a new <see cref="BigDecimal"/> instance whose value is equal 
-		/// to <paramref name="unscaledVal"/>. The scale of the result is <c>0</c>, 
-		/// and its unscaled value is <paramref name="unscaledVal"/>.
+		/// to <paramref name="unscaledValue"/>. The scale of the result is <c>0</c>, 
+		/// and its unscaled value is <paramref name="unscaledValue"/>.
 		/// </summary>
-		/// <param name="unscaledVal">The value to be converted to a <see cref="BigDecimal"/>.</param>
+		/// <param name="unscaledValue">
+		/// The value to be converted to a <see cref="BigDecimal"/>.
+		/// </param>
 		/// <returns>
-		/// Returns a <see cref="BigDecimal"/> instance with the value <paramref name="unscaledVal"/>.
+		/// Returns a <see cref="BigDecimal"/> instance with the value <paramref name="unscaledValue"/>.
 		/// </returns>
-		public static BigDecimal Create(long unscaledVal) {
-			if ((unscaledVal >= 0) && (unscaledVal < BiScaledByZeroLength)) {
-				return BiScaledByZero[(int) unscaledVal];
+		public static BigDecimal Create(long unscaledValue) {
+			if ((unscaledValue >= 0) && (unscaledValue < BiScaledByZeroLength)) {
+				return BiScaledByZero[(int) unscaledValue];
 			}
-			return new BigDecimal(unscaledVal, 0);
-		}
+			return new BigDecimal(unscaledValue, 0);
+        }
 
 
-		#endregion
+        #endregion
 
-		/**
-		 * Compares this {@code BigDecimal} with {@code val}. Returns one of the
-		 * three values {@code 1}, {@code 0}, or {@code -1}. The method behaves as
-		 * if {@code this.subtract(val)} is computed. If this difference is > 0 then
-		 * 1 is returned, if the difference is < 0 then -1 is returned, and if the
-		 * difference is 0 then 0 is returned. This means, that if two decimal
-		 * instances are compared which are equal in value but differ in scale, then
-		 * these two instances are considered as equal.
-		 *
-		 * @param val
-		 *            value to be compared with {@code this}.
-		 * @return {@code 1} if {@code this > val}, {@code -1} if {@code this < val},
-		 *         {@code 0} if {@code this == val}.
-		 * @throws NullPointerException
-		 *             if {@code val == null}.
-		 */
+        /// <summary>
+        /// Compares this <see cref="BigDecimal"/> with the 
+        /// given <paramref name="other"/> value.
+        /// </summary>
+        /// <param name="other">
+		/// The other <see cref="BigDecimal"/> to compare with this instance.
+		/// </param>
+        /// <remarks>
+        /// <para>
+        /// The method behaves as if <c>this.Subtract(other)</c> is computed: if this 
+        /// difference is greater than 0 then 1 is returned, if the difference is lesser than 
+        /// 0 then -1 is returned, and if the difference is 0 then 0 is returned.
+        /// </para>
+        /// <para>
+        /// This means, that if two decimal instances are compared which are equal in value but 
+		/// differ in scale, then these two instances are considered as equal.
+        /// </para>
+        /// </remarks>
+        /// <returns>
+        /// Returns <c>-1</c> if this is one is greather than the <paramref name="other"/>,
+        /// or <c>1</c> if the <paramref name="other"/> is greater, otherwise <c>0</c>
+        /// if the two instances are equal.
+        /// </returns>
+		/// <exception cref="ArgumentNullException">
+		/// Thrown if the given <paramref name="other"/> is <b>null</b>.
+		/// </exception>
+        public int CompareTo(BigDecimal other) {
+			ArgumentNullException.ThrowIfNull(other, nameof(other));
 
-		public int CompareTo(BigDecimal val) {
 			int thisSign = Sign;
-			int valueSign = val.Sign;
+			int valueSign = other.Sign;
 
 			if (thisSign == valueSign) {
-				if (this._scale == val._scale && this._bitLength < 64 && val._bitLength < 64) {
-					return (smallValue < val.smallValue) ? -1 : (smallValue > val.smallValue) ? 1 : 0;
+				if (this._scale == other._scale && this.BitLength < 64 && other.BitLength < 64) {
+					return (SmallValue < other.SmallValue) ? -1 : (SmallValue > other.SmallValue) ? 1 : 0;
 				}
-				long diffScale = (long) this._scale - val._scale;
-				int diffPrecision = this.Precision - val.Precision;
+				long diffScale = (long) this._scale - other._scale;
+				int diffPrecision = this.Precision - other.Precision;
 				if (diffPrecision > diffScale + 1) {
 					return thisSign;
 				} else if (diffPrecision < diffScale - 1) {
 					return -thisSign;
 				} else {
-// thisSign == val.signum()  and  diffPrecision is aprox. diffScale
+					// thisSign == val.signum()  and  diffPrecision is aprox. diffScale
 					BigInteger thisUnscaled = this.GetUnscaledValue();
-					BigInteger valUnscaled = val.GetUnscaledValue();
+					BigInteger valUnscaled = other.GetUnscaledValue();
 					// If any of both precision is bigger, append zeros to the shorter one
 					if (diffScale < 0) {
 						thisUnscaled = thisUnscaled * Multiplication.PowerOf10(-diffScale);
@@ -661,21 +684,25 @@ namespace Deveel.Math {
 			} else {
 				return 1;
 			}
-		}
+        }
 
-		/**
-		 * Returns {@code true} if {@code x} is a {@code BigDecimal} instance and if
-		 * this instance is equal to this big decimal. Two big decimals are equal if
-		 * their unscaled value and their scale is equal. For example, 1.0
-		 * (10*10^(-1)) is not equal to 1.00 (100*10^(-2)). Similarly, zero
-		 * instances are not equal if their scale differs.
-		 *
-		 * @param x
-		 *            object to be compared with {@code this}.
-		 * @return true if {@code x} is a {@code BigDecimal} and {@code this == x}.
-		 */
-
-		public override bool Equals(object obj) {
+        /// <summary>
+        /// Checks if the given <paramref name="obj"/> is equal to this instance.
+        /// </summary>
+        /// <param name="obj">
+		/// The object to compare with this instance.
+		/// </param>
+		/// <remarks>
+		/// Two big decimals are equal if their unscaled value and their scale is equal.
+		/// For example, 1.0 (10*10^(-1)) is not equal to 1.00 (100*10^(-2)). Similarly, 
+		/// zero instances are not equal if their scale differs.
+        /// </remarks>
+        /// <returns>
+        /// Returns <c>true</c> if <paramref name="obj"/> is a <see cref="BigDecimal"/> instance 
+        /// and if this instance is equal to this big decimal.
+        /// </returns>
+		/// <seealso cref="Equals(BigDecimal)"/>
+        public override bool Equals(object obj) {
 			if (ReferenceEquals(this, obj))
 				return true;
 
@@ -685,6 +712,21 @@ namespace Deveel.Math {
 			return Equals((BigDecimal) obj);
 		}
 
+        /// <summary>
+        /// Checks if the given <paramref name="other"/> is equal to this instance.
+        /// </summary>
+        /// <param name="other">
+		/// The object to compare with this instance.
+		/// </param>
+		/// <remarks>
+		/// Two big decimals are equal if their unscaled value and their scale is equal.
+		/// For example, 1.0 (10*10^(-1)) is not equal to 1.00 (100*10^(-2)). Similarly, 
+		/// zero instances are not equal if their scale differs.
+        /// </remarks>
+        /// <returns>
+        /// Returns <c>true</c> if <paramref name="other"/> is equal to this big decimal.
+        /// </returns>
+		/// <seealso cref="Equals(BigDecimal)"/>
 		public bool Equals(BigDecimal other) {
 			if (ReferenceEquals(this, other))
 				return true;
@@ -693,43 +735,34 @@ namespace Deveel.Math {
 				return false;
 
 			return other._scale == _scale
-			       && (_bitLength < 64
-				       ? (other.smallValue == smallValue)
+			       && (BitLength < 64
+				       ? (other.SmallValue == SmallValue)
 				       : intVal.Equals(other.intVal));
 		}
 
-		/**
-		 * Returns a hash code for this {@code BigDecimal}.
-		 *
-		 * @return hash code for {@code this}.
-		 */
-
+		/// <inheritdoc/>
 		public override int GetHashCode() {
 			int hashCode;
-			if (_bitLength < 64) {
-				hashCode = (int) (smallValue & 0xffffffff);
-				hashCode = 33*hashCode + (int) ((smallValue >> 32) & 0xffffffff);
+			if (BitLength < 64) {
+				hashCode = (int) (SmallValue & 0xffffffff);
+				hashCode = 33*hashCode + (int) ((SmallValue >> 32) & 0xffffffff);
 				hashCode = 17*hashCode + _scale;
 				return hashCode;
 			}
 
 			hashCode = 17*intVal.GetHashCode() + _scale;
 			return hashCode;
-		}
+        }
 
-		/* Private Methods */
-
-		/**
-		 * It does all rounding work of the public method
-		 * {@code round(MathContext)}, performing an inplace rounding
-		 * without creating a new object.
-		 *
-		 * @param mc
-		 *            the {@code MathContext} for perform the rounding.
-		 * @see #round(MathContext)
-		 */
-
-		internal void InplaceRound(MathContext mc) {
+        /// <summary>
+        /// It does all rounding work of the public method <see cref="BigMath.Round(BigDecimal, MathContext)"/>, 
+		/// performing an inplace rounding without creating a new object.
+        /// </summary>
+        /// <param name="mc">
+		/// The <see cref="MathContext"/> to use for rounding.
+		/// </param>
+		/// <seealso cref="BigMath.Round(BigDecimal, MathContext)"/>
+        internal void InplaceRound(MathContext mc) {
 			int mcPrecision = mc.Precision;
 			if (Precision - mcPrecision <= 0 || mcPrecision == 0) {
 				return;
@@ -740,7 +773,7 @@ namespace Deveel.Math {
 				return;
 			}
 			// When the number is small perform an efficient rounding
-			if (this._bitLength < 64) {
+			if (this.BitLength < 64) {
 				SmallRound(mc, discardedPrecision);
 				return;
 			}
@@ -776,23 +809,24 @@ namespace Deveel.Math {
 
 		internal static int LongCompareTo(long value1, long value2) {
 			return value1 > value2 ? 1 : (value1 < value2 ? -1 : 0);
-		}
+        }
 
-		/**
-		 * This method implements an efficient rounding for numbers which unscaled
-		 * value fits in the type {@code long}.
-		 *
-		 * @param mc
-		 *            the context to use
-		 * @param discardedPrecision
-		 *            the number of decimal digits that are discarded
-		 * @see #round(MathContext)
-		 */
 
-		private void SmallRound(MathContext mc, int discardedPrecision) {
+        /// <summary>
+        /// This method implements an efficient rounding for numbers which unscaled 
+		/// value fits in the type <see cref="System.Int64"/>.
+        /// </summary>
+        /// <param name="mc">
+		/// The <see cref="MathContext"/> to use for rounding.
+		/// </param>
+        /// <param name="discardedPrecision">
+		/// The number of decimal digits that are discarded.
+		/// </param>
+		/// <see cref="BigMath.Round(BigDecimal, MathContext)"/>
+        private void SmallRound(MathContext mc, int discardedPrecision) {
 			long sizeOfFraction = LongTenPow[discardedPrecision];
 			long newScale = (long) _scale - discardedPrecision;
-			long unscaledVal = smallValue;
+			long unscaledVal = SmallValue;
 			// Getting the integer part and the discarded fraction
 			long integer = unscaledVal/sizeOfFraction;
 			long fraction = unscaledVal%sizeOfFraction;
@@ -813,26 +847,30 @@ namespace Deveel.Math {
 			// To update all internal fields
 			_scale = ToIntScale(newScale);
 			_precision = mc.Precision;
-			smallValue = integer;
-			_bitLength = CalcBitLength(integer);
+			SmallValue = integer;
+			BitLength = CalcBitLength(integer);
 			intVal = null;
-		}
+        }
 
-		/**
-		 * Return an increment that can be -1,0 or 1, depending of
-		 * {@code roundingMode}.
-		 *
-		 * @param parityBit
-		 *            can be 0 or 1, it's only used in the case
-		 *            {@code HALF_EVEN}
-		 * @param fraction
-		 *            the mantisa to be analyzed
-		 * @param roundingMode
-		 *            the type of rounding
-		 * @return the carry propagated after rounding
-		 */
-
-		internal static int RoundingBehavior(int parityBit, int fraction, RoundingMode roundingMode) {
+        /// <summary>
+        /// Return an increment that can be -1,0 or 1, depending 
+        /// of <paramref name="roundingMode"/>.
+        /// </summary>
+        /// <param name="parityBit">
+        /// A value that can be 0 or 1, and that it's only used 
+        /// in the case <paramref name="roundingMode"/> is <see cref="RoundingMode.HalfEven"/>.
+        /// </param>
+        /// <param name="fraction">
+        /// The mantisa to be analyzed
+        /// </param>
+        /// <param name="roundingMode">
+		/// The rounding mode to be used.
+		/// </param>
+        /// <returns>
+		/// Returns the carry propagated after rounding.
+		/// </returns>
+        /// <exception cref="ArithmeticException"></exception>
+        internal static int RoundingBehavior(int parityBit, int fraction, RoundingMode roundingMode) {
 			int increment = 0; // the carry after rounding
 
 			switch (roundingMode) {
@@ -909,7 +947,7 @@ namespace Deveel.Math {
 		 */
 
 		internal int AproxPrecision() {
-			return ((_precision > 0) ? _precision : (int) ((_bitLength - 1)*Log10Of2)) + 1;
+			return ((_precision > 0) ? _precision : (int) ((BitLength - 1)*Log10Of2)) + 1;
 		}
 
 		/**
@@ -963,15 +1001,15 @@ namespace Deveel.Math {
 
 		private BigInteger GetUnscaledValue() {
 			if (intVal == null)
-				intVal = BigInteger.FromInt64(smallValue);
+				intVal = BigInteger.FromInt64(SmallValue);
 			return intVal;
 		}
 
 		internal void SetUnscaledValue(BigInteger unscaledValue) {
 			intVal = unscaledValue;
-			_bitLength = unscaledValue.BitLength;
-			if (_bitLength < 64) {
-				smallValue = unscaledValue.ToInt64();
+			BitLength = unscaledValue.BitLength;
+			if (BitLength < 64) {
+				SmallValue = unscaledValue.ToInt64();
 			}
 		}
 
@@ -1005,13 +1043,12 @@ namespace Deveel.Math {
 		}
 		*/
 
-#if !PORTABLE
 		private BigDecimal(SerializationInfo info, StreamingContext context) {
 			intVal = (BigInteger) info.GetValue("intVal", typeof(BigInteger));
 			_scale = info.GetInt32("scale");
-			_bitLength = intVal.BitLength;
-			if (_bitLength < 64) {
-				smallValue = intVal.ToInt64();
+			BitLength = intVal.BitLength;
+			if (BitLength < 64) {
+				SmallValue = intVal.ToInt64();
 			}
 		}
 
@@ -1021,156 +1058,8 @@ namespace Deveel.Math {
 			info.AddValue("scale", _scale);
 		}
 
-#endif
 
 		#region Parse
-
-		public static bool TryParse(char[] chars, int offset, int length, out BigDecimal value) {
-			return TryParse(chars, offset, length, NumberFormatInfo.InvariantInfo, out value);
-		}
-
-		public static bool TryParse(char[] chars, int offset, int length, IFormatProvider provider, out BigDecimal value) {
-			return TryParse(chars, offset, length, null, provider, out value);
-		}
-
-		public static bool TryParse(char[] chars, int offset, int length, MathContext context, out BigDecimal value) {
-			return TryParse(chars, offset, length, context, null, out value);
-		}
-
-		public static bool TryParse(char[] chars, int offset, int length, MathContext context, IFormatProvider provider,
-			out BigDecimal value) {
-			Exception error;
-			if (!DecimalString.TryParse(chars, offset, length, provider, out value, out error))
-				return false;
-
-			if (context != null)
-				value.InplaceRound(context);
-
-			return true;
-		}
-
-		public static bool TryParse(char[] chars, out BigDecimal value) {
-			return TryParse(chars, (MathContext)null, out value);
-		}
-
-		public static bool TryParse(char[] chars, MathContext context, out BigDecimal value) {
-			return TryParse(chars, context, NumberFormatInfo.InvariantInfo, out value);
-		}
-
-		public static bool TryParse(char[] chars, IFormatProvider provider, out BigDecimal value) {
-			return TryParse(chars, null, provider, out value);
-		}
-
-		public static bool TryParse(char[] chars, MathContext context, IFormatProvider provider, out BigDecimal value) {
-			if (chars == null) {
-				value = null;
-				return false;
-			}
-
-			return TryParse(chars, 0, chars.Length, context, provider, out value);
-		}
-
-		public static BigDecimal Parse(char[] chars, int offset, int length, IFormatProvider provider) {
-			return Parse(chars, offset, length, null, provider);
-		}
-
-		public static BigDecimal Parse(char[] chars, int offset, int length) {
-			return Parse(chars, offset, length, (MathContext)null);
-		}
-
-		public static BigDecimal Parse(char[] chars, int offset, int length, MathContext context) {
-			return Parse(chars, offset, length, context, NumberFormatInfo.InvariantInfo);
-		}
-
-		public static BigDecimal Parse(char[] chars, int offset, int length, MathContext context, IFormatProvider provider) {
-			Exception error;
-			BigDecimal value;
-			if (!DecimalString.TryParse(chars, offset, length, provider, out value, out error))
-				throw error;
-
-			if (context != null)
-				value.InplaceRound(context);
-
-			return value;
-		}
-
-		public static BigDecimal Parse(char[] chars, IFormatProvider provider) {
-			return Parse(chars, null, provider);
-		}
-
-		public static BigDecimal Parse(char[] chars) {
-			return Parse(chars, (MathContext)null);
-		}
-
-		public static BigDecimal Parse(char[] chars, MathContext context) {
-			return Parse(chars, context, NumberFormatInfo.InvariantInfo);
-		}
-
-		public static BigDecimal Parse(char[] chars, MathContext context, IFormatProvider provider) {
-			if (chars == null)
-				throw new ArgumentNullException("chars");
-
-			return Parse(chars, 0, chars.Length, context, provider);
-		}
-
-		public static bool TryParse(string s, out BigDecimal value) {
-			return TryParse(s, (MathContext)null, out value);
-		}
-
-		public static bool TryParse(string s, MathContext context, out BigDecimal value) {
-			return TryParse(s, context, NumberFormatInfo.InvariantInfo, out value);
-		}
-
-		public static bool TryParse(string s, IFormatProvider provider, out BigDecimal value) {
-			return TryParse(s, null, provider, out value);
-		}
-
-		public static bool TryParse(string s, MathContext context, IFormatProvider provider, out BigDecimal value) {
-			if (String.IsNullOrEmpty(s)) {
-				value = null;
-				return false;
-			}
-
-			var data = s.ToCharArray();
-
-			Exception error;
-			if (!DecimalString.TryParse(data, 0, data.Length, provider, out value, out error))
-				return false;
-
-			if (context != null)
-				value.InplaceRound(context);
-
-			return true;
-		}
-
-		public static BigDecimal Parse(string s, IFormatProvider provider) {
-			return Parse(s, null, provider);
-		}
-
-		public static BigDecimal Parse(string s) {
-			return Parse(s, (MathContext)null);
-		}
-
-		public static BigDecimal Parse(string s, MathContext context) {
-			return Parse(s, context, NumberFormatInfo.InvariantInfo);
-		}
-
-		public static BigDecimal Parse(string s, MathContext context, IFormatProvider provider) {
-			if (String.IsNullOrEmpty(s))
-				throw new FormatException();
-
-			var data = s.ToCharArray();
-
-			Exception error;
-			BigDecimal value;
-			if (!DecimalString.TryParse(data, 0, data.Length, provider, out value, out error))
-				throw error;
-
-			if (context != null)
-				value.InplaceRound(context);
-
-			return value;
-		}
 
         public static BigDecimal CreateExact(float x) =>
             Parse(x.ToString(NumberFormatInfo.InvariantInfo));
@@ -1182,162 +1071,5 @@ namespace Deveel.Math {
             Parse(x.ToString(NumberFormatInfo.InvariantInfo));
 
         #endregion
-
-        #region Arithmetic Operators
-
-        public static BigDecimal operator +(BigDecimal a, BigDecimal b) {
-			// In case of implicit operators apply the precision of the dividend
-			return BigMath.Add(a, b);
-		}
-
-		public static BigDecimal operator -(BigDecimal a, BigDecimal b) {
-			// In case of implicit operators apply the precision of the dividend
-			return BigMath.Subtract(a, b);
-		}
-
-		public static BigDecimal operator /(BigDecimal a, BigDecimal b) {
-			// In case of implicit operators apply the precision of the dividend
-			return BigDecimalMath.Divide(a, b);
-		}
-
-		public static BigDecimal operator %(BigDecimal a, BigDecimal b) {
-			// In case of implicit operators apply the precision of the dividend
-			return BigMath.Remainder(a, b);
-		}
-
-		public static BigDecimal operator *(BigDecimal a, BigDecimal b) {
-			// In case of implicit operators apply the precision of the dividend
-			return BigMath.Multiply(a, b);
-		}
-
-		public static BigDecimal operator +(BigDecimal a) {
-			return BigMath.Plus(a);
-		}
-
-		public static BigDecimal operator -(BigDecimal a) {
-			return BigMath.Negate(a);
-		}
-
-		public static bool operator ==(BigDecimal a, BigDecimal b) {
-			if ((object)a == null && (object)b == null)
-				return true;
-            if ((object)a == null || (object)b == null)
-                return false;
-			return a.CompareTo(b) == 0;
-		}
-
-		public static bool operator !=(BigDecimal a, BigDecimal b) {
-			return !(a == b);
-		}
-
-		public static bool operator >(BigDecimal a, BigDecimal b) {
-			return a.CompareTo(b) > 0;
-		}
-
-		public static bool operator <(BigDecimal a, BigDecimal b) {
-			return a.CompareTo(b) < 0;
-		}
-
-		public static bool operator >=(BigDecimal a, BigDecimal b) {
-			return a == b || a > b;
-		}
-
-		public static bool operator <=(BigDecimal a, BigDecimal b) {
-			return a == b || a < b;
-		}
-
-		public static BigDecimal operator >>(BigDecimal a, int b) {
-			return BigMath.ShiftRight((BigInteger)a, b);
-		}
-
-		public static BigDecimal operator <<(BigDecimal a, int b) {
-			return BigMath.ShiftLeft((BigInteger)a, b);
-		}
-
-        public static BigDecimal operator ++(BigDecimal a)
-        {
-            return a + One;
-        }
-
-        public static BigDecimal operator --(BigDecimal a)
-        {
-            return a - One;
-        }
-
-        #endregion
-
-        #region Cast Operators
-
-        public static explicit operator char(BigDecimal d)
-        {
-            return (char)d.ToInt32();
-        }
-
-        public static explicit operator sbyte(BigDecimal d)
-        {
-            return (sbyte)d.ToInt32();
-        }
-
-        public static explicit operator byte(BigDecimal d)
-        {
-            return (byte)d.ToInt32();
-        }
-
-        public static explicit operator short(BigDecimal d) {
-			return (short)d.ToInt32();
-		}
-
-		public static explicit operator int(BigDecimal d) {
-			return d.ToInt32();
-		}
-
-		public static explicit operator long(BigDecimal d) {
-			return d.ToInt64();
-		}
-
-		public static implicit operator float(BigDecimal d) {
-			return d.ToSingle();
-		}
-
-		public static implicit operator double(BigDecimal d) {
-			return d.ToDouble();
-		}
-
-        public static implicit operator decimal(BigDecimal d)
-        {
-            return d.ToDecimal();
-        }
-
-        public static explicit operator BigInteger(BigDecimal d) {
-            return d.ToBigInteger();
-        }
-
-        public static explicit operator BigDecimal(long value) {
-			return new BigDecimal(value);
-		}
-
-        public static implicit operator BigDecimal(float value)
-        {
-            return new BigDecimal(value);
-        }
-
-        public static implicit operator BigDecimal(double value) {
-			return new BigDecimal(value);
-		}
-
-        public static implicit operator BigDecimal(decimal value)
-        {
-            return Parse(value.ToString(CultureInfo.InvariantCulture));
-        }
-
-        public static explicit operator BigDecimal(int value) {
-			return new BigDecimal(value);
-		}
-
-		public static implicit operator BigDecimal(BigInteger value) {
-			return new BigDecimal(value);
-		}
-
-		#endregion
 	}
 }
