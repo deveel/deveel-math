@@ -19,46 +19,26 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       os: ${{ matrix.os }}
-      dotnet-version: ${{ matrix.dotnet-version }}
+      dotnet-version: ${{ matrix.dotnet-version }}  
 
-    # runs-on: ${{ matrix.os }}
+  coverage:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET 8.0 Framework
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
 
-    # steps:
-    # - uses: actions/checkout@v4
-    # - name: Invoke Build Workflow
-    #   uses: ./.github/workflows/build.yml
-    #   with:
-    #     os: ${{ matrix.os }}
-    #     dotnet-version: ${{ matrix.dotnet }}
+    - name: Run Tests with Coverage
+      run: dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[*.XUnit]*"
 
-    # - uses: actions/checkout@v4
-    
-    # - name: Emit .NET 6.0 Framework Version
-    #   if: matrix.dotnet == '6.0.x'
-    #   run: echo "DOTNET_FX_VERSION=net6.0" >> $GITHUB_ENV
+    - name: Publish Coverage Report
+      uses: codecov/codecov-action@v4
+      with:
+         token: ${{ secrets.CODECOV_TOKEN }}
 
-    # - name: Emit .NET 7.0 Framework Version
-    #   if: matrix.dotnet == '7.0.x'
-    #   run: echo "DOTNET_FX_VERSION=net7.0" >> $GITHUB_ENV
-
-    # - name: Emit .NET 8.0 Framework Version
-    #   if: matrix.dotnet == '8.0.x'
-    #   run: echo "DOTNET_FX_VERSION=net8.0" >> $GITHUB_ENV
-        
-    # - name: Setup .NET ${{ matrix.dotnet }} Framework
-    #   uses: actions/setup-dotnet@v4
-    #   with:
-    #     dotnet-version: ${{ matrix.dotnet }}
-
-    # - name: Restore dependencies
-    #   run: dotnet restore
-      
-    # - name: Build
-    #   run: dotnet build --no-restore -c Release -f ${{ env.DOTNET_FX_VERSION }}
-      
-    # - name: Test
-    #   run: dotnet test --no-build --verbosity normal -c Release -f ${{ env.DOTNET_FX_VERSION }}
-  
   publish:
     needs: build
     runs-on: ubuntu-latest
