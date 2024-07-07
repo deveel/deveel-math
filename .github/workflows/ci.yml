@@ -19,6 +19,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+    - uses: actions/checkout@v4
     - name: Invoke Build Workflow
       uses: ./.github/workflows/build.yml
       with:

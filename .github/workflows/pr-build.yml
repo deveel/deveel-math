@@ -15,13 +15,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+    - uses: actions/checkout@v4
     - name: Invoke Build Workflow
       uses: ./.github/workflows/build.yml
       with:
         os: ${{ matrix.os }}
         dotnet-version: ${{ matrix.dotnet }}
-
-    # - uses: actions/checkout@v4
     
     # - name: Emit .NET 6.0 Framework Version
     #   if: matrix.dotnet == '6.0.x'
