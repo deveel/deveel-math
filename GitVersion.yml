@@ -3,7 +3,7 @@ branches:
   main:
     tag: ''
     increment: Patch
-    regex: ^main$
+    regex: ^master$
     source-branches: ['feature']
     prevent-increment-of-merged-branch-version: true
     tracks-release-branches: true
