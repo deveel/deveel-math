@@ -93,7 +93,7 @@ namespace Deveel.Math {
 		public void SubtractWithContext(string a, int aScale, string b, int bScale, string c, int cScale, int precision, RoundingMode mode) {
 			BigDecimal aNumber = new BigDecimal(BigInteger.Parse(a), aScale);
 			BigDecimal bNumber = new BigDecimal(BigInteger.Parse(b), bScale);
-			MathContext mc = new MathContext(precision, RoundingMode.Ceiling);
+			MathContext mc = new MathContext(precision, mode);
 			BigDecimal result = BigMath.Subtract(aNumber, bNumber, mc);
 			Assert.Equal(c, result.ToString());
 			Assert.Equal(cScale, result.Scale);			
@@ -1204,12 +1204,10 @@ namespace Deveel.Math {
 			Assert.Equal(cScale, result.Scale);
 		}
 
-		#endregion
+        #endregion
 
-		/**
-		 * remainder(BigDecimal)
-		 */
-		[Fact]
+        #region Remainder
+        [Fact]
 		public void Remainder1() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = 45;
@@ -1224,9 +1222,6 @@ namespace Deveel.Math {
 			Assert.Equal(resScale, result.Scale);
 		}
 
-		/**
-		 * remainder(BigDecimal)
-		 */
 		[Fact]
 		public void Remainder2() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
@@ -1242,9 +1237,6 @@ namespace Deveel.Math {
 			Assert.Equal(resScale, result.Scale);
 		}
 
-		/**
-		 * remainder(BigDecimal, MathContext)
-		 */
 		[Fact]
 		public void RemainderMathContextHALF_UP() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
@@ -1263,9 +1255,6 @@ namespace Deveel.Math {
 			Assert.Equal(resScale, result.Scale);
 		}
 
-		/**
-		 * remainder(BigDecimal, MathContext)
-		 */
 		[Fact]
 		public void RemainderMathContextHALF_DOWN() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
@@ -1284,10 +1273,10 @@ namespace Deveel.Math {
 			Assert.Equal(resScale, result.Scale);
 		}
 
-		/**
-		 * round(BigDecimal, MathContext)
-		 */
-		[Fact]
+        #endregion
+
+        #region Round
+        [Fact]
 		public void RoundMathContextHALF_DOWN() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = -45;
@@ -1302,9 +1291,6 @@ namespace Deveel.Math {
 			Assert.Equal(resScale, result.Scale);
 		}
 
-		/**
-		 * round(BigDecimal, MathContext)
-		 */
 		[Fact]
 		public void RoundMathContextHALF_UP() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
@@ -1320,9 +1306,6 @@ namespace Deveel.Math {
 			Assert.Equal(resScale, result.Scale);
 		}
 
-		/**
-		 * round(BigDecimal, MathContext) when precision = 0
-		 */
 		[Fact]
 		public void RoundMathContextPrecision0() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
@@ -1337,11 +1320,11 @@ namespace Deveel.Math {
 			Assert.Equal(aScale, result.Scale);
 		}
 
+        #endregion
 
-		/**
-		 * ulp() of a positive BigDecimal
-		 */
-		[Fact]
+        #region Ulp
+
+        [Fact]
 		public void UlpPos() {
 			String a = "3736186567876876578956958765675671119238118911893939591735";
 			int aScale = -45;
@@ -1353,9 +1336,6 @@ namespace Deveel.Math {
 			Assert.Equal(resScale, result.Scale);
 		}
 
-		/**
-		 * ulp() of a negative BigDecimal
-		 */
 		[Fact]
 		public void UlpNeg() {
 			String a = "-3736186567876876578956958765675671119238118911893939591735";
@@ -1368,9 +1348,6 @@ namespace Deveel.Math {
 			Assert.Equal(resScale, result.Scale);
 		}
 
-		/**
-		 * ulp() of a negative BigDecimal
-		 */
 		[Fact]
 		public void UlpZero() {
 			String a = "0";
@@ -1382,5 +1359,7 @@ namespace Deveel.Math {
 			Assert.Equal(res, result.ToString());
 			Assert.Equal(resScale, result.Scale);
 		}
-	}
+
+        #endregion
+    }
 }
