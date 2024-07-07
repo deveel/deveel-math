@@ -1,0 +1,23 @@
+mode: ContinuousDeployment
+branches:
+  main:
+    tag: ''
+    increment: Patch
+    regex: ^main$
+    source-branches: ['feature']
+    prevent-increment-of-merged-branch-version: true
+    tracks-release-branches: true
+    is-release-branch: true
+  feature:
+    tag: useBranchName
+    increment: None
+    regex: ^feature[-/]
+    source-branches: ['main']
+    tracks-release-branches: false
+    is-release-branch: false
+ignore:
+  sha: []
+merge-message-formats: {}
+commit-message-incrementing: Enabled
+assembly-versioning-scheme: MajorMinorPatch
+continuous-delivery-fallback-tag: alpha
