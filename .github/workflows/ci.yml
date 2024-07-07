@@ -16,15 +16,20 @@ jobs:
         dotnet-version: [ 6.0.x, 7.0.x, 8.0.x]
         os: [ubuntu-latest, windows-latest, macos-latest ]
     
-    runs-on: ${{ matrix.os }}
+    uses: ./.github/workflows/build.yml
+    with:
+      os: ${{ matrix.os }}
+      dotnet-version: ${{ matrix.dotnet }}
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Invoke Build Workflow
-      uses: ./.github/workflows/build.yml
-      with:
-        os: ${{ matrix.os }}
-        dotnet-version: ${{ matrix.dotnet }}
+    # runs-on: ${{ matrix.os }}
+
+    # steps:
+    # - uses: actions/checkout@v4
+    # - name: Invoke Build Workflow
+    #   uses: ./.github/workflows/build.yml
+    #   with:
+    #     os: ${{ matrix.os }}
+    #     dotnet-version: ${{ matrix.dotnet }}
 
     # - uses: actions/checkout@v4
     
