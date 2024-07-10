@@ -67,7 +67,7 @@ namespace Deveel.Math {
 		/// An array of <see cref="char"/> containing: <c>'p','r','e','c','i','s','i','o','n','='</c>. 
 		/// It's used to improve the methods related to <see cref="string"/> conversion.
 		/// </summary>
-		/// <seealso cref="MathContext(string)"/>
+		/// <seealso cref="MathContext.Parse(string)"/>
 		/// <seealso cref="ToString"/>
 		private static readonly char[] chPrecision = {'p', 'r', 'e', 'c', 'i', 's', 'i', 'o', 'n', '='};
 
@@ -75,7 +75,7 @@ namespace Deveel.Math {
 		/// An array of <see cref="char"/> containing: <c>'r','o','u','n','d','i','n','g','M','o','d','e','='</c>. 
 		/// It's used to improve the methods related to <see cref="string"/> conversion.
 		/// </summary>
-		/// <seealso cref="MathContext(string)"/>
+		/// <seealso cref="MathContext.Parse(string)"/>
 		/// <seealso cref="ToString"/>
 		private static readonly char[] chRoundingMode = {'r', 'o', 'u', 'n', 'd', 'i', 'n', 'g', 'M', 'o', 'd', 'e', '='};
 

@@ -81,22 +81,22 @@ namespace Deveel.Math {
 			return Karatsuba(x, y);
 		}
 
-		/**
-		 * Performs the multiplication with the Karatsuba's algorithm.
-		 * <b>Karatsuba's algorithm:</b>
-		 *<tt>
-		 *             u = u<sub>1</sub> * B + u<sub>0</sub><br>
-		 *             v = v<sub>1</sub> * B + v<sub>0</sub><br>
-		 *
-		 *
-		 *  u*v = (u<sub>1</sub> * v<sub>1</sub>) * B<sub>2</sub> + ((u<sub>1</sub> - u<sub>0</sub>) * (v<sub>0</sub> - v<sub>1</sub>) + u<sub>1</sub> * v<sub>1</sub> +
-		 *  u<sub>0</sub> * v<sub>0</sub> ) * B + u<sub>0</sub> * v<sub>0</sub><br>
-		 *</tt>
-		 * @param op1 first factor of the product
-		 * @param op2 second factor of the product
-		 * @return {@code op1 * op2}
-		 * @see #multiply(BigInteger, BigInteger)
-		 */
+		///**
+		// * Performs the multiplication with the Karatsuba's algorithm.
+		// * <b>Karatsuba's algorithm:</b>
+		// *<tt>
+		// *             u = u<sub>1</sub> * B + u<sub>0</sub><br>
+		// *             v = v<sub>1</sub> * B + v<sub>0</sub><br>
+		// *
+		// *
+		// *  u*v = (u<sub>1</sub> * v<sub>1</sub>) * B<sub>2</sub> + ((u<sub>1</sub> - u<sub>0</sub>) * (v<sub>0</sub> - v<sub>1</sub>) + u<sub>1</sub> * v<sub>1</sub> +
+		// *  u<sub>0</sub> * v<sub>0</sub> ) * B + u<sub>0</sub> * v<sub>0</sub><br>
+		// *</tt>
+		// * @param op1 first factor of the product
+		// * @param op2 second factor of the product
+		// * @return {@code op1 * op2}
+		// * @see #multiply(BigInteger, BigInteger)
+		// */
 		private static BigInteger Karatsuba(BigInteger op1, BigInteger op2) {
 			BigInteger temp;
 			if (op2.numberLength > op1.numberLength) {
@@ -129,93 +129,93 @@ namespace Deveel.Math {
 			return (upper + middle + lower);
 		}
 
-		/**
-		 * Multiplies two BigIntegers.
-		 * Implements traditional scholar algorithm described by Knuth.
-		 *
-		 * <br><tt>
-		 *         <table border="0">
-		 * <tbody>
-		 *
-		 *
-		 * <tr>
-		 * <td align="center">A=</td>
-		 * <td>a<sub>3</sub></td>
-		 * <td>a<sub>2</sub></td>
-		 * <td>a<sub>1</sub></td>
-		 * <td>a<sub>0</sub></td>
-		 * <td></td>
-		 * <td></td>
-		 * </tr>
-		 *
-		 *<tr>
-		 * <td align="center">B=</td>
-		 * <td></td>
-		 * <td>b<sub>2</sub></td>
-		 * <td>b<sub>1</sub></td>
-		 * <td>b<sub>1</sub></td>
-		 * <td></td>
-		 * <td></td>
-		 * </tr>
-		 *
-		 * <tr>
-		 * <td></td>
-		 * <td></td>
-		 * <td></td>
-		 * <td>b<sub>0</sub>*a<sub>3</sub></td>
-		 * <td>b<sub>0</sub>*a<sub>2</sub></td>
-		 * <td>b<sub>0</sub>*a<sub>1</sub></td>
-		 * <td>b<sub>0</sub>*a<sub>0</sub></td>
-		 * </tr>
-		 *
-		 * <tr>
-		 * <td></td>
-		 * <td></td>
-		 * <td>b<sub>1</sub>*a<sub>3</sub></td>
-		 * <td>b<sub>1</sub>*a<sub>2</sub></td>
-		 * <td>b<sub>1</sub>*a1</td>
-		 * <td>b<sub>1</sub>*a0</td>
-		 * </tr>
-		 *
-		 * <tr>
-		 * <td>+</td>
-		 * <td>b<sub>2</sub>*a<sub>3</sub></td>
-		 * <td>b<sub>2</sub>*a<sub>2</sub></td>
-		 * <td>b<sub>2</sub>*a<sub>1</sub></td>
-		 * <td>b<sub>2</sub>*a<sub>0</sub></td>
-		 * </tr>
-		 *
-		 *<tr>
-		 * <td></td>
-		 *<td>______</td>
-		 * <td>______</td>
-		 * <td>______</td>
-		 * <td>______</td>
-		 * <td>______</td>
-		 * <td>______</td>
-		 *</tr>
-		 *
-		 * <tr>
-		 *
-		 * <td align="center">A*B=R=</td>
-		 * <td align="center">r<sub>5</sub></td>
-		 * <td align="center">r<sub>4</sub></td>
-		 * <td align="center">r<sub>3</sub></td>
-		 * <td align="center">r<sub>2</sub></td>
-		 * <td align="center">r<sub>1</sub></td>
-		 * <td align="center">r<sub>0</sub></td>
-		 * <td></td>
-		 * </tr>
-		 *
-		 * </tbody>
-		 * </table>
-		 *
-		 *</tt>
-		 *
-		 * @param op1 first factor of the multiplication {@code  op1 >= 0}
-		 * @param op2 second factor of the multiplication {@code  op2 >= 0}
-		 * @return a {@code BigInteger} of value {@code  op1 * op2}
-		 */
+		///**
+		// * Multiplies two BigIntegers.
+		// * Implements traditional scholar algorithm described by Knuth.
+		// *
+		// * <br><tt>
+		// *         <table border="0">
+		// * <tbody>
+		// *
+		// *
+		// * <tr>
+		// * <td align="center">A=</td>
+		// * <td>a<sub>3</sub></td>
+		// * <td>a<sub>2</sub></td>
+		// * <td>a<sub>1</sub></td>
+		// * <td>a<sub>0</sub></td>
+		// * <td></td>
+		// * <td></td>
+		// * </tr>
+		// *
+		// *<tr>
+		// * <td align="center">B=</td>
+		// * <td></td>
+		// * <td>b<sub>2</sub></td>
+		// * <td>b<sub>1</sub></td>
+		// * <td>b<sub>1</sub></td>
+		// * <td></td>
+		// * <td></td>
+		// * </tr>
+		// *
+		// * <tr>
+		// * <td></td>
+		// * <td></td>
+		// * <td></td>
+		// * <td>b<sub>0</sub>*a<sub>3</sub></td>
+		// * <td>b<sub>0</sub>*a<sub>2</sub></td>
+		// * <td>b<sub>0</sub>*a<sub>1</sub></td>
+		// * <td>b<sub>0</sub>*a<sub>0</sub></td>
+		// * </tr>
+		// *
+		// * <tr>
+		// * <td></td>
+		// * <td></td>
+		// * <td>b<sub>1</sub>*a<sub>3</sub></td>
+		// * <td>b<sub>1</sub>*a<sub>2</sub></td>
+		// * <td>b<sub>1</sub>*a1</td>
+		// * <td>b<sub>1</sub>*a0</td>
+		// * </tr>
+		// *
+		// * <tr>
+		// * <td>+</td>
+		// * <td>b<sub>2</sub>*a<sub>3</sub></td>
+		// * <td>b<sub>2</sub>*a<sub>2</sub></td>
+		// * <td>b<sub>2</sub>*a<sub>1</sub></td>
+		// * <td>b<sub>2</sub>*a<sub>0</sub></td>
+		// * </tr>
+		// *
+		// *<tr>
+		// * <td></td>
+		// *<td>______</td>
+		// * <td>______</td>
+		// * <td>______</td>
+		// * <td>______</td>
+		// * <td>______</td>
+		// * <td>______</td>
+		// *</tr>
+		// *
+		// * <tr>
+		// *
+		// * <td align="center">A*B=R=</td>
+		// * <td align="center">r<sub>5</sub></td>
+		// * <td align="center">r<sub>4</sub></td>
+		// * <td align="center">r<sub>3</sub></td>
+		// * <td align="center">r<sub>2</sub></td>
+		// * <td align="center">r<sub>1</sub></td>
+		// * <td align="center">r<sub>0</sub></td>
+		// * <td></td>
+		// * </tr>
+		// *
+		// * </tbody>
+		// * </table>
+		// *
+		// *</tt>
+		// *
+		// * @param op1 first factor of the multiplication {@code  op1 >= 0}
+		// * @param op2 second factor of the multiplication {@code  op2 >= 0}
+		// * @return a {@code BigInteger} of value {@code  op1 * op2}
+		// */
 		private static BigInteger MultiplyPap(BigInteger a, BigInteger b) {
 			// PRE: a >= b
 			int aLen = a.numberLength;

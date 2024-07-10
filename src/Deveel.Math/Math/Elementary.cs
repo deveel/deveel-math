@@ -16,27 +16,27 @@
 using System;
 
 namespace Deveel.Math {
-	/**
- * Static library that provides the basic arithmetic mutable operations for
- * {@link BigInteger}. The operations provided are listed below.
- * <ul type="circle">
- * <li>Addition.</li>
- * <li>Subtraction.</li>
- * <li>Comparison.</li>
- * </ul>
- * In addition to this, some <i><b>Inplace</b></i> (mutable) methods are provided.
- */
+	///**
+ //* Static library that provides the basic arithmetic mutable operations for
+ //* {@link BigInteger}. The operations provided are listed below.
+ //* <ul type="circle">
+ //* <li>Addition.</li>
+ //* <li>Subtraction.</li>
+ //* <li>Comparison.</li>
+ //* </ul>
+ //* In addition to this, some <i><b>Inplace</b></i> (mutable) methods are provided.
+ //*/
 	static class Elementary {
 
-		/**
-		 * Compares two arrays. All elements are treated as unsigned integers. The
-		 * magnitude is the bit chain of elements in big-endian order.
-		 * 
-		 * @param a the first array
-		 * @param b the second array
-		 * @param size the size of arrays
-		 * @return 1 if a > b, -1 if a < b, 0 if a == b
-		 */
+		///**
+		// * Compares two arrays. All elements are treated as unsigned integers. The
+		// * magnitude is the bit chain of elements in big-endian order.
+		// * 
+		// * @param a the first array
+		// * @param b the second array
+		// * @param size the size of arrays
+		// * @return 1 if a > b, -1 if a < b, 0 if a == b
+		// */
 
 		internal static int CompareArrays(int[] a, int[] b, int size) {
 			int i;
@@ -155,7 +155,7 @@ namespace Deveel.Math {
 		}
 
 		/** @see BigInteger#subtract(BigInteger) */
-		internal static BigInteger subtract(BigInteger op1, BigInteger op2) {
+		internal static BigInteger Subtract(BigInteger op1, BigInteger op2) {
 			int resSign;
 			int[] resDigits;
 			int op1Sign = op1.Sign;

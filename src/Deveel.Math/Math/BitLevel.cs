@@ -16,32 +16,30 @@
 using System;
 
 namespace Deveel.Math {
-	/**
- *  The operations are:
- * <ul type="circle">
- * <li>Bit counting</li>
- * <li>Bit testing</li>
- * <li>Getting of the lowest bit set</li>
- * </ul>
- * 
- */
-
-	/// <summary>
-	/// Static library that provides all the <b>bit level</b> operations for <see cref="BigInteger"/>.
-	/// </summary>
-	/// <remarks>
-	/// The operations are:
-	/// <list type="buller">
-	/// <item><see cref="BigInteger.ShiftLeft">Left Shifting</see></item>
-	/// <item><see cref="BigInteger.ShiftRight">Right Shifting</see></item>
-	/// <item><see cref="BigInteger.ClearBit">Bit Clearing</see></item>
-	/// <item><see cref="BigInteger.SetBit">Bit Setting</see></item>
-	/// </list>
-	/// <para>
-	/// All operations are provided in immutable way, and some in both mutable and immutable.
-	/// </para>
-	/// </remarks>
-	internal static class BitLevel {
+    /// <summary>
+    /// Static library that provides all the <b>bit level</b> operations for <see cref="BigInteger"/>.
+    /// </summary>
+    /// <remarks>
+    /// The operations are:
+    /// <list type="buller">
+    /// <item><see cref="BigMath.ShiftLeft">Left Shifting</see></item>
+    /// <item><see cref="BigMath.ShiftRight">Right Shifting</see></item>
+    /// <item><see cref="BigInteger.ClearBit">Bit Clearing</see></item>
+    /// <item><see cref="BigInteger.SetBit">Bit Setting</see></item>
+    /// </list>
+    /// <para>
+    /// All operations are provided in immutable way, and some in both mutable and immutable.
+    /// </para>
+    /// <para>
+    /// The operations are:
+    /// <list type="bullet">
+    ///   <item>Bit counting</item>
+	///   <item>Bit testing</item>
+	///   <item>Getting of the lowest bit set</item>
+    /// </list>
+    /// </para>
+    /// </remarks>
+    internal static class BitLevel {
 		public static int BitLength(BigInteger val) {
 			if (val.Sign == 0) {
 				return 0;
@@ -75,7 +73,7 @@ namespace Deveel.Math {
 					bCount += Utils.BitCount(val.Digits[i]);
 				}
 			} else {
-// (sign < 0)
+				// (sign < 0)
 				// this digit absorbs the carry
 				bCount += Utils.BitCount(-val.Digits[i]);
 				for (i++; i < val.numberLength; i++) {
@@ -132,7 +130,7 @@ namespace Deveel.Math {
 		// val should have enough place (and one digit more)
 
 		/// <summary>
-		/// Performs <c>val &lt;&lt;= count<c></c>.
+		/// Performs a shift left operation on the given <see cref="BigInteger"/> in place.
 		/// </summary>
 		/// <param name="val"></param>
 		/// <param name="count"></param>
@@ -148,17 +146,18 @@ namespace Deveel.Math {
 			val.UnCache();
 		}
 
-		/**
-		 * Abstractly shifts left an array of integers in little endian (i.e. shift
-		 * it right). Total shift distance in bits is intCount * 32 + count
-		 * 
-		 * @param result the destination array
-		 * @param source the source array
-		 * @param intCount the shift distance in integers
-		 * @param count an additional shift distance in bits
-		 */
-
-		public static void ShiftLeft(int[] result, int[] source, int intCount, int count) {
+        /// <summary>
+        /// Abstractly shifts left an array of integers in little endian (i.e. shift
+        /// it right).
+        /// </summary>
+		/// <param name="result">The destination array</param>
+		/// <param name="source">The source array</param>
+		/// <param name="intCount">The shift distance in integers</param>
+		/// <param name="count">An additional shift distance in bits</param>
+        /// <remarks>
+        /// Total shift distance in bits is intCount * 32 + count
+        /// </remarks>
+        public static void ShiftLeft(int[] result, int[] source, int intCount, int count) {
 			if (count == 0) {
 				Array.Copy(source, 0, result, intCount, result.Length - intCount);
 			} else {
@@ -358,10 +357,11 @@ namespace Deveel.Math {
 					}
 				}
 			} else {
-//case where val is positive
+				//case where val is positive
 				resDigits[intCount] ^= bitNumber;
 			}
-			BigInteger result = new BigInteger(resSign, resLength, resDigits);
+
+			var result = new BigInteger(resSign, resLength, resDigits);
 			result.CutOffLeadingZeroes();
 			return result;
 		}

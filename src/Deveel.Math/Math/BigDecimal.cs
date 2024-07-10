@@ -18,6 +18,7 @@ using System.Globalization;
 using System.Text;
 using System.Runtime.Serialization;
 using static System.Formats.Asn1.AsnWriter;
+using System.Net.NetworkInformation;
 
 namespace Deveel.Math {
 	/// <summary>
@@ -484,14 +485,25 @@ namespace Deveel.Math {
 			InplaceRound(context);
 		}
 
-		#endregion
+        private BigDecimal(SerializationInfo info, StreamingContext context)
+        {
+            intVal = (BigInteger)info.GetValue("intVal", typeof(BigInteger));
+            _scale = info.GetInt32("scale");
+            BitLength = intVal.BitLength;
+            if (BitLength < 64)
+            {
+                SmallValue = intVal.ToInt64();
+            }
+        }
 
-		/// <summary>
-		/// Gets the sign of the decimal, where <c>-1</c> if the value is less than 0,
-		/// <c>0</c> if the value is 0 and <c>1</c> if the value is greater than 0.
-		/// </summary>
-		/// <seealso cref="Sign"/>
-		public int Sign {
+        #endregion
+
+        /// <summary>
+        /// Gets the sign of the decimal, where <c>-1</c> if the value is less than 0,
+        /// <c>0</c> if the value is 0 and <c>1</c> if the value is greater than 0.
+        /// </summary>
+        /// <seealso cref="Sign"/>
+        public int Sign {
 			get {
 				if (BitLength < 64)
 					return System.Math.Sign(SmallValue);
@@ -910,23 +922,21 @@ namespace Deveel.Math {
 			return increment;
 		}
 
-		/**
-		 * If {@code intVal} has a fractional part throws an exception,
-		 * otherwise it counts the number of bits of value and checks if it's out of
-		 * the range of the primitive type. If the number fits in the primitive type
-		 * returns this number as {@code long}, otherwise throws an
-		 * exception.
-		 *
-		 * @param bitLengthOfType
-		 *            number of bits of the type whose value will be calculated
-		 *            exactly
-		 * @return the exact value of the integer part of {@code BigDecimal}
-		 *         when is possible
-		 * @throws ArithmeticException when rounding is necessary or the
-		 *             number don't fit in the primitive type
-		 */
-
-		private long ValueExact(int bitLengthOfType) {
+        /// <summary>
+        /// Returns the exact value of the integer part of this <see cref="BigDecimal"/> instance.
+        /// </summary>
+        /// <param name="bitLengthOfType">
+		/// The number of bits of the type whose value will be calculated exactly.
+		/// </param>
+		/// <remarks>
+		/// </remarks>
+        /// <returns>
+		/// Returns the exact value of the integer part of this <see cref="BigDecimal"/> instance.
+		/// </returns>
+        /// <exception cref="ArithmeticException">
+		/// Thrown when rounding is necessary or the number doesn't fit in the primitive type.
+		/// </exception>
+        private long ValueExact(int bitLengthOfType) {
 			BigInteger bigInteger = ToBigIntegerExact();
 
 			if (bigInteger.BitLength < bitLengthOfType) {
@@ -935,35 +945,40 @@ namespace Deveel.Math {
 			}
 			// math.08=Rounding necessary
 			throw new ArithmeticException(Messages.math08); //$NON-NLS-1$
-		}
+        }
 
-		/**
-		 * If the precision already was calculated it returns that value, otherwise
-		 * it calculates a very good approximation efficiently . Note that this
-		 * value will be {@code precision()} or {@code precision()-1}
-		 * in the worst case.
-		 *
-		 * @return an approximation of {@code precision()} value
-		 */
-
-		internal int AproxPrecision() {
+        /// <summary>
+        /// If the precision already was calculated it returns that value, otherwise
+		/// it calculates a very good approximation efficiently
+        /// </summary>
+		/// <remarks>
+		/// Note that this value will be <see cref="Precision"/> or 
+		/// <c><see cref="Precision"/> - 1</c> in the worst case.
+        /// </remarks>
+        /// <returns>
+		/// Returns an approximation of the <see cref="Precision"/> value.
+		/// </returns>
+        internal int AproxPrecision() {
 			return ((_precision > 0) ? _precision : (int) ((BitLength - 1)*Log10Of2)) + 1;
-		}
+        }
 
-		/**
-	 * It tests if a scale of type {@code long} fits in 32 bits. It
-	 * returns the same scale being casted to {@code int} type when is
-	 * possible, otherwise throws an exception.
-	 *
-	 * @param longScale
-	 *            a 64 bit scale
-	 * @return a 32 bit scale when is possible
-	 * @throws ArithmeticException when {@code scale} doesn't
-	 *             fit in {@code int} type
-	 * @see #scale
-	 */
-
-		internal static int ToIntScale(long longScale) {
+        /// <summary>
+        /// Tests if a scale of type <see cref="long"/> fits in 32 bits.
+        /// </summary>
+        /// <param name="longScale">
+		/// A 64 bit scale.
+		/// </param>
+		/// <remarks>
+		/// It returns the same scale being casted to <see cref="int"/> type when 
+		/// is possible, otherwise throws an exception.
+        /// </remarks>
+        /// <returns>
+        /// Returns a 32 bit scale when is possible.
+        /// </returns>
+        /// <exception cref="ArithmeticException">
+        /// Thrown when the scale doesn't fit in <see cref="int"/> type.
+        /// </exception>
+        internal static int ToIntScale(long longScale) {
 			if (longScale < Int32.MinValue)
 				// math.09=Overflow
 				throw new ArithmeticException(Messages.math09); //$NON-NLS-1$
@@ -973,33 +988,37 @@ namespace Deveel.Math {
 				throw new ArithmeticException(Messages.math0A); //$NON-NLS-1$
 
 			return (int) longScale;
-		}
+        }
 
-		/**
-		 * It returns the value 0 with the most approximated scale of type
-		 * {@code int}. if {@code longScale > Integer.MAX_VALUE} the
-		 * scale will be {@code Integer.MAX_VALUE}; if
-		 * {@code longScale < Integer.MIN_VALUE} the scale will be
-		 * {@code Integer.MIN_VALUE}; otherwise {@code longScale} is
-		 * casted to the type {@code int}.
-		 *
-		 * @param longScale
-		 *            the scale to which the value 0 will be scaled.
-		 * @return the value 0 scaled by the closer scale of type {@code int}.
-		 * @see #scale
-		 */
+        /// <summary>
+        /// Returns the value 0 with the most approximated scale of type <see cref="int"/>.
+        /// </summary>
+        /// <param name="longScale">
+		/// The scale to which the value 0 will be scaled.
+		/// </param>
+		/// <remarks>
+		/// If <paramref name="longScale"/> is greater than <see cref="Int32.MaxValue"/> the 
+		/// scale will be <see cref="Int32.MaxValue"/>; if <paramref name="longScale"/> is smaller
+		/// than <see cref="Int32.MaxValue"/> the scale will be <see cref="Int32.MinValue"/>; otherwise 
+		/// <paramref name="longScale"/> is casted to the type <see cref="int"/>.
+		/// </remarks>
+        /// <returns>
+		/// Returns the value 0 scaled by the closer scale of type <see cref="int"/>.
+		/// </returns>
+        internal static BigDecimal GetZeroScaledBy(long longScale)
+        {
+            if (longScale == (int)longScale)
+            {
+                return Create(0, (int)longScale);
+            }
+            if (longScale >= 0)
+            {
+                return new BigDecimal(0, Int32.MaxValue);
+            }
+            return new BigDecimal(0, Int32.MinValue);
+        }
 
-		internal static BigDecimal GetZeroScaledBy(long longScale) {
-			if (longScale == (int) longScale) {
-				return Create(0, (int) longScale);
-			}
-			if (longScale >= 0) {
-				return new BigDecimal(0, Int32.MaxValue);
-			}
-			return new BigDecimal(0, Int32.MinValue);
-		}
-
-		private BigInteger GetUnscaledValue() {
+        private BigInteger GetUnscaledValue() {
 			if (intVal == null)
 				intVal = BigInteger.FromInt64(SmallValue);
 			return intVal;
@@ -1027,7 +1046,7 @@ namespace Deveel.Math {
 			return 32 - Utils.NumberOfLeadingZeros(smallValue);
 		}
 
-		/*
+        /*
 		[OnSerializing]
 		internal void BeforeSerialization(StreamingContext context) {
 			GetUnscaledValue();
@@ -1043,33 +1062,49 @@ namespace Deveel.Math {
 		}
 		*/
 
-		private BigDecimal(SerializationInfo info, StreamingContext context) {
-			intVal = (BigInteger) info.GetValue("intVal", typeof(BigInteger));
-			_scale = info.GetInt32("scale");
-			BitLength = intVal.BitLength;
-			if (BitLength < 64) {
-				SmallValue = intVal.ToInt64();
-			}
-		}
+        /// <summary>
+        /// Scales this number to given scale, using the 
+        /// specified rounding mode.
+        /// </summary>
+        /// <param name="newScale">
+		/// The new scale of the number to be returned.
+		/// </param>
+        /// <param name="roundingMode">
+		/// The mode to be used to round the result.
+		/// </param>
+        /// <remarks>
+        /// <para>
+        /// If the new scale is greater than the old scale, then additional zeros are 
+        /// added to the unscaled value: in this case no rounding is necessary.
+        /// </para>
+        /// <para>
+        /// If the new scale is smaller than the old scale, then trailing digits are 
+		/// removed. If these trailing digits are not zero, then the remaining unscaled 
+		/// value has to be rounded. For this rounding operation the specified rounding 
+		/// mode is used.
+        /// </para>
+        /// </remarks>
+        /// <returns>
+		/// Returns a new <see cref="BigDecimal"/> instance with the same value as this instance,
+		/// but with the scale of the given value and the rounding mode specified.
+		/// </returns>
+		/// <exception cref="ArithmeticException">
+		/// Thrown if the rounding mode is <see cref="RoundingMode.Unnecessary"/> and the
+		/// result cannot be represented within the given precision without rounding.
+		/// </exception>
+        public BigDecimal ScaleTo(int newScale, RoundingMode roundingMode)
+        {
+            if (!Enum.IsDefined(typeof(RoundingMode), roundingMode))
+                throw new ArgumentException();
 
-		void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) {
+            return BigDecimalMath.Scale(this, newScale, roundingMode);
+        }
+
+
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) {
 			GetUnscaledValue();
 			info.AddValue("intVal", intVal, typeof(BigInteger));
 			info.AddValue("scale", _scale);
 		}
-
-
-		#region Parse
-
-        public static BigDecimal CreateExact(float x) =>
-            Parse(x.ToString(NumberFormatInfo.InvariantInfo));
-
-        public static BigDecimal CreateExact(decimal x) =>
-            Parse(x.ToString(NumberFormatInfo.InvariantInfo));
-
-        public static BigDecimal CreateExact(double x) =>
-            Parse(x.ToString(NumberFormatInfo.InvariantInfo));
-
-        #endregion
 	}
 }

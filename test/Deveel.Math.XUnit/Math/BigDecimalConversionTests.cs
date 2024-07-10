@@ -112,5 +112,109 @@ namespace Deveel.Math
             var bigDecimal = BigDecimal.Parse(value);
             Assert.Throws<ArithmeticException>(() => Convert.ToInt32((object) bigDecimal));
         }
+
+
+        [Theory]
+        [InlineData("1", 1)]
+        [InlineData("0", 0)]
+        [InlineData("657488392", 657488392)]
+        [InlineData("-657488392", -657488392)]
+        public static void ConvertToInt64_ShouldReturn(string value, long expected)
+        {
+            var bigDecimal = BigDecimal.Parse(value);
+            var result = Convert.ToInt64((object) bigDecimal);
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData("9223372036854775808")]
+        [InlineData("-9223372036854775809")]
+        [InlineData("56600490011.1345")]
+        public static void ConvertToInt64_ShouldThrow(string value)
+        {
+            var bigDecimal = BigDecimal.Parse(value);
+            Assert.Throws<ArithmeticException>(() => Convert.ToInt64((object) bigDecimal));
+        }
+
+        [Theory]
+        [InlineData("1", 1)]
+        [InlineData("0", 0)]
+        [InlineData("32767", 32767)]
+        [InlineData("-32768", -32768)]
+        public static void ConvertToInt16_ShouldReturn(string value, short expected)
+        {
+            var bigDecimal = BigDecimal.Parse(value);
+            var result = Convert.ToInt16((object) bigDecimal);
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData("32768")]
+        [InlineData("-32769")]
+        [InlineData("56600490011.1345")]
+        public static void ConvertToInt16_ShouldThrow(string value)
+        {
+            var bigDecimal = BigDecimal.Parse(value);
+            Assert.Throws<ArithmeticException>(() => Convert.ToInt16((object) bigDecimal));
+        }
+
+        [Theory]
+        [InlineData("1", 1)]
+        [InlineData("0", 0)]
+        [InlineData("254", 254)]
+        [InlineData("456.02", 456.02)]
+        [InlineData("-45634.032", -45634.032)]
+        public static void ConvertToSingle_ShouldReturn(string value, float expected)
+        {            
+            var bigDecimal = BigDecimal.Parse(value);
+            var result = Convert.ToSingle((object) bigDecimal);
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData("3.4028234663852886E+38", 3.4028234E+38)]
+        [InlineData("-3.4028234663852886E+38", -3.4028234E+38)]
+        [InlineData("56600490011.1345", 5.660049E+10)]
+        public static void ConvertToSingle_ShouldRoundDown(string value, float expected)
+        {
+            var bigDecimal = BigDecimal.Parse(value);
+            var result = Convert.ToSingle((object) bigDecimal);
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData("1", 1)]
+        [InlineData("0", 0)]
+        [InlineData("254", 254)]
+        [InlineData("45687.023442", 45687.023442)]
+        [InlineData("-45634.032", -45634.032)]
+        public static void ConvertToDouble_ShouldReturn(string value, double expected)
+        {
+            var bigDecimal = BigDecimal.Parse(value);
+            var result = Convert.ToDouble((object) bigDecimal);
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData("1.7976931348623157E+3", "1797.6931348623157")]
+        [InlineData("15660049945.904029474", "15660049945.904029474")]
+        [InlineData("4.585774E+20", "458577400000000000000")]
+        public static void ToPlainString_InvariantCulture_ShouldReturn(string value, string expected)
+        {
+            var bigDecimal = BigDecimal.Parse(value);
+            var result = bigDecimal.ToPlainString();
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData("1.7976931348623157E+3", "1797.6931348623157")]
+        [InlineData("15660049945.904029474", "15660049945.904029474")]
+        [InlineData("4.585774E+20", "458.5774E+18")]
+        public static void ToEngineeringString_InvariantCulture_ShouldReturn(string value, string expected)
+        {
+            var bigDecimal = BigDecimal.Parse(value);
+            var result = bigDecimal.ToEngineeringString();
+            Assert.Equal(expected, result);
+        }
     }
 }

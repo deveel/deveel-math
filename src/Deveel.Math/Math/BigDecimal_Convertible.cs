@@ -159,7 +159,7 @@ namespace Deveel.Math
         /// then engineering notation is used. Engineering notation is 
         /// similar to the scientific notation except that the exponent 
         /// is made to be a multiple of 3 such that the integer part 
-        /// is &gt= 1 and &lt 1000.
+        /// is lesser or equal to 1 and greater than 1000.
         /// </para>
         /// <para>
         /// This overload uses the invariant culture to resolve the
@@ -187,7 +187,7 @@ namespace Deveel.Math
         /// then engineering notation is used. Engineering notation is 
         /// similar to the scientific notation except that the exponent 
         /// is made to be a multiple of 3 such that the integer part 
-        /// is <c>>= 1 and < 1000</c>.
+        /// is greater or equal than 1 and is smaller than 1000.
         /// </para>
         /// </remarks>
         /// <returns>
@@ -196,25 +196,31 @@ namespace Deveel.Math
         /// </returns>
         public String ToEngineeringString(IFormatProvider provider)
         {
+            if (provider == null)
+                provider = NumberFormatInfo.InvariantInfo;
+
             return DecimalString.ToEngineeringString(this, provider);
         }
 
-        /**
-		 * Returns a string representation of this {@code BigDecimal}. No scientific
-		 * notation is used. This methods adds zeros where necessary.
-		 * <p>
-		 * If this string representation is used to create a new instance, this
-		 * instance is generally not identical to {@code this} as the precision
-		 * changes.
-		 * <p>
-		 * {@code x.equals(new BigDecimal(x.toPlainString())} usually returns
-		 * {@code false}.
-		 * <p>
-		 * {@code x.compareTo(new BigDecimal(x.toPlainString())} returns {@code 0}.
-		 *
-		 * @return a string representation of {@code this} without exponent part.
-		 */
-
+        /// <summary>
+        /// Returns a string representation of this <see cref="BigDecimal"/>
+        /// as a plain number, without any scientific notation.
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <remarks>
+        /// <para>
+        /// This methods adds zeros where necessary.
+        /// </para>
+        /// <para>
+        /// If the string representation is used to create a new instance, this
+        /// instance is generally not identical to this instance as the precision
+        /// changes.
+        /// </para>
+        /// </remarks>
+        /// <returns>
+        /// Returns a string representation of this number without any
+        /// exponent part.
+        /// </returns>
         public String ToPlainString(IFormatProvider provider)
         {
             if (provider == null)
@@ -455,25 +461,25 @@ namespace Deveel.Math
             return floatResult;
         }
 
-        /**
-		 * Returns this {@code BigDecimal} as a double value. If {@code this} is too
-		 * big to be represented as an float, then {@code Double.POSITIVE_INFINITY}
-		 * or {@code Double.NEGATIVE_INFINITY} is returned.
-		 * <p>
-		 * Note, that if the unscaled value has more than 53 significant digits,
-		 * then this decimal cannot be represented exactly in a double variable. In
-		 * this case the result is rounded.
-		 * <p>
-		 * For example, if the instance {@code x1 = new BigDecimal("0.1")} cannot be
-		 * represented exactly as a double, and thus {@code x1.equals(new
-		 * BigDecimal(x1.ToDouble())} returns {@code false} for this case.
-		 * <p>
-		 * Similarly, if the instance {@code new BigDecimal(9007199254740993L)} is
-		 * converted to a double, the result is {@code 9.007199254740992E15}.
-		 * <p>
-		 *
-		 * @return this {@code BigDecimal} as a double value.
-		 */
+         ///**
+		 //* Returns this {@code BigDecimal} as a double value. If {@code this} is too
+		 //* big to be represented as an float, then {@code Double.POSITIVE_INFINITY}
+		 //* or {@code Double.NEGATIVE_INFINITY} is returned.
+		 //* <p>
+		 //* Note, that if the unscaled value has more than 53 significant digits,
+		 //* then this decimal cannot be represented exactly in a double variable. In
+		 //* this case the result is rounded.
+		 //* <p>
+		 //* For example, if the instance {@code x1 = new BigDecimal("0.1")} cannot be
+		 //* represented exactly as a double, and thus {@code x1.equals(new
+		 //* BigDecimal(x1.ToDouble())} returns {@code false} for this case.
+		 //* <p>
+		 //* Similarly, if the instance {@code new BigDecimal(9007199254740993L)} is
+		 //* converted to a double, the result is {@code 9.007199254740992E15}.
+		 //* <p>
+		 //*
+		 //* @return this {@code BigDecimal} as a double value.
+		 //*/
 
         public double ToDouble()
         {
@@ -624,6 +630,86 @@ namespace Deveel.Math
             var rightOfDecimal = (remainder) / ((decimal)scaleDivisor);
 
             return leftOfDecimal + rightOfDecimal;
+        }
+
+        public static explicit operator char(BigDecimal d)
+        {
+            return (char)d.ToInt32();
+        }
+
+        public static explicit operator sbyte(BigDecimal d)
+        {
+            return (sbyte)d.ToInt32();
+        }
+
+        public static explicit operator byte(BigDecimal d)
+        {
+            return (byte)d.ToInt32();
+        }
+
+        public static explicit operator short(BigDecimal d)
+        {
+            return (short)d.ToInt32();
+        }
+
+        public static explicit operator int(BigDecimal d)
+        {
+            return d.ToInt32();
+        }
+
+        public static explicit operator long(BigDecimal d)
+        {
+            return d.ToInt64();
+        }
+
+        public static implicit operator float(BigDecimal d)
+        {
+            return d.ToSingle();
+        }
+
+        public static implicit operator double(BigDecimal d)
+        {
+            return d.ToDouble();
+        }
+
+        public static implicit operator decimal(BigDecimal d)
+        {
+            return d.ToDecimal();
+        }
+
+        public static explicit operator BigInteger(BigDecimal d)
+        {
+            return d.ToBigInteger();
+        }
+
+        public static explicit operator BigDecimal(long value)
+        {
+            return new BigDecimal(value);
+        }
+
+        public static implicit operator BigDecimal(float value)
+        {
+            return new BigDecimal(value);
+        }
+
+        public static implicit operator BigDecimal(double value)
+        {
+            return new BigDecimal(value);
+        }
+
+        public static implicit operator BigDecimal(decimal value)
+        {
+            return Parse(value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        public static explicit operator BigDecimal(int value)
+        {
+            return new BigDecimal(value);
+        }
+
+        public static implicit operator BigDecimal(BigInteger value)
+        {
+            return new BigDecimal(value);
         }
     }
 }

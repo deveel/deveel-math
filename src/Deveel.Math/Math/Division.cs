@@ -16,43 +16,43 @@
 using System;
 
 namespace Deveel.Math {
-	/**
- * Static library that provides all operations related with division and modular
- * arithmetic to {@link BigInteger}. Some methods are provided in both mutable
- * and immutable way. There are several variants provided listed below:
- * 
- * <ul type="circle">
- * <li> <b>Division</b>
- * <ul type="circle">
- * <li>{@link BigInteger} division and remainder by {@link BigInteger}.</li>
- * <li>{@link BigInteger} division and remainder by {@code int}.</li>
- * <li><i>gcd</i> between {@link BigInteger} numbers.</li>
- * </ul>
- * </li>
- * <li> <b>Modular arithmetic </b>
- * <ul type="circle">
- * <li>Modular exponentiation between {@link BigInteger} numbers.</li>
- * <li>Modular inverse of a {@link BigInteger} numbers.</li>
- * </ul>
- * </li>
- *</ul>
- */
+	///**
+ //* Static library that provides all operations related with division and modular
+ //* arithmetic to {@link BigInteger}. Some methods are provided in both mutable
+ //* and immutable way. There are several variants provided listed below:
+ //* 
+ //* <ul type="circle">
+ //* <li> <b>Division</b>
+ //* <ul type="circle">
+ //* <li>{@link BigInteger} division and remainder by {@link BigInteger}.</li>
+ //* <li>{@link BigInteger} division and remainder by {@code int}.</li>
+ //* <li><i>gcd</i> between {@link BigInteger} numbers.</li>
+ //* </ul>
+ //* </li>
+ //* <li> <b>Modular arithmetic </b>
+ //* <ul type="circle">
+ //* <li>Modular exponentiation between {@link BigInteger} numbers.</li>
+ //* <li>Modular inverse of a {@link BigInteger} numbers.</li>
+ //* </ul>
+ //* </li>
+ //*</ul>
+ //*/
 
 	internal static class Division {
-		/**
-		 * Divides the array 'a' by the array 'b' and gets the quotient and the
-		 * remainder. Implements the Knuth's division algorithm. See D. Knuth, The
-		 * Art of Computer Programming, vol. 2. Steps D1-D8 correspond the steps in
-		 * the algorithm description.
-		 * 
-		 * @param quot the quotient
-		 * @param quotLength the quotient's length
-		 * @param a the dividend
-		 * @param aLength the dividend's length
-		 * @param b the divisor
-		 * @param bLength the divisor's length
-		 * @return the remainder
-		 */
+		///**
+		// * Divides the array 'a' by the array 'b' and gets the quotient and the
+		// * remainder. Implements the Knuth's division algorithm. See D. Knuth, The
+		// * Art of Computer Programming, vol. 2. Steps D1-D8 correspond the steps in
+		// * the algorithm description.
+		// * 
+		// * @param quot the quotient
+		// * @param quotLength the quotient's length
+		// * @param a the dividend
+		// * @param aLength the dividend's length
+		// * @param b the divisor
+		// * @param bLength the divisor's length
+		// * @return the remainder
+		// */
 
 		public static int[] Divide(int[] quot, int quotLength, int[] a, int aLength, int[] b, int bLength) {
 			int[] normA = new int[aLength + 1]; // the normalized dividend
@@ -160,16 +160,16 @@ namespace Deveel.Math {
 			return normA;
 		}
 
-		/**
-		 * Divides an array by an integer value. Implements the Knuth's division
-		 * algorithm. See D. Knuth, The Art of Computer Programming, vol. 2.
-		 * 
-		 * @param dest the quotient
-		 * @param src the dividend
-		 * @param srcLength the length of the dividend
-		 * @param divisor the divisor
-		 * @return remainder
-		 */
+		///**
+		// * Divides an array by an integer value. Implements the Knuth's division
+		// * algorithm. See D. Knuth, The Art of Computer Programming, vol. 2.
+		// * 
+		// * @param dest the quotient
+		// * @param src the dividend
+		// * @param srcLength the length of the dividend
+		// * @param divisor the divisor
+		// * @return remainder
+		// */
 
 		public static int DivideArrayByInt(int[] dest, int[] src, int srcLength, int divisor) {
 			long rem = 0;
@@ -212,15 +212,15 @@ namespace Deveel.Math {
 			return (int) rem;
 		}
 
-		/**
-		 * Divides an array by an integer value. Implements the Knuth's division
-		 * algorithm. See D. Knuth, The Art of Computer Programming, vol. 2.
-		 * 
-		 * @param src the dividend
-		 * @param srcLength the length of the dividend
-		 * @param divisor the divisor
-		 * @return remainder
-		 */
+		///**
+		// * Divides an array by an integer value. Implements the Knuth's division
+		// * algorithm. See D. Knuth, The Art of Computer Programming, vol. 2.
+		// * 
+		// * @param src the dividend
+		// * @param srcLength the length of the dividend
+		// * @param divisor the divisor
+		// * @return remainder
+		// */
 
 		public static int RemainderArrayByInt(int[] src, int srcLength, int divisor) {
 			long result = 0;
@@ -233,28 +233,28 @@ namespace Deveel.Math {
 			return (int) result;
 		}
 
-		/**
-		 * Divides a <code>BigInteger</code> by a signed <code>int</code> and
-		 * returns the remainder.
-		 * 
-		 * @param dividend the BigInteger to be divided. Must be non-negative.
-		 * @param divisor a signed int
-		 * @return divide % divisor
-		 */
+		///**
+		// * Divides a <code>BigInteger</code> by a signed <code>int</code> and
+		// * returns the remainder.
+		// * 
+		// * @param dividend the BigInteger to be divided. Must be non-negative.
+		// * @param divisor a signed int
+		// * @return divide % divisor
+		// */
 
 		public static int Remainder(BigInteger dividend, int divisor) {
 			return RemainderArrayByInt(dividend.Digits, dividend.numberLength, divisor);
 		}
 
-		/**
-		 * Divides an unsigned long a by an unsigned int b. It is supposed that the
-		 * most significant bit of b is set to 1, i.e. b < 0
-		 * 
-		 * @param a the dividend
-		 * @param b the divisor
-		 * @return the long value containing the unsigned integer remainder in the
-		 *         left half and the unsigned integer quotient in the right half
-		 */
+		///**
+		// * Divides an unsigned long a by an unsigned int b. It is supposed that the
+		// * most significant bit of b is set to 1, i.e. b < 0
+		// * 
+		// * @param a the dividend
+		// * @param b the divisor
+		// * @return the long value containing the unsigned integer remainder in the
+		// *         left half and the unsigned integer quotient in the right half
+		// */
 
 		private static long DivideLongByInt(long a, int b) {
 			long quot;
