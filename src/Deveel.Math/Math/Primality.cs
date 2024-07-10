@@ -1,5 +1,5 @@
 // 
-//  Copyright 2009-2017  Deveel
+//  Copyright 2009-2024 Antonello Provenzano
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -38,15 +38,15 @@ namespace Deveel.Math {
             919, 929, 937, 941, 947, 953, 967, 971, 977, 983, 991, 997, 1009,
             1013, 1019, 1021 };
 
-		/** All {@code BigInteger} prime numbers with bit length lesser than 8 bits. */
+		// /** All {@code BigInteger} prime numbers with bit length lesser than 8 bits. */
 		private static readonly BigInteger[] BIprimes = new BigInteger[primes.Length];
 
-		/**
-		 * It encodes how many iterations of Miller-Rabin test are need to get an
-		 * error bound not greater than {@code 2<sup>(-100)</sup>}. For example:
-		 * for a {@code 1000}-bit number we need {@code 4} iterations, since
-		 * {@code BITS[3] < 1000 <= BITS[4]}.
-		 */
+		///**
+		// * It encodes how many iterations of Miller-Rabin test are need to get an
+		// * error bound not greater than {@code 2<sup>(-100)</sup>}. For example:
+		// * for a {@code 1000}-bit number we need {@code 4} iterations, since
+		// * {@code BITS[3] < 1000 <= BITS[4]}.
+		// */
 		private static readonly int[] BITS = { 0, 0, 1854, 1233, 927, 747, 627, 543,
             480, 431, 393, 361, 335, 314, 295, 279, 265, 253, 242, 232, 223,
             216, 181, 169, 158, 150, 145, 140, 136, 132, 127, 123, 119, 114,

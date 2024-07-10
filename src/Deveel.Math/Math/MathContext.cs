@@ -1,5 +1,5 @@
 // 
-//  Copyright 2009-2017  Deveel
+//  Copyright 2009-2024 Antonello Provenzano
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ namespace Deveel.Math {
 		/// An array of <see cref="char"/> containing: <c>'p','r','e','c','i','s','i','o','n','='</c>. 
 		/// It's used to improve the methods related to <see cref="string"/> conversion.
 		/// </summary>
-		/// <seealso cref="MathContext(string)"/>
+		/// <seealso cref="MathContext.Parse(string)"/>
 		/// <seealso cref="ToString"/>
 		private static readonly char[] chPrecision = {'p', 'r', 'e', 'c', 'i', 's', 'i', 'o', 'n', '='};
 
@@ -75,7 +75,7 @@ namespace Deveel.Math {
 		/// An array of <see cref="char"/> containing: <c>'r','o','u','n','d','i','n','g','M','o','d','e','='</c>. 
 		/// It's used to improve the methods related to <see cref="string"/> conversion.
 		/// </summary>
-		/// <seealso cref="MathContext(string)"/>
+		/// <seealso cref="MathContext.Parse(string)"/>
 		/// <seealso cref="ToString"/>
 		private static readonly char[] chRoundingMode = {'r', 'o', 'u', 'n', 'd', 'i', 'n', 'g', 'M', 'o', 'd', 'e', '='};
 

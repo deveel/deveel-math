@@ -1,5 +1,5 @@
 ﻿// 
-//  Copyright 2009-2017  Deveel
+//  Copyright 2009-2024 Antonello Provenzano
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -16,6 +16,10 @@
 using System;
 
 namespace Deveel.Math {
+	/// <summary>
+	/// Provides a set of methods for performing arithmetic operations on
+	/// big integer and big decimal numbers.
+	/// </summary>
 	public static class BigMath {
 		/// <summary>
 		/// Computes an addition between two big integer numbers
@@ -36,7 +40,7 @@ namespace Deveel.Math {
 		/// <returns>
 		/// </returns>
 		public static BigInteger Subtract(BigInteger a, BigInteger b) {
-			return Elementary.subtract(a, b);
+			return Elementary.Subtract(a, b);
 		}
 
 		/// <summary>
@@ -107,36 +111,43 @@ namespace Deveel.Math {
 
 		public static BigInteger XOr(BigInteger a, BigInteger b) {
 			return Logical.Xor(a, b);
+        }
+
+        /// <summary>
+        /// Computes the bitwise AND-NOT operation between two numbers.
+        /// </summary>
+        /// <param name="value">
+        /// The first term of the operation.
+        /// </param>
+        /// <param name="other">
+        /// The value to be NOT'ed and then AND'ed with <paramref name="value"/>.
+        /// </param>
+        /// <remarks>
+        /// <para>
+        /// Evaluating <c>AndNot(x, value)</c> returns the same result as <c>And(x, Not(value))</c>
+        /// </para>
+		/// <para>
+		/// <b>Implementation Note:</b> Usage of this method is not recommended as the current 
+		/// implementation is not efficient.
+        /// </para>
+        /// </remarks>
+        /// <returns></returns>
+        public static BigInteger AndNot(BigInteger value, BigInteger other)
+        {
+            return Logical.AndNot(value, other);
 		}
 
-		/**
-		 * Returns a new {@code BigInteger} whose value is {@code this & ~val}.
-		 * Evaluating {@code x.andNot(val)} returns the same result as {@code
-		 * x.and(val.not())}.
-		 * <p>
-		 * <b>Implementation Note:</b> Usage of this method is not recommended as
-		 * the current implementation is not efficient.
-		 *
-		 * @param val
-		 *            value to be not'ed and then and'ed with {@code this}.
-		 * @return {@code this & ~val}.
-		 * @throws NullPointerException
-		 *             if {@code val == null}.
-		 */
-		public static BigInteger AndNot(BigInteger value, BigInteger other) {
-			return Logical.AndNot(value, other);
-		}
-
-		/**
-* Returns a new {@code BigInteger} whose value is {@code ~this}. The result
-* of this operation is {@code -this-1}.
-* <p>
-* <b>Implementation Note:</b> Usage of this method is not recommended as
-* the current implementation is not efficient.
-*
-* @return {@code ~this}.
-*/
-		public static BigInteger Not(BigInteger value) {
+        /// <summary>
+        /// Computes the bitwise NOT operation on the given number.
+        /// </summary>
+        /// <param name="value">
+		/// The value to be NOT'ed.
+		/// </param>
+        /// <returns>
+		/// Returns a new <see cref="BigInteger"/> whose value is the result of 
+		/// the bitwise NOT operation
+		/// </returns>
+        public static BigInteger Not(BigInteger value) {
 			return Logical.Not(value);
 		}
 
@@ -178,48 +189,57 @@ namespace Deveel.Math {
 			return BigIntegerMath.Divide(dividend, divisor);
 		}
 
-
-		/**
- * Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
- * The scale of the result is the difference of the scales of {@code this}
- * and {@code divisor}. If the exact result requires more digits, then the
- * scale is adjusted accordingly. For example, {@code 1/128 = 0.0078125}
- * which has a scale of {@code 7} and precision {@code 5}.
- *
- * @param divisor
- *            value by which {@code this} is divided.
- * @return {@code this / divisor}.
- * @throws NullPointerException
- *             if {@code divisor == null}.
- * @throws ArithmeticException
- *             if {@code divisor == 0}.
- * @throws ArithmeticException
- *             if the result cannot be represented exactly.
- */
-		public static BigDecimal Divide(BigDecimal a, BigDecimal b) {
+        /// <summary>
+        /// Divides two <see cref="BigDecimal"/> numbers and returns the result
+        /// of the division.
+        /// </summary>
+        /// <param name="a">
+        /// The value that is to be divided.
+        /// </param>
+        /// <param name="b">
+        /// The value to divide <paramref name="a"/> by.
+        /// </param>
+        /// <remarks>
+        /// The scale of the result is the difference of the scales of <paramref name="a"/> and 
+		/// <paramref name="b"/>. If the exact result requires more digits, 
+		/// then the scale is adjusted accordingly. For example, <c>1/128 = 0.0078125</c> which 
+		/// has a scale of <c>7</c> and precision <c>5</c>.
+        /// </remarks>
+        /// <returns>
+		/// Returns an instance of <see cref="BigDecimal"/> that is the result of the division
+		/// operation between the two numbers.
+		/// </returns>
+		/// <exception cref="ArithmeticException">
+		/// Thrown if the value of <paramref name="b"/> is <c>0</c>, or if the result cannot be
+		/// represented exactly.
+		/// </exception>
+        public static BigDecimal Divide(BigDecimal a, BigDecimal b) {
 			return BigDecimalMath.Divide(a, b);
 		}
-
-		/**
- * Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
- * The scale of the result is the scale of {@code this}. If rounding is
- * required to meet the specified scale, then the specified rounding mode
- * {@code roundingMode} is applied.
- *
- * @param divisor
- *            value by which {@code this} is divided.
- * @param roundingMode
- *            rounding mode to be used to round the result.
- * @return {@code this / divisor} rounded according to the given rounding
- *         mode.
- * @throws NullPointerException
- *             if {@code divisor == null} or {@code roundingMode == null}.
- * @throws ArithmeticException
- *             if {@code divisor == 0}.
- * @throws ArithmeticException
- *             if {@code roundingMode == RoundingMode.UNNECESSARY} and
- *             rounding is necessary according to the scale of this.
- */
+ 
+		/// <summary>
+		/// Divides two <see cref="BigDecimal"/> numbers and returns the result
+		/// of the division, eventually rounded to the given scale and rounding mode.
+		/// </summary>
+		/// <param name="a">
+		/// The value that is to be divided.
+		/// </param>
+		/// <param name="b">
+		/// The value to divide <paramref name="a"/> by.
+		/// </param>
+		/// <param name="roundingMode">
+		/// The rounding mode to be used to round the result.
+		/// </param>
+		/// <returns>
+		/// Returns an instance of <see cref="BigDecimal"/> that is the result of the division,
+		/// eventually rounded to the given scale and rounding mode.
+		/// </returns>
+		/// <exception cref="ArgumentException"></exception>
+		/// <exception cref="ArithmeticException">
+		/// Throw when <paramref name="b"/> is <c>0</c>, or if the <paramref name="roundingMode"/>
+		/// is <see cref="RoundingMode.Unnecessary"/> and rounding is necessary according to the 
+		/// scale of <paramref name="a"/>.
+		/// </exception>
 		public static BigDecimal Divide(BigDecimal a, BigDecimal b, RoundingMode roundingMode) {
 			if (!Enum.IsDefined(typeof(RoundingMode), roundingMode))
 				throw new ArgumentException();
@@ -227,146 +247,147 @@ namespace Deveel.Math {
 			return Divide(a, b, a.Scale, roundingMode);
 		}
 
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
-		 * As scale of the result the parameter {@code scale} is used. If rounding
-		 * is required to meet the specified scale, then the specified rounding mode
-		 * {@code roundingMode} is applied.
-		 *
-		 * @param divisor
-		 *            value by which {@code this} is divided.
-		 * @param scale
-		 *            the scale of the result returned.
-		 * @param roundingMode
-		 *            rounding mode to be used to round the result.
-		 * @return {@code this / divisor} rounded according to the given rounding
-		 *         mode.
-		 * @throws NullPointerException
-		 *             if {@code divisor == null} or {@code roundingMode == null}.
-		 * @throws ArithmeticException
-		 *             if {@code divisor == 0}.
-		 * @throws ArithmeticException
-		 *             if {@code roundingMode == RoundingMode.UNNECESSAR}Y and
-		 *             rounding is necessary according to the given scale and given
-		 *             precision.
-		 */
+		///**
+		// * Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
+		// * As scale of the result the parameter {@code scale} is used. If rounding
+		// * is required to meet the specified scale, then the specified rounding mode
+		// * {@code roundingMode} is applied.
+		// *
+		// * @param divisor
+		// *            value by which {@code this} is divided.
+		// * @param scale
+		// *            the scale of the result returned.
+		// * @param roundingMode
+		// *            rounding mode to be used to round the result.
+		// * @return {@code this / divisor} rounded according to the given rounding
+		// *         mode.
+		// * @throws NullPointerException
+		// *             if {@code divisor == null} or {@code roundingMode == null}.
+		// * @throws ArithmeticException
+		// *             if {@code divisor == 0}.
+		// * @throws ArithmeticException
+		// *             if {@code roundingMode == RoundingMode.UNNECESSAR}Y and
+		// *             rounding is necessary according to the given scale and given
+		// *             precision.
+		// */
 
+		
 		public static BigDecimal Divide(BigDecimal a, BigDecimal b, int scale, RoundingMode roundingMode) {
 			return BigDecimalMath.Divide(a, b, scale, roundingMode);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
- * The result is rounded according to the passed context {@code mc}. If the
- * passed math context specifies precision {@code 0}, then this call is
- * equivalent to {@code this.divide(divisor)}.
- *
- * @param divisor
- *            value by which {@code this} is divided.
- * @param mc
- *            rounding mode and precision for the result of this operation.
- * @return {@code this / divisor}.
- * @throws NullPointerException
- *             if {@code divisor == null} or {@code mc == null}.
- * @throws ArithmeticException
- *             if {@code divisor == 0}.
- * @throws ArithmeticException
- *             if {@code mc.getRoundingMode() == UNNECESSARY} and rounding
- *             is necessary according {@code mc.getPrecision()}.
- */
+	//	/**
+ //* Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
+ //* The result is rounded according to the passed context {@code mc}. If the
+ //* passed math context specifies precision {@code 0}, then this call is
+ //* equivalent to {@code this.divide(divisor)}.
+ //*
+ //* @param divisor
+ //*            value by which {@code this} is divided.
+ //* @param mc
+ //*            rounding mode and precision for the result of this operation.
+ //* @return {@code this / divisor}.
+ //* @throws NullPointerException
+ //*             if {@code divisor == null} or {@code mc == null}.
+ //* @throws ArithmeticException
+ //*             if {@code divisor == 0}.
+ //* @throws ArithmeticException
+ //*             if {@code mc.getRoundingMode() == UNNECESSARY} and rounding
+ //*             is necessary according {@code mc.getPrecision()}.
+ //*/
 
 		public static BigDecimal Divide(BigDecimal a, BigDecimal b, MathContext context) {
 			return BigDecimalMath.Divide(a, b, context);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} whose value is the integral part of
- * {@code this / divisor}. The quotient is rounded down towards zero to the
- * next integer. For example, {@code 0.5/0.2 = 2}.
- *
- * @param divisor
- *            value by which {@code this} is divided.
- * @return integral part of {@code this / divisor}.
- * @throws NullPointerException
- *             if {@code divisor == null}.
- * @throws ArithmeticException
- *             if {@code divisor == 0}.
- */
+	//	/**
+ //* Returns a new {@code BigDecimal} whose value is the integral part of
+ //* {@code this / divisor}. The quotient is rounded down towards zero to the
+ //* next integer. For example, {@code 0.5/0.2 = 2}.
+ //*
+ //* @param divisor
+ //*            value by which {@code this} is divided.
+ //* @return integral part of {@code this / divisor}.
+ //* @throws NullPointerException
+ //*             if {@code divisor == null}.
+ //* @throws ArithmeticException
+ //*             if {@code divisor == 0}.
+ //*/
 
 		public static BigDecimal DivideToIntegral(BigDecimal a, BigDecimal b) {
 			return BigDecimalMath.DivideToIntegralValue(a, b);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} whose value is the integral part of
- * {@code this / divisor}. The quotient is rounded down towards zero to the
- * next integer. The rounding mode passed with the parameter {@code mc} is
- * not considered. But if the precision of {@code mc > 0} and the integral
- * part requires more digits, then an {@code ArithmeticException} is thrown.
- *
- * @param divisor
- *            value by which {@code this} is divided.
- * @param mc
- *            math context which determines the maximal precision of the
- *            result.
- * @return integral part of {@code this / divisor}.
- * @throws NullPointerException
- *             if {@code divisor == null} or {@code mc == null}.
- * @throws ArithmeticException
- *             if {@code divisor == 0}.
- * @throws ArithmeticException
- *             if {@code mc.getPrecision() > 0} and the result requires more
- *             digits to be represented.
- */
+	//	/**
+ //* Returns a new {@code BigDecimal} whose value is the integral part of
+ //* {@code this / divisor}. The quotient is rounded down towards zero to the
+ //* next integer. The rounding mode passed with the parameter {@code mc} is
+ //* not considered. But if the precision of {@code mc > 0} and the integral
+ //* part requires more digits, then an {@code ArithmeticException} is thrown.
+ //*
+ //* @param divisor
+ //*            value by which {@code this} is divided.
+ //* @param mc
+ //*            math context which determines the maximal precision of the
+ //*            result.
+ //* @return integral part of {@code this / divisor}.
+ //* @throws NullPointerException
+ //*             if {@code divisor == null} or {@code mc == null}.
+ //* @throws ArithmeticException
+ //*             if {@code divisor == 0}.
+ //* @throws ArithmeticException
+ //*             if {@code mc.getPrecision() > 0} and the result requires more
+ //*             digits to be represented.
+ //*/
 
 		public static BigDecimal DivideToIntegral(BigDecimal a, BigDecimal b, MathContext context) {
 			return BigDecimalMath.DivideToIntegralValue(a, b, context);
 		}
 
-		/**
- * Returns a {@code BigDecimal} array which contains the integral part of
- * {@code this / divisor} at index 0 and the remainder {@code this %
- * divisor} at index 1. The quotient is rounded down towards zero to the
- * next integer.
- *
- * @param divisor
- *            value by which {@code this} is divided.
- * @return {@code [this.divideToIntegralValue(divisor),
- *         this.remainder(divisor)]}.
- * @throws NullPointerException
- *             if {@code divisor == null}.
- * @throws ArithmeticException
- *             if {@code divisor == 0}.
- * @see #divideToIntegralValue
- * @see #remainder
- */
+	//	/**
+ //* Returns a {@code BigDecimal} array which contains the integral part of
+ //* {@code this / divisor} at index 0 and the remainder {@code this %
+ //* divisor} at index 1. The quotient is rounded down towards zero to the
+ //* next integer.
+ //*
+ //* @param divisor
+ //*            value by which {@code this} is divided.
+ //* @return {@code [this.divideToIntegralValue(divisor),
+ //*         this.remainder(divisor)]}.
+ //* @throws NullPointerException
+ //*             if {@code divisor == null}.
+ //* @throws ArithmeticException
+ //*             if {@code divisor == 0}.
+ //* @see #divideToIntegralValue
+ //* @see #remainder
+ //*/
 
 		public static BigDecimal DivideAndRemainder(BigDecimal a, BigDecimal b, out BigDecimal remainder) {
 			return BigDecimalMath.DivideAndRemainder(a, b, out remainder);
 		}
 
-		/**
- * Returns a {@code BigDecimal} array which contains the integral part of
- * {@code this / divisor} at index 0 and the remainder {@code this %
- * divisor} at index 1. The quotient is rounded down towards zero to the
- * next integer. The rounding mode passed with the parameter {@code mc} is
- * not considered. But if the precision of {@code mc > 0} and the integral
- * part requires more digits, then an {@code ArithmeticException} is thrown.
- *
- * @param divisor
- *            value by which {@code this} is divided.
- * @param mc
- *            math context which determines the maximal precision of the
- *            result.
- * @return {@code [this.divideToIntegralValue(divisor),
- *         this.remainder(divisor)]}.
- * @throws NullPointerException
- *             if {@code divisor == null}.
- * @throws ArithmeticException
- *             if {@code divisor == 0}.
- * @see #divideToIntegralValue
- * @see #remainder
- */
+	//	/**
+ //* Returns a {@code BigDecimal} array which contains the integral part of
+ //* {@code this / divisor} at index 0 and the remainder {@code this %
+ //* divisor} at index 1. The quotient is rounded down towards zero to the
+ //* next integer. The rounding mode passed with the parameter {@code mc} is
+ //* not considered. But if the precision of {@code mc > 0} and the integral
+ //* part requires more digits, then an {@code ArithmeticException} is thrown.
+ //*
+ //* @param divisor
+ //*            value by which {@code this} is divided.
+ //* @param mc
+ //*            math context which determines the maximal precision of the
+ //*            result.
+ //* @return {@code [this.divideToIntegralValue(divisor),
+ //*         this.remainder(divisor)]}.
+ //* @throws NullPointerException
+ //*             if {@code divisor == null}.
+ //* @throws ArithmeticException
+ //*             if {@code divisor == 0}.
+ //* @see #divideToIntegralValue
+ //* @see #remainder
+ //*/
 		public static BigDecimal DivideAndRemainder(BigDecimal a,
 			BigDecimal b,
 			MathContext context,
@@ -374,48 +395,48 @@ namespace Deveel.Math {
 			return BigDecimalMath.DivideAndRemainder(a, b, context, out remainder);
 		}
 
-		/**
-* Returns a new {@code BigDecimal} whose value is {@code this % divisor}.
-* <p>
-* The remainder is defined as {@code this -
-* this.divideToIntegralValue(divisor) * divisor}.
-*
-* @param divisor
-*            value by which {@code this} is divided.
-* @return {@code this % divisor}.
-* @throws NullPointerException
-*             if {@code divisor == null}.
-* @throws ArithmeticException
-*             if {@code divisor == 0}.
-*/
+//		/**
+//* Returns a new {@code BigDecimal} whose value is {@code this % divisor}.
+//* <p>
+//* The remainder is defined as {@code this -
+//* this.divideToIntegralValue(divisor) * divisor}.
+//*
+//* @param divisor
+//*            value by which {@code this} is divided.
+//* @return {@code this % divisor}.
+//* @throws NullPointerException
+//*             if {@code divisor == null}.
+//* @throws ArithmeticException
+//*             if {@code divisor == 0}.
+//*/
 		public static BigDecimal Remainder(BigDecimal a, BigDecimal b) {
 			BigDecimal remainder;
 			DivideAndRemainder(a, b, out remainder);
 			return remainder;
 		}
 
-		/**
- * Returns a new {@code BigDecimal} whose value is {@code this % divisor}.
- * <p>
- * The remainder is defined as {@code this -
- * this.divideToIntegralValue(divisor) * divisor}.
- * <p>
- * The specified rounding mode {@code mc} is used for the division only.
- *
- * @param divisor
- *            value by which {@code this} is divided.
- * @param mc
- *            rounding mode and precision to be used.
- * @return {@code this % divisor}.
- * @throws NullPointerException
- *             if {@code divisor == null}.
- * @throws ArithmeticException
- *             if {@code divisor == 0}.
- * @throws ArithmeticException
- *             if {@code mc.getPrecision() > 0} and the result of {@code
- *             this.divideToIntegralValue(divisor, mc)} requires more digits
- *             to be represented.
- */
+	//	/**
+ //* Returns a new {@code BigDecimal} whose value is {@code this % divisor}.
+ //* <p>
+ //* The remainder is defined as {@code this -
+ //* this.divideToIntegralValue(divisor) * divisor}.
+ //* <p>
+ //* The specified rounding mode {@code mc} is used for the division only.
+ //*
+ //* @param divisor
+ //*            value by which {@code this} is divided.
+ //* @param mc
+ //*            rounding mode and precision to be used.
+ //* @return {@code this % divisor}.
+ //* @throws NullPointerException
+ //*             if {@code divisor == null}.
+ //* @throws ArithmeticException
+ //*             if {@code divisor == 0}.
+ //* @throws ArithmeticException
+ //*             if {@code mc.getPrecision() > 0} and the result of {@code
+ //*             this.divideToIntegralValue(divisor, mc)} requires more digits
+ //*             to be represented.
+ //*/
 		public static BigDecimal Remainder(BigDecimal a, BigDecimal b, MathContext context) {
 			BigDecimal remainder;
 			DivideAndRemainder(a, b, context, out remainder);
@@ -423,121 +444,183 @@ namespace Deveel.Math {
 
 		}
 
-		/**
-* Returns a new {@code BigDecimal} whose value is {@code this *
-* multiplicand}. The scale of the result is the sum of the scales of the
-* two arguments.
-*
-* @param multiplicand
-*            value to be multiplied with {@code this}.
-* @return {@code this * multiplicand}.
-* @throws NullPointerException
-*             if {@code multiplicand == null}.
-*/
-
-		public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand) {
+        /// <summary>
+        /// Multiplies two <see cref="BigDecimal"/> numbers and the result
+		/// scale is the sum of the scales of the two numbers.
+        /// </summary>
+        /// <param name="value">
+        /// The <see cref="BigDecimal"/> number to be multiplied.
+        /// </param>
+        /// <param name="multiplicand">
+        /// The <see cref="BigDecimal"/> number to multiply <paramref name="value"/> by.
+        /// </param>
+        /// <returns>
+        /// Returns an instance of <see cref="BigDecimal"/> that is the result of the multiplication 
+        /// of the two numbers, whose scale is the sum of the scales of the two numbers.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="value"/> or <paramref name="multiplicand"/> is <c>null</c>.
+        /// </exception>
+        public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand) {
 			return BigDecimalMath.Multiply(value, multiplicand);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} whose value is {@code this *
- * multiplicand}. The result is rounded according to the passed context
- * {@code mc}.
- *
- * @param multiplicand
- *            value to be multiplied with {@code this}.
- * @param mc
- *            rounding mode and precision for the result of this operation.
- * @return {@code this * multiplicand}.
- * @throws NullPointerException
- *             if {@code multiplicand == null} or {@code mc == null}.
- */
-
-			public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand, MathContext mc) {
+        /// <summary>
+        /// Multiplies two <see cref="BigDecimal"/> numbers and rounds the result
+		/// to the given precision.
+        /// </summary>
+        /// <param name="value">
+		/// The <see cref="BigDecimal"/> number to be multiplied.
+		/// </param>
+        /// <param name="multiplicand">
+		/// The <see cref="BigDecimal"/> number to multiply <paramref name="value"/> by.
+		/// </param>
+        /// <param name="mc">
+		/// The <see cref="MathContext"/> object that specifies the precision and rounding mode
+		/// applied to the result of the operation.
+		/// </param>
+        /// <returns>
+		/// Returns an instance of <see cref="BigDecimal"/> that is the result of the multiplication 
+		/// of the two numbers, rounded to the given precision.
+		/// </returns>
+		/// <exception cref="ArgumentNullException">
+		/// Thrown when <paramref name="value"/>, <paramref name="multiplicand"/> or <paramref name="mc"/> is <c>null</c>.
+		/// </exception>
+        public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand, MathContext mc) {
 			BigDecimal result = Multiply(value, multiplicand);
 
 			result.InplaceRound(mc);
 			return result;
-		}
+        }
 
-
-		/**
-* Returns a new {@code BigDecimal} whose value is {@code this ^ n}. The
-* scale of the result is {@code n} times the scales of {@code this}.
-* <p>
-* {@code x.pow(0)} returns {@code 1}, even if {@code x == 0}.
-* <p>
-* Implementation Note: The implementation is based on the ANSI standard
-* X3.274-1996 algorithm.
-*
-* @param n
-*            exponent to which {@code this} is raised.
-* @return {@code this ^ n}.
-* @throws ArithmeticException
-*             if {@code n < 0} or {@code n > 999999999}.
-*/
-		public static BigDecimal Pow(BigDecimal number, int exp) {
+        /// <summary>
+        /// Performs the power operation on a <see cref="BigDecimal"/> number
+		/// for the given exponent.
+        /// </summary>
+        /// <param name="number">
+		/// The <see cref="BigDecimal"/> number to raise to the power of <paramref name="exp"/>.
+		/// </param>
+        /// <param name="exp">
+		/// The exponent to which <paramref name="number"/> is raised.
+		/// </param>
+		/// <remarks>
+		/// <para>
+		/// The scale of the result is <paramref name="exp"/> times the scales 
+		/// of <paramref name="number"/>.
+		/// </para>
+		/// <para>
+		/// <c>BigMath.Pow(x, 0)</c> returns <c>1</c>, even if <c>c == 0</c>.
+		/// </para>
+		/// <para>
+		/// Implementation Note: The implementation is based on the ANSI standard X3.274-1996 algorithm.
+        /// </para>
+        /// </remarks>
+        /// <returns>
+		/// </returns>
+		/// <exception cref="ArithmeticException">
+		/// Thrown when <paramref name="exp"/> is less than 0 or greater than 999999999.
+		/// </exception>
+        public static BigDecimal Pow(BigDecimal number, int exp) {
 			return BigDecimalMath.Pow(number, exp);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} whose value is {@code this ^ n}. The
- * result is rounded according to the passed context {@code mc}.
- * <p>
- * Implementation Note: The implementation is based on the ANSI standard
- * X3.274-1996 algorithm.
- *
- * @param n
- *            exponent to which {@code this} is raised.
- * @param mc
- *            rounding mode and precision for the result of this operation.
- * @return {@code this ^ n}.
- * @throws ArithmeticException
- *             if {@code n < 0} or {@code n > 999999999}.
- */
-		public static BigDecimal Pow(BigDecimal number, int exp, MathContext context) {
+        /// <summary>
+        /// Performs the power operation on a <see cref="BigDecimal"/> number
+        /// for the given exponent.
+        /// </summary>
+        /// <param name="number">
+        /// The <see cref="BigDecimal"/> number to raise to the power of <paramref name="exp"/>.
+        /// </param>
+        /// <param name="exp">
+        /// The exponent to which <paramref name="number"/> is raised.
+        /// </param>
+		/// <param name="context">
+		/// The <see cref="MathContext"/> object that specifies the precision and rounding mode
+		/// for the result of the operation.
+		/// </param>
+        /// <remarks>
+        /// <para>
+        /// The scale of the result is <paramref name="exp"/> times the scales 
+        /// of <paramref name="number"/>.
+        /// </para>
+        /// <para>
+        /// <c>BigMath.Pow(x, 0)</c> returns <c>1</c>, even if <c>c == 0</c>.
+        /// </para>
+        /// <para>
+        /// Implementation Note: The implementation is based on the ANSI standard X3.274-1996 algorithm.
+        /// </para>
+        /// </remarks>
+        /// <returns>
+        /// </returns>
+        /// <exception cref="ArithmeticException">
+        /// Thrown when <paramref name="exp"/> is less than 0 or greater than 999999999.
+        /// </exception>
+        public static BigDecimal Pow(BigDecimal number, int exp, MathContext context) {
 			return BigDecimalMath.Pow(number, exp, context);
 		}
 
-		/**
-* Returns a new {@code BigDecimal} whose value is the absolute value of
-* {@code this}. The scale of the result is the same as the scale of this.
-*
-* @return {@code abs(this)}
-*/
-		public static BigDecimal Abs(BigDecimal number) {
+
+        /// <summary>
+        /// Returns the absolute value of the given <see cref="BigDecimal"/>,
+		/// with the same scale as the original number.
+        /// </summary>
+        /// <param name="number">
+		/// The <see cref="BigDecimal"/> number to compute the absolute value of.
+		/// </param>
+        /// <returns>
+		/// Returns an instance of <see cref="BigDecimal"/> that represents the
+		/// absolute value of the given number.
+		/// </returns>
+        public static BigDecimal Abs(BigDecimal number) {
 			return ((number.Sign < 0) ? -number : number);
 		}
 
-		/**
-		 * Returns a new {@code BigDecimal} whose value is the absolute value of
-		 * {@code this}. The result is rounded according to the passed context
-		 * {@code mc}.
-		 *
-		 * @param mc
-		 *            rounding mode and precision for the result of this operation.
-		 * @return {@code abs(this)}
-		 */
-
-		public static BigDecimal Abs(BigDecimal value, MathContext mc) {
-			return Abs(Round(value, mc));
+        /// <summary>
+        /// Returns the absolute value of the given <see cref="BigDecimal"/>,
+        /// with the same scale as the original number.
+        /// </summary>
+        /// <param name="number">
+        /// The <see cref="BigDecimal"/> number to compute the absolute value of.
+        /// </param>
+		/// <param name="mc">
+		/// The <see cref="MathContext"/> object that specifies the precision and 
+		/// rounding mode for the result of the operation.
+		/// </param>
+        /// <returns>
+        /// Returns an instance of <see cref="BigDecimal"/> that represents the
+        /// absolute value of the given number, and rounded according to the
+		/// specified precision and rounding mode.
+        /// </returns>
+        public static BigDecimal Abs(BigDecimal number, MathContext mc) {
+			return Abs(Round(number, mc));
 		}
 
-		/**
-		 * Returns a new {@code BigDecimal} whose value is {@code +this}. The scale
-		 * of the result is the same as the scale of this.
-		 *
-		 * @return {@code this}
-		 */
-
+		/// <summary>
+		/// Returns a new <see cref="BigDecimal"/> whose value represents
+		/// an unary plus of the given number.
+		/// </summary>
+		/// <param name="number">
+		/// The <see cref="BigDecimal"/> number to apply the unary plus to.
+		/// </param>
+		/// <returns>
+		/// Returns an instance of <see cref="BigDecimal"/> that represents the
+		/// unary plus of the given number.
+		/// </returns>
 		public static BigDecimal Plus(BigDecimal number) {
-			return number;
+			return Plus(number, null);
 		}
 
 		/// <remarks>
-		/// Returns a new <see cref="BigDecimal"/> whose value is <c>+this</c>.
+		/// Returns a new <see cref="BigDecimal"/> whose value is
+		/// the unary plus of the given number, rounded according to the
+		/// specified precision and rounding mode.
 		/// </remarks>
-		/// <param name="mc">Rounding mode and precision for the result of this operation.</param>
+		/// <param name="number">
+		/// The <see cref="BigDecimal"/> number to be computed.
+		/// </param>
+		/// <param name="mc">
+		/// Rounding mode and precision for the result of this operation.
+		/// </param>
 		/// <remarks>
 		/// The result is rounded according to the passed context <paramref name="mc"/>.
 		/// </remarks>
@@ -548,53 +631,63 @@ namespace Deveel.Math {
 			return Round(number, mc);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} whose value is the {@code -this}. The
- * scale of the result is the same as the scale of this.
- *
- * @return {@code -this}
- */
-
-		public static BigDecimal Negate(BigDecimal number) {
-			if (number.BitLength < 63 || (number.BitLength == 63 && number.SmallValue != Int64.MinValue)) {
-				return BigDecimal.Create(-number.SmallValue, number.Scale);
-			}
-
-			return new BigDecimal(-number.UnscaledValue, number.Scale);
+		/// <summary>
+		/// Returns a new <see cref="BigDecimal"/> whose value is the negation
+		/// of the given number, with the same scale as the original number.
+		/// </summary>
+		/// <param name="number">
+		/// The <see cref="BigDecimal"/> number to negate.
+		/// </param>
+		/// <returns>
+		/// Returns a new <see cref="BigDecimal"/> that is the negation of the given number,
+		/// with the same scale as the original number.
+		/// </returns>
+		[Obsolete("Use the Negate() method in BigDecimal instead")]
+        public static BigDecimal Negate(BigDecimal number) {
+			return number.Negate();
 		}
 
-		/**
-		 * Returns a new {@code BigDecimal} whose value is the {@code -this}. The
-		 * result is rounded according to the passed context {@code mc}.
-		 *
-		 * @param mc
-		 *            rounding mode and precision for the result of this operation.
-		 * @return {@code -this}
-		 */
-
-		public static BigDecimal Negate(BigDecimal number, MathContext mc) {
-			return Negate(Round(number, mc));
+        /// <summary>
+        /// Returns a new <see cref="BigDecimal"/> whose value is the negation
+        /// of the given number, rounded according to the specified precision
+        /// scale and rounding mode.
+        /// </summary>
+        /// <param name="number">
+        /// The <see cref="BigDecimal"/> number to negate.
+        /// </param>
+        /// <param name="mc">
+        /// The <see cref="MathContext"/> object that specifies the precision and
+        /// rounding mode for the result of the operation.
+        /// </param>
+        /// <returns>
+        /// Returns a new <see cref="BigDecimal"/> that is the negation of the given number,
+        /// rounded according to the specified precision scale and rounding mode.
+        /// </returns>
+        [Obsolete("Use the Negate() method in BigDecimal instead")]
+        public static BigDecimal Negate(BigDecimal number, MathContext mc) {
+			return number.Negate(mc);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} whose value is {@code this}, rounded
- * according to the passed context {@code mc}.
- * <p>
- * If {@code mc.precision = 0}, then no rounding is performed.
- * <p>
- * If {@code mc.precision > 0} and {@code mc.roundingMode == UNNECESSARY},
- * then an {@code ArithmeticException} is thrown if the result cannot be
- * represented exactly within the given precision.
- *
- * @param mc
- *            rounding mode and precision for the result of this operation.
- * @return {@code this} rounded according to the passed context.
- * @throws ArithmeticException
- *             if {@code mc.precision > 0} and {@code mc.roundingMode ==
- *             UNNECESSARY} and this cannot be represented within the given
- *             precision.
- */
-		public static BigDecimal Round(BigDecimal number, MathContext mc) {
+        /// <summary>
+        /// Returns a new number whose value is rounded according to the passed context.
+        /// </summary>
+        /// <param name="number">
+		/// The number to be rounded.
+		/// </param>
+        /// <param name="mc">
+		/// The rounding mode and precision for the result of this operation.
+		/// </param>
+        /// <returns>
+		/// Returns a new <see cref="BigDecimal"/> that is the rounded value 
+		/// of the given number, according to the specified precision and 
+		/// rounding mode.
+		/// </returns>
+		/// <exception cref="ArithmeticException">
+		/// Thrown when the precision of the <paramref name="mc"/> is greater than 0, the
+		/// rounding mode is <see cref="RoundingMode.Unnecessary"/> and the result cannot be
+		/// represented exactly within the given precision.
+		/// </exception>
+        public static BigDecimal Round(BigDecimal number, MathContext mc) {
 			var thisBD = new BigDecimal(number.UnscaledValue, number.Scale);
 
 			thisBD.InplaceRound(mc);
@@ -619,21 +712,31 @@ namespace Deveel.Math {
 			return ((a.CompareTo(val) >= 0) ? a : val);
 		}
 
-
-		/**
- * Returns a new {@code BigDecimal} whose value is {@code this} 10^{@code n}.
- * The scale of the result is {@code this.scale()} - {@code n}.
- * The precision of the result is the precision of {@code this}.
- * <p>
- * This method has the same effect as {@link #movePointRight}, except that
- * the precision is not changed.
- *
- * @param n
- *            number of places the decimal point has to be moved.
- * @return {@code this * 10^n}
- */
-
-		public static BigDecimal ScaleByPowerOfTen(BigDecimal number, int n) {
+        /// <summary>
+        /// Calculates the power of ten of the given number.
+        /// </summary>
+        /// <param name="number">
+        /// The number to elevate to the power of ten.
+        /// </param>
+        /// <param name="n">
+        /// The number of places the decimal point has to be moved.
+        /// </param>
+        /// <remarks>
+        /// <para>
+        /// The scale of the result is <see cref="BigDecimal.Scale"/> minus 
+        /// the value of <paramref name="n"/>. The precision of the result is 
+        /// the precision of the given <paramref name="number"/>.
+        /// </para>
+        /// <para>
+        /// This method has the same effect as <see cref="MovePointRight(BigDecimal, int)"/>, 
+		/// except that the precision is not changed.
+        /// </para>
+        /// </remarks>
+        /// <returns>
+        /// Returns a new <see cref="BigDecimal"/> that is the result of 
+        /// the power of ten operation.
+        /// </returns>
+        public static BigDecimal ScaleByPowerOfTen(BigDecimal number, int n) {
 			long newScale = number.Scale - (long) n;
 			if (number.BitLength < 64) {
 				//Taking care when a 0 is to be scaled
@@ -647,125 +750,125 @@ namespace Deveel.Math {
 			return new BigDecimal(number.UnscaledValue, BigDecimal.ToIntScale(newScale));
 		}
 
-		/**
- * Returns a new {@code BigInteger} whose value is {@code this % divisor}.
- * Regarding signs this methods has the same behavior as the % operator on
- * int's, i.e. the sign of the remainder is the same as the sign of this.
- *
- * @param divisor
- *            value by which {@code this} is divided.
- * @return {@code this % divisor}.
- * @throws NullPointerException
- *             if {@code divisor == null}.
- * @throws ArithmeticException
- *             if {@code divisor == 0}.
- */
+	//	/**
+ //* Returns a new {@code BigInteger} whose value is {@code this % divisor}.
+ //* Regarding signs this methods has the same behavior as the % operator on
+ //* int's, i.e. the sign of the remainder is the same as the sign of this.
+ //*
+ //* @param divisor
+ //*            value by which {@code this} is divided.
+ //* @return {@code this % divisor}.
+ //* @throws NullPointerException
+ //*             if {@code divisor == null}.
+ //* @throws ArithmeticException
+ //*             if {@code divisor == 0}.
+ //*/
 		public static BigInteger Remainder(BigInteger dividend, BigInteger divisor) {
 			return BigIntegerMath.Remainder(dividend, divisor);
 		}
 
-		/**
- * Returns a {@code BigInteger} array which contains {@code this / divisor}
- * at index 0 and {@code this % divisor} at index 1.
- *
- * @param divisor
- *            value by which {@code this} is divided.
- * @return {@code [this / divisor, this % divisor]}.
- * @throws NullPointerException
- *             if {@code divisor == null}.
- * @throws ArithmeticException
- *             if {@code divisor == 0}.
- * @see #divide
- * @see #remainder
- */
+	//	/**
+ //* Returns a {@code BigInteger} array which contains {@code this / divisor}
+ //* at index 0 and {@code this % divisor} at index 1.
+ //*
+ //* @param divisor
+ //*            value by which {@code this} is divided.
+ //* @return {@code [this / divisor, this % divisor]}.
+ //* @throws NullPointerException
+ //*             if {@code divisor == null}.
+ //* @throws ArithmeticException
+ //*             if {@code divisor == 0}.
+ //* @see #divide
+ //* @see #remainder
+ //*/
 		public static BigInteger DivideAndRemainder(BigInteger dividend, BigInteger divisor, out BigInteger remainder) {
 			return BigIntegerMath.DivideAndRemainder(dividend, divisor, out remainder);
 		}
 
-		/**
- * Returns a new {@code BigInteger} whose value is {@code this mod m}. The
- * modulus {@code m} must be positive. The result is guaranteed to be in the
- * interval {@code [0, m)} (0 inclusive, m exclusive). The behavior of this
- * function is not equivalent to the behavior of the % operator defined for
- * the built-in {@code int}'s.
- *
- * @param m
- *            the modulus.
- * @return {@code this mod m}.
- * @throws NullPointerException
- *             if {@code m == null}.
- * @throws ArithmeticException
- *             if {@code m < 0}.
- */
+	//	/**
+ //* Returns a new {@code BigInteger} whose value is {@code this mod m}. The
+ //* modulus {@code m} must be positive. The result is guaranteed to be in the
+ //* interval {@code [0, m)} (0 inclusive, m exclusive). The behavior of this
+ //* function is not equivalent to the behavior of the % operator defined for
+ //* the built-in {@code int}'s.
+ //*
+ //* @param m
+ //*            the modulus.
+ //* @return {@code this mod m}.
+ //* @throws NullPointerException
+ //*             if {@code m == null}.
+ //* @throws ArithmeticException
+ //*             if {@code m < 0}.
+ //*/
 		public static BigInteger Mod(BigInteger value, BigInteger m) {
 			return BigIntegerMath.Mod(value, m);
 		}
 
-		/**
- * Returns a new {@code BigInteger} whose value is {@code 1/this mod m}. The
- * modulus {@code m} must be positive. The result is guaranteed to be in the
- * interval {@code [0, m)} (0 inclusive, m exclusive). If {@code this} is
- * not relatively prime to m, then an exception is thrown.
- *
- * @param m
- *            the modulus.
- * @return {@code 1/this mod m}.
- * @throws NullPointerException
- *             if {@code m == null}
- * @throws ArithmeticException
- *             if {@code m < 0 or} if {@code this} is not relatively prime
- *             to {@code m}
- */
+	//	/**
+ //* Returns a new {@code BigInteger} whose value is {@code 1/this mod m}. The
+ //* modulus {@code m} must be positive. The result is guaranteed to be in the
+ //* interval {@code [0, m)} (0 inclusive, m exclusive). If {@code this} is
+ //* not relatively prime to m, then an exception is thrown.
+ //*
+ //* @param m
+ //*            the modulus.
+ //* @return {@code 1/this mod m}.
+ //* @throws NullPointerException
+ //*             if {@code m == null}
+ //* @throws ArithmeticException
+ //*             if {@code m < 0 or} if {@code this} is not relatively prime
+ //*             to {@code m}
+ //*/
 		public static BigInteger ModInverse(BigInteger value, BigInteger m) {
 			return BigIntegerMath.ModInverse(value, m);
 		}
 
-		/**
- * Returns a new {@code BigInteger} whose value is {@code this^exponent mod
- * m}. The modulus {@code m} must be positive. The result is guaranteed to
- * be in the interval {@code [0, m)} (0 inclusive, m exclusive). If the
- * exponent is negative, then {@code this.modInverse(m)^(-exponent) mod m)}
- * is computed. The inverse of this only exists if {@code this} is
- * relatively prime to m, otherwise an exception is thrown.
- *
- * @param exponent
- *            the exponent.
- * @param m
- *            the modulus.
- * @return {@code this^exponent mod val}.
- * @throws NullPointerException
- *             if {@code m == null} or {@code exponent == null}.
- * @throws ArithmeticException
- *             if {@code m < 0} or if {@code exponent<0} and this is not
- *             relatively prime to {@code m}.
- */
+	//	/**
+ //* Returns a new {@code BigInteger} whose value is {@code this^exponent mod
+ //* m}. The modulus {@code m} must be positive. The result is guaranteed to
+ //* be in the interval {@code [0, m)} (0 inclusive, m exclusive). If the
+ //* exponent is negative, then {@code this.modInverse(m)^(-exponent) mod m)}
+ //* is computed. The inverse of this only exists if {@code this} is
+ //* relatively prime to m, otherwise an exception is thrown.
+ //*
+ //* @param exponent
+ //*            the exponent.
+ //* @param m
+ //*            the modulus.
+ //* @return {@code this^exponent mod val}.
+ //* @throws NullPointerException
+ //*             if {@code m == null} or {@code exponent == null}.
+ //* @throws ArithmeticException
+ //*             if {@code m < 0} or if {@code exponent<0} and this is not
+ //*             relatively prime to {@code m}.
+ //*/
 		public static BigInteger ModPow(BigInteger value, BigInteger exponent, BigInteger m) {
 			return BigIntegerMath.ModPow(value, exponent, m);
 		}
 
-		/**
- * Returns a new {@code BigInteger} whose value is {@code this ^ exp}.
- *
- * @param exp
- *            exponent to which {@code this} is raised.
- * @return {@code this ^ exp}.
- * @throws ArithmeticException
- *             if {@code exp < 0}.
- */
+	//	/**
+ //* Returns a new {@code BigInteger} whose value is {@code this ^ exp}.
+ //*
+ //* @param exp
+ //*            exponent to which {@code this} is raised.
+ //* @return {@code this ^ exp}.
+ //* @throws ArithmeticException
+ //*             if {@code exp < 0}.
+ //*/
 		public static BigInteger Pow(BigInteger value, int exp) {
 			return BigIntegerMath.Pow(value, exp);
 		}
 
-		/**
- * Returns the position of the lowest set bit in the two's complement
- * representation of this {@code BigInteger}. If all bits are zero (this=0)
- * then -1 is returned as result.
- * <p>
- * <b>Implementation Note:</b> Usage of this method is not recommended as
- * the current implementation is not efficient.
- *
- * @return position of lowest bit if {@code this != 0}, {@code -1} otherwise
- */
+	//	/**
+ //* Returns the position of the lowest set bit in the two's complement
+ //* representation of this {@code BigInteger}. If all bits are zero (this=0)
+ //* then -1 is returned as result.
+ //* <p>
+ //* <b>Implementation Note:</b> Usage of this method is not recommended as
+ //* the current implementation is not efficient.
+ //*
+ //* @return position of lowest bit if {@code this != 0}, {@code -1} otherwise
+ //*/
 
 		public static BigInteger Min(BigInteger a, BigInteger b) {
 			return ((a.CompareTo(b) == BigInteger.LESS) ? a : b);
@@ -810,115 +913,151 @@ namespace Deveel.Math {
 			return BigIntegerMath.Abs(value);
 		}
 
-		/**
-* Returns a new {@code BigDecimal} instance with the specified scale.
-* <p>
-* If the new scale is greater than the old scale, then additional zeros are
-* added to the unscaled value. In this case no rounding is necessary.
-* <p>
-* If the new scale is smaller than the old scale, then trailing digits are
-* removed. If these trailing digits are not zero, then the remaining
-* unscaled value has to be rounded. For this rounding operation the
-* specified rounding mode is used.
-*
-* @param newScale
-*            scale of the result returned.
-* @param roundingMode
-*            rounding mode to be used to round the result.
-* @return a new {@code BigDecimal} instance with the specified scale.
-* @throws NullPointerException
-*             if {@code roundingMode == null}.
-* @throws ArithmeticException
-*             if {@code roundingMode == ROUND_UNNECESSARY} and rounding is
-*             necessary according to the given scale.
-*/
-
+        /// <summary>
+        /// Scales the given number to given scale, using the 
+        /// specified rounding mode.
+        /// </summary>
+		/// <param name="number">
+		/// The number to be scaled to the given scale.
+		/// </param>
+        /// <param name="newScale">
+        /// The new scale of the number to be returned.
+        /// </param>
+        /// <param name="roundingMode">
+        /// The mode to be used to round the result.
+        /// </param>
+        /// <remarks>
+        /// <para>
+        /// If the new scale is greater than the old scale, then additional zeros are 
+        /// added to the unscaled value: in this case no rounding is necessary.
+        /// </para>
+        /// <para>
+        /// If the new scale is smaller than the old scale, then trailing digits are 
+        /// removed. If these trailing digits are not zero, then the remaining unscaled 
+        /// value has to be rounded. For this rounding operation the specified rounding 
+        /// mode is used.
+        /// </para>
+        /// </remarks>
+        /// <returns>
+        /// Returns a new <see cref="BigDecimal"/> instance with the same value as this instance,
+        /// but with the scale of the given value and the rounding mode specified.
+        /// </returns>
+        /// <exception cref="ArithmeticException">
+        /// Thrown if the rounding mode is <see cref="RoundingMode.Unnecessary"/> and the
+        /// result cannot be represented within the given precision without rounding.
+        /// </exception>
+        [Obsolete("User the BigDecimal.ScaleTo() method instead")]
 		public static BigDecimal Scale(BigDecimal number, int newScale, RoundingMode roundingMode) {
-			if (!Enum.IsDefined(typeof(RoundingMode), roundingMode))
-				throw new ArgumentException();
-
-			return BigDecimalMath.Scale(number, newScale, roundingMode);
+			return number.ScaleTo(newScale, roundingMode);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} instance with the specified scale. If
- * the new scale is greater than the old scale, then additional zeros are
- * added to the unscaled value. If the new scale is smaller than the old
- * scale, then trailing zeros are removed. If the trailing digits are not
- * zeros then an ArithmeticException is thrown.
- * <p>
- * If no exception is thrown, then the following equation holds: {@code
- * x.setScale(s).compareTo(x) == 0}.
- *
- * @param newScale
- *            scale of the result returned.
- * @return a new {@code BigDecimal} instance with the specified scale.
- * @throws ArithmeticException
- *             if rounding would be necessary.
- */
+        /// <summary>
+        /// Scale the given number to the given scale.
+        /// </summary>
+        /// <param name="number"></param>
+        /// <param name="newScale"></param>
+        /// <remarks>
+        /// If the new scale is greater than the old scale, then additional zeros are added to 
+        /// the unscaled value. If the new scale is smaller than the old scale, then trailing 
+        /// zeros are removed.
+        /// </remarks>
+        /// <returns>
+        /// Returns a new <see cref="BigDecimal"/> instance with the same value as this instance,
+        /// and with the scale of the given value.
+        /// </returns>
+        /// <exception cref="ArithmeticException">
+        /// If the trailing digits are not zeros
+        /// </exception>
+        [Obsolete("Use the BigDecimal.ScaleTo() method instead")]
 		public static BigDecimal Scale(BigDecimal number, int newScale) {
-			return Scale(number, newScale, RoundingMode.Unnecessary);
+			return number.ScaleTo(newScale, RoundingMode.Unnecessary);
 		}
 
-		/**
-* Returns a new {@code BigDecimal} instance where the decimal point has
-* been moved {@code n} places to the left. If {@code n < 0} then the
-* decimal point is moved {@code -n} places to the right.
-* <p>
-* The result is obtained by changing its scale. If the scale of the result
-* becomes negative, then its precision is increased such that the scale is
-* zero.
-* <p>
-* Note, that {@code movePointLeft(0)} returns a result which is
-* mathematically equivalent, but which has {@code scale >= 0}.
-*
-* @param n
-*            number of placed the decimal point has to be moved.
-* @return {@code this * 10^(-n}).
-*/
-
-		public static BigDecimal MovePointLeft(BigDecimal number, int n) {
+        /// <summary>
+        /// Moves the decimal point of the given number to the left 
+        /// by the given number of places.
+        /// </summary>
+        /// <param name="number">
+        /// The number to move the decimal point of.
+        /// </param>
+        /// <param name="n">
+        /// The number of places to move the decimal point.
+        /// </param>
+        /// <remarks>
+        /// <para>
+        /// If <paramref name="n"/> is less than 0 then the decimal point is 
+        /// moved by <c>-<paramref name="n"/></c> places to the right.
+        /// </para>
+        /// <para>
+        /// The result is obtained by changing its scale. If the scale of the result
+        /// becomes negative, then its precision is increased such that the scale is
+        /// zero.
+        /// </para>
+        /// <para>
+        /// Note, that <c>MovePointLeft(number, 0)</c> returns a result which is 
+		/// mathematically equivalent, but which has the <see cref="BigDecimal.Scale"/>
+		/// greater or equal to 0.
+        /// </para>
+        /// </remarks>
+        /// <returns>
+		/// Returns a new <see cref="BigDecimal"/> instance with the decimal point moved
+		/// to the left by the given number of places.
+		/// </returns>
+        public static BigDecimal MovePointLeft(BigDecimal number, int n) {
 			return BigDecimalMath.MovePoint(number, number.Scale + (long) n);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} instance where the decimal point has
- * been moved {@code n} places to the right. If {@code n < 0} then the
- * decimal point is moved {@code -n} places to the left.
- * <p>
- * The result is obtained by changing its scale. If the scale of the result
- * becomes negative, then its precision is increased such that the scale is
- * zero.
- * <p>
- * Note, that {@code movePointRight(0)} returns a result which is
- * mathematically equivalent, but which has scale >= 0.
- *
- * @param n
- *            number of placed the decimal point has to be moved.
- * @return {@code this * 10^n}.
- */
-
-		public static BigDecimal MovePointRight(BigDecimal number, int n) {
+        /// <summary>
+        /// Moves the decimal point of the given number to the right 
+        /// by the given number of places.
+        /// </summary>
+        /// <param name="number"></param>
+        /// <param name="n"></param>
+        /// <remarks>
+        /// <para>
+        /// If <paramref name="n"/> is less than 0 then the decimal point is 
+        /// moved by <c>-<paramref name="n"/></c> places to the left.
+        /// </para>
+        /// <para>
+        /// The result is obtained by changing its scale. If the scale of the result
+        /// becomes negative, then its precision is increased such that the scale is
+        /// zero.
+        /// </para>
+        /// <para>
+        /// Note, that <c>MovePointRight(number, 0)</c> returns a result which is 
+        /// mathematically equivalent, but which has the <see cref="BigDecimal.Scale"/>
+        /// greater or equal to 0.
+        /// </para>
+        /// </remarks>
+        /// <returns></returns>
+        public static BigDecimal MovePointRight(BigDecimal number, int n) {
 			return BigDecimalMath.MovePoint(number, number.Scale - (long) n);
-		}
+        }
 
-		/**
- * Returns the unit in the last place (ULP) of this {@code BigDecimal}
- * instance. An ULP is the distance to the nearest big decimal with the same
- * precision.
- * <p>
- * The amount of a rounding error in the evaluation of a floating-point
- * operation is often expressed in ULPs. An error of 1 ULP is often seen as
- * a tolerable error.
- * <p>
- * For class {@code BigDecimal}, the ULP of a number is simply 10^(-scale).
- * <p>
- * For example, {@code new BigDecimal(0.1).ulp()} returns {@code 1E-55}.
- *
- * @return unit in the last place (ULP) of this {@code BigDecimal} instance.
- */
-
-		public static BigDecimal Ulp(BigDecimal value) {
+        /// <summary>
+        /// Returns the unit in the last place (ULP) of the given <see cref="BigDecimal"/>.
+        /// </summary>
+        /// <param name="value">
+		/// The <see cref="BigDecimal"/> number to compute the ULP of.
+		/// </param>
+		/// <remarks>
+		/// <para>
+		/// An ULP is the distance to the nearest big decimal with the same precision.
+        /// </para>
+		/// <para>
+		/// The amount of a rounding error in the evaluation of a floating-point 
+		/// operation is often expressed in ULPs. An error of 1 ULP is often seen 
+		/// as a tolerable error.
+        /// </para>
+		/// <para>
+		/// For <see cref="BigDecimal"/> the ULP of a number is simply 10^(-scale).
+		/// </para>
+		/// <para>
+		/// For example, <c>Ulp(new BigDecimal(0.1))</c> returns <c>1E-55</c>.
+		/// </para>
+        /// </remarks>
+        /// <returns></returns>
+        public static BigDecimal Ulp(BigDecimal value) {
 			return BigDecimal.Create(1, value.Scale);
 		}
 
@@ -926,6 +1065,9 @@ namespace Deveel.Math {
 		/// Adds a value to the current instance of <see cref="BigDecimal"/>,
 		/// rounding the result according to the provided context.
 		/// </summary>
+		/// <param name="value">
+		/// The <see cref="BigDecimal"/> instance to which the value is added.
+		/// </param>
 		/// <param name="augend">The value to be added to this instance.</param>
 		/// <param name="mc">The rounding mode and precision for the result of 
 		/// this operation.</param>
@@ -954,56 +1096,71 @@ namespace Deveel.Math {
 			return BigDecimalMath.Add(value, augend);
 		}
 
-		/// <summary>
-		/// Subtracts the given value from this instance of <see cref="BigDecimal"/>.
-		/// </summary>
-		/// <remarks>
-		/// </remarks>
-		/// <param name="subtrahend">The value to be subtracted from this <see cref="BigDecimal"/>.</param>
-		/// <returns>
-		/// Returns an instance of <see cref="BigDecimal"/> that is the result of the
-		/// subtraction of the given <paramref name="subtrahend"/> from this instance.
-		/// </returns>
-		/// <exception cref="ArgumentNullException">
-		/// If the given <paramref name="subtrahend"/> is <c>null</c>.
-		/// </exception>
-		public static BigDecimal Subtract(BigDecimal value, BigDecimal subtrahend) {
+        /// <summary>
+        /// Subtracts the given value from this instance of <see cref="BigDecimal"/>.
+        /// </summary>
+		/// <param name="value">
+		/// The value from which to substract.
+		/// </param>
+		/// <param name="subtrahend">
+		/// The value to be subtracted from the <paramref name="value"/>.
+		/// </param>
+        /// <remarks>
+        /// </remarks>
+        /// <returns>
+        /// Returns an instance of <see cref="BigDecimal"/> that is the result of the
+        /// subtraction of the given <paramref name="subtrahend"/> from this instance.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// If the given <paramref name="subtrahend"/> is <c>null</c>.
+        /// </exception>
+        public static BigDecimal Subtract(BigDecimal value, BigDecimal subtrahend) {
 			return BigDecimalMath.Subtract(value, subtrahend);
 		}
 
-		/// <summary>
-		/// Subtracts the given value from this instance of <see cref="BigDecimal"/>.
-		/// </summary>
-		/// <remarks>
-		/// <para>
-		/// This overload rounds the result of the operation to the <paramref name="mc">context</paramref>
-		/// provided as argument.
-		/// </para>
-		/// </remarks>
-		/// <param name="subtrahend">The value to be subtracted from this <see cref="BigDecimal"/>.</param>
-		/// <param name="mc">The context used to round the result of this operation.</param>
-		/// <returns>
-		/// Returns an instance of <see cref="BigDecimal"/> that is the result of the
-		/// subtraction of the given <paramref name="subtrahend"/> from this instance.
-		/// </returns>
-		/// <exception cref="ArgumentNullException">
-		/// If either of the given <paramref name="subtrahend"/> or <paramref name="mc"/> are <c>null</c>.
-		/// </exception>
-		public static BigDecimal Subtract(BigDecimal value, BigDecimal subtrahend, MathContext mc) {
+        /// <summary>
+        /// Subtracts the given value from this instance of <see cref="BigDecimal"/>.
+        /// </summary>
+        /// <param name="value">
+		/// The <see cref="BigDecimal"/> number to be subtracted from.
+		/// </param>
+        /// <param name="subtrahend">
+		/// The value to be subtracted from this <see cref="BigDecimal"/>.
+		/// </param>
+        /// <param name="mc">The context used to round the result of this operation.</param>
+        /// <remarks>
+        /// <para>
+        /// This overload rounds the result of the operation to the <paramref name="mc">context</paramref>
+        /// provided as argument.
+        /// </para>
+        /// </remarks>
+        /// <returns>
+        /// Returns an instance of <see cref="BigDecimal"/> that is the result of the
+        /// subtraction of the given <paramref name="subtrahend"/> from this instance.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// If either of the given <paramref name="subtrahend"/> or <paramref name="mc"/> are <c>null</c>.
+        /// </exception>
+        public static BigDecimal Subtract(BigDecimal value, BigDecimal subtrahend, MathContext mc) {
 			return BigDecimalMath.Subtract(value, subtrahend, mc);
 		}
 
-		/**
- * Returns a new {@code BigDecimal} instance with the same value as {@code
- * this} but with a unscaled value where the trailing zeros have been
- * removed. If the unscaled value of {@code this} has n trailing zeros, then
- * the scale and the precision of the result has been reduced by n.
- *
- * @return a new {@code BigDecimal} instance equivalent to this where the
- *         trailing zeros of the unscaled value have been removed.
- */
-
-		public static BigDecimal StripTrailingZeros(BigDecimal value) {
+        /// <summary>
+        /// Removes trailing zeros from the given number.
+        /// </summary>
+        /// <param name="value">
+        /// The number from which to remove the trailing zeros.
+        /// </param>
+        /// <remarks>
+        /// If the unscaled value of <paramref name="value"/> has n trailing zeros, 
+		/// then the scale and the precision of the result has been reduced by n.
+        /// </remarks>
+        /// <returns>
+        /// Returns a new instance of <see cref="BigDecimal"/> equivalent
+        /// to the given number, where the trailing zeros of the unscaled value
+        /// have been removed.
+        /// </returns>
+        public static BigDecimal StripTrailingZeros(BigDecimal value) {
 			int i = 1; // 1 <= i <= 18
 			int lastPow = BigDecimal.TenPow.Length - 1;
 			long newScale = value.Scale;

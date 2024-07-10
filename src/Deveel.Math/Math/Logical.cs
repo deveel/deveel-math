@@ -1,5 +1,5 @@
 // 
-//  Copyright 2009-2017  Deveel
+//  Copyright 2009-2024 Antonello Provenzano
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -103,7 +103,7 @@ namespace Deveel.Math {
 			}
 		}
 
-		/** @return sign = 1, magnitude = val.magnitude & that.magnitude*/
+		// /** @return sign = 1, magnitude = val.magnitude & that.magnitude*/
 		private static BigInteger AndPositive(BigInteger val, BigInteger that) {
 			// PRE: both arguments are positive
 			int resLength = System.Math.Min(val.numberLength, that.numberLength);
@@ -123,7 +123,7 @@ namespace Deveel.Math {
 			return result;
 		}
 
-		/** @return sign = positive.magnitude & magnitude = -negative.magnitude */
+		// /** @return sign = positive.magnitude & magnitude = -negative.magnitude */
 		private static BigInteger AndDiffSigns(BigInteger positive, BigInteger negative) {
 			// PRE: positive is positive and negative is negative
 			int iPos = positive.FirstNonZeroDigit;
@@ -160,7 +160,7 @@ namespace Deveel.Math {
 			return result;
 		}
 
-		/** @return sign = -1, magnitude = -(-longer.magnitude & -shorter.magnitude)*/
+		// /** @return sign = -1, magnitude = -(-longer.magnitude & -shorter.magnitude)*/
 		private static BigInteger AndNegative(BigInteger longer, BigInteger shorter) {
 			// PRE: longer and shorter are negative
 			// PRE: longer has at least as many digits as shorter
@@ -248,7 +248,7 @@ namespace Deveel.Math {
 			}
 		}
 
-		/** @return sign = 1, magnitude = val.magnitude & ~that.magnitude*/
+		// /** @return sign = 1, magnitude = val.magnitude & ~that.magnitude*/
 		private static BigInteger AndNotPositive(BigInteger val, BigInteger that) {
 			// PRE: both arguments are positive
 			int[] resDigits = new int[val.numberLength];
@@ -267,7 +267,7 @@ namespace Deveel.Math {
 			return result;
 		}
 
-		/** @return sign = 1, magnitude = positive.magnitude & ~(-negative.magnitude)*/
+		// /** @return sign = 1, magnitude = positive.magnitude & ~(-negative.magnitude)*/
 		private static BigInteger AndNotPositiveNegative(BigInteger positive, BigInteger negative) {
 			// PRE: positive > 0 && negative < 0
 			int iNeg = negative.FirstNonZeroDigit;
@@ -300,7 +300,7 @@ namespace Deveel.Math {
 			return result;
 		}
 
-		/** @return sign = -1, magnitude = -(-negative.magnitude & ~positive.magnitude)*/
+		// /** @return sign = -1, magnitude = -(-negative.magnitude & ~positive.magnitude)*/
 		private static BigInteger AndNotNegativePositive(BigInteger negative, BigInteger positive) {
 			// PRE: negative < 0 && positive > 0
 			int resLength;
@@ -374,7 +374,7 @@ namespace Deveel.Math {
 			return result;
 		}
 
-		/** @return sign = 1, magnitude = -val.magnitude & ~(-that.magnitude)*/
+		// /** @return sign = 1, magnitude = -val.magnitude & ~(-that.magnitude)*/
 		private static BigInteger AndNotNegative(BigInteger val, BigInteger that) {
 			// PRE: val < 0 && that < 0
 			int iVal = val.FirstNonZeroDigit;
