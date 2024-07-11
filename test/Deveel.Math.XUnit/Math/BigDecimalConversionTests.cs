@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 using Xunit;
 
@@ -54,15 +55,6 @@ namespace Deveel.Math
         }
 
         [Theory]
-        [InlineData("-1")]
-        [InlineData("256")]
-        public static void ConvertToByte_ShouldThrowCastException(string value)
-        {
-            var bigDecimal = BigDecimal.Parse(value);
-            Assert.Throws<InvalidCastException>(() => Convert.ToByte((object) bigDecimal));
-        }
-
-        [Theory]
         [InlineData("56600490011.1345")]
         [InlineData("0.433")]
         public static void ConvertToByte_ShouldThrowArithmeticException(string value)
@@ -70,6 +62,15 @@ namespace Deveel.Math
             var bigDecimal = BigDecimal.Parse(value);
             Assert.Throws<ArithmeticException>(() => Convert.ToByte((object) bigDecimal));
         }
+
+        [Theory]
+        [InlineData("256")]
+        public static void ConvertToByte_ShouldThrowCastException(string value)
+        {
+            var bigDecimal = BigDecimal.Parse(value);
+            Assert.Throws<InvalidCastException>(() => Convert.ToByte((object)bigDecimal));
+        }
+
 
         [Theory]
         [InlineData("4533", 4533)]
@@ -104,14 +105,22 @@ namespace Deveel.Math
         }
 
         [Theory]
-        [InlineData("2147483648")]
-        [InlineData("-2147483649")]
         [InlineData("56600490011.1345")]
         public static void ConvertToInt32_ShouldThrowArithmeticException(string value)
         {
             var bigDecimal = BigDecimal.Parse(value);
             Assert.Throws<ArithmeticException>(() => Convert.ToInt32((object) bigDecimal));
         }
+
+        [Theory]
+        [InlineData("2147483648")]
+        [InlineData("-2147483649")]
+        public static void ConvertToInt32_ShouldThrowCastException(string value)
+        {
+            var bigDecimal = BigDecimal.Parse(value);
+            Assert.Throws<InvalidCastException>(() => Convert.ToInt32((object)bigDecimal));
+        }
+
 
 
         [Theory]
@@ -149,14 +158,22 @@ namespace Deveel.Math
         }
 
         [Theory]
-        [InlineData("32768")]
-        [InlineData("-32769")]
         [InlineData("56600490011.1345")]
-        public static void ConvertToInt16_ShouldThrow(string value)
+        public static void ConvertToInt16_ShouldThrowArithmeticException(string value)
         {
             var bigDecimal = BigDecimal.Parse(value);
             Assert.Throws<ArithmeticException>(() => Convert.ToInt16((object) bigDecimal));
         }
+
+        [Theory]
+        [InlineData("32769")]
+        [InlineData("-32770")]
+        public static void ConvertToInt16_ShouldThrowCastException(string value)
+        {
+            var bigDecimal = BigDecimal.Parse(value);
+            Assert.Throws<InvalidCastException>(() => Convert.ToInt16((object)bigDecimal));
+        }
+
 
         [Theory]
         [InlineData("1", 1)]
@@ -202,7 +219,7 @@ namespace Deveel.Math
         public static void ToPlainString_InvariantCulture_ShouldReturn(string value, string expected)
         {
             var bigDecimal = BigDecimal.Parse(value);
-            var result = bigDecimal.ToPlainString();
+            var result = bigDecimal.ToString("P");
             Assert.Equal(expected, result);
         }
 
@@ -213,7 +230,29 @@ namespace Deveel.Math
         public static void ToEngineeringString_InvariantCulture_ShouldReturn(string value, string expected)
         {
             var bigDecimal = BigDecimal.Parse(value);
-            var result = bigDecimal.ToEngineeringString();
+            var result = bigDecimal.ToString("E");
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData("3463.999301", "3463.999301")]
+        public static void ToString_InvariantCulture_ShouldReturn(string value, string expected)
+        {
+            var bigDeciaml = BigDecimal.Parse(value);
+            var result = bigDeciaml.ToString();
+            Assert.Equal(expected, result);
+        }
+
+        [Theory]
+        [InlineData("3463.999301", "en-US", "{0:G}", "3463.999301")]
+        [InlineData("67849950554E+10", "en-US", "{0:P}", "678499505540000000000")]
+        [InlineData("67849950554E+10", "en-US", "{0:E}", "678.49950554E+18")]
+        [InlineData("3463.999301", "fr-FR", "{0:G}", "3463,999301")]
+        public static void StringFormat_ShouldReturn(string value, string culture, string format, string expected)
+        {
+            var cultureInfo = new CultureInfo(culture);
+            var bigDecimal = BigDecimal.Parse(value);
+            var result = String.Format(cultureInfo, format, bigDecimal);
             Assert.Equal(expected, result);
         }
     }

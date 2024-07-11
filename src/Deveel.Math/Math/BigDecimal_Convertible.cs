@@ -42,7 +42,7 @@ namespace Deveel.Math
 
         byte IConvertible.ToByte(IFormatProvider provider)
         {
-            int value = ToInt32Exact();
+            var value = ToInt16Exact();
             if (value > Byte.MaxValue || value < Byte.MinValue)
                 throw new InvalidCastException();
 
@@ -51,11 +51,11 @@ namespace Deveel.Math
 
         short IConvertible.ToInt16(IFormatProvider provider)
         {
-            var value = ToInt16Exact();
+            var value = ToInt32Exact();
             if (value > Int16.MaxValue || value < Int16.MinValue)
                 throw new InvalidCastException();
 
-            return value;
+            return (short) value;
         }
 
         ushort IConvertible.ToUInt16(IFormatProvider provider) => throw new NotSupportedException();
@@ -63,11 +63,11 @@ namespace Deveel.Math
         // TODO: use the IFormatProvider
         int IConvertible.ToInt32(IFormatProvider provider)
         {
-            var value = ToInt32Exact();
+            var value = ToInt64Exact();
             if (value > Int32.MaxValue || value < Int32.MinValue)
                 throw new InvalidCastException();
 
-            return value;
+            return (int)value;
         }
 
         // TODO: verify if it is possible to convert to uint
@@ -112,7 +112,7 @@ namespace Deveel.Math
 
         string IConvertible.ToString(IFormatProvider provider)
         {
-            return ToString(provider);
+            return ToString(GeneralStringFormat, provider);
         }
 
         object IConvertible.ToType(Type conversionType, IFormatProvider provider)
@@ -132,106 +132,6 @@ namespace Deveel.Math
             }
 
             return ToString(null);
-        }
-
-        /// <summary>
-        /// Converts this <see cref="BigDecimal"/> to a string representation
-        /// </summary>
-        /// <param name="provider"></param>
-        /// <returns></returns>
-        public string ToString(IFormatProvider provider)
-        {
-            if (provider == null)
-                provider = NumberFormatInfo.InvariantInfo;
-
-            return DecimalString.ToString(this, provider);
-        }
-
-        // TODO: use a IFormattable for the Engineering and the Plain string
-
-        /// <summary>
-        /// Returns a string representation of this number,
-        /// including all significant digits of this value
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// If the scale is negative or if <c>scale - precision >= 6</c> 
-        /// then engineering notation is used. Engineering notation is 
-        /// similar to the scientific notation except that the exponent 
-        /// is made to be a multiple of 3 such that the integer part 
-        /// is lesser or equal to 1 and greater than 1000.
-        /// </para>
-        /// <para>
-        /// This overload uses the invariant culture to resolve the
-        /// format information for the string.
-        /// </para>
-        /// </remarks>
-        /// <returns>
-        /// Returns a string representation of this number in engineering 
-        /// notation if necessary.
-        /// </returns>
-        public String ToEngineeringString()
-        {
-            return ToEngineeringString(null);
-        }
-
-        /// <summary>
-        /// Returns a string representation of this number,
-        /// including all significant digits of this value
-        /// </summary>
-        /// <param name="provider">The provider used to resolve the
-        /// format information to use.</param>
-        /// <remarks>
-        /// <para>
-        /// If the scale is negative or if <c>scale - precision >= 6</c> 
-        /// then engineering notation is used. Engineering notation is 
-        /// similar to the scientific notation except that the exponent 
-        /// is made to be a multiple of 3 such that the integer part 
-        /// is greater or equal than 1 and is smaller than 1000.
-        /// </para>
-        /// </remarks>
-        /// <returns>
-        /// Returns a string representation of this number in engineering 
-        /// notation if necessary.
-        /// </returns>
-        public String ToEngineeringString(IFormatProvider provider)
-        {
-            if (provider == null)
-                provider = NumberFormatInfo.InvariantInfo;
-
-            return DecimalString.ToEngineeringString(this, provider);
-        }
-
-        /// <summary>
-        /// Returns a string representation of this <see cref="BigDecimal"/>
-        /// as a plain number, without any scientific notation.
-        /// </summary>
-        /// <param name="provider"></param>
-        /// <remarks>
-        /// <para>
-        /// This methods adds zeros where necessary.
-        /// </para>
-        /// <para>
-        /// If the string representation is used to create a new instance, this
-        /// instance is generally not identical to this instance as the precision
-        /// changes.
-        /// </para>
-        /// </remarks>
-        /// <returns>
-        /// Returns a string representation of this number without any
-        /// exponent part.
-        /// </returns>
-        public String ToPlainString(IFormatProvider provider)
-        {
-            if (provider == null)
-                provider = CultureInfo.InvariantCulture;
-
-            return DecimalString.ToPlainString(this, provider);
-        }
-
-        public String ToPlainString()
-        {
-            return ToPlainString(null);
         }
 
         /// <summary>
@@ -400,6 +300,11 @@ namespace Deveel.Math
             return (short)ValueExact(16);
         }
 
+        public byte ToByteExact()
+        {
+            return (byte)ValueExact(8);
+        }
+
         /**
 		 * Returns this {@code BigDecimal} as a byte value if it has no fractional
 		 * part and if its value fits to the byte range ([-128..127]). If these
@@ -410,9 +315,9 @@ namespace Deveel.Math
 		 *             if rounding is necessary or the number doesn't fit in a byte.
 		 */
 
-        public byte ToByteExact()
+        public sbyte ToSByteExact()
         {
-            return (byte)ValueExact(8);
+            return (sbyte)ValueExact(8);
         }
 
         /// <summary>
@@ -461,26 +366,49 @@ namespace Deveel.Math
             return floatResult;
         }
 
-         ///**
-		 //* Returns this {@code BigDecimal} as a double value. If {@code this} is too
-		 //* big to be represented as an float, then {@code Double.POSITIVE_INFINITY}
-		 //* or {@code Double.NEGATIVE_INFINITY} is returned.
-		 //* <p>
-		 //* Note, that if the unscaled value has more than 53 significant digits,
-		 //* then this decimal cannot be represented exactly in a double variable. In
-		 //* this case the result is rounded.
-		 //* <p>
-		 //* For example, if the instance {@code x1 = new BigDecimal("0.1")} cannot be
-		 //* represented exactly as a double, and thus {@code x1.equals(new
-		 //* BigDecimal(x1.ToDouble())} returns {@code false} for this case.
-		 //* <p>
-		 //* Similarly, if the instance {@code new BigDecimal(9007199254740993L)} is
-		 //* converted to a double, the result is {@code 9.007199254740992E15}.
-		 //* <p>
-		 //*
-		 //* @return this {@code BigDecimal} as a double value.
-		 //*/
+        ///**
+        //* Returns this {@code BigDecimal} as a double value. If {@code this} is too
+        //* big to be represented as an float, then {@code Double.POSITIVE_INFINITY}
+        //* or {@code Double.NEGATIVE_INFINITY} is returned.
+        //* <p>
+        //* Note, that if the unscaled value has more than 53 significant digits,
+        //* then this decimal cannot be represented exactly in a double variable. In
+        //* this case the result is rounded.
+        //* <p>
+        //* For example, if the instance {@code x1 = new BigDecimal("0.1")} cannot be
+        //* represented exactly as a double, and thus {@code x1.equals(new
+        //* BigDecimal(x1.ToDouble())} returns {@code false} for this case.
+        //* <p>
+        //* Similarly, if the instance {@code new BigDecimal(9007199254740993L)} is
+        //* converted to a double, the result is {@code 9.007199254740992E15}.
+        //* <p>
+        //*
+        //* @return this {@code BigDecimal} as a double value.
+        //*/
 
+        /// <summary>
+        /// Converts this <see cref="BigDecimal"/> to a <see cref="double"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// If the <see cref="BigDecimal"/> is too big to be represented as an float, 
+        /// then <see cref="Double.PositiveInfinity"/> or <see cref="Double.NegativeInfinity"/> 
+        /// is returned.
+        /// </para>
+        /// <para>
+        /// Note, that if the unscaled value has more than 53 significant digits, then this decimal 
+        /// cannot be represented exactly in a double variable. In this case the result is rounded.
+        /// </para>
+        /// <para>
+        /// For example, if the instance <c>x1 = BigDecimal.Parse("0.1")</c> cannot be
+        /// represented exactly as a double, and thus <c>x1.Equals(new BigDecimal(x1.ToDouble())</c> 
+        /// returns <c>false</c> for this case.
+        /// </para>
+        /// <para>
+        /// Similarly, if the instance <c>new BigDecimal(9007199254740993L)</c> is converted to a 
+        /// double, the result is <c>9.007199254740992E15</c>.
+        /// </para>
+        /// </remarks>
         public double ToDouble()
         {
             int sign = Sign;
