@@ -427,5 +427,949 @@ namespace Deveel.Math {
             Assert.True(BigDecimal.TryParse("123.45", provider, out result));
             Assert.Equal("123.45", result.ToString());
         }
+
+        [Fact]
+        public void BigDecimal_MultiplyInstance() {
+            var a = BigDecimal.Parse("10.5");
+            var b = BigDecimal.Parse("2.0");
+            var result = a.Multiply(b);
+            Assert.Equal("21.00", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_DivideInstance() {
+            var a = BigDecimal.Parse("10.5");
+            var b = BigDecimal.Parse("2.0");
+            var result = a.Divide(b);
+            Assert.Equal("5.25", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_DivideWithRoundingMode() {
+            var a = BigDecimal.Parse("10");
+            var b = BigDecimal.Parse("3");
+            var result = a.Divide(b, RoundingMode.HalfUp);
+            Assert.Equal("3", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_DivideWithScaleAndRoundingMode() {
+            var a = BigDecimal.Parse("10");
+            var b = BigDecimal.Parse("3");
+            var result = a.Divide(b, 4, RoundingMode.HalfUp);
+            Assert.Equal("3.3333", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_DivideWithMathContext() {
+            var a = BigDecimal.Parse("10");
+            var b = BigDecimal.Parse("3");
+            var mc = new MathContext(3, RoundingMode.HalfUp);
+            var result = a.Divide(b, mc);
+            Assert.Equal("3.33", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorMultiply() {
+            var a = BigDecimal.Parse("3.5");
+            var b = BigDecimal.Parse("2.0");
+            Assert.Equal("7.00", (a * b).ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorDivide() {
+            var a = BigDecimal.Parse("10.0");
+            var b = BigDecimal.Parse("2.5");
+            Assert.Equal("4", (a / b).ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorModulus() {
+            var a = BigDecimal.Parse("10.0");
+            var b = BigDecimal.Parse("3.0");
+            Assert.Equal("1.0", (a % b).ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorInequality() {
+            var a = BigDecimal.Parse("10.0");
+            var b = BigDecimal.Parse("20.0");
+            Assert.True(a != b);
+            Assert.False(a != a);
+        }
+
+        [Fact]
+        public void BigDecimal_ExplicitFromLong() {
+            BigDecimal bd = (BigDecimal)123456789L;
+            Assert.Equal(123456789L, (long)bd);
+        }
+
+        [Fact]
+        public void BigDecimal_ExplicitFromInt() {
+            BigDecimal bd = (BigDecimal)12345;
+            Assert.Equal(12345, (int)bd);
+        }
+
+        [Fact]
+        public void BigDecimal_ImplicitFromFloat() {
+            BigDecimal bd = 3.14f;
+            Assert.Equal(3.14f, (float)bd, 2);
+        }
+
+        [Fact]
+        public void BigDecimal_ImplicitFromDouble() {
+            BigDecimal bd = 3.14159;
+            Assert.Equal(3.14159, (double)bd, 5);
+        }
+
+        [Fact]
+        public void BigDecimal_ImplicitFromDecimal() {
+            decimal d = 123.456m;
+            BigDecimal bd = d;
+            Assert.Equal(d, (decimal)bd);
+        }
+
+        [Fact]
+        public void BigDecimal_Convertible_GetTypeCode() {
+            var bd = BigDecimal.Parse("123.45");
+            var conv = (System.IConvertible)bd;
+            Assert.Equal(TypeCode.Object, conv.GetTypeCode());
+        }
+
+        [Fact]
+        public void BigDecimal_ParseCharArray() {
+            var chars = "456.78".ToCharArray();
+            var result = BigDecimal.Parse(chars);
+            Assert.Equal("456.78", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_ParseCharArrayWithOffset() {
+            var chars = " 789.12".ToCharArray();
+            var result = BigDecimal.Parse(chars, 1, 6);
+            Assert.Equal("789.12", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_ParseCharArrayWithMathContext() {
+            var chars = "123.456".ToCharArray();
+            var mc = new MathContext(4, RoundingMode.HalfUp);
+            var result = BigDecimal.Parse(chars, mc);
+            Assert.Equal("123.5", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_TryParseCharArray_Fails() {
+            var chars = "abc".ToCharArray();
+            BigDecimal result;
+            Assert.False(BigDecimal.TryParse(chars, out result));
+        }
+
+        [Fact]
+        public void BigDecimal_TryParseCharArrayWithProvider() {
+            var chars = "123.45".ToCharArray();
+            var provider = new System.Globalization.CultureInfo("en-US");
+            BigDecimal result;
+            Assert.True(BigDecimal.TryParse(chars, provider, out result));
+            Assert.Equal("123.45", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Serialization_GetObjectData() {
+            var bd = BigDecimal.Parse("12345.6789");
+            var info = new System.Runtime.Serialization.SerializationInfo(typeof(BigDecimal), new System.Runtime.Serialization.FormatterConverter());
+            var context = new System.Runtime.Serialization.StreamingContext();
+            ((System.Runtime.Serialization.ISerializable)bd).GetObjectData(info, context);
+            Assert.NotNull(info);
+        }
+
+        [Fact]
+        public void BigDecimal_TryParse_CharArray_MathContext() {
+            var chars = "123.456".ToCharArray();
+            var mc = new MathContext(3, RoundingMode.HalfUp);
+            BigDecimal result;
+            Assert.True(BigDecimal.TryParse(chars, mc, out result));
+            Assert.Equal("123", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_TryParse_CharArray_Offset_Length() {
+            var chars = "X123.45Y".ToCharArray();
+            BigDecimal result;
+            Assert.True(BigDecimal.TryParse(chars, 1, 6, out result));
+            Assert.Equal("123.45", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToString() {
+            var bd = BigDecimal.Parse("123.45");
+            var conv = (System.IConvertible)bd;
+            var result = conv.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            Assert.Equal("123.45", result);
+        }
+
+        [Fact]
+        public void BigDecimal_ToString_EngineeringString() {
+            var bd = BigDecimal.Parse("12345.6789");
+            var result = bd.ToString("E", System.Globalization.CultureInfo.InvariantCulture);
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void BigDecimal_ToString_PlainString() {
+            var bd = BigDecimal.Parse("12345.6789");
+            var result = bd.ToString("P", System.Globalization.CultureInfo.InvariantCulture);
+            Assert.Equal("12345.6789", result);
+        }
+
+        [Fact]
+        public void BigDecimal_ToString_PlainString_Zero() {
+            var result = BigDecimal.Zero.ToString("P", System.Globalization.CultureInfo.InvariantCulture);
+            Assert.Equal("0", result);
+        }
+
+        [Fact]
+        public void BigDecimal_ToString_PlainString_Negative() {
+            var bd = BigDecimal.Parse("-987.654");
+            var result = bd.ToString("P", System.Globalization.CultureInfo.InvariantCulture);
+            Assert.Equal("-987.654", result);
+        }
+
+        [Fact]
+        public void BigDecimal_ToString_VariousScale() {
+            var bd1 = new BigDecimal(BigInteger.FromInt64(12345), 2);
+            Assert.Equal("123.45", bd1.ToString("G", System.Globalization.CultureInfo.InvariantCulture));
+            var bd2 = new BigDecimal(BigInteger.FromInt64(12345), -2);
+            Assert.NotNull(bd2.ToString("G", System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        [Fact]
+        public void BigDecimal_Precision_Large() {
+            var bd = BigDecimal.Parse("123456789.123456789");
+            var prec = bd.Precision;
+            Assert.Equal(18, prec);
+        }
+
+        [Fact]
+        public void BigDecimal_Precision_Zero() {
+            Assert.Equal(1, BigDecimal.Zero.Precision);
+        }
+
+        [Fact]
+        public void BigDecimal_ToDouble_Large() {
+            var bd = BigDecimal.Parse("1e309");
+            var d = bd.ToDouble();
+            Assert.True(double.IsInfinity(d));
+        }
+
+        [Fact]
+        public void BigDecimal_ToDouble_Small() {
+            var bd = BigDecimal.Parse("1e-308");
+            var d = bd.ToDouble();
+            Assert.Equal(1e-308, d, 10);
+        }
+
+        [Fact]
+        public void BigDecimal_Remainder_Negative() {
+            var a = BigDecimal.Parse("-10.0");
+            var b = BigDecimal.Parse("3.0");
+            var result = a % b;
+            Assert.Equal("-1.0", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Remainder_BothNegative() {
+            var a = BigDecimal.Parse("-10.0");
+            var b = BigDecimal.Parse("-3.0");
+            var result = a % b;
+            Assert.Equal("-1.0", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Remainder_ZeroDivisor() {
+            var a = BigDecimal.Parse("10.0");
+            var b = BigDecimal.Zero;
+            Assert.Throws<ArithmeticException>(() => a % b);
+        }
+
+        [Fact]
+        public void BigDecimal_Add_DifferentScales() {
+            var a = BigDecimal.Parse("0.00001");
+            var b = BigDecimal.Parse("100000");
+            var result = BigMath.Add(a, b);
+            Assert.Equal("100000.00001", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Add_Result_Zero() {
+            var a = BigDecimal.Parse("5.0");
+            var b = BigDecimal.Parse("-5.0");
+            var result = BigMath.Add(a, b);
+            Assert.Equal("0.0", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Subtract_Result_Zero() {
+            var a = BigDecimal.Parse("3.14");
+            var b = BigDecimal.Parse("3.14");
+            var result = BigMath.Subtract(a, b);
+            Assert.Equal("0.00", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Subtract_Negative_Result() {
+            var a = BigDecimal.Parse("3.0");
+            var b = BigDecimal.Parse("5.0");
+            var result = BigMath.Subtract(a, b);
+            Assert.Equal("-2.0", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Add_Through_MathContext_Edge() {
+            var a = BigDecimal.Parse("0.9999");
+            var b = BigDecimal.Parse("0.0001");
+            var mc = new MathContext(2, RoundingMode.HalfUp);
+            var result = BigMath.Add(a, b, mc);
+            Assert.Equal("1.0", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_ToString_General() {
+            var bd = BigDecimal.Parse("123.456");
+            var s = bd.ToString("G", System.Globalization.CultureInfo.InvariantCulture);
+            Assert.Equal("123.456", s);
+        }
+
+        [Fact]
+        public void BigDecimal_ToString_Engineering_Large() {
+            var bd = BigDecimal.Parse("12345.6789");
+            var s = bd.ToString("E", System.Globalization.CultureInfo.InvariantCulture);
+            Assert.NotNull(s);
+            Assert.NotEqual("", s);
+        }
+
+        [Fact]
+        public void BigDecimal_ToString_Engineering_NegativeScale() {
+            var bd = new BigDecimal(BigInteger.FromInt64(123450), -3);
+            var s = bd.ToString("E", System.Globalization.CultureInfo.InvariantCulture);
+            Assert.NotNull(s);
+        }
+
+        [Fact]
+        public void BigDecimal_ToString_Plain_Small() {
+            var bd = BigDecimal.Parse("0.0000012345");
+            var s = bd.ToString("P", System.Globalization.CultureInfo.InvariantCulture);
+            Assert.NotNull(s);
+        }
+
+        [Fact]
+        public void BigDecimal_ToString_InvalidFormat() {
+            var bd = BigDecimal.Parse("1.0");
+            Assert.Throws<ArgumentException>(() => bd.ToString("X", System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        [Fact]
+        public void BigDecimal_Divide_Exact_DifferentScale() {
+            var a = BigDecimal.Parse("1.0");
+            var b = BigDecimal.Parse("0.5");
+            var result = a.Divide(b);
+            Assert.Equal("2", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Divide_Integer_Result() {
+            var a = BigDecimal.Parse("100");
+            var b = BigDecimal.Parse("20");
+            var result = a.Divide(b);
+            Assert.Equal("5", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Negate_MathContext() {
+            var bd = BigDecimal.Parse("123.456");
+            var mc = new MathContext(4, RoundingMode.HalfUp);
+            var result = bd.Negate(mc);
+            Assert.Equal("-123.5", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Negate_Zero() {
+            var result = BigDecimal.Zero.Negate();
+            Assert.Equal("0", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Negate_Positive() {
+            var bd = BigDecimal.Parse("123.45");
+            var result = bd.Negate();
+            Assert.Equal("-123.45", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Negate_Negative() {
+            var bd = BigDecimal.Parse("-123.45");
+            var result = bd.Negate();
+            Assert.Equal("123.45", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_ToBigInteger_Exact() {
+            var bd = BigDecimal.Parse("12345");
+            var bi = bd.ToBigInteger();
+            Assert.Equal(BigInteger.FromInt64(12345), bi);
+        }
+
+        [Fact]
+        public void BigDecimal_ToBigInteger_Truncated() {
+            var bd = BigDecimal.Parse("12345.678");
+            var bi = bd.ToBigInteger();
+            Assert.Equal(BigInteger.FromInt64(12345), bi);
+        }
+
+        [Fact]
+        public void BigDecimal_ToBigIntegerExact() {
+            var bd = BigDecimal.Parse("12345.000");
+            var bi = bd.ToBigIntegerExact();
+            Assert.Equal(BigInteger.FromInt64(12345), bi);
+        }
+
+        [Fact]
+        public void BigDecimal_ToBigIntegerExact_Throws() {
+            var bd = BigDecimal.Parse("12345.678");
+            Assert.Throws<ArithmeticException>(() => bd.ToBigIntegerExact());
+        }
+
+        [Fact]
+        public void BigDecimal_ToBigIntegerExact_Negative() {
+            var bd = BigDecimal.Parse("-12345.000");
+            var bi = bd.ToBigIntegerExact();
+            Assert.Equal(BigInteger.FromInt64(-12345), bi);
+        }
+
+        [Fact]
+        public void BigDecimal_RoundingBehavior() {
+            var a = BigDecimal.Parse("1.5");
+            var mc = new MathContext(1, RoundingMode.HalfUp);
+            var result = BigMath.Round(a, mc);
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void BigDecimal_RoundingBehavior_Unnecessary_NoRounding() {
+            var a = BigDecimal.Parse("1.0");
+            var mc = new MathContext(2, RoundingMode.Unnecessary);
+            var result = BigMath.Round(a, mc);
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void BigDecimal_RoundingBehavior_Unnecessary_Throws() {
+            var a = BigDecimal.Parse("1.234");
+            var mc = new MathContext(2, RoundingMode.Unnecessary);
+            Assert.Throws<ArithmeticException>(() => BigMath.Round(a, mc));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToSByte_Throws() {
+            var bd = BigDecimal.Parse("1.0");
+            var conv = (System.IConvertible)bd;
+            Assert.Throws<NotSupportedException>(() => conv.ToSByte(null));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToUInt16_Throws() {
+            var bd = BigDecimal.Parse("1.0");
+            var conv = (System.IConvertible)bd;
+            Assert.Throws<NotSupportedException>(() => conv.ToUInt16(null));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToUInt32_Throws() {
+            var bd = BigDecimal.Parse("1.0");
+            var conv = (System.IConvertible)bd;
+            Assert.Throws<NotSupportedException>(() => conv.ToUInt32(null));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToUInt64_Throws() {
+            var bd = BigDecimal.Parse("1.0");
+            var conv = (System.IConvertible)bd;
+            Assert.Throws<NotSupportedException>(() => conv.ToUInt64(null));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToDateTime_Throws() {
+            var bd = BigDecimal.Parse("1.0");
+            var conv = (System.IConvertible)bd;
+            Assert.Throws<NotSupportedException>(() => conv.ToDateTime(null));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToBoolean_True() {
+            var bd = BigDecimal.Parse("1.0");
+            var conv = (System.IConvertible)bd;
+            Assert.True(conv.ToBoolean(null));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToBoolean_False() {
+            var bd = BigDecimal.Parse("0.0");
+            var conv = (System.IConvertible)bd;
+            Assert.False(conv.ToBoolean(null));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToChar() {
+            var bd = BigDecimal.Parse("65");
+            var conv = (System.IConvertible)bd;
+            Assert.Equal('A', conv.ToChar(null));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToByte() {
+            var bd = BigDecimal.Parse("42");
+            var conv = (System.IConvertible)bd;
+            Assert.Equal((byte)42, conv.ToByte(null));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToInt16() {
+            var bd = BigDecimal.Parse("12345");
+            var conv = (System.IConvertible)bd;
+            Assert.Equal((short)12345, conv.ToInt16(null));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToInt32() {
+            var bd = BigDecimal.Parse("1234567890");
+            var conv = (System.IConvertible)bd;
+            Assert.Equal(1234567890, conv.ToInt32(null));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToInt64() {
+            var bd = BigDecimal.Parse("1234567890123456789");
+            var conv = (System.IConvertible)bd;
+            Assert.Equal(1234567890123456789L, conv.ToInt64(null));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToSingle() {
+            var bd = BigDecimal.Parse("3.14");
+            var conv = (System.IConvertible)bd;
+            Assert.Equal(3.14f, conv.ToSingle(null), 1);
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToDouble() {
+            var bd = BigDecimal.Parse("3.14159");
+            var conv = (System.IConvertible)bd;
+            Assert.Equal(3.14159, conv.ToDouble(null), 4);
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToDecimal() {
+            var bd = BigDecimal.Parse("123.456");
+            var conv = (System.IConvertible)bd;
+            Assert.Equal(123.456m, conv.ToDecimal(null));
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToString_WithProvider() {
+            var bd = BigDecimal.Parse("123.45");
+            var conv = (System.IConvertible)bd;
+            var result = conv.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            Assert.Equal("123.45", result);
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToType_ReturnsBigInteger() {
+            var bd = BigDecimal.Parse("12345");
+            var conv = (System.IConvertible)bd;
+            var result = conv.ToType(typeof(BigInteger), null);
+            Assert.IsType<BigInteger>(result);
+        }
+
+        [Fact]
+        public void BigDecimal_IConvertible_ToType_Throws() {
+            var bd = BigDecimal.Parse("12345");
+            var conv = (System.IConvertible)bd;
+            Assert.Throws<NotSupportedException>(() => conv.ToType(typeof(double), null));
+        }
+
+        [Fact]
+        public void BigDecimal_TryParse_CharArray_MC_Provider() {
+            var chars = "123.456".ToCharArray();
+            var mc = new MathContext(4, RoundingMode.HalfUp);
+            var provider = System.Globalization.CultureInfo.InvariantCulture;
+            BigDecimal result;
+            Assert.True(BigDecimal.TryParse(chars, mc, provider, out result));
+            Assert.Equal("123.5", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Parse_CharArray_MC_Provider() {
+            var chars = "789.012".ToCharArray();
+            var mc = new MathContext(5, RoundingMode.HalfUp);
+            var provider = System.Globalization.CultureInfo.InvariantCulture;
+            var result = BigDecimal.Parse(chars, mc, provider);
+            Assert.Equal("789.01", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Parse_CharArray_Provider() {
+            var chars = "456.789".ToCharArray();
+            var provider = System.Globalization.CultureInfo.InvariantCulture;
+            var result = BigDecimal.Parse(chars, provider);
+            Assert.Equal("456.789", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Parse_CharArray_MC() {
+            var chars = "123.456".ToCharArray();
+            var mc = new MathContext(4, RoundingMode.HalfUp);
+            var result = BigDecimal.Parse(chars, mc);
+            Assert.Equal("123.5", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_TryParse_CharArray_Offset_Length_MC() {
+            var chars = "XX123.456YY".ToCharArray();
+            var mc = new MathContext(4, RoundingMode.HalfUp);
+            var provider = System.Globalization.CultureInfo.InvariantCulture;
+            BigDecimal result;
+            Assert.True(BigDecimal.TryParse(chars, 2, 7, mc, provider, out result));
+            Assert.Equal("123.5", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_TryParse_CharArray_Offset_Length_Provider() {
+            var chars = "XX123.456YY".ToCharArray();
+            var provider = System.Globalization.CultureInfo.InvariantCulture;
+            BigDecimal result;
+            Assert.True(BigDecimal.TryParse(chars, 2, 7, provider, out result));
+            Assert.Equal("123.456", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_Double_MC() {
+            var mc = new MathContext(3, RoundingMode.HalfUp);
+            var bd = new BigDecimal(3.14159, mc);
+            Assert.NotNull(bd);
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_BigInteger_MC() {
+            var unscaled = BigInteger.FromInt64(123456);
+            var mc = new MathContext(3, RoundingMode.HalfUp);
+            var bd = new BigDecimal(unscaled, mc);
+            Assert.NotNull(bd);
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_Int_MC() {
+            var mc = new MathContext(3, RoundingMode.HalfUp);
+            var bd = new BigDecimal(12345, mc);
+            Assert.NotNull(bd);
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_Long_MC() {
+            var mc = new MathContext(3, RoundingMode.HalfUp);
+            var bd = new BigDecimal(123456789L, mc);
+            Assert.NotNull(bd);
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_BigInteger_Scale_MC() {
+            var unscaled = BigInteger.FromInt64(123456);
+            var mc = new MathContext(4, RoundingMode.HalfUp);
+            var bd = new BigDecimal(unscaled, 2, mc);
+            Assert.NotNull(bd);
+        }
+
+        [Fact]
+        public void BigDecimal_InplaceRound_ThroughRound() {
+            var bd = BigDecimal.Parse("123.456");
+            var mc = new MathContext(4, RoundingMode.HalfUp);
+            var result = BigMath.Round(bd, mc);
+            Assert.Equal("123.5", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Equals_DifferentScale() {
+            var a = BigDecimal.Parse("1.0");
+            var b = BigDecimal.Parse("1.00");
+            Assert.False(a.Equals(b));
+        }
+
+        [Fact]
+        public void BigDecimal_Equals_SameValue() {
+            var a = BigDecimal.Parse("1.00");
+            var b = BigDecimal.Parse("1.00");
+            Assert.True(a.Equals(b));
+        }
+
+        [Fact]
+        public void BigDecimal_GetHashCode_SameValue() {
+            var a = BigDecimal.Parse("123.45");
+            var b = BigDecimal.Parse("123.45");
+            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+        }
+
+        [Fact]
+        public void BigDecimal_CompareTo_DifferentScale() {
+            var a = BigDecimal.Parse("1.0");
+            var b = BigDecimal.Parse("1.00");
+            Assert.Equal(0, a.CompareTo(b));
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorUnaryPlus() {
+            var a = BigDecimal.Parse("-123.45");
+            var result = +a;
+            Assert.Equal("-123.45", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorUnaryMinus() {
+            var a = BigDecimal.Parse("123.45");
+            var result = -a;
+            Assert.Equal("-123.45", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorIncrement() {
+            var a = BigDecimal.Parse("1.0");
+            a++;
+            Assert.Equal("2.0", a.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorDecrement() {
+            var a = BigDecimal.Parse("2.0");
+            a--;
+            Assert.Equal("1.0", a.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorEquality() {
+            var a = BigDecimal.Parse("1.00");
+            var b = BigDecimal.Parse("1.00");
+            Assert.True(a == b);
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorInequality_DifferentValues() {
+            var a = BigDecimal.Parse("1.00");
+            var b = BigDecimal.Parse("2.00");
+            Assert.True(a != b);
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorLessThan() {
+            var a = BigDecimal.Parse("1.0");
+            var b = BigDecimal.Parse("2.0");
+            Assert.True(a < b);
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorGreaterThan() {
+            var a = BigDecimal.Parse("2.0");
+            var b = BigDecimal.Parse("1.0");
+            Assert.True(a > b);
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorLessThanOrEqual() {
+            var a = BigDecimal.Parse("1.0");
+            var b = BigDecimal.Parse("1.0");
+            Assert.True(a <= b);
+        }
+
+        [Fact]
+        public void BigDecimal_OperatorGreaterThanOrEqual() {
+            var a = BigDecimal.Parse("1.0");
+            var b = BigDecimal.Parse("1.0");
+            Assert.True(a >= b);
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_Double_Positive() {
+            var bd = new BigDecimal(3.14159);
+            Assert.NotNull(bd);
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_Double_Negative() {
+            var bd = new BigDecimal(-3.14159);
+            Assert.NotNull(bd);
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_Double_Zero() {
+            var bd = new BigDecimal(0.0);
+            Assert.NotNull(bd);
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_Double_NaN_Throws() {
+            Assert.Throws<FormatException>(() => new BigDecimal(double.NaN));
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_Double_Infinity_Throws() {
+            Assert.Throws<FormatException>(() => new BigDecimal(double.PositiveInfinity));
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_Double_NegativeInfinity_Throws() {
+            Assert.Throws<FormatException>(() => new BigDecimal(double.NegativeInfinity));
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_BigInteger_Positive() {
+            var unscaled = BigInteger.FromInt64(123456);
+            var bd = new BigDecimal(unscaled);
+            Assert.NotNull(bd);
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_BigInteger_Negative() {
+            var unscaled = BigInteger.FromInt64(-123456);
+            var bd = new BigDecimal(unscaled);
+            Assert.NotNull(bd);
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_BigInteger_Scale() {
+            var unscaled = BigInteger.FromInt64(123456);
+            var bd = new BigDecimal(unscaled, 2);
+            Assert.NotNull(bd);
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_BigInteger_Scale_Negative() {
+            var unscaled = BigInteger.FromInt64(12345);
+            var bd = new BigDecimal(unscaled, -3);
+            Assert.NotNull(bd);
+        }
+
+        [Fact]
+        public void BigDecimal_Constructor_BigInteger_Scale_MC_ZeroPrecision() {
+            var unscaled = BigInteger.FromInt64(123456789);
+            var mc = new MathContext(0, RoundingMode.HalfUp);
+            var bd = new BigDecimal(unscaled, 2, mc);
+            Assert.NotNull(bd);
+        }
+
+        [Fact]
+        public void BigDecimal_Parse_String_Provider() {
+            var provider = System.Globalization.CultureInfo.InvariantCulture;
+            var result = BigDecimal.Parse("123.456", provider);
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void BigDecimal_Parse_String_MC_Provider() {
+            var mc = new MathContext(4, RoundingMode.HalfUp);
+            var provider = System.Globalization.CultureInfo.InvariantCulture;
+            var result = BigDecimal.Parse("123.456", mc, provider);
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void BigDecimal_TryParse_String_Provider() {
+            var provider = System.Globalization.CultureInfo.InvariantCulture;
+            BigDecimal result;
+            Assert.True(BigDecimal.TryParse("123.456", provider, out result));
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void BigDecimal_TryParse_String_MC_Provider() {
+            var mc = new MathContext(4, RoundingMode.HalfUp);
+            var provider = System.Globalization.CultureInfo.InvariantCulture;
+            BigDecimal result;
+            Assert.True(BigDecimal.TryParse("123.456", mc, provider, out result));
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void BigDecimal_TryParse_ScientificNotation() {
+            BigDecimal result;
+            Assert.True(BigDecimal.TryParse("1.23E+10", out result));
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void BigDecimal_TryParse_NegativeScientificNotation() {
+            BigDecimal result;
+            Assert.True(BigDecimal.TryParse("-1.23E+10", out result));
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void BigDecimal_Parse_ScientificNotation() {
+            var result = BigDecimal.Parse("1.23E+10");
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void BigDecimal_Parse_CharArray_LeadingZeros() {
+            var chars = "00123.45".ToCharArray();
+            var result = BigDecimal.Parse(chars);
+            Assert.Equal("123.45", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Parse_CharArray_Negative() {
+            var chars = "-123.45".ToCharArray();
+            var result = BigDecimal.Parse(chars);
+            Assert.Equal("-123.45", result.ToString());
+        }
+
+        [Fact]
+        public void BigDecimal_Parse_CharArray_ScientificNotation() {
+            var chars = "1.23E+10".ToCharArray();
+            var result = BigDecimal.Parse(chars);
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public void BigDecimal_TryParse_CharArray_Invalid() {
+            var chars = "abc".ToCharArray();
+            BigDecimal result;
+            Assert.False(BigDecimal.TryParse(chars, out result));
+        }
+
+        [Fact]
+        public void BigDecimal_TryParse_CharArray_Empty() {
+            var chars = "".ToCharArray();
+            BigDecimal result;
+            Assert.False(BigDecimal.TryParse(chars, out result));
+        }
+
+        [Fact]
+        public void BigDecimal_ToString_LargeNumber() {
+            var bd = BigDecimal.Parse("123456789012345678901234567890.12345678901234567890");
+            var s = bd.ToString("G", System.Globalization.CultureInfo.InvariantCulture);
+            Assert.False(string.IsNullOrEmpty(s));
+        }
+
+        [Fact]
+        public void BigDecimal_ToString_VeryLargeScale() {
+            var unscaled = BigInteger.Parse("123456789012345678901234567890");
+            var bd = new BigDecimal(unscaled, 50);
+            var s = bd.ToString("G", System.Globalization.CultureInfo.InvariantCulture);
+            Assert.False(string.IsNullOrEmpty(s));
+        }
+
+        [Fact]
+        public void BigDecimal_ToString_NegativeLarge() {
+            var bd = BigDecimal.Parse("-123456789012345678901234567890.12345678901234567890");
+            var s = bd.ToString("G", System.Globalization.CultureInfo.InvariantCulture);
+            Assert.False(string.IsNullOrEmpty(s));
+        }
     }
 }
