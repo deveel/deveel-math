@@ -1,12 +1,13 @@
 mode: ContinuousDeployment
+next-version: 2.0.1
 branches:
   main:
-    tag: ''
+    tag: 'preview'
     increment: Patch
-    regex: ^master$
-    source-branches: ['feature']
+    regex: ^main$|^master$
+    source-branches: ['feature', 'pull-request']
     prevent-increment-of-merged-branch-version: true
-    tracks-release-branches: true
+    tracks-release-branches: false
     is-release-branch: true
   feature:
     tag: useBranchName
@@ -15,9 +16,13 @@ branches:
     source-branches: ['main']
     tracks-release-branches: false
     is-release-branch: false
+  pull-request:
+    tag: 'pr'
+    increment: None
+    regex: ^pull|^pr[/-]
+    source-branches: ['main']
 ignore:
   sha: []
 merge-message-formats: {}
 commit-message-incrementing: Enabled
 assembly-versioning-scheme: MajorMinorPatch
-continuous-delivery-fallback-tag: alpha

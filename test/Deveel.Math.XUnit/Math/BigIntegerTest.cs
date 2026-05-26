@@ -349,7 +349,7 @@ namespace Deveel.Math {
 					try {
 						a = BigInteger.FromInt64(i);
 						inv = BigMath.ModInverse(a, mod);
-						Assert.True(one.Equals(((a * inv) % mod)), "bad inverse: " + a + " inv mod " + mod + " equals " + inv);
+						Assert.True(one.Equals(BigMath.Mod(a * inv, mod)), "bad inverse: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.True(inv.CompareTo(mod) < 0, "inverse greater than modulo: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.True(inv.CompareTo(BigInteger.Zero) >= 0, "inverse less than zero: " + a + " inv mod " + mod + " equals " + inv);
 					} catch (ArithmeticException) {
@@ -363,7 +363,7 @@ namespace Deveel.Math {
 					try {
 						a = bi3 + (BigInteger.FromInt64(i));
 						inv = BigMath.ModInverse(a, mod);
-						Assert.True(one.Equals((a * inv) % mod), "bad inverse: " + a + " inv mod " + mod + " equals " + inv);
+						Assert.True(one.Equals(BigMath.Mod(a * inv, mod)), "bad inverse: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.True(inv.CompareTo(mod) < 0, "inverse greater than modulo: " + a + " inv mod " + mod + " equals " + inv);
 						Assert.True(inv.CompareTo(BigInteger.Zero) >= 0, "inverse less than zero: " + a + " inv mod " + mod + " equals " + inv);
 					} catch (ArithmeticException) {
@@ -670,15 +670,10 @@ namespace Deveel.Math {
 			BigInteger p = q * i2;
 			BigInteger a = p + r;
 			Assert.True(a.Equals(i1), "(a/b)*b+(a%b) != a");
-			try {
-				BigInteger mod = i1 % i2;
-				Assert.True(mod.Sign >= 0, "mod is negative");
-				Assert.True(BigMath.Abs(mod).CompareTo(BigMath.Abs(i2)) < 0, "mod out of range");
-				Assert.True(r.Sign < 0 || r.Equals(mod), "positive remainder == mod");
-				Assert.True(r.Sign >= 0 || r.Equals(mod - i2), "negative remainder == mod - divisor");
-			} catch (ArithmeticException e) {
-				Assert.True(i2.Sign <= 0, "mod fails on negative divisor only");
-			}
+			BigInteger rem = i1 % i2;
+			Assert.True(rem.Sign == 0 || rem.Sign == i1.Sign, "wrong sign on remainder");
+			Assert.True(BigMath.Abs(rem).CompareTo(BigMath.Abs(i2)) < 0, "remainder out of range");
+			Assert.Equal(r, rem);
 		}
 
 		private void TestDivRanges(BigInteger i) {

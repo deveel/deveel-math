@@ -2,7 +2,6 @@
 using System.Globalization;
 
 using Xunit;
-using Xunit.Extensions;
 
 namespace Deveel.Math {
 	public class BigDecimalArithmeticTest {
