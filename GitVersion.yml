@@ -1,5 +1,6 @@
 mode: ContinuousDeployment
 next-version: 2.0.1
+tag-prefix: '[vV]'
 branches:
   main:
     tag: 'preview'
