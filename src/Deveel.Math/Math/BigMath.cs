@@ -607,7 +607,7 @@ namespace Deveel.Math {
 		/// unary plus of the given number.
 		/// </returns>
 		public static BigDecimal Plus(BigDecimal number) {
-			return Plus(number, null);
+			return Plus(number, MathContext.Unlimited);
 		}
 
 		/// <remarks>

@@ -677,7 +677,12 @@ namespace Deveel.Math {
 					substrStart < endChar;
 					substrStart = substrEnd, substrEnd = substrStart
 					                                     + charsPerInt) {
-					int bigRadixDigit = Convert.ToInt32(s.Substring(substrStart, substrEnd - substrStart), radix);
+					int bigRadixDigit = 0;
+				for (int i = substrStart; i < substrEnd; i++) {
+					int d = CharHelper.toDigit(s[i], radix);
+					if (d < 0) throw new FormatException(Messages.math13);
+					bigRadixDigit = bigRadixDigit * radix + d;
+				}
 					newDigit = Multiplication.MultiplyByInt(digits, digitIndex, bigRadix);
 					newDigit += Elementary.inplaceAdd(digits, digitIndex, bigRadixDigit);
 					digits[digitIndex++] = newDigit;
@@ -747,7 +752,9 @@ namespace Deveel.Math {
 		}
 
 		public static BigInteger operator %(BigInteger a, BigInteger b) {
-			return BigMath.Mod(a, b);
+			if (b.sign == 0)
+				throw new ArithmeticException("Division by zero");
+			return BigIntegerMath.Remainder(a, b);
 		}
 
 		public static BigInteger operator &(BigInteger a, BigInteger b) {
@@ -1276,6 +1283,35 @@ namespace Deveel.Math {
 				return Conversion.BigInteger2String(this, radix);
 			}
 
+		#endregion
+
+		#region System.Numerics Interop
+
+		public System.Numerics.BigInteger ToSystemBigInteger() {
+			if (sign == 0)
+				return System.Numerics.BigInteger.Zero;
+
+			byte[] bytes = ToByteArray();
+			Array.Reverse(bytes);
+			return new System.Numerics.BigInteger(bytes);
+		}
+
+		public static BigInteger FromSystemBigInteger(System.Numerics.BigInteger value) {
+			if (value.IsZero)
+				return Zero;
+
+			byte[] bytes = value.ToByteArray();
+			Array.Reverse(bytes);
+			return new BigInteger(bytes);
+		}
+
+		public static implicit operator System.Numerics.BigInteger(BigInteger value) {
+			return value.ToSystemBigInteger();
+		}
+
+		public static explicit operator BigInteger(System.Numerics.BigInteger value) {
+			return FromSystemBigInteger(value);
+		}
 
 		#endregion
 	}

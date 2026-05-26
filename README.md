@@ -4,7 +4,7 @@
 
 # Deveel Math
 
-This library is an __opinionated__ port of the _Java Math_ package provided as part of the [Apache Harmony](https://harmony.apache.org/) framework (now defunct), that can be used to factorize big numbers and decimals in .NET applications.
+This library is an __opinionated__ port of the _Java Math_ package provided as part of the [Apache Harmony](https://harmony.apache.org/) framework (now defunct), that can be used to handle big numbers and decimals in .NET applications.
 
 ## Why Deveel Math?
 
@@ -12,7 +12,7 @@ At the time of the development of this library, the .NET framework did not provi
 
 In fact, during the development of the [DeveelDB](https://github.com/deveel/deveeldb) database engine, we needed a library that could handle big numbers and decimals in a more flexible way, and that could be used in a cross-platform environment.
 
-Stil at today, the .NET framework does not provide a native support for big decimals, and the `System.Numerics` namespace is still limited to handling operations on big integers.
+Still today, the .NET framework does not provide a native support for big decimals, and the `System.Numerics` namespace is still limited to handling operations on big integers.
 
 ## What is Deveel Math?
 
@@ -24,7 +24,7 @@ Given the limited knowledge of the author in the field of numerical analysis, th
 
 ## How to Install It
 
-The library is available as a NuGet package, and it can be installed in any .NET application that supports the __.NET 6.0__ or later (prior support to _.NET 4.8_ and _.NET Standard 1.3 has been dropped).
+The library is available as a NuGet package, and it can be installed in any .NET application that supports __.NET 8.0__, __.NET 9.0__, or __.NET 10.0__.
 
 The binaries are available in two deployment streams:
 
@@ -32,7 +32,6 @@ The binaries are available in two deployment streams:
 |------|--------|---------|
 | Stable | _NuGet_ | [![NuGet](https://img.shields.io/nuget/v/dmath.svg?label=dmath&logo=nuget)](https://www.nuget.org/packages/dmath/) |
 | Pre-Release | _GitHub_ | [![Static Badge](https://img.shields.io/badge/prerelease-yellow?logo=nuget&label=dmath)](https://github.com/deveel/deveel-math/pkgs/nuget/dmath)
-  |
 
 To install the `dmath` library you can use the following command from the NuGet Package Manager Console on the root of your project:
 
@@ -46,15 +45,24 @@ or rather using the `dotnet` CLI:
 $ dotnet add package dmath
 ```
 
-__Note__: _Since version 2.0.x the library has been migrated to .NET 6.0 and the support for .NET Standard 1.3 has been dropped._
+## Project Structure
 
-## BigDecimal
+The solution contains two projects:
+
+| Project | Description |
+|---------|-------------|
+| `Deveel.Math` | Core library containing `BigDecimal`, `BigInteger`, and related math operations |
+| `Deveel.Math.XUnit` | Unit test suite using xUnit v3 with Microsoft Testing Platform |
+
+### Key Classes
+
+#### BigDecimal
 
 The `BigDecimal` class represents a big decimal number that can be used to perform arithmetic operations with arbitrary precision.
 
 The class provides a set of methods to perform arithmetic operations, such as addition, subtraction, multiplication, division, and rounding.
 
-### Creating a BigDecimal
+##### Creating a BigDecimal
 
 To create a new `BigDecimal` instance, you can use one of the following constructors:
 
@@ -76,23 +84,51 @@ or rather from a string:
 var number = BigDecimal.Parse("1234567890");
 ```
 
+#### BigInteger
+
+The `BigInteger` class represents an arbitrary-precision integer. It was originally ported from Apache Harmony but is now retained for compatibility and extended functionality beyond `System.Numerics.BigInteger`.
+
+#### MathContext and RoundingMode
+
+The `MathContext` class encapsulates settings that describe the number of digits and the rounding algorithm to be used for `BigDecimal` operations. The `RoundingMode` enumeration specifies the rounding behavior for operations that require rounding.
+
+## Building and Testing
+
+### Requirements
+
+- .NET 8.0, 9.0, or 10.0 SDK
+- xUnit v3 test runner (included in the test project)
+
+### Build Commands
+
+```bash
+# Restore dependencies
+dotnet restore
+
+# Build the solution
+dotnet build
+
+# Run tests
+dotnet test
+
+# Run tests with code coverage (generates Cobertura report)
+dotnet test -- --coverage --coverage-output-format cobertura
+```
+
+### CI/CD
+
+The project uses GitHub Actions for continuous integration:
+
+- **Build Matrix**: Tests run on .NET 8.0, 9.0, and 10.0 across Ubuntu, Windows, and macOS
+- **Code Coverage**: Reports are published to [Codecov](https://codecov.io/gh/deveel/deveel-math)
+- **Versioning**: Uses GitVersion for semantic versioning
+- **Publishing**: Pre-release packages are published to GitHub Packages; stable releases to NuGet
+
 ## Contributing
 
 If you want to contribute to the development of this library, you can fork the repository and submit a pull request with your changes.
 
 Please make sure to follow the coding style and conventions used in the project, and to provide a clear description of the changes you are proposing.
-
-### Future Development
-
-#### BigInteger Porting
-
-When the library was first ported from Java, the `BigInteger` class was not included in the porting process, as the `System.Numerics.BigInteger` class was not available in the .NET framework yet, and thus we had to port also the `BigInteger` class from the Harmony framework.
-
-Now that the `System.Numerics.BigInteger` class is available in the .NET framework, we can consider to remove the `BigInteger` class from the library, and to use the native class instead.
-
-#### Performance Benchmarks
-
-We should consider to add performance benchmarks to the library, to measure the performance of the arithmetic operations on big numbers and decimals, and to compare the performance of the library with the native .NET classes.
 
 ## License
 

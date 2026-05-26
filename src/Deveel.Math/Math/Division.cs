@@ -962,7 +962,7 @@ namespace Deveel.Math {
 
 		private static BigInteger ModPow2Inverse(BigInteger x, int n) {
 			// PRE: (x > 0), (x is odd), and (n > 0)
-			BigInteger y = new BigInteger(1, new int[1 << n]);
+			BigInteger y = new BigInteger(1, new int[(n + 31) >> 5]);
 			y.numberLength = 1;
 			y.Digits[0] = 1;
 			y.Sign = 1;

@@ -272,20 +272,23 @@ namespace Deveel.Math {
 				if (y.IsOne || y.Equals(n_minus_1)) {
 					continue;
 				}
-				for (int j = 1; j < k; j++) {
-					if (y.Equals(n_minus_1)) {
-						continue;
-					}
-					y = (y * y) % n;
-					if (y.IsOne) {
-						return false;
-					}
-				}
-				if (!y.Equals(n_minus_1)) {
-					return false;
-				}
+				if (WitnessLoop(y, k, n)) return false;
 			}
 			return true;
+		}
+
+		private static bool WitnessLoop(BigInteger y, int k, BigInteger n) {
+			BigInteger n_minus_1 = n - BigInteger.One;
+			for (int j = 1; j < k; j++) {
+				if (y.Equals(n_minus_1)) {
+					return false;
+				}
+				y = (y * y) % n;
+				if (y.IsOne) {
+					return true;
+				}
+			}
+			return !y.Equals(n_minus_1);
 		}
 
 	}

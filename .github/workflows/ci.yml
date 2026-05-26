@@ -13,31 +13,41 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dotnet-version: [ 6.0.x, 7.0.x, 8.0.x]
+        dotnet-version: [ 8.0.x, 9.0.x, 10.0.x]
         os: [ubuntu-latest, windows-latest, macos-latest ]
     
     uses: ./.github/workflows/build.yml
     with:
       os: ${{ matrix.os }}
-      dotnet-version: ${{ matrix.dotnet-version }}  
+      dotnet-version: ${{ matrix.dotnet-version }}
 
   coverage:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
+      
     - name: Setup .NET 8.0 Framework
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 8.0.x
 
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore -c Release
+
     - name: Run Tests with Coverage
-      run: dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[*.XUnit]*"
+      run: >
+          dotnet test -c Release --no-build --verbosity normal
+          -- --coverage --coverage-output-format cobertura
 
     - name: Publish Coverage Report
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
-         token: ${{ secrets.CODECOV_TOKEN }}
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./**/*.cobertura.xml
 
   publish:
     needs: build
@@ -46,11 +56,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-  
-    - name: Setup .NET 8.0 Framework
+
+    - name: Setup .NET 10.0 Framework
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 10.0.x
 
     - name: Setup GitVersion
       uses: gittools/actions/gitversion/setup@v1.1.1
@@ -68,4 +78,3 @@ jobs:
 
     - name: Publish the Nuget Packages to the GitHub Package Registry
       run: dotnet nuget push **/*.nupkg --skip-duplicate --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/deveel/index.json"
-

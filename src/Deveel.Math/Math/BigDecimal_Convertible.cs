@@ -547,17 +547,43 @@ namespace Deveel.Math
             return BitConverter.Int64BitsToDouble(bits);
         }
 
-        // TODO: must be verified
         public decimal ToDecimal()
         {
-            var scaleDivisor = BigMath.Pow(BigInteger.FromInt64(10), _scale);
-            var remainder = BigMath.Remainder(GetUnscaledValue(), scaleDivisor);
-            var scaledValue = GetUnscaledValue() / scaleDivisor;
+            var unscaled = GetUnscaledValue();
+            int scale = _scale;
 
-            var leftOfDecimal = (decimal)scaledValue;
-            var rightOfDecimal = (remainder) / ((decimal)scaleDivisor);
+            bool negative = unscaled.Sign < 0;
+            if (negative)
+                unscaled = -unscaled;
 
-            return leftOfDecimal + rightOfDecimal;
+            while (scale > 28) {
+                var remainder = unscaled % BigInteger.Ten;
+                unscaled = unscaled / BigInteger.Ten;
+                if (remainder >= BigInteger.FromInt64(5))
+                    unscaled = unscaled + BigInteger.One;
+                scale--;
+            }
+            while (scale < 0) {
+                unscaled = unscaled * BigInteger.Ten;
+                scale++;
+            }
+
+            while (unscaled.BitLength > 96 && scale > 0) {
+                var remainder = unscaled % BigInteger.Ten;
+                unscaled = unscaled / BigInteger.Ten;
+                if (remainder >= BigInteger.FromInt64(5))
+                    unscaled = unscaled + BigInteger.One;
+                scale--;
+            }
+
+            if (unscaled.BitLength > 96)
+                throw new OverflowException("Value too large for System.Decimal.");
+
+            int lo = unscaled.digits[0];
+            int mid = unscaled.numberLength > 1 ? unscaled.digits[1] : 0;
+            int hi = unscaled.numberLength > 2 ? unscaled.digits[2] : 0;
+
+            return new decimal(lo, mid, hi, negative, (byte)scale);
         }
 
         public static explicit operator char(BigDecimal d)

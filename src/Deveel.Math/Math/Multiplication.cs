@@ -115,8 +115,8 @@ namespace Deveel.Math {
 			int ndiv2 = (int)(op1.numberLength & 0xFFFFFFFE) << 4;
 			BigInteger upperOp1 = op1 >> ndiv2;
 			BigInteger upperOp2 = op2 >> ndiv2;
-			BigInteger lowerOp1 = op1 - upperOp1 << ndiv2;
-			BigInteger lowerOp2 = op2 - upperOp2 << ndiv2;
+			BigInteger lowerOp1 = op1 - (upperOp1 << ndiv2);
+			BigInteger lowerOp2 = op2 - (upperOp2 << ndiv2);
 
 			BigInteger upper = Karatsuba(upperOp1, upperOp2);
 			BigInteger lower = Karatsuba(lowerOp1, lowerOp2);
