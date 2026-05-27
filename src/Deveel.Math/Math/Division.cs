@@ -39,17 +39,17 @@ namespace Deveel.Math {
 		/// <param name="b">The divisor array.</param>
 		/// <param name="bLength">The divisor's length.</param>
 		/// <returns>The remainder array.</returns>
-		public static int[] Divide(int[] quot, int quotLength, int[] a, int aLength, int[] b, int bLength) {
+		public static int[] Divide(Span<int> quot, int quotLength, ReadOnlySpan<int> a, int aLength, ReadOnlySpan<int> b, int bLength) {
 			int[] normA = new int[aLength + 1];
 			int[] normB = new int[bLength + 1];
 			int normBLength = bLength;
 			int divisorShift = Utils.NumberOfLeadingZeros(b[bLength - 1]);
 			if (divisorShift != 0) {
-				BitLevel.ShiftLeft(normB, b, 0, divisorShift);
-				BitLevel.ShiftLeft(normA, a, 0, divisorShift);
+				BitLevel.ShiftLeft(normB.AsSpan(), b, 0, divisorShift);
+				BitLevel.ShiftLeft(normA.AsSpan(), a, 0, divisorShift);
 			} else {
-				Array.Copy(a, 0, normA, 0, aLength);
-				Array.Copy(b, 0, normB, 0, bLength);
+				a.Slice(0, aLength).CopyTo(normA.AsSpan());
+				b.Slice(0, bLength).CopyTo(normB.AsSpan());
 			}
 			int firstDivisorDigit = normB[normBLength - 1];
 			int i = quotLength - 1;
@@ -106,10 +106,10 @@ namespace Deveel.Math {
 				i--;
 			}
 			if (divisorShift != 0) {
-				BitLevel.ShiftRight(normB, normBLength, normA, 0, divisorShift);
+				BitLevel.ShiftRight(normB.AsSpan(), normBLength, normA.AsSpan(), 0, divisorShift);
 				return normB;
 			}
-			Array.Copy(normA, 0, normB, 0, bLength);
+			normA.AsSpan(0, bLength).CopyTo(normB.AsSpan());
 			return normA;
 		}
 
@@ -121,7 +121,7 @@ namespace Deveel.Math {
 		/// <param name="srcLength">The length of the dividend.</param>
 		/// <param name="divisor">The divisor.</param>
 		/// <returns>The remainder.</returns>
-		public static int DivideArrayByInt(int[] dest, int[] src, int srcLength, int divisor) {
+		public static int DivideArrayByInt(Span<int> dest, ReadOnlySpan<int> src, int srcLength, int divisor) {
 			long rem = 0;
 			long bLong = divisor & 0xffffffffL;
 
@@ -164,7 +164,7 @@ namespace Deveel.Math {
 		/// <param name="srcLength">The length of the dividend.</param>
 		/// <param name="divisor">The divisor.</param>
 		/// <returns>The remainder.</returns>
-		public static int RemainderArrayByInt(int[] src, int srcLength, int divisor) {
+		public static int RemainderArrayByInt(ReadOnlySpan<int> src, int srcLength, int divisor) {
 			long result = 0;
 
 			for (int i = srcLength - 1; i >= 0; i--) {
@@ -241,7 +241,7 @@ namespace Deveel.Math {
 		/// </code>
 		/// </example>
 		public static BigInteger[] DivideAndRemainderByInteger(BigInteger val, int divisor, int divisorSign) {
-			int[] valDigits = val.Digits;
+			ReadOnlySpan<int> valDigits = val.Digits.AsSpan(0, val.numberLength);
 			int valLen = val.numberLength;
 			int valSign = val.Sign;
 			if (valLen == 1) {
@@ -287,7 +287,7 @@ namespace Deveel.Math {
 		/// <param name="bLen">The length of <paramref name="b"/>.</param>
 		/// <param name="c">The multiplier of <paramref name="b"/>.</param>
 		/// <returns>The carry element of subtraction.</returns>
-		public static int MultiplyAndSubtract(int[] a, int start, int[] b, int bLen, int c) {
+		public static int MultiplyAndSubtract(Span<int> a, int start, ReadOnlySpan<int> b, int bLen, int c) {
 			long carry0 = 0;
 			long carry1 = 0;
 
@@ -758,7 +758,7 @@ namespace Deveel.Math {
 			return res;
 		}
 
-		private static void MonReduction(int[] res, BigInteger modulus, int n2) {
+		private static void MonReduction(Span<int> res, BigInteger modulus, int n2) {
 			int[] modulusDigits = modulus.Digits;
 			int modulusLen = modulus.numberLength;
 			long outerCarry = 0;

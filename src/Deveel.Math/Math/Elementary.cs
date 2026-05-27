@@ -36,7 +36,7 @@ namespace Deveel.Math {
 		/// <param name="b">The second array.</param>
 		/// <param name="size">The size of arrays.</param>
 		/// <returns>1 if a &gt; b, -1 if a &lt; b, 0 if a == b.</returns>
-		internal static int CompareArrays(int[] a, int[] b, int size) {
+		internal static int CompareArrays(ReadOnlySpan<int> a, ReadOnlySpan<int> b, int size) {
 			int i;
 			for (i = size - 1; (i >= 0) && (a[i] == b[i]); i--) {
 				;
@@ -97,24 +97,24 @@ namespace Deveel.Math {
 			} else if (op1Sign == op2Sign) {
 				resSign = op1Sign;
 				resDigits = (op1Len >= op2Len)
-				            	? add(op1.Digits, op1Len,
-				            	      op2.Digits, op2Len)
-				            	: add(op2.Digits, op2Len, op1.Digits,
+				            	? add(op1.Digits.AsSpan(0, op1Len), op1Len,
+				            	      op2.Digits.AsSpan(0, op2Len), op2Len)
+				            	: add(op2.Digits.AsSpan(0, op2Len), op2Len, op1.Digits.AsSpan(0, op1Len),
 				            	      op1Len);
 			} else {
 				int cmp = ((op1Len != op2Len)
-				           	? ((op1Len > op2Len) ? 1 : -1)
-				           	: CompareArrays(op1.Digits, op2.Digits, op1Len));
+							? ((op1Len > op2Len) ? 1 : -1)
+							: CompareArrays(op1.Digits.AsSpan(0, op1Len), op2.Digits.AsSpan(0, op1Len), op1Len));
 
 				if (cmp == BigInteger.EQUALS) {
 					return BigInteger.Zero;
 				}
 				if (cmp == BigInteger.GREATER) {
 					resSign = op1Sign;
-					resDigits = subtract(op1.Digits, op1Len, op2.Digits, op2Len);
+					resDigits = subtract(op1.Digits.AsSpan(0, op1Len), op1Len, op2.Digits.AsSpan(0, op2Len), op2Len);
 				} else {
 					resSign = op2Sign;
-					resDigits = subtract(op2.Digits, op2Len, op1.Digits, op1Len);
+					resDigits = subtract(op2.Digits.AsSpan(0, op2Len), op2Len, op1.Digits.AsSpan(0, op1Len), op1Len);
 				}
 			}
 			BigInteger result = new BigInteger(resSign, resDigits.Length, resDigits);
@@ -130,7 +130,7 @@ namespace Deveel.Math {
 		/// <param name="aSize">The number of elements in <paramref name="a"/>.</param>
 		/// <param name="b">The second addend array.</param>
 		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
-		private static void add(int[] res, int[] a, int aSize, int[] b, int bSize) {
+		private static void add(Span<int> res, ReadOnlySpan<int> a, int aSize, ReadOnlySpan<int> b, int bSize) {
 			int i;
 			long carry = (a[0] & 0xFFFFFFFFL) + (b[0] & 0xFFFFFFFFL);
 
@@ -205,12 +205,12 @@ namespace Deveel.Math {
 				return BigInteger.FromInt64(a - b);
 			}
 			int cmp = ((op1Len != op2Len) ? ((op1Len > op2Len) ? 1 : -1)
-					: Elementary.CompareArrays(op1.Digits, op2.Digits, op1Len));
+					: Elementary.CompareArrays(op1.Digits.AsSpan(0, op1Len), op2.Digits.AsSpan(0, op1Len), op1Len));
 
 			if (cmp == BigInteger.LESS) {
 				resSign = -op2Sign;
-				resDigits = (op1Sign == op2Sign) ? subtract(op2.Digits, op2Len,
-						op1.Digits, op1Len) : add(op2.Digits, op2Len, op1.Digits,
+				resDigits = (op1Sign == op2Sign) ? subtract(op2.Digits.AsSpan(0, op2Len), op2Len,
+						op1.Digits.AsSpan(0, op1Len), op1Len) : add(op2.Digits.AsSpan(0, op2Len), op2Len, op1.Digits.AsSpan(0, op1Len),
 						op1Len);
 			} else {
 				resSign = op1Sign;
@@ -218,9 +218,9 @@ namespace Deveel.Math {
 					if (cmp == BigInteger.EQUALS) {
 						return BigInteger.Zero;
 					}
-					resDigits = subtract(op1.Digits, op1Len, op2.Digits, op2Len);
+					resDigits = subtract(op1.Digits.AsSpan(0, op1Len), op1Len, op2.Digits.AsSpan(0, op2Len), op2Len);
 				} else {
-					resDigits = add(op1.Digits, op1Len, op2.Digits, op2Len);
+					resDigits = add(op1.Digits.AsSpan(0, op1Len), op1Len, op2.Digits.AsSpan(0, op2Len), op2Len);
 				}
 			}
 			BigInteger res = new BigInteger(resSign, resDigits.Length, resDigits);
@@ -237,7 +237,7 @@ namespace Deveel.Math {
 		/// <param name="aSize">The number of elements in <paramref name="a"/>.</param>
 		/// <param name="b">The subtrahend array.</param>
 		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
-		private static void subtract(int[] res, int[] a, int aSize, int[] b, int bSize) {
+		private static void subtract(Span<int> res, ReadOnlySpan<int> a, int aSize, ReadOnlySpan<int> b, int bSize) {
 			int i;
 			long borrow = 0;
 
@@ -263,7 +263,7 @@ namespace Deveel.Math {
 		/// <param name="b">The second addend array.</param>
 		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
 		/// <returns><c>a + b</c> as a new array.</returns>
-		private static int[] add(int[] a, int aSize, int[] b, int bSize) {
+		private static int[] add(ReadOnlySpan<int> a, int aSize, ReadOnlySpan<int> b, int bSize) {
 			int[] res = new int[aSize + 1];
 			add(res, a, aSize, b, bSize);
 			return res;
@@ -277,7 +277,7 @@ namespace Deveel.Math {
 		/// <param name="op1">The input minuend and the output result.</param>
 		/// <param name="op2">The addend.</param>
 		internal static void inplaceAdd(BigInteger op1, BigInteger op2) {
-			add(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
+			add(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.Digits.AsSpan(0, op2.numberLength),
 					op2.numberLength);
 			op1.numberLength = System.Math.Min(System.Math.Max(op1.numberLength, op2.numberLength) + 1, op1.Digits.Length);
 			op1.CutOffLeadingZeroes();
@@ -291,7 +291,7 @@ namespace Deveel.Math {
 		/// <param name="aSize">The number of elements to process.</param>
 		/// <param name="addend">The value to add.</param>
 		/// <returns>A possible generated carry (0 or 1).</returns>
-		internal static int inplaceAdd(int[] a, int aSize, int addend) {
+		internal static int inplaceAdd(Span<int> a, int aSize, int addend) {
 			long carry = addend & 0xFFFFFFFFL;
 
 			for (int i = 0; (carry != 0) && (i < aSize); i++) {
@@ -324,7 +324,7 @@ namespace Deveel.Math {
 		/// <param name="op1">The input minuend and the output result.</param>
 		/// <param name="op2">The subtrahend.</param>
 		internal static void inplaceSubtract(BigInteger op1, BigInteger op2) {
-			subtract(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
+			subtract(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.Digits.AsSpan(0, op2.numberLength),
 					op2.numberLength);
 			op1.CutOffLeadingZeroes();
 			op1.UnCache();
@@ -338,7 +338,7 @@ namespace Deveel.Math {
 		/// <param name="aSize">The number of elements in <paramref name="a"/>.</param>
 		/// <param name="b">The second array.</param>
 		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
-		private static void inverseSubtract(int[] res, int[] a, int aSize, int[] b, int bSize) {
+		private static void inverseSubtract(Span<int> res, ReadOnlySpan<int> a, int aSize, ReadOnlySpan<int> b, int bSize) {
 			int i;
 			long borrow = 0;
 			if (aSize < bSize) {
@@ -377,7 +377,7 @@ namespace Deveel.Math {
 		/// <param name="b">The subtrahend array.</param>
 		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
 		/// <returns><c>a - b</c> as a new array.</returns>
-		private static int[] subtract(int[] a, int aSize, int[] b, int bSize) {
+		private static int[] subtract(ReadOnlySpan<int> a, int aSize, ReadOnlySpan<int> b, int bSize) {
 			int[] res = new int[aSize];
 			subtract(res, a, aSize, b, bSize);
 			return res;
@@ -395,18 +395,18 @@ namespace Deveel.Math {
 				Array.Copy(op2.Digits, 0, op1.Digits, 0, op2.numberLength);
 				op1.Sign = -op2.Sign;
 			} else if (op1.Sign != op2.Sign) {
-				add(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
+				add(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.Digits.AsSpan(0, op2.numberLength),
 					op2.numberLength);
 				op1.Sign = resultSign;
 			} else {
 				int sign = unsignedArraysCompare(op1.Digits,
 						op2.Digits, op1.numberLength, op2.numberLength);
 				if (sign > 0) {
-					subtract(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
+					subtract(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.Digits.AsSpan(0, op2.numberLength),
 							op2.numberLength);
 				} else {
-					inverseSubtract(op1.Digits, op1.Digits, op1.numberLength,
-							op2.Digits, op2.numberLength);
+					inverseSubtract(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength,
+							op2.Digits.AsSpan(0, op2.numberLength), op2.numberLength);
 					op1.Sign = -op1.Sign;
 				}
 			}
@@ -427,17 +427,17 @@ namespace Deveel.Math {
 			else if (op2.Sign == 0)
 				return;
 			else if (op1.Sign == op2.Sign)
-				add(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
+				add(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.Digits.AsSpan(0, op2.numberLength),
 						op2.numberLength);
 			else {
 				int sign = unsignedArraysCompare(op1.Digits,
 						op2.Digits, op1.numberLength, op2.numberLength);
 				if (sign > 0)
-					subtract(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
+					subtract(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.Digits.AsSpan(0, op2.numberLength),
 							op2.numberLength);
 				else {
-					inverseSubtract(op1.Digits, op1.Digits, op1.numberLength,
-							op2.Digits, op2.numberLength);
+					inverseSubtract(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength,
+							op2.Digits.AsSpan(0, op2.numberLength), op2.numberLength);
 					op1.Sign = -op1.Sign;
 				}
 			}
@@ -455,7 +455,7 @@ namespace Deveel.Math {
 		/// <param name="aSize">The number of elements in <paramref name="a"/>.</param>
 		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
 		/// <returns>1 if a &gt; b, -1 if a &lt; b, 0 if a == b.</returns>
-		private static int unsignedArraysCompare(int[] a, int[] b, int aSize, int bSize) {
+		private static int unsignedArraysCompare(ReadOnlySpan<int> a, ReadOnlySpan<int> b, int aSize, int bSize) {
 			if (aSize > bSize)
 				return 1;
 			else if (aSize < bSize)

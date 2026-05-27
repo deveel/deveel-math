@@ -17,8 +17,6 @@ using System;
 using System.Globalization;
 using System.Text;
 using System.Runtime.Serialization;
-using static System.Formats.Asn1.AsnWriter;
-using System.Net.NetworkInformation;
 
 namespace Deveel.Math {
 	/// <summary>
@@ -367,7 +365,11 @@ namespace Deveel.Math {
 		/// If <paramref name="unscaledValue"/> is <b>null</b>.
 		/// </exception>
 		public BigDecimal(BigInteger unscaledValue, int scale) {
+#if NETSTANDARD2_0
+			Polyfills.ThrowIfNull(unscaledValue);
+#else
 			ArgumentNullException.ThrowIfNull(unscaledValue);
+#endif
 
 			_scale = scale;
 			SetUnscaledValue(unscaledValue);
@@ -664,7 +666,11 @@ namespace Deveel.Math {
 		/// Thrown if the given <paramref name="other"/> is <b>null</b>.
 		/// </exception>
         public int CompareTo(BigDecimal other) {
+#if NETSTANDARD2_0
+			Polyfills.ThrowIfNull(other, nameof(other));
+#else
 			ArgumentNullException.ThrowIfNull(other, nameof(other));
+#endif
 
 			int thisSign = Sign;
 			int valueSign = other.Sign;
@@ -754,6 +760,12 @@ namespace Deveel.Math {
 
 		/// <inheritdoc/>
 		public override int GetHashCode() {
+#if NET8_0_OR_GREATER
+			if (BitLength < 64) {
+				return HashCode.Combine(SmallValue, _scale);
+			}
+			return HashCode.Combine(intVal, _scale);
+#else
 			int hashCode;
 			if (BitLength < 64) {
 				hashCode = (int) (SmallValue & 0xffffffff);
@@ -764,6 +776,7 @@ namespace Deveel.Math {
 
 			hashCode = 17*intVal.GetHashCode() + _scale;
 			return hashCode;
+#endif
         }
 
         /// <summary>

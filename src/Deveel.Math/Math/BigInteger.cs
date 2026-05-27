@@ -16,7 +16,7 @@
 using System;
 using System.Globalization;
 using System.IO;
-#if !PORTABLE
+#if !NETSTANDARD2_0
 using System.Runtime.Serialization;
 #endif
 
@@ -38,11 +38,11 @@ namespace Deveel.Math {
 	/// based on BigInteger.
 	/// </para>
 	/// </remarks>
-#if !PORTABLE
+#if !NETSTANDARD2_0
 	[Serializable]
 #endif
 	public sealed class BigInteger : IComparable<BigInteger>, IEquatable<BigInteger>
-#if !PORTABLE
+#if !NETSTANDARD2_0
 		, ISerializable, IConvertible
 #endif 
 		{
@@ -60,19 +60,21 @@ namespace Deveel.Math {
 		 * The magnitude array may be longer than strictly necessary, which results
 		 * in additional trailing zeros.
 		 */
-#if !PORTABLE
+#if !NETSTANDARD2_0
 		[NonSerialized] 
 #endif
 		internal int[] digits;
 
+		internal Span<int> DigitsSpan => digits.AsSpan(0, numberLength);
+
 		/** The length of this in measured in ints. Can be less than digits.length(). */
-#if !PORTABLE
+#if !NETSTANDARD2_0
 		[NonSerialized]
 #endif
 		internal int numberLength;
 
 		/** The sign of this. */
-#if !PORTABLE
+#if !NETSTANDARD2_0
 		[NonSerialized] 
 #endif
 		private int sign;
@@ -127,18 +129,18 @@ namespace Deveel.Math {
 		private BigInteger() {
 		}
 
-#if !PORTABLE
+#if !NETSTANDARD2_0
 		[NonSerialized]
 #endif
 		private int firstNonzeroDigit = -2;
 
 		/** Cache for the hash code. */
-#if !PORTABLE
+#if !NETSTANDARD2_0
 		[NonSerialized]
 #endif
 		private int hashCode = 0;
 
-#if !PORTABLE
+#if !NETSTANDARD2_0
 		#region Serializable
 
 		private BigInteger(SerializationInfo info, StreamingContext context) {
@@ -468,7 +470,7 @@ namespace Deveel.Math {
 			       EqualsArrays(other.digits);
 		}
 
-		bool EqualsArrays(int[] b) {
+		bool EqualsArrays(ReadOnlySpan<int> b) {
 			int i;
 			for (i = numberLength - 1; (i >= 0) && (digits[i] == b[i]); i--) {
 				// Empty
@@ -1053,7 +1055,7 @@ namespace Deveel.Math {
 
 		#region IConvertible
 
-#if !PORTABLE
+#if !NETSTANDARD2_0
 
 		TypeCode IConvertible.GetTypeCode() {
 			return TypeCode.Object;
