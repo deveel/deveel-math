@@ -17,26 +17,24 @@ using System;
 using System.Text;
 
 namespace Deveel.Math {
-	/**
-	 * Static library that provides {@link BigInteger} base conversion from/to any
-	 * integer represented in an {@link java.lang.String} Object.
-	 */
+	/// <summary>
+	/// Static library that provides <see cref="BigInteger"/> base conversion from/to any
+	/// integer represented in a <see cref="string"/>.
+	/// </summary>
 	static class Conversion {
-		/**
-		 * Holds the maximal exponent for each radix, so that radix<sup>digitFitInInt[radix]</sup>
-		 * fit in an {@code int} (32 bits).
-		 */
-
+		/// <summary>
+		/// Holds the maximal exponent for each radix, so that radix<sup>digitFitInInt[radix]</sup>
+		/// fits in an <c>int</c> (32 bits).
+		/// </summary>
 		internal static readonly int[] digitFitInInt = { -1, -1, 31, 19, 15, 13, 11,
             11, 10, 9, 9, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6, 6, 6, 6,
             6, 6, 6, 6, 6, 6, 6, 5 };
 
-		/**
-		 * bigRadices values are precomputed maximal powers of radices (integer
-		 * numbers from 2 to 36) that fit into unsigned int (32 bits). bigRadices[0] =
-		 * 2 ^ 31, bigRadices[8] = 10 ^ 9, etc.
-		 */
-
+		/// <summary>
+		/// Precomputed maximal powers of radices (integer numbers from 2 to 36)
+		/// that fit into unsigned int (32 bits). bigRadices[0] = 2 ^ 31,
+		/// bigRadices[8] = 10 ^ 9, etc.
+		/// </summary>
 		internal static readonly int[] bigRadices = { -2147483648, 1162261467,
             1073741824, 1220703125, 362797056, 1977326743, 1073741824,
             387420489, 1000000000, 214358881, 429981696, 815730721, 1475789056,
@@ -45,22 +43,31 @@ namespace Deveel.Math {
             387420489, 481890304, 594823321, 729000000, 887503681, 1073741824,
             1291467969, 1544804416, 1838265625, 60466176 };
 
-
-		/** @see BigInteger#ToString(int) */
-
+		/// <summary>
+		/// Converts the given <see cref="BigInteger"/> to a string representation in the specified radix.
+		/// </summary>
+		/// <param name="val">The big integer value to convert.</param>
+		/// <param name="radix">The radix (base) for the string representation.</param>
+		/// <returns>A string representation of <paramref name="val"/> in the given <paramref name="radix"/>.</returns>
+		/// <example>
+		/// <code>
+		/// BigInteger value = new BigInteger(255);
+		/// string hex = Conversion.BigInteger2String(value, 16);
+		/// // hex == "ff"
+		/// </code>
+		/// </example>
 		public static string BigInteger2String(BigInteger val, int radix) {
 			int sign = val.Sign;
 			int numberLength = val.numberLength;
 			int[] digits = val.Digits;
 
 			if (sign == 0) {
-				return "0"; //$NON-NLS-1$
+				return "0";
 			}
 			if (numberLength == 1) {
 				int highDigit = digits[numberLength - 1];
 				long v = highDigit & 0xFFFFFFFFL;
 				if (sign < 0) {
-                    // Long.ToString has different semantic from C# for negative numbers
                     return "-" + Convert.ToString(v, radix);
 				}
 				return Convert.ToString(v, radix);
@@ -84,11 +91,8 @@ namespace Deveel.Math {
 				int tempLen = numberLength;
 				int charsPerInt = digitFitInInt[radix];
 				int i;
-				// get the maximal power of radix that fits in int
 				int bigRadix = bigRadices[radix - 2];
 				while (true) {
-					// divide the array of digits by bigRadix and convert remainders
-					// to CharHelpers collecting them in the char array
 					resDigit = Division.DivideArrayByInt(temp, temp, tempLen, bigRadix);
 					int previous = currentChar;
 					do {
@@ -103,12 +107,11 @@ namespace Deveel.Math {
 						;
 					}
 					tempLen = i + 1;
-					if ((tempLen == 1) && (temp[0] == 0)) { // the quotient is 0
+					if ((tempLen == 1) && (temp[0] == 0)) {
 						break;
 					}
 				}
 			} else {
-				// radix == 16
 				for (int i = 0; i < numberLength; i++) {
 					for (int j = 0; (j < 8) && (currentChar > 0); j++) {
 						resDigit = digits[i] >> (j << 2) & 0xf;
@@ -125,13 +128,20 @@ namespace Deveel.Math {
 			return new String(result, currentChar, resLengthInChars - currentChar);
 		}
 
-		/**
-		 * Builds the correspondent {@code String} representation of {@code val}
-		 * being scaled by {@code scale}.
-		 * 
-		 * @see BigInteger#ToString()
-		 * @see BigDecimal#ToString()
-		 */
+		/// <summary>
+		/// Builds the corresponding <see cref="string"/> representation of <paramref name="val"/>
+		/// scaled by <paramref name="scale"/>.
+		/// </summary>
+		/// <param name="val">The big integer to convert.</param>
+		/// <param name="scale">The number of digits to the right of the decimal point.</param>
+		/// <returns>A scaled decimal string representation.</returns>
+		/// <example>
+		/// <code>
+		/// BigInteger value = new BigInteger(12345);
+		/// string s = Conversion.ToDecimalScaledString(value, 2);
+		/// // s == "123.45"
+		/// </code>
+		/// </example>
 		public static String ToDecimalScaledString(BigInteger val, int scale) {
 			int sign = val.Sign;
 			int numberLength = val.numberLength;
@@ -143,41 +153,33 @@ namespace Deveel.Math {
 			if (sign == 0) {
 				switch (scale) {
 					case 0:
-						return "0"; //$NON-NLS-1$
+						return "0";
 					case 1:
-						return "0.0"; //$NON-NLS-1$
+						return "0.0";
 					case 2:
-						return "0.00"; //$NON-NLS-1$
+						return "0.00";
 					case 3:
-						return "0.000"; //$NON-NLS-1$
+						return "0.000";
 					case 4:
-						return "0.0000"; //$NON-NLS-1$
+						return "0.0000";
 					case 5:
-						return "0.00000"; //$NON-NLS-1$
+						return "0.00000";
 					case 6:
-						return "0.000000"; //$NON-NLS-1$
+						return "0.000000";
 					default: {
 							StringBuilder result2 = new StringBuilder();
 							if (scale < 0) {
-								result2.Append("0E+"); //$NON-NLS-1$
+								result2.Append("0E+");
 							} else {
-								result2.Append("0E"); //$NON-NLS-1$
+								result2.Append("0E");
 							}
 							result2.Append(-scale);
 							return result2.ToString();
 						}
 				}
 			}
-			// one 32-bit unsigned value may contains 10 decimal digits
 			resLengthInChars = numberLength * 10 + 1 + 7;
-			// Explanation why +1+7:
-			// +1 - one char for sign if needed.
-			// +7 - For "special case 2" (see below) we have 7 free chars for
-			// inserting necessary scaled digits.
 			result = new char[resLengthInChars + 1];
-			// allocated [resLengthInChars+1] CharHelpers.
-			// a free latest CharHelper may be used for "special case 1" (see
-			// below)
 			currentChar = resLengthInChars;
 			if (numberLength == 1) {
 				int highDigit = digits[0];
@@ -201,9 +203,6 @@ namespace Deveel.Math {
 				int tempLen = numberLength;
 				Array.Copy(digits, 0, temp, 0, tempLen);
 				while (true) {
-					// divide the array of digits by bigRadix and convert
-					// remainders
-					// to CharHelpers collecting them in the char array
 					long result11 = 0;
 					for (int i1 = tempLen - 1; i1 >= 0; i1--) {
 						long temp1 = (result11 << 32)
@@ -223,7 +222,7 @@ namespace Deveel.Math {
 					}
 					int j = tempLen - 1;
 					for (; temp[j] == 0; j--) {
-						if (j == 0) { // means temp[0] == 0
+						if (j == 0) {
 							goto BIG_LOOP;
 						}
 					}
@@ -245,7 +244,6 @@ namespace Deveel.Math {
 			}
 			if ((scale > 0) && (exponent >= -6)) {
 				if (exponent >= 0) {
-					// special case 1
 					int insertPoint = currentChar + exponent;
 					for (int j = resLengthInChars - 1; j >= insertPoint; j--) {
 						result[j + 1] = result[j];
@@ -257,7 +255,6 @@ namespace Deveel.Math {
 					return new String(result, currentChar, resLengthInChars
 							- currentChar + 1);
 				}
-				// special case 2
 				for (int j = 2; j < -exponent + 1; j++) {
 					result[--currentChar] = '0';
 				}
@@ -292,7 +289,12 @@ namespace Deveel.Math {
 			return result1.ToString();
 		}
 
-		/* can process only 32-bit numbers */
+		/// <summary>
+		/// Builds a scaled decimal string representation of a 32-bit number.
+		/// </summary>
+		/// <param name="value">The long value to convert.</param>
+		/// <param name="scale">The number of digits to the right of the decimal point.</param>
+		/// <returns>A scaled decimal string representation of the value.</returns>
 		public static String ToDecimalScaledString(long value, int scale) {
 			int resLengthInChars;
 			int currentChar;
@@ -303,33 +305,26 @@ namespace Deveel.Math {
 			}
 			if (value == 0) {
 				switch (scale) {
-					case 0: return "0"; //$NON-NLS-1$
-					case 1: return "0.0"; //$NON-NLS-1$
-					case 2: return "0.00"; //$NON-NLS-1$
-					case 3: return "0.000"; //$NON-NLS-1$
-					case 4: return "0.0000"; //$NON-NLS-1$
-					case 5: return "0.00000"; //$NON-NLS-1$
-					case 6: return "0.000000"; //$NON-NLS-1$
+					case 0: return "0";
+					case 1: return "0.0";
+					case 2: return "0.00";
+					case 3: return "0.000";
+					case 4: return "0.0000";
+					case 5: return "0.00000";
+					case 6: return "0.000000";
 					default:
 						StringBuilder result2 = new StringBuilder();
 						if (scale < 0) {
-							result2.Append("0E+"); //$NON-NLS-1$
+							result2.Append("0E+");
 						} else {
-							result2.Append("0E"); //$NON-NLS-1$
+							result2.Append("0E");
 						}
-						result2.Append((scale == Int32.MinValue) ? "2147483648" : Convert.ToString(-scale)); //$NON-NLS-1$
+						result2.Append((scale == Int32.MinValue) ? "2147483648" : Convert.ToString(-scale));
 						return result2.ToString();
 				}
 			}
-			// one 32-bit unsigned value may contains 10 decimal digits
 			resLengthInChars = 18;
-			// Explanation why +1+7:
-			// +1 - one char for sign if needed.
-			// +7 - For "special case 2" (see below) we have 7 free chars for
-			//  inserting necessary scaled digits.
 			result = new char[resLengthInChars + 1];
-			//  Allocated [resLengthInChars+1] CharHelpers.
-			// a free latest CharHelper may be used for "special case 1" (see below)
 			currentChar = resLengthInChars;
 			long v = value;
 			do {
@@ -347,7 +342,6 @@ namespace Deveel.Math {
 			}
 			if (scale > 0 && exponent >= -6) {
 				if (exponent >= 0) {
-					// special case 1
 					int insertPoint = currentChar + (int)exponent;
 					for (int j = resLengthInChars - 1; j >= insertPoint; j--) {
 						result[j + 1] = result[j];
@@ -358,7 +352,6 @@ namespace Deveel.Math {
 					}
 					return new String(result, currentChar, resLengthInChars - currentChar + 1);
 				}
-				// special case 2
 				for (int j = 2; j < -exponent + 1; j++) {
 					result[--currentChar] = '0';
 				}
@@ -390,6 +383,15 @@ namespace Deveel.Math {
 			return result1.ToString();
 		}
 
+		/// <summary>
+		/// Divides a long value by 1,000,000,000 (one billion) and returns the
+		/// quotient and remainder packed into a single <see cref="long"/>.
+		/// </summary>
+		/// <param name="a">The dividend.</param>
+		/// <returns>
+		/// A long where the lower 32 bits contain the quotient and the upper 32 bits
+		/// contain the remainder.
+		/// </returns>
 		public static long DivideLongByBillion(long a) {
 			long quot;
 			long rem;
@@ -399,29 +401,32 @@ namespace Deveel.Math {
 				quot = (a / bLong);
 				rem = (a % bLong);
 			} else {
-				/*
-				 * Make the dividend positive shifting it right by 1 bit then get
-				 * the quotient an remainder and correct them properly
-				 */
 				long aPos = Utils.URShift(a, 1);
 				long bPos = Utils.URShift(1000000000L, 1);
 				quot = aPos / bPos;
 				rem = aPos % bPos;
-				// double the remainder and add 1 if 'a' is odd
 				rem = (rem << 1) + (a & 1);
 			}
 			return ((rem << 32) | (quot & 0xFFFFFFFFL));
 		}
 
-		/** @see BigInteger#ToDouble() */
-
+		/// <summary>
+		/// Converts the given <see cref="BigInteger"/> to a <see cref="double"/> value.
+		/// </summary>
+		/// <param name="val">The big integer to convert.</param>
+		/// <returns>The double-precision floating-point representation of <paramref name="val"/>.</returns>
+		/// <example>
+		/// <code>
+		/// BigInteger value = new BigInteger(123456789);
+		/// double d = Conversion.BigInteger2Double(value);
+		/// // d == 123456789.0
+		/// </code>
+		/// </example>
 		public static double BigInteger2Double(BigInteger val) {
-			// val.bitLength() < 64
 			if ((val.numberLength < 2)
 					|| ((val.numberLength == 2) && (val.Digits[1] > 0))) {
 				return val.ToInt64();
 			}
-			// val.bitLength() >= 33 * 32 > 1024
 			if (val.numberLength > 32) {
 				return ((val.Sign > 0) ? Double.PositiveInfinity
 						: Double.NegativeInfinity);
@@ -429,12 +434,7 @@ namespace Deveel.Math {
 			int bitLen = BigMath.Abs(val).BitLength;
 			long exponent = bitLen - 1;
 			int delta = bitLen - 54;
-			// We need 54 top bits from this, the 53th bit is always 1 in lVal.
 			long lVal = (BigMath.Abs(val) >> delta).ToInt64();
-			/*
-			 * Take 53 bits from lVal to mantissa. The least significant bit is
-			 * needed for rounding.
-			 */
 			long mantissa = lVal & 0x1FFFFFFFFFFFFFL;
 			if (exponent == 1023) {
 				if (mantissa == 0X1FFFFFFFFFFFFFL) {
@@ -445,14 +445,12 @@ namespace Deveel.Math {
 					return ((val.Sign > 0) ? Double.MaxValue : -Double.MaxValue);
 				}
 			}
-			// Round the mantissa
 			if (((mantissa & 1) == 1)
 					&& (((mantissa & 2) == 2) || BitLevel.NonZeroDroppedBits(delta,
 							val.Digits))) {
 				mantissa += 2;
 			}
-			mantissa >>= 1; // drop the rounding bit
-			// long resSign = (val.sign < 0) ? 0x8000000000000000L : 0;
+			mantissa >>= 1;
             long resSign = (val.Sign < 0) ? Int64.MinValue : 0;
 			exponent = ((1023 + exponent) << 52) & 0x7FF0000000000000L;
 			long result = resSign | exponent | mantissa;

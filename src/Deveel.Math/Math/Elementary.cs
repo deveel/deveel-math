@@ -16,28 +16,26 @@
 using System;
 
 namespace Deveel.Math {
-	///**
- //* Static library that provides the basic arithmetic mutable operations for
- //* {@link BigInteger}. The operations provided are listed below.
- //* <ul type="circle">
- //* <li>Addition.</li>
- //* <li>Subtraction.</li>
- //* <li>Comparison.</li>
- //* </ul>
- //* In addition to this, some <i><b>Inplace</b></i> (mutable) methods are provided.
- //*/
+	/// <summary>
+	/// Static library that provides the basic arithmetic mutable operations for
+	/// <see cref="BigInteger"/>. The operations provided are:
+	/// <list type="bullet">
+	/// <item><description>Addition</description></item>
+	/// <item><description>Subtraction</description></item>
+	/// <item><description>Comparison</description></item>
+	/// </list>
+	/// In addition, some <i>Inplace</i> (mutable) methods are provided.
+	/// </summary>
 	static class Elementary {
 
-		///**
-		// * Compares two arrays. All elements are treated as unsigned integers. The
-		// * magnitude is the bit chain of elements in big-endian order.
-		// * 
-		// * @param a the first array
-		// * @param b the second array
-		// * @param size the size of arrays
-		// * @return 1 if a > b, -1 if a < b, 0 if a == b
-		// */
-
+		/// <summary>
+		/// Compares two arrays. All elements are treated as unsigned integers. The
+		/// magnitude is the bit chain of elements in big-endian order.
+		/// </summary>
+		/// <param name="a">The first array.</param>
+		/// <param name="b">The second array.</param>
+		/// <param name="size">The size of arrays.</param>
+		/// <returns>1 if a &gt; b, -1 if a &lt; b, 0 if a == b.</returns>
 		internal static int CompareArrays(int[] a, int[] b, int size) {
 			int i;
 			for (i = size - 1; (i >= 0) && (a[i] == b[i]); i--) {
@@ -48,7 +46,20 @@ namespace Deveel.Math {
 							: BigInteger.GREATER);
 		}
 
-		/** @see BigInteger#add(BigInteger) */
+		/// <summary>
+		/// Adds two <see cref="BigInteger"/> values.
+		/// </summary>
+		/// <param name="op1">The first operand.</param>
+		/// <param name="op2">The second operand.</param>
+		/// <returns><paramref name="op1"/> + <paramref name="op2"/>.</returns>
+		/// <example>
+		/// <code>
+		/// BigInteger a = new BigInteger(10);
+		/// BigInteger b = new BigInteger(20);
+		/// BigInteger result = Elementary.Add(a, b);
+		/// // result == 30
+		/// </code>
+		/// </example>
 		internal static BigInteger Add(BigInteger op1, BigInteger op2) {
 			int[] resDigits;
 			int resSign;
@@ -85,14 +96,12 @@ namespace Deveel.Math {
 				return BigInteger.FromInt64((op1Sign < 0) ? (b - a) : (a - b));
 			} else if (op1Sign == op2Sign) {
 				resSign = op1Sign;
-				// an augend should not be shorter than addend
 				resDigits = (op1Len >= op2Len)
 				            	? add(op1.Digits, op1Len,
 				            	      op2.Digits, op2Len)
 				            	: add(op2.Digits, op2Len, op1.Digits,
 				            	      op1Len);
 			} else {
-				// signs are different
 				int cmp = ((op1Len != op2Len)
 				           	? ((op1Len > op2Len) ? 1 : -1)
 				           	: CompareArrays(op1.Digits, op2.Digits, op1Len));
@@ -100,7 +109,6 @@ namespace Deveel.Math {
 				if (cmp == BigInteger.EQUALS) {
 					return BigInteger.Zero;
 				}
-				// a minuend should not be shorter than subtrahend
 				if (cmp == BigInteger.GREATER) {
 					resSign = op1Sign;
 					resDigits = subtract(op1.Digits, op1Len, op2.Digits, op2Len);
@@ -114,12 +122,15 @@ namespace Deveel.Math {
 			return result;
 		}
 
-		/**
-		 * Performs {@code res = a + b}. 
-		 */
+		/// <summary>
+		/// Performs <c>res = a + b</c>.
+		/// </summary>
+		/// <param name="res">The result array (must have enough space).</param>
+		/// <param name="a">The first addend array.</param>
+		/// <param name="aSize">The number of elements in <paramref name="a"/>.</param>
+		/// <param name="b">The second addend array.</param>
+		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
 		private static void add(int[] res, int[] a, int aSize, int[] b, int bSize) {
-			// PRE: a.length < max(aSize, bSize)
-
 			int i;
 			long carry = (a[0] & 0xFFFFFFFFL) + (b[0] & 0xFFFFFFFFL);
 
@@ -154,7 +165,20 @@ namespace Deveel.Math {
 			}
 		}
 
-		/** @see BigInteger#subtract(BigInteger) */
+		/// <summary>
+		/// Subtracts <paramref name="op2"/> from <paramref name="op1"/>.
+		/// </summary>
+		/// <param name="op1">The minuend.</param>
+		/// <param name="op2">The subtrahend.</param>
+		/// <returns><paramref name="op1"/> - <paramref name="op2"/>.</returns>
+		/// <example>
+		/// <code>
+		/// BigInteger a = new BigInteger(30);
+		/// BigInteger b = new BigInteger(10);
+		/// BigInteger result = Elementary.Subtract(a, b);
+		/// // result == 20
+		/// </code>
+		/// </example>
 		internal static BigInteger Subtract(BigInteger op1, BigInteger op2) {
 			int resSign;
 			int[] resDigits;
@@ -204,51 +228,55 @@ namespace Deveel.Math {
 			return res;
 		}
 
-		/**
-		 * Performs {@code res = a - b}. It is assumed the magnitude of a is not
-		 * less than the magnitude of b.
-		 */
+		/// <summary>
+		/// Performs <c>res = a - b</c>. It is assumed the magnitude of <paramref name="a"/>
+		/// is not less than the magnitude of <paramref name="b"/>.
+		/// </summary>
+		/// <param name="res">The result array.</param>
+		/// <param name="a">The minuend array.</param>
+		/// <param name="aSize">The number of elements in <paramref name="a"/>.</param>
+		/// <param name="b">The subtrahend array.</param>
+		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
 		private static void subtract(int[] res, int[] a, int aSize, int[] b, int bSize) {
-			// PRE: a[] >= b[]
 			int i;
 			long borrow = 0;
 
 			for (i = 0; i < bSize; i++) {
 				borrow += (a[i] & 0xFFFFFFFFL) - (b[i] & 0xFFFFFFFFL);
 				res[i] = (int)borrow;
-				borrow >>= 32; // -1 or 0
+				borrow >>= 32;
 			}
 			for (; i < aSize; i++) {
 				borrow += a[i] & 0xFFFFFFFFL;
 				res[i] = (int)borrow;
-				borrow >>= 32; // -1 or 0
+				borrow >>= 32;
 			}
 		}
 
-		/**
-		 * Addss the value represented by {@code b} to the value represented by
-		 * {@code a}. It is assumed the magnitude of a is not less than the
-		 * magnitude of b.
-		 * 
-		 * @return {@code a + b}
-		 */
+		/// <summary>
+		/// Adds the value represented by <paramref name="b"/> to the value represented by
+		/// <paramref name="a"/>. It is assumed the magnitude of <paramref name="a"/> is not
+		/// less than the magnitude of <paramref name="b"/>.
+		/// </summary>
+		/// <param name="a">The first addend array.</param>
+		/// <param name="aSize">The number of elements in <paramref name="a"/>.</param>
+		/// <param name="b">The second addend array.</param>
+		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
+		/// <returns><c>a + b</c> as a new array.</returns>
 		private static int[] add(int[] a, int aSize, int[] b, int bSize) {
-			// PRE: a[] >= b[]
 			int[] res = new int[aSize + 1];
 			add(res, a, aSize, b, bSize);
 			return res;
 		}
 
-		/**
-		 * Performs {@code op1 += op2}. {@code op1} must have enough place to store
-		 * the result (i.e. {@code op1.bitLength() >= op2.bitLength()}). Both
-		 * should be positive (i.e. {@code op1 >= op2}).
-		 * 
-		 * @param op1 the input minuend, and the output result.
-		 * @param op2 the addend
-		 */
+		/// <summary>
+		/// Performs <c>op1 += op2</c>. <paramref name="op1"/> must have enough place to store
+		/// the result (i.e. <c>op1.bitLength() &gt;= op2.bitLength()</c>). Both
+		/// should be positive (i.e. <c>op1 &gt;= op2</c>).
+		/// </summary>
+		/// <param name="op1">The input minuend and the output result.</param>
+		/// <param name="op2">The addend.</param>
 		internal static void inplaceAdd(BigInteger op1, BigInteger op2) {
-			// PRE: op1 >= op2 > 0
 			add(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
 					op2.numberLength);
 			op1.numberLength = System.Math.Min(System.Math.Max(op1.numberLength, op2.numberLength) + 1, op1.Digits.Length);
@@ -256,11 +284,13 @@ namespace Deveel.Math {
 			op1.UnCache();
 		}
 
-		/**
-		 * Adds an integer value to the array of integers remembering carry.
-		 * 
-		 * @return a possible generated carry (0 or 1)
-		 */
+		/// <summary>
+		/// Adds an integer value to the array of integers remembering carry.
+		/// </summary>
+		/// <param name="a">The array of integers.</param>
+		/// <param name="aSize">The number of elements to process.</param>
+		/// <param name="addend">The value to add.</param>
+		/// <returns>A possible generated carry (0 or 1).</returns>
 		internal static int inplaceAdd(int[] a, int aSize, int addend) {
 			long carry = addend & 0xFFFFFFFFL;
 
@@ -272,10 +302,11 @@ namespace Deveel.Math {
 			return (int)carry;
 		}
 
-		/**
-		 * Performs: {@code op1 += addend}. The number must to have place to hold a
-		 * possible carry.
-		 */
+		/// <summary>
+		/// Performs <c>op1 += addend</c>. The number must have place to hold a possible carry.
+		/// </summary>
+		/// <param name="op1">The big integer to modify.</param>
+		/// <param name="addend">The integer to add.</param>
 		internal static void inplaceAdd(BigInteger op1, int addend) {
 			int carry = inplaceAdd(op1.Digits, op1.numberLength, addend);
 			if (carry == 1) {
@@ -285,27 +316,28 @@ namespace Deveel.Math {
 			op1.UnCache();
 		}
 
-		/**
-		 * Performs {@code op1 -= op2}. {@code op1} must have enough place to store
-		 * the result (i.e. {@code op1.bitLength() >= op2.bitLength()}). Both
-		 * should be positive (what implies that {@code op1 >= op2}).
-		 * 
-		 * @param op1
-		 *            the input minuend, and the output result.
-		 * @param op2
-		 *            the subtrahend
-		 */
+		/// <summary>
+		/// Performs <c>op1 -= op2</c>. <paramref name="op1"/> must have enough place to store
+		/// the result (i.e. <c>op1.bitLength() &gt;= op2.bitLength()</c>). Both
+		/// should be positive (what implies that <c>op1 &gt;= op2</c>).
+		/// </summary>
+		/// <param name="op1">The input minuend and the output result.</param>
+		/// <param name="op2">The subtrahend.</param>
 		internal static void inplaceSubtract(BigInteger op1, BigInteger op2) {
-			// PRE: op1 >= op2 > 0
 			subtract(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
 					op2.numberLength);
 			op1.CutOffLeadingZeroes();
 			op1.UnCache();
 		}
 
-		/**
-		 * Performs {@code res = b - a}
-		 */
+		/// <summary>
+		/// Performs <c>res = b - a</c>.
+		/// </summary>
+		/// <param name="res">The result array.</param>
+		/// <param name="a">The first array.</param>
+		/// <param name="aSize">The number of elements in <paramref name="a"/>.</param>
+		/// <param name="b">The second array.</param>
+		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
 		private static void inverseSubtract(int[] res, int[] a, int aSize, int[] b, int bSize) {
 			int i;
 			long borrow = 0;
@@ -313,51 +345,50 @@ namespace Deveel.Math {
 				for (i = 0; i < aSize; i++) {
 					borrow += (b[i] & 0xFFFFFFFFL) - (a[i] & 0xFFFFFFFFL);
 					res[i] = (int)borrow;
-					borrow >>= 32; // -1 or 0
+					borrow >>= 32;
 				}
 				for (; i < bSize; i++) {
 					borrow += b[i] & 0xFFFFFFFFL;
 					res[i] = (int)borrow;
-					borrow >>= 32; // -1 or 0
+					borrow >>= 32;
 				}
 			} else {
 				for (i = 0; i < bSize; i++) {
 					borrow += (b[i] & 0xFFFFFFFFL) - (a[i] & 0xFFFFFFFFL);
 					res[i] = (int)borrow;
-					borrow >>= 32; // -1 or 0
+					borrow >>= 32;
 				}
 				for (; i < aSize; i++) {
 					borrow -= a[i] & 0xFFFFFFFFL;
 					res[i] = (int)borrow;
-					borrow >>= 32; // -1 or 0
+					borrow >>= 32;
 				}
 			}
 
 		}
 
-		/**
-		 * Subtracts the value represented by {@code b} from the value represented
-		 * by {@code a}. It is assumed the magnitude of a is not less than the
-		 * magnitude of b.
-		 * 
-		 * @return {@code a - b}
-		 */
+		/// <summary>
+		/// Subtracts the value represented by <paramref name="b"/> from the value represented
+		/// by <paramref name="a"/>. It is assumed the magnitude of <paramref name="a"/> is not
+		/// less than the magnitude of <paramref name="b"/>.
+		/// </summary>
+		/// <param name="a">The minuend array.</param>
+		/// <param name="aSize">The number of elements in <paramref name="a"/>.</param>
+		/// <param name="b">The subtrahend array.</param>
+		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
+		/// <returns><c>a - b</c> as a new array.</returns>
 		private static int[] subtract(int[] a, int aSize, int[] b, int bSize) {
-			// PRE: a[] >= b[]
 			int[] res = new int[aSize];
 			subtract(res, a, aSize, b, bSize);
 			return res;
 		}
 
-		/**
-		 * Same as
-		 * 
-		 * @link #inplaceSubtract(BigInteger, BigInteger), but without the
-		 *       restriction of non-positive values
-		 * @param op1
-		 *            should have enough space to save the result
-		 * @param op2
-		 */
+		/// <summary>
+		/// Same as <see cref="inplaceSubtract(BigInteger, BigInteger)"/> but without the
+		/// restriction of non-positive values.
+		/// </summary>
+		/// <param name="op1">Should have enough space to save the result.</param>
+		/// <param name="op2">The number to subtract.</param>
 		internal static void completeInPlaceSubtract(BigInteger op1, BigInteger op2) {
 			int resultSign = op1.CompareTo(op2);
 			if (op1.Sign == 0) {
@@ -372,11 +403,10 @@ namespace Deveel.Math {
 						op2.Digits, op1.numberLength, op2.numberLength);
 				if (sign > 0) {
 					subtract(op1.Digits, op1.Digits, op1.numberLength, op2.Digits,
-							op2.numberLength);	// op1 = op1 - op2
-					// op1.sign remains equal
+							op2.numberLength);
 				} else {
 					inverseSubtract(op1.Digits, op1.Digits, op1.numberLength,
-							op2.Digits, op2.numberLength);	// op1 = op2 - op1
+							op2.Digits, op2.numberLength);
 					op1.Sign = -op1.Sign;
 				}
 			}
@@ -385,12 +415,12 @@ namespace Deveel.Math {
 			op1.UnCache();
 		}
 
-		/**
-		 * Same as @link #inplaceAdd(BigInteger, BigInteger), but without the restriction of
-		 *       non-positive values
-		 * @param op1 any number
-		 * @param op2 any number
-		 */
+		/// <summary>
+		/// Same as <see cref="inplaceAdd(BigInteger, BigInteger)"/> but without the
+		/// restriction of non-positive values.
+		/// </summary>
+		/// <param name="op1">Any number.</param>
+		/// <param name="op2">Any number.</param>
 		internal static void completeInPlaceAdd(BigInteger op1, BigInteger op2) {
 			if (op1.Sign == 0)
 				Array.Copy(op2.Digits, 0, op1.Digits, 0, op2.numberLength);
@@ -416,10 +446,15 @@ namespace Deveel.Math {
 			op1.UnCache();
 		}
 
-		/**
-		 * Compares two arrays, representing unsigned integer in little-endian order.
-		 * Returns +1,0,-1 if a is - respective - greater, equal or lesser then b 
-		 */
+		/// <summary>
+		/// Compares two arrays, representing unsigned integers in little-endian order.
+		/// Returns +1, 0, or -1 if <paramref name="a"/> is greater, equal, or lesser than <paramref name="b"/>.
+		/// </summary>
+		/// <param name="a">The first array.</param>
+		/// <param name="b">The second array.</param>
+		/// <param name="aSize">The number of elements in <paramref name="a"/>.</param>
+		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
+		/// <returns>1 if a &gt; b, -1 if a &lt; b, 0 if a == b.</returns>
 		private static int unsignedArraysCompare(int[] a, int[] b, int aSize, int bSize) {
 			if (aSize > bSize)
 				return 1;

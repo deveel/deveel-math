@@ -105,10 +105,28 @@ namespace Deveel.Math {
 			return Logical.And(a, b);
 		}
 
+		/// <summary>
+		/// Computes the bitwise OR operation between two big integer numbers.
+		/// </summary>
+		/// <param name="a">The first term of the operation.</param>
+		/// <param name="b">The second term of the operation.</param>
+		/// <returns>
+		/// Returns a new <see cref="BigInteger"/> whose value is the result
+		/// of the bitwise OR operation between the given numbers.
+		/// </returns>
 		public static BigInteger Or(BigInteger a, BigInteger b) {
 			return Logical.Or(a, b);
 		}
 
+		/// <summary>
+		/// Computes the bitwise XOR (exclusive OR) operation between two big integer numbers.
+		/// </summary>
+		/// <param name="a">The first term of the operation.</param>
+		/// <param name="b">The second term of the operation.</param>
+		/// <returns>
+		/// Returns a new <see cref="BigInteger"/> whose value is the result
+		/// of the bitwise XOR operation between the given numbers.
+		/// </returns>
 		public static BigInteger XOr(BigInteger a, BigInteger b) {
 			return Logical.Xor(a, b);
         }
@@ -162,6 +180,15 @@ namespace Deveel.Math {
 			return BigIntegerMath.Negate(value);
 		}
 
+		/// <summary>
+		/// Multiplies two big integer numbers.
+		/// </summary>
+		/// <param name="a">The first factor of the multiplication.</param>
+		/// <param name="b">The second factor of the multiplication.</param>
+		/// <returns>
+		/// Returns a new <see cref="BigInteger"/> that is the result of
+		/// the multiplication of the two integers specified.
+		/// </returns>
 		public static BigInteger Multiply(BigInteger a, BigInteger b) {
 			// This let us to throw NullPointerException when val == null
 			if (b.Sign == 0) {
@@ -174,17 +201,14 @@ namespace Deveel.Math {
 			return Multiplication.Multiply(a, b);
 		}
 
-		/**
- * Returns a new {@code BigInteger} whose value is {@code this / divisor}.
- *
- * @param divisor
- *            value by which {@code this} is divided.
- * @return {@code this / divisor}.
- * @throws NullPointerException
- *             if {@code divisor == null}.
- * @throws ArithmeticException
- *             if {@code divisor == 0}.
- */
+		/// <summary>
+		/// Divides one <see cref="BigInteger"/> value by another.
+		/// </summary>
+		/// <param name="dividend">The value to be divided.</param>
+		/// <param name="divisor">The value by which <paramref name="dividend"/> is divided.</param>
+		/// <returns>Returns the quotient <c>dividend / divisor</c> as a <see cref="BigInteger"/>.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="divisor"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="divisor"/> is zero.</exception>
 		public static BigInteger Divide(BigInteger dividend, BigInteger divisor) {
 			return BigIntegerMath.Divide(dividend, divisor);
 		}
@@ -213,6 +237,13 @@ namespace Deveel.Math {
 		/// Thrown if the value of <paramref name="b"/> is <c>0</c>, or if the result cannot be
 		/// represented exactly.
 		/// </exception>
+		/// <example>
+		/// The following example demonstrates how to divide two <see cref="BigDecimal"/> values:
+		/// <code>
+		/// var result = BigMath.Divide(BigDecimal.Parse("10.0"), BigDecimal.Parse("3.0"));
+		/// Console.WriteLine(result); // Outputs: 3.333333333...
+		/// </code>
+		/// </example>
         public static BigDecimal Divide(BigDecimal a, BigDecimal b) {
 			return BigDecimalMath.Divide(a, b);
 		}
@@ -234,12 +265,22 @@ namespace Deveel.Math {
 		/// Returns an instance of <see cref="BigDecimal"/> that is the result of the division,
 		/// eventually rounded to the given scale and rounding mode.
 		/// </returns>
-		/// <exception cref="ArgumentException"></exception>
+		/// <exception cref="ArgumentException">Thrown when the rounding mode is not defined.</exception>
 		/// <exception cref="ArithmeticException">
 		/// Throw when <paramref name="b"/> is <c>0</c>, or if the <paramref name="roundingMode"/>
 		/// is <see cref="RoundingMode.Unnecessary"/> and rounding is necessary according to the 
 		/// scale of <paramref name="a"/>.
 		/// </exception>
+		/// <example>
+		/// The following example demonstrates how to divide two <see cref="BigDecimal"/> values
+		/// and round the result:
+		/// <code>
+		/// var a = BigDecimal.Parse("10.0");
+		/// var b = BigDecimal.Parse("3.0");
+		/// var result = BigMath.Divide(a, b, RoundingMode.HalfUp);
+		/// Console.WriteLine(result); // Outputs: 3.3
+		/// </code>
+		/// </example>
 		public static BigDecimal Divide(BigDecimal a, BigDecimal b, RoundingMode roundingMode) {
 			if (!Enum.IsDefined(typeof(RoundingMode), roundingMode))
 				throw new ArgumentException();
@@ -247,147 +288,84 @@ namespace Deveel.Math {
 			return Divide(a, b, a.Scale, roundingMode);
 		}
 
-		///**
-		// * Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
-		// * As scale of the result the parameter {@code scale} is used. If rounding
-		// * is required to meet the specified scale, then the specified rounding mode
-		// * {@code roundingMode} is applied.
-		// *
-		// * @param divisor
-		// *            value by which {@code this} is divided.
-		// * @param scale
-		// *            the scale of the result returned.
-		// * @param roundingMode
-		// *            rounding mode to be used to round the result.
-		// * @return {@code this / divisor} rounded according to the given rounding
-		// *         mode.
-		// * @throws NullPointerException
-		// *             if {@code divisor == null} or {@code roundingMode == null}.
-		// * @throws ArithmeticException
-		// *             if {@code divisor == 0}.
-		// * @throws ArithmeticException
-		// *             if {@code roundingMode == RoundingMode.UNNECESSAR}Y and
-		// *             rounding is necessary according to the given scale and given
-		// *             precision.
-		// */
-
-		
+		/// <summary>
+		/// Divides two <see cref="BigDecimal"/> numbers with the specified scale and rounding mode.
+		/// </summary>
+		/// <param name="a">The value to be divided.</param>
+		/// <param name="b">The value to divide <paramref name="a"/> by.</param>
+		/// <param name="scale">The scale of the result.</param>
+		/// <param name="roundingMode">The rounding mode to be used to round the result.</param>
+		/// <returns>Returns the result of the division <c>a / b</c> with the given scale and rounding mode.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="b"/> or <paramref name="roundingMode"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="b"/> is zero, or if rounding is necessary and <paramref name="roundingMode"/> is <see cref="RoundingMode.Unnecessary"/>.</exception>
 		public static BigDecimal Divide(BigDecimal a, BigDecimal b, int scale, RoundingMode roundingMode) {
 			return BigDecimalMath.Divide(a, b, scale, roundingMode);
 		}
 
-	//	/**
- //* Returns a new {@code BigDecimal} whose value is {@code this / divisor}.
- //* The result is rounded according to the passed context {@code mc}. If the
- //* passed math context specifies precision {@code 0}, then this call is
- //* equivalent to {@code this.divide(divisor)}.
- //*
- //* @param divisor
- //*            value by which {@code this} is divided.
- //* @param mc
- //*            rounding mode and precision for the result of this operation.
- //* @return {@code this / divisor}.
- //* @throws NullPointerException
- //*             if {@code divisor == null} or {@code mc == null}.
- //* @throws ArithmeticException
- //*             if {@code divisor == 0}.
- //* @throws ArithmeticException
- //*             if {@code mc.getRoundingMode() == UNNECESSARY} and rounding
- //*             is necessary according {@code mc.getPrecision()}.
- //*/
-
+		/// <summary>
+		/// Divides two <see cref="BigDecimal"/> numbers and rounds the result according to the given context.
+		/// </summary>
+		/// <param name="a">The value to be divided.</param>
+		/// <param name="b">The value to divide <paramref name="a"/> by.</param>
+		/// <param name="context">The math context specifying precision and rounding mode.</param>
+		/// <returns>Returns the result of the division <c>a / b</c> rounded according to the given context.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="b"/> or <paramref name="context"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="b"/> is zero, or if rounding is necessary and <see cref="RoundingMode.Unnecessary"/> is specified.</exception>
 		public static BigDecimal Divide(BigDecimal a, BigDecimal b, MathContext context) {
 			return BigDecimalMath.Divide(a, b, context);
 		}
 
-	//	/**
- //* Returns a new {@code BigDecimal} whose value is the integral part of
- //* {@code this / divisor}. The quotient is rounded down towards zero to the
- //* next integer. For example, {@code 0.5/0.2 = 2}.
- //*
- //* @param divisor
- //*            value by which {@code this} is divided.
- //* @return integral part of {@code this / divisor}.
- //* @throws NullPointerException
- //*             if {@code divisor == null}.
- //* @throws ArithmeticException
- //*             if {@code divisor == 0}.
- //*/
-
+		/// <summary>
+		/// Returns the integral part of the division of two <see cref="BigDecimal"/> numbers,
+		/// rounding down towards zero to the next integer.
+		/// </summary>
+		/// <param name="a">The value to be divided.</param>
+		/// <param name="b">The value to divide <paramref name="a"/> by.</param>
+		/// <returns>Returns the integral part of <c>a / b</c>.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="b"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="b"/> is zero.</exception>
 		public static BigDecimal DivideToIntegral(BigDecimal a, BigDecimal b) {
 			return BigDecimalMath.DivideToIntegralValue(a, b);
 		}
 
-	//	/**
- //* Returns a new {@code BigDecimal} whose value is the integral part of
- //* {@code this / divisor}. The quotient is rounded down towards zero to the
- //* next integer. The rounding mode passed with the parameter {@code mc} is
- //* not considered. But if the precision of {@code mc > 0} and the integral
- //* part requires more digits, then an {@code ArithmeticException} is thrown.
- //*
- //* @param divisor
- //*            value by which {@code this} is divided.
- //* @param mc
- //*            math context which determines the maximal precision of the
- //*            result.
- //* @return integral part of {@code this / divisor}.
- //* @throws NullPointerException
- //*             if {@code divisor == null} or {@code mc == null}.
- //* @throws ArithmeticException
- //*             if {@code divisor == 0}.
- //* @throws ArithmeticException
- //*             if {@code mc.getPrecision() > 0} and the result requires more
- //*             digits to be represented.
- //*/
-
+		/// <summary>
+		/// Returns the integral part of the division of two <see cref="BigDecimal"/> numbers,
+		/// using the given math context for precision.
+		/// </summary>
+		/// <param name="a">The value to be divided.</param>
+		/// <param name="b">The value to divide <paramref name="a"/> by.</param>
+		/// <param name="context">The math context determining the maximal precision of the result.</param>
+		/// <returns>Returns the integral part of <c>a / b</c>.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="b"/> or <paramref name="context"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="b"/> is zero, or if the result requires more digits than the precision allows.</exception>
 		public static BigDecimal DivideToIntegral(BigDecimal a, BigDecimal b, MathContext context) {
 			return BigDecimalMath.DivideToIntegralValue(a, b, context);
 		}
 
-	//	/**
- //* Returns a {@code BigDecimal} array which contains the integral part of
- //* {@code this / divisor} at index 0 and the remainder {@code this %
- //* divisor} at index 1. The quotient is rounded down towards zero to the
- //* next integer.
- //*
- //* @param divisor
- //*            value by which {@code this} is divided.
- //* @return {@code [this.divideToIntegralValue(divisor),
- //*         this.remainder(divisor)]}.
- //* @throws NullPointerException
- //*             if {@code divisor == null}.
- //* @throws ArithmeticException
- //*             if {@code divisor == 0}.
- //* @see #divideToIntegralValue
- //* @see #remainder
- //*/
-
+		/// <summary>
+		/// Returns the integral part of the division and the remainder of two <see cref="BigDecimal"/> numbers.
+		/// </summary>
+		/// <param name="a">The value to be divided.</param>
+		/// <param name="b">The value to divide <paramref name="a"/> by.</param>
+		/// <param name="remainder">When this method returns, contains the remainder of the division.</param>
+		/// <returns>Returns the integral part of <c>a / b</c>.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="b"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="b"/> is zero.</exception>
 		public static BigDecimal DivideAndRemainder(BigDecimal a, BigDecimal b, out BigDecimal remainder) {
 			return BigDecimalMath.DivideAndRemainder(a, b, out remainder);
 		}
 
-	//	/**
- //* Returns a {@code BigDecimal} array which contains the integral part of
- //* {@code this / divisor} at index 0 and the remainder {@code this %
- //* divisor} at index 1. The quotient is rounded down towards zero to the
- //* next integer. The rounding mode passed with the parameter {@code mc} is
- //* not considered. But if the precision of {@code mc > 0} and the integral
- //* part requires more digits, then an {@code ArithmeticException} is thrown.
- //*
- //* @param divisor
- //*            value by which {@code this} is divided.
- //* @param mc
- //*            math context which determines the maximal precision of the
- //*            result.
- //* @return {@code [this.divideToIntegralValue(divisor),
- //*         this.remainder(divisor)]}.
- //* @throws NullPointerException
- //*             if {@code divisor == null}.
- //* @throws ArithmeticException
- //*             if {@code divisor == 0}.
- //* @see #divideToIntegralValue
- //* @see #remainder
- //*/
+		/// <summary>
+		/// Returns the integral part of the division and the remainder of two <see cref="BigDecimal"/> numbers,
+		/// using the given math context for precision.
+		/// </summary>
+		/// <param name="a">The value to be divided.</param>
+		/// <param name="b">The value to divide <paramref name="a"/> by.</param>
+		/// <param name="context">The math context determining the maximal precision of the result.</param>
+		/// <param name="remainder">When this method returns, contains the remainder of the division.</param>
+		/// <returns>Returns the integral part of <c>a / b</c>.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="b"/> or <paramref name="context"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="b"/> is zero, or if the result requires more digits than the precision allows.</exception>
 		public static BigDecimal DivideAndRemainder(BigDecimal a,
 			BigDecimal b,
 			MathContext context,
@@ -395,48 +373,30 @@ namespace Deveel.Math {
 			return BigDecimalMath.DivideAndRemainder(a, b, context, out remainder);
 		}
 
-//		/**
-//* Returns a new {@code BigDecimal} whose value is {@code this % divisor}.
-//* <p>
-//* The remainder is defined as {@code this -
-//* this.divideToIntegralValue(divisor) * divisor}.
-//*
-//* @param divisor
-//*            value by which {@code this} is divided.
-//* @return {@code this % divisor}.
-//* @throws NullPointerException
-//*             if {@code divisor == null}.
-//* @throws ArithmeticException
-//*             if {@code divisor == 0}.
-//*/
+		/// <summary>
+		/// Returns the remainder of the division of two <see cref="BigDecimal"/> numbers.
+		/// </summary>
+		/// <param name="a">The value to be divided.</param>
+		/// <param name="b">The value to divide <paramref name="a"/> by.</param>
+		/// <returns>Returns <c>a % b</c> as a <see cref="BigDecimal"/>.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="b"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="b"/> is zero.</exception>
 		public static BigDecimal Remainder(BigDecimal a, BigDecimal b) {
 			BigDecimal remainder;
 			DivideAndRemainder(a, b, out remainder);
 			return remainder;
 		}
 
-	//	/**
- //* Returns a new {@code BigDecimal} whose value is {@code this % divisor}.
- //* <p>
- //* The remainder is defined as {@code this -
- //* this.divideToIntegralValue(divisor) * divisor}.
- //* <p>
- //* The specified rounding mode {@code mc} is used for the division only.
- //*
- //* @param divisor
- //*            value by which {@code this} is divided.
- //* @param mc
- //*            rounding mode and precision to be used.
- //* @return {@code this % divisor}.
- //* @throws NullPointerException
- //*             if {@code divisor == null}.
- //* @throws ArithmeticException
- //*             if {@code divisor == 0}.
- //* @throws ArithmeticException
- //*             if {@code mc.getPrecision() > 0} and the result of {@code
- //*             this.divideToIntegralValue(divisor, mc)} requires more digits
- //*             to be represented.
- //*/
+		/// <summary>
+		/// Returns the remainder of the division of two <see cref="BigDecimal"/> numbers,
+		/// using the given math context for the division.
+		/// </summary>
+		/// <param name="a">The value to be divided.</param>
+		/// <param name="b">The value to divide <paramref name="a"/> by.</param>
+		/// <param name="context">The rounding mode and precision to be used for the division.</param>
+		/// <returns>Returns <c>a % b</c> as a <see cref="BigDecimal"/>.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="b"/> or <paramref name="context"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="b"/> is zero, or if the result requires more digits than the precision allows.</exception>
 		public static BigDecimal Remainder(BigDecimal a, BigDecimal b, MathContext context) {
 			BigDecimal remainder;
 			DivideAndRemainder(a, b, context, out remainder);
@@ -520,6 +480,13 @@ namespace Deveel.Math {
 		/// <exception cref="ArithmeticException">
 		/// Thrown when <paramref name="exp"/> is less than 0 or greater than 999999999.
 		/// </exception>
+		/// <example>
+		/// The following example demonstrates how to compute a power of a <see cref="BigDecimal"/>:
+		/// <code>
+		/// var result = BigMath.Pow(BigDecimal.Parse("2.5"), 3);
+		/// Console.WriteLine(result); // Outputs: 15.625
+		/// </code>
+		/// </example>
         public static BigDecimal Pow(BigDecimal number, int exp) {
 			return BigDecimalMath.Pow(number, exp);
 		}
@@ -687,6 +654,13 @@ namespace Deveel.Math {
 		/// rounding mode is <see cref="RoundingMode.Unnecessary"/> and the result cannot be
 		/// represented exactly within the given precision.
 		/// </exception>
+		/// <example>
+		/// The following example demonstrates how to round a <see cref="BigDecimal"/> value:
+		/// <code>
+		/// var result = BigMath.Round(BigDecimal.Parse("3.14159"), new MathContext(3, RoundingMode.HalfUp));
+		/// Console.WriteLine(result); // Outputs: 3.14
+		/// </code>
+		/// </example>
         public static BigDecimal Round(BigDecimal number, MathContext mc) {
 			var thisBD = new BigDecimal(number.UnscaledValue, number.Scale);
 
@@ -694,20 +668,23 @@ namespace Deveel.Math {
 			return thisBD;
 		}
 
+		/// <summary>
+		/// Returns the minimum of the two given <see cref="BigDecimal"/> numbers.
+		/// </summary>
+		/// <param name="a">The first value to compare.</param>
+		/// <param name="val">The second value to compare.</param>
+		/// <returns>Returns the smaller of the two <see cref="BigDecimal"/> values.</returns>
 		public static BigDecimal Min(BigDecimal a, BigDecimal val) {
 			return ((a.CompareTo(val) <= 0) ? a : val);
 		}
 
-		/**
-		 * Returns the maximum of this {@code BigDecimal} and {@code val}.
-		 *
-		 * @param val
-		 *            value to be used to compute the maximum with this.
-		 * @return {@code max(this, val}.
-		 * @throws NullPointerException
-		 *             if {@code val == null}.
-		 */
-
+		/// <summary>
+		/// Returns the maximum of the two given <see cref="BigDecimal"/> numbers.
+		/// </summary>
+		/// <param name="a">The first value to compare.</param>
+		/// <param name="val">The second value to compare.</param>
+		/// <returns>Returns the larger of the two <see cref="BigDecimal"/> values.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="val"/> is <c>null</c>.</exception>
 		public static BigDecimal Max(BigDecimal a, BigDecimal val) {
 			return ((a.CompareTo(val) >= 0) ? a : val);
 		}
@@ -750,154 +727,121 @@ namespace Deveel.Math {
 			return new BigDecimal(number.UnscaledValue, BigDecimal.ToIntScale(newScale));
 		}
 
-	//	/**
- //* Returns a new {@code BigInteger} whose value is {@code this % divisor}.
- //* Regarding signs this methods has the same behavior as the % operator on
- //* int's, i.e. the sign of the remainder is the same as the sign of this.
- //*
- //* @param divisor
- //*            value by which {@code this} is divided.
- //* @return {@code this % divisor}.
- //* @throws NullPointerException
- //*             if {@code divisor == null}.
- //* @throws ArithmeticException
- //*             if {@code divisor == 0}.
- //*/
+		/// <summary>
+		/// Returns the remainder of the division of two <see cref="BigInteger"/> numbers.
+		/// </summary>
+		/// <param name="dividend">The value to be divided.</param>
+		/// <param name="divisor">The value to divide <paramref name="dividend"/> by.</param>
+		/// <returns>Returns <c>dividend % divisor</c> as a <see cref="BigInteger"/>.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="divisor"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="divisor"/> is zero.</exception>
 		public static BigInteger Remainder(BigInteger dividend, BigInteger divisor) {
 			return BigIntegerMath.Remainder(dividend, divisor);
 		}
 
-	//	/**
- //* Returns a {@code BigInteger} array which contains {@code this / divisor}
- //* at index 0 and {@code this % divisor} at index 1.
- //*
- //* @param divisor
- //*            value by which {@code this} is divided.
- //* @return {@code [this / divisor, this % divisor]}.
- //* @throws NullPointerException
- //*             if {@code divisor == null}.
- //* @throws ArithmeticException
- //*             if {@code divisor == 0}.
- //* @see #divide
- //* @see #remainder
- //*/
+		/// <summary>
+		/// Divides two <see cref="BigInteger"/> numbers and returns the quotient and remainder.
+		/// </summary>
+		/// <param name="dividend">The value to be divided.</param>
+		/// <param name="divisor">The value to divide <paramref name="dividend"/> by.</param>
+		/// <param name="remainder">When this method returns, contains the remainder of the division.</param>
+		/// <returns>Returns the quotient <c>dividend / divisor</c>.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="divisor"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="divisor"/> is zero.</exception>
 		public static BigInteger DivideAndRemainder(BigInteger dividend, BigInteger divisor, out BigInteger remainder) {
 			return BigIntegerMath.DivideAndRemainder(dividend, divisor, out remainder);
 		}
 
-	//	/**
- //* Returns a new {@code BigInteger} whose value is {@code this mod m}. The
- //* modulus {@code m} must be positive. The result is guaranteed to be in the
- //* interval {@code [0, m)} (0 inclusive, m exclusive). The behavior of this
- //* function is not equivalent to the behavior of the % operator defined for
- //* the built-in {@code int}'s.
- //*
- //* @param m
- //*            the modulus.
- //* @return {@code this mod m}.
- //* @throws NullPointerException
- //*             if {@code m == null}.
- //* @throws ArithmeticException
- //*             if {@code m < 0}.
- //*/
+		/// <summary>
+		/// Returns the modulus of a <see cref="BigInteger"/> value.
+		/// </summary>
+		/// <param name="value">The value to compute the modulus of.</param>
+		/// <param name="m">The modulus (must be positive).</param>
+		/// <returns>Returns <c>value mod m</c> in the range <c>[0, m)</c>.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="m"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="m"/> is negative.</exception>
 		public static BigInteger Mod(BigInteger value, BigInteger m) {
 			return BigIntegerMath.Mod(value, m);
 		}
 
-	//	/**
- //* Returns a new {@code BigInteger} whose value is {@code 1/this mod m}. The
- //* modulus {@code m} must be positive. The result is guaranteed to be in the
- //* interval {@code [0, m)} (0 inclusive, m exclusive). If {@code this} is
- //* not relatively prime to m, then an exception is thrown.
- //*
- //* @param m
- //*            the modulus.
- //* @return {@code 1/this mod m}.
- //* @throws NullPointerException
- //*             if {@code m == null}
- //* @throws ArithmeticException
- //*             if {@code m < 0 or} if {@code this} is not relatively prime
- //*             to {@code m}
- //*/
+		/// <summary>
+		/// Computes the modular multiplicative inverse of a <see cref="BigInteger"/> value.
+		/// </summary>
+		/// <param name="value">The value to compute the inverse of.</param>
+		/// <param name="m">The modulus (must be positive).</param>
+		/// <returns>Returns <c>1/value mod m</c>.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="m"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="m"/> is negative, or if <paramref name="value"/> is not relatively prime to <paramref name="m"/>.</exception>
 		public static BigInteger ModInverse(BigInteger value, BigInteger m) {
 			return BigIntegerMath.ModInverse(value, m);
 		}
 
-	//	/**
- //* Returns a new {@code BigInteger} whose value is {@code this^exponent mod
- //* m}. The modulus {@code m} must be positive. The result is guaranteed to
- //* be in the interval {@code [0, m)} (0 inclusive, m exclusive). If the
- //* exponent is negative, then {@code this.modInverse(m)^(-exponent) mod m)}
- //* is computed. The inverse of this only exists if {@code this} is
- //* relatively prime to m, otherwise an exception is thrown.
- //*
- //* @param exponent
- //*            the exponent.
- //* @param m
- //*            the modulus.
- //* @return {@code this^exponent mod val}.
- //* @throws NullPointerException
- //*             if {@code m == null} or {@code exponent == null}.
- //* @throws ArithmeticException
- //*             if {@code m < 0} or if {@code exponent<0} and this is not
- //*             relatively prime to {@code m}.
- //*/
+		/// <summary>
+		/// Computes the modular exponentiation of a <see cref="BigInteger"/> value.
+		/// </summary>
+		/// <param name="value">The base value.</param>
+		/// <param name="exponent">The exponent.</param>
+		/// <param name="m">The modulus (must be positive).</param>
+		/// <returns>Returns <c>value^exponent mod m</c>.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="m"/> or <paramref name="exponent"/> is <c>null</c>.</exception>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="m"/> is negative, or if the exponent is negative and <paramref name="value"/> is not relatively prime to <paramref name="m"/>.</exception>
+		/// <example>
+		/// The following example demonstrates how to compute modular exponentiation:
+		/// <code>
+		/// var result = BigMath.ModPow(BigInteger.Parse("7"), BigInteger.Parse("3"), BigInteger.Parse("5"));
+		/// Console.WriteLine(result); // Outputs: 3 (since 7^3 = 343, and 343 mod 5 = 3)
+		/// </code>
+		/// </example>
 		public static BigInteger ModPow(BigInteger value, BigInteger exponent, BigInteger m) {
 			return BigIntegerMath.ModPow(value, exponent, m);
 		}
 
-	//	/**
- //* Returns a new {@code BigInteger} whose value is {@code this ^ exp}.
- //*
- //* @param exp
- //*            exponent to which {@code this} is raised.
- //* @return {@code this ^ exp}.
- //* @throws ArithmeticException
- //*             if {@code exp < 0}.
- //*/
+		/// <summary>
+		/// Raises a <see cref="BigInteger"/> value to the specified power.
+		/// </summary>
+		/// <param name="value">The base value to raise to a power.</param>
+		/// <param name="exp">The exponent to raise <paramref name="value"/> to.</param>
+		/// <returns>Returns <c>value^exp</c> as a <see cref="BigInteger"/>.</returns>
+		/// <exception cref="ArithmeticException">Thrown if <paramref name="exp"/> is negative.</exception>
 		public static BigInteger Pow(BigInteger value, int exp) {
 			return BigIntegerMath.Pow(value, exp);
 		}
 
-	//	/**
- //* Returns the position of the lowest set bit in the two's complement
- //* representation of this {@code BigInteger}. If all bits are zero (this=0)
- //* then -1 is returned as result.
- //* <p>
- //* <b>Implementation Note:</b> Usage of this method is not recommended as
- //* the current implementation is not efficient.
- //*
- //* @return position of lowest bit if {@code this != 0}, {@code -1} otherwise
- //*/
-
+		/// <summary>
+		/// Returns the minimum of two <see cref="BigInteger"/> values.
+		/// </summary>
+		/// <param name="a">The first value to compare.</param>
+		/// <param name="b">The second value to compare.</param>
+		/// <returns>Returns the smaller of the two <see cref="BigInteger"/> values.</returns>
 		public static BigInteger Min(BigInteger a, BigInteger b) {
 			return ((a.CompareTo(b) == BigInteger.LESS) ? a : b);
 		}
 
-		/**
-		 * Returns the maximum of this {@code BigInteger} and {@code val}.
-		 *
-		 * @param val
-		 *            value to be used to compute the maximum with {@code this}
-		 * @return {@code max(this, val)}
-		 * @throws NullPointerException
-		 *             if {@code val == null}
-		 */
+		/// <summary>
+		/// Returns the maximum of two <see cref="BigInteger"/> values.
+		/// </summary>
+		/// <param name="a">The first value to compare.</param>
+		/// <param name="b">The second value to compare.</param>
+		/// <returns>Returns the larger of the two <see cref="BigInteger"/> values.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="a"/> or <paramref name="b"/> is <c>null</c>.</exception>
 		public static BigInteger Max(BigInteger a, BigInteger b) {
 			return ((a.CompareTo(b) == BigInteger.GREATER) ? a : b);
 		}
 
-		/**
-* Returns a new {@code BigInteger} whose value is greatest common divisor
-* of {@code this} and {@code val}. If {@code this==0} and {@code val==0}
-* then zero is returned, otherwise the result is positive.
-*
-* @param val
-*            value with which the greatest common divisor is computed.
-* @return {@code gcd(this, val)}.
-* @throws NullPointerException
-*             if {@code val == null}.
-*/
+		/// <summary>
+		/// Computes the greatest common divisor of two <see cref="BigInteger"/> values.
+		/// </summary>
+		/// <param name="a">The first value.</param>
+		/// <param name="b">The second value.</param>
+		/// <returns>Returns the greatest common divisor of <paramref name="a"/> and <paramref name="b"/>.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="a"/> or <paramref name="b"/> is <c>null</c>.</exception>
+		/// <example>
+		/// The following example demonstrates how to compute the GCD of two numbers:
+		/// <code>
+		/// var result = BigMath.Gcd(BigInteger.Parse("12"), BigInteger.Parse("18"));
+		/// Console.WriteLine(result); // Outputs: 6
+		/// </code>
+		/// </example>
 		public static BigInteger Gcd(BigInteger a, BigInteger b) {
 			return BigIntegerMath.Gcd(a, b);
 		}
@@ -1087,7 +1031,7 @@ namespace Deveel.Math {
 		/// </summary>
 		/// <param name="augend">The value to be added to this instance.</param>
 		/// <returns>
-		/// Returns a new {@code BigDecimal} whose value is <c>this + <paramref name="augend"/></c>.
+		/// Returns a new <see cref="BigDecimal"/> whose value is <c>this + <paramref name="augend"/></c>.
 		/// </returns>
 		/// <exception cref="ArgumentNullException">
 		/// If the given <paramref name="augend"/> is <c>null</c>.

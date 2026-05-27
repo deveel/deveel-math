@@ -23,8 +23,10 @@ namespace Deveel.Math
     public sealed partial class BigDecimal : IConvertible
     {
 
+        /// <inheritdoc/>
         TypeCode IConvertible.GetTypeCode() => TypeCode.Object;
 
+        /// <inheritdoc/>
         bool IConvertible.ToBoolean(IFormatProvider provider)
         {
             int value = ToByteExact();
@@ -36,10 +38,13 @@ namespace Deveel.Math
             throw new InvalidCastException();
         }
 
+        /// <inheritdoc/>
         char IConvertible.ToChar(IFormatProvider provider) => (char)ToInt16Exact();
 
+        /// <inheritdoc/>
         sbyte IConvertible.ToSByte(IFormatProvider provider) => throw new NotSupportedException();
 
+        /// <inheritdoc/>
         byte IConvertible.ToByte(IFormatProvider provider)
         {
             var value = ToInt16Exact();
@@ -49,6 +54,7 @@ namespace Deveel.Math
             return (byte)value;
         }
 
+        /// <inheritdoc/>
         short IConvertible.ToInt16(IFormatProvider provider)
         {
             var value = ToInt32Exact();
@@ -58,9 +64,11 @@ namespace Deveel.Math
             return (short) value;
         }
 
+        /// <inheritdoc/>
         ushort IConvertible.ToUInt16(IFormatProvider provider) => throw new NotSupportedException();
 
         // TODO: use the IFormatProvider
+        /// <inheritdoc/>
         int IConvertible.ToInt32(IFormatProvider provider)
         {
             var value = ToInt64Exact();
@@ -71,8 +79,10 @@ namespace Deveel.Math
         }
 
         // TODO: verify if it is possible to convert to uint
+        /// <inheritdoc/>
         uint IConvertible.ToUInt32(IFormatProvider provider) => throw new NotSupportedException();
 
+        /// <inheritdoc/>
         long IConvertible.ToInt64(IFormatProvider provider)
         {
             var value = ToInt64Exact();
@@ -83,8 +93,10 @@ namespace Deveel.Math
         }
 
         // TODO: verify if it is possible to convert to ulong
+        /// <inheritdoc/>
         ulong IConvertible.ToUInt64(IFormatProvider provider) => throw new NotSupportedException();
 
+        /// <inheritdoc/>
         float IConvertible.ToSingle(IFormatProvider provider)
         {
             var value = ToSingle();
@@ -94,6 +106,7 @@ namespace Deveel.Math
             return value;
         }
 
+        /// <inheritdoc/>
         double IConvertible.ToDouble(IFormatProvider provider)
         {
             var value = ToDouble();
@@ -103,18 +116,22 @@ namespace Deveel.Math
             return value;
         }
 
+        /// <inheritdoc/>
         decimal IConvertible.ToDecimal(IFormatProvider provider)
         {
             return ToDecimal();
         }
 
+        /// <inheritdoc/>
         DateTime IConvertible.ToDateTime(IFormatProvider provider) => throw new NotSupportedException();
 
+        /// <inheritdoc/>
         string IConvertible.ToString(IFormatProvider provider)
         {
             return ToString(GeneralStringFormat, provider);
         }
 
+        /// <inheritdoc/>
         object IConvertible.ToType(Type conversionType, IFormatProvider provider)
         {
             if (conversionType == typeof(BigInteger))
@@ -300,21 +317,41 @@ namespace Deveel.Math
             return (short)ValueExact(16);
         }
 
+        /// <summary>
+        /// Converts this <see cref="BigDecimal"/> to a <see cref="byte"/>,
+        /// if it has no fractional part, and the value fits in the range
+        /// <c>[0..255]</c>.
+        /// </summary>
+        /// <returns>
+        /// Returns a <see cref="byte"/> value that represents the decimal value
+        /// of this instance, if it has no fractional part and fits in the range
+        /// <c>[0..255]</c>.
+        /// </returns>
+        /// <exception cref="ArithmeticException">
+        /// Thrown when the value of this instance has a fractional part
+        /// and rounding would be necessary, or the value doesn't fit in the
+        /// range of <c>[0..255]</c>.
+        /// </exception>
         public byte ToByteExact()
         {
             return (byte)ValueExact(8);
         }
 
-        /**
-		 * Returns this {@code BigDecimal} as a byte value if it has no fractional
-		 * part and if its value fits to the byte range ([-128..127]). If these
-		 * conditions are not met, an {@code ArithmeticException} is thrown.
-		 *
-		 * @return this {@code BigDecimal} as a byte value.
-		 * @throws ArithmeticException
-		 *             if rounding is necessary or the number doesn't fit in a byte.
-		 */
-
+        /// <summary>
+        /// Converts this <see cref="BigDecimal"/> to a <see cref="sbyte"/>,
+        /// if it has no fractional part, and the value fits in the range
+        /// <c>[-128..127]</c>.
+        /// </summary>
+        /// <returns>
+        /// Returns a <see cref="sbyte"/> value that represents the decimal value
+        /// of this instance, if it has no fractional part and fits in the range
+        /// <c>[-128..127]</c>.
+        /// </returns>
+        /// <exception cref="ArithmeticException">
+        /// Thrown when the value of this instance has a fractional part
+        /// and rounding would be necessary, or the number doesn't fit in
+        /// a signed byte.
+        /// </exception>
         public sbyte ToSByteExact()
         {
             return (sbyte)ValueExact(8);
@@ -586,81 +623,203 @@ namespace Deveel.Math
             return new decimal(lo, mid, hi, negative, (byte)scale);
         }
 
+        /// <summary>
+        /// Explicitly converts a <see cref="BigDecimal"/> to a <see cref="char"/>.
+        /// </summary>
+        /// <param name="d">The <see cref="BigDecimal"/> to convert.</param>
+        /// <returns>
+        /// Returns a <see cref="char"/> representation of the value.
+        /// </returns>
+        /// <seealso cref="ToInt32()"/>
         public static explicit operator char(BigDecimal d)
         {
             return (char)d.ToInt32();
         }
 
+        /// <summary>
+        /// Explicitly converts a <see cref="BigDecimal"/> to a <see cref="sbyte"/>.
+        /// </summary>
+        /// <param name="d">The <see cref="BigDecimal"/> to convert.</param>
+        /// <returns>
+        /// Returns a <see cref="sbyte"/> representation of the value.
+        /// </returns>
+        /// <seealso cref="ToInt32()"/>
         public static explicit operator sbyte(BigDecimal d)
         {
             return (sbyte)d.ToInt32();
         }
 
+        /// <summary>
+        /// Explicitly converts a <see cref="BigDecimal"/> to a <see cref="byte"/>.
+        /// </summary>
+        /// <param name="d">The <see cref="BigDecimal"/> to convert.</param>
+        /// <returns>
+        /// Returns a <see cref="byte"/> representation of the value.
+        /// </returns>
+        /// <seealso cref="ToInt32()"/>
         public static explicit operator byte(BigDecimal d)
         {
             return (byte)d.ToInt32();
         }
 
+        /// <summary>
+        /// Explicitly converts a <see cref="BigDecimal"/> to a <see cref="short"/>.
+        /// </summary>
+        /// <param name="d">The <see cref="BigDecimal"/> to convert.</param>
+        /// <returns>
+        /// Returns a <see cref="short"/> representation of the value.
+        /// </returns>
+        /// <seealso cref="ToInt32()"/>
         public static explicit operator short(BigDecimal d)
         {
             return (short)d.ToInt32();
         }
 
+        /// <summary>
+        /// Explicitly converts a <see cref="BigDecimal"/> to an <see cref="int"/>.
+        /// </summary>
+        /// <param name="d">The <see cref="BigDecimal"/> to convert.</param>
+        /// <returns>
+        /// Returns an <see cref="int"/> representation of the value.
+        /// </returns>
+        /// <seealso cref="ToInt32()"/>
         public static explicit operator int(BigDecimal d)
         {
             return d.ToInt32();
         }
 
+        /// <summary>
+        /// Explicitly converts a <see cref="BigDecimal"/> to a <see cref="long"/>.
+        /// </summary>
+        /// <param name="d">The <see cref="BigDecimal"/> to convert.</param>
+        /// <returns>
+        /// Returns a <see cref="long"/> representation of the value.
+        /// </returns>
+        /// <seealso cref="ToInt64()"/>
         public static explicit operator long(BigDecimal d)
         {
             return d.ToInt64();
         }
 
+        /// <summary>
+        /// Implicitly converts a <see cref="BigDecimal"/> to a <see cref="float"/>.
+        /// </summary>
+        /// <param name="d">The <see cref="BigDecimal"/> to convert.</param>
+        /// <returns>
+        /// Returns a <see cref="float"/> representation of the value.
+        /// </returns>
+        /// <seealso cref="ToSingle()"/>
         public static implicit operator float(BigDecimal d)
         {
             return d.ToSingle();
         }
 
+        /// <summary>
+        /// Implicitly converts a <see cref="BigDecimal"/> to a <see cref="double"/>.
+        /// </summary>
+        /// <param name="d">The <see cref="BigDecimal"/> to convert.</param>
+        /// <returns>
+        /// Returns a <see cref="double"/> representation of the value.
+        /// </returns>
+        /// <seealso cref="ToDouble()"/>
         public static implicit operator double(BigDecimal d)
         {
             return d.ToDouble();
         }
 
+        /// <summary>
+        /// Implicitly converts a <see cref="BigDecimal"/> to a <see cref="decimal"/>.
+        /// </summary>
+        /// <param name="d">The <see cref="BigDecimal"/> to convert.</param>
+        /// <returns>
+        /// Returns a <see cref="decimal"/> representation of the value.
+        /// </returns>
+        /// <seealso cref="ToDecimal()"/>
         public static implicit operator decimal(BigDecimal d)
         {
             return d.ToDecimal();
         }
 
+        /// <summary>
+        /// Explicitly converts a <see cref="BigDecimal"/> to a <see cref="BigInteger"/>.
+        /// </summary>
+        /// <param name="d">The <see cref="BigDecimal"/> to convert.</param>
+        /// <returns>
+        /// Returns a <see cref="BigInteger"/> representation of the value.
+        /// </returns>
+        /// <seealso cref="ToBigInteger()"/>
         public static explicit operator BigInteger(BigDecimal d)
         {
             return d.ToBigInteger();
         }
 
+        /// <summary>
+        /// Explicitly converts a <see cref="long"/> to a <see cref="BigDecimal"/>.
+        /// </summary>
+        /// <param name="value">The <see cref="long"/> value to convert.</param>
+        /// <returns>
+        /// Returns a new <see cref="BigDecimal"/> that represents the given value.
+        /// </returns>
         public static explicit operator BigDecimal(long value)
         {
             return new BigDecimal(value);
         }
 
+        /// <summary>
+        /// Implicitly converts a <see cref="float"/> to a <see cref="BigDecimal"/>.
+        /// </summary>
+        /// <param name="value">The <see cref="float"/> value to convert.</param>
+        /// <returns>
+        /// Returns a new <see cref="BigDecimal"/> that represents the given value.
+        /// </returns>
         public static implicit operator BigDecimal(float value)
         {
             return new BigDecimal(value);
         }
 
+        /// <summary>
+        /// Implicitly converts a <see cref="double"/> to a <see cref="BigDecimal"/>.
+        /// </summary>
+        /// <param name="value">The <see cref="double"/> value to convert.</param>
+        /// <returns>
+        /// Returns a new <see cref="BigDecimal"/> that represents the given value.
+        /// </returns>
         public static implicit operator BigDecimal(double value)
         {
             return new BigDecimal(value);
         }
 
+        /// <summary>
+        /// Implicitly converts a <see cref="decimal"/> to a <see cref="BigDecimal"/>.
+        /// </summary>
+        /// <param name="value">The <see cref="decimal"/> value to convert.</param>
+        /// <returns>
+        /// Returns a new <see cref="BigDecimal"/> that represents the given value.
+        /// </returns>
         public static implicit operator BigDecimal(decimal value)
         {
             return Parse(value.ToString(CultureInfo.InvariantCulture));
         }
 
+        /// <summary>
+        /// Explicitly converts an <see cref="int"/> to a <see cref="BigDecimal"/>.
+        /// </summary>
+        /// <param name="value">The <see cref="int"/> value to convert.</param>
+        /// <returns>
+        /// Returns a new <see cref="BigDecimal"/> that represents the given value.
+        /// </returns>
         public static explicit operator BigDecimal(int value)
         {
             return new BigDecimal(value);
         }
 
+        /// <summary>
+        /// Implicitly converts a <see cref="BigInteger"/> to a <see cref="BigDecimal"/>.
+        /// </summary>
+        /// <param name="value">The <see cref="BigInteger"/> value to convert.</param>
+        /// <returns>
+        /// Returns a new <see cref="BigDecimal"/> that represents the given value.
+        /// </returns>
         public static implicit operator BigDecimal(BigInteger value)
         {
             return new BigDecimal(value);

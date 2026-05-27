@@ -38,6 +38,37 @@ namespace Deveel.Math {
 			}
 		}
 
+		/// <summary>
+		/// Attempts to parse a <see cref="BigDecimal"/> value from the specified
+		/// character array segment.
+		/// </summary>
+		/// <param name="inData">The character array containing the number to parse.</param>
+		/// <param name="offset">The starting index within <paramref name="inData"/>.</param>
+		/// <param name="len">The number of characters to parse.</param>
+		/// <param name="provider">
+		/// An <see cref="IFormatProvider"/> that supplies culture-specific formatting information.
+		/// </param>
+		/// <param name="value">
+		/// When this method returns, contains the <see cref="BigDecimal"/> value equivalent
+		/// to the number contained in <paramref name="inData"/>, if the conversion succeeded,
+		/// or <c>null</c> if the conversion failed.
+		/// </param>
+		/// <param name="exception">
+		/// When this method returns, contains the <see cref="Exception"/> that occurred
+		/// during parsing, or <c>null</c> if parsing succeeded.
+		/// </param>
+		/// <returns>
+		/// Returns <c>true</c> if parsing was successful; otherwise, <c>false</c>.
+		/// </returns>
+		/// <example>
+		/// <code>
+		/// char[] data = "123.45".ToCharArray();
+		/// if (DecimalString.TryParse(data, 0, data.Length, null, out var value, out var ex))
+		/// {
+		///     Console.WriteLine(value);
+		/// }
+		/// </code>
+		/// </example>
 		public static bool TryParse(char[] inData, int offset, int len, IFormatProvider provider, out BigDecimal value,
 			out Exception exception) {
 			if (inData == null || inData.Length == 0) {
@@ -177,6 +208,20 @@ namespace Deveel.Math {
 			}
 		}
 
+		/// <summary>
+		/// Converts the specified <see cref="BigDecimal"/> to its string representation
+		/// using the given format provider, adjusting for culture-specific decimal separators.
+		/// </summary>
+		/// <param name="value">The <see cref="BigDecimal"/> to convert.</param>
+		/// <param name="provider">
+		/// An <see cref="IFormatProvider"/> that supplies culture-specific formatting information.
+		/// </param>
+		/// <returns>
+		/// Returns the string representation of the <see cref="BigDecimal"/> value.
+		/// </returns>
+		/// <exception cref="NotSupportedException">
+		/// Thrown when the decimal separator has more than one character.
+		/// </exception>
 		public static string ToString(BigDecimal value, IFormatProvider provider) {
 			var numberInfo = provider.GetFormat(typeof(NumberFormatInfo)) as NumberFormatInfo;
 			if (numberInfo == null)
@@ -222,6 +267,20 @@ namespace Deveel.Math {
 			return value.toStringImage;
 		}
 
+		/// <summary>
+		/// Converts the specified <see cref="BigDecimal"/> to its engineering string
+		/// representation, where the exponent is a multiple of 3.
+		/// </summary>
+		/// <param name="value">The <see cref="BigDecimal"/> to convert.</param>
+		/// <param name="provider">
+		/// An <see cref="IFormatProvider"/> that supplies culture-specific formatting information.
+		/// </param>
+		/// <returns>
+		/// Returns the engineering string representation of the <see cref="BigDecimal"/> value.
+		/// </returns>
+		/// <exception cref="NotSupportedException">
+		/// Thrown when the decimal separator has more than one character.
+		/// </exception>
 		public static string ToEngineeringString(BigDecimal value, IFormatProvider provider) {
 			var numberInfo = provider.GetFormat(typeof(NumberFormatInfo)) as NumberFormatInfo;
 			if (numberInfo == null)
@@ -285,6 +344,25 @@ namespace Deveel.Math {
 		}
 
 
+		/// <summary>
+		/// Converts the specified <see cref="BigDecimal"/> to its plain string
+		/// representation without an exponent field.
+		/// </summary>
+		/// <param name="value">The <see cref="BigDecimal"/> to convert.</param>
+		/// <param name="provider">
+		/// An <see cref="IFormatProvider"/> that supplies culture-specific formatting information.
+		/// </param>
+		/// <returns>
+		/// Returns the plain string representation of the <see cref="BigDecimal"/> value,
+		/// without any exponent notation.
+		/// </returns>
+		/// <example>
+		/// <code>
+		/// var value = BigDecimal.Parse("1.23E+3");
+		/// var plain = DecimalString.ToPlainString(value, null);
+		/// // plain is "1230"
+		/// </code>
+		/// </example>
 		public static String ToPlainString(BigDecimal value, IFormatProvider provider) {
 			String intStr = value.UnscaledValue.ToString();
 			if ((value.Scale == 0) || ((value.IsZero) && (value.Scale < 0))) {

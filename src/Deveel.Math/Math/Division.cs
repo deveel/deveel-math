@@ -16,53 +16,33 @@
 using System;
 
 namespace Deveel.Math {
-	///**
- //* Static library that provides all operations related with division and modular
- //* arithmetic to {@link BigInteger}. Some methods are provided in both mutable
- //* and immutable way. There are several variants provided listed below:
- //* 
- //* <ul type="circle">
- //* <li> <b>Division</b>
- //* <ul type="circle">
- //* <li>{@link BigInteger} division and remainder by {@link BigInteger}.</li>
- //* <li>{@link BigInteger} division and remainder by {@code int}.</li>
- //* <li><i>gcd</i> between {@link BigInteger} numbers.</li>
- //* </ul>
- //* </li>
- //* <li> <b>Modular arithmetic </b>
- //* <ul type="circle">
- //* <li>Modular exponentiation between {@link BigInteger} numbers.</li>
- //* <li>Modular inverse of a {@link BigInteger} numbers.</li>
- //* </ul>
- //* </li>
- //*</ul>
- //*/
-
+	/// <summary>
+	/// Static library that provides all operations related with division and modular
+	/// arithmetic for <see cref="BigInteger"/>. Some methods are provided in both mutable
+	/// and immutable way. The operations include:
+	/// <list type="bullet">
+	/// <item><description><b>Division</b> - <see cref="BigInteger"/> division and remainder by <see cref="BigInteger"/> and <c>int</c>.</description></item>
+	/// <item><description>GCD between <see cref="BigInteger"/> numbers.</description></item>
+	/// <item><description><b>Modular arithmetic</b> - Modular exponentiation and modular inverse.</description></item>
+	/// </list>
+	/// </summary>
 	internal static class Division {
-		///**
-		// * Divides the array 'a' by the array 'b' and gets the quotient and the
-		// * remainder. Implements the Knuth's division algorithm. See D. Knuth, The
-		// * Art of Computer Programming, vol. 2. Steps D1-D8 correspond the steps in
-		// * the algorithm description.
-		// * 
-		// * @param quot the quotient
-		// * @param quotLength the quotient's length
-		// * @param a the dividend
-		// * @param aLength the dividend's length
-		// * @param b the divisor
-		// * @param bLength the divisor's length
-		// * @return the remainder
-		// */
-
+		/// <summary>
+		/// Divides the array 'a' by the array 'b' and gets the quotient and the
+		/// remainder. Implements the Knuth's division algorithm (see D. Knuth,
+		/// The Art of Computer Programming, vol. 2, Steps D1-D8).
+		/// </summary>
+		/// <param name="quot">The quotient array (can be <c>null</c>).</param>
+		/// <param name="quotLength">The quotient's length.</param>
+		/// <param name="a">The dividend array.</param>
+		/// <param name="aLength">The dividend's length.</param>
+		/// <param name="b">The divisor array.</param>
+		/// <param name="bLength">The divisor's length.</param>
+		/// <returns>The remainder array.</returns>
 		public static int[] Divide(int[] quot, int quotLength, int[] a, int aLength, int[] b, int bLength) {
-			int[] normA = new int[aLength + 1]; // the normalized dividend
-			// an extra byte is needed for correct shift
-			int[] normB = new int[bLength + 1]; // the normalized divisor;
+			int[] normA = new int[aLength + 1];
+			int[] normB = new int[bLength + 1];
 			int normBLength = bLength;
-			/*
-			 * Step D1: normalize a and b and put the results to a1 and b1 the
-			 * normalized divisor's first digit must be >= 2^31
-			 */
 			int divisorShift = Utils.NumberOfLeadingZeros(b[bLength - 1]);
 			if (divisorShift != 0) {
 				BitLevel.ShiftLeft(normB, b, 0, divisorShift);
@@ -72,66 +52,44 @@ namespace Deveel.Math {
 				Array.Copy(b, 0, normB, 0, bLength);
 			}
 			int firstDivisorDigit = normB[normBLength - 1];
-			// Step D2: set the quotient index
 			int i = quotLength - 1;
 			int j = aLength;
 
 			while (i >= 0) {
-				// Step D3: calculate a guess digit guessDigit
 				int guessDigit = 0;
 				if (normA[j] == firstDivisorDigit) {
-					// set guessDigit to the largest unsigned int value
 					guessDigit = -1;
 				} else {
 					long product = (((normA[j] & 0xffffffffL) << 32) + (normA[j - 1] & 0xffffffffL));
 					long res = Division.DivideLongByInt(product, firstDivisorDigit);
-					guessDigit = (int) res; // the quotient of divideLongByInt
-					int rem = (int) (res >> 32); // the remainder of
-					// divideLongByInt
-					// decrease guessDigit by 1 while leftHand > rightHand
+					guessDigit = (int) res;
+					int rem = (int) (res >> 32);
 					if (guessDigit != 0) {
 						long leftHand = 0;
 						long rightHand = 0;
 						bool rOverflowed = false;
-						guessDigit++; // to have the proper value in the loop
-						// below
+						guessDigit++;
 						do {
 							guessDigit--;
 							if (rOverflowed)
 								break;
-							// leftHand always fits in an unsigned long
 							leftHand = (guessDigit & 0xffffffffL)
 							           *(normB[normBLength - 2] & 0xffffffffL);
-							/*
-							 * rightHand can overflow; in this case the loop
-							 * condition will be true in the next step of the loop
-							 */
 							rightHand = ((long) rem << 32)
 							            + (normA[j - 2] & 0xffffffffL);
 							long longR = (rem & 0xffffffffL)
 							             + (firstDivisorDigit & 0xffffffffL);
-							/*
-							 * checks that longR does not fit in an unsigned int;
-							 * this ensures that rightHand will overflow unsigned
-							 * long in the next step
-							 */
 							if (Utils.NumberOfLeadingZeros((int) Utils.URShift(longR, 32)) < 32)
 								rOverflowed = true;
 							else
 								rem = (int) longR;
 						} while ((leftHand ^ Int64.MinValue) > (rightHand ^ Int64.MinValue));
 
-						//} while ((leftHand ^ Int64.MaxValue) > (rightHand ^ Int64.MaxValue));
-						// while (((leftHand ^ 0x8000000000000000L) > (rightHand ^ 0x8000000000000000L))) ;
 					}
 				}
-				// Step D4: multiply normB by guessDigit and subtract the production
-				// from normA.
 				if (guessDigit != 0) {
 					int borrow = Division.MultiplyAndSubtract(normA, j - normBLength, normB, normBLength, guessDigit);
-					// Step D5: check the borrow
 					if (borrow != 0) {
-						// Step D6: compensating addition
 						guessDigit--;
 						long carry = 0;
 						for (int k = 0; k < normBLength; k++) {
@@ -144,15 +102,10 @@ namespace Deveel.Math {
 				}
 				if (quot != null)
 					quot[i] = guessDigit;
-				// Step D7
 				j--;
 				i--;
 			}
-			/*
-			 * Step D8: we got the remainder in normA. Denormalize it id needed
-			 */
 			if (divisorShift != 0) {
-				// reuse normB
 				BitLevel.ShiftRight(normB, normBLength, normA, 0, divisorShift);
 				return normB;
 			}
@@ -160,17 +113,14 @@ namespace Deveel.Math {
 			return normA;
 		}
 
-		///**
-		// * Divides an array by an integer value. Implements the Knuth's division
-		// * algorithm. See D. Knuth, The Art of Computer Programming, vol. 2.
-		// * 
-		// * @param dest the quotient
-		// * @param src the dividend
-		// * @param srcLength the length of the dividend
-		// * @param divisor the divisor
-		// * @return remainder
-		// */
-
+		/// <summary>
+		/// Divides an array by an integer value. Implements the Knuth's division algorithm.
+		/// </summary>
+		/// <param name="dest">The quotient array.</param>
+		/// <param name="src">The dividend array.</param>
+		/// <param name="srcLength">The length of the dividend.</param>
+		/// <param name="divisor">The divisor.</param>
+		/// <returns>The remainder.</returns>
 		public static int DivideArrayByInt(int[] dest, int[] src, int srcLength, int divisor) {
 			long rem = 0;
 			long bLong = divisor & 0xffffffffL;
@@ -182,18 +132,12 @@ namespace Deveel.Math {
 					quot = (temp/bLong);
 					rem = (temp%bLong);
 				} else {
-					/*
-					 * make the dividend positive shifting it right by 1 bit then
-					 * get the quotient an remainder and correct them properly
-					 */
 					long aPos = Utils.URShift(temp, 1);
 					long bPos = Utils.URShift(divisor, 1);
 					quot = aPos/bPos;
 					rem = aPos%bPos;
-					// double the remainder and add 1 if a is odd
 					rem = (rem << 1) + (temp & 1);
 					if ((divisor & 1) != 0) {
-						// the divisor is odd
 						if (quot <= rem)
 							rem -= quot;
 						else {
@@ -212,16 +156,14 @@ namespace Deveel.Math {
 			return (int) rem;
 		}
 
-		///**
-		// * Divides an array by an integer value. Implements the Knuth's division
-		// * algorithm. See D. Knuth, The Art of Computer Programming, vol. 2.
-		// * 
-		// * @param src the dividend
-		// * @param srcLength the length of the dividend
-		// * @param divisor the divisor
-		// * @return remainder
-		// */
-
+		/// <summary>
+		/// Divides an array by an integer value and returns only the remainder.
+		/// Implements the Knuth's division algorithm.
+		/// </summary>
+		/// <param name="src">The dividend array.</param>
+		/// <param name="srcLength">The length of the dividend.</param>
+		/// <param name="divisor">The divisor.</param>
+		/// <returns>The remainder.</returns>
 		public static int RemainderArrayByInt(int[] src, int srcLength, int divisor) {
 			long result = 0;
 
@@ -233,29 +175,26 @@ namespace Deveel.Math {
 			return (int) result;
 		}
 
-		///**
-		// * Divides a <code>BigInteger</code> by a signed <code>int</code> and
-		// * returns the remainder.
-		// * 
-		// * @param dividend the BigInteger to be divided. Must be non-negative.
-		// * @param divisor a signed int
-		// * @return divide % divisor
-		// */
-
+		/// <summary>
+		/// Divides a <see cref="BigInteger"/> by a signed <c>int</c> and returns the remainder.
+		/// </summary>
+		/// <param name="dividend">The BigInteger to be divided (must be non-negative).</param>
+		/// <param name="divisor">A signed int.</param>
+		/// <returns><c>dividend % divisor</c>.</returns>
 		public static int Remainder(BigInteger dividend, int divisor) {
 			return RemainderArrayByInt(dividend.Digits, dividend.numberLength, divisor);
 		}
 
-		///**
-		// * Divides an unsigned long a by an unsigned int b. It is supposed that the
-		// * most significant bit of b is set to 1, i.e. b < 0
-		// * 
-		// * @param a the dividend
-		// * @param b the divisor
-		// * @return the long value containing the unsigned integer remainder in the
-		// *         left half and the unsigned integer quotient in the right half
-		// */
-
+		/// <summary>
+		/// Divides an unsigned long <paramref name="a"/> by an unsigned int <paramref name="b"/>.
+		/// It is supposed that the most significant bit of <paramref name="b"/> is set to 1, i.e. b &lt; 0.
+		/// </summary>
+		/// <param name="a">The dividend.</param>
+		/// <param name="b">The divisor.</param>
+		/// <returns>
+		/// A long value containing the unsigned integer remainder in the left half
+		/// and the unsigned integer quotient in the right half.
+		/// </returns>
 		private static long DivideLongByInt(long a, int b) {
 			long quot;
 			long rem;
@@ -265,18 +204,12 @@ namespace Deveel.Math {
 				quot = (a/bLong);
 				rem = (a%bLong);
 			} else {
-				/*
-				 * Make the dividend positive shifting it right by 1 bit then get
-				 * the quotient an remainder and correct them properly
-				 */
 				long aPos = Utils.URShift(a, 1);
 				long bPos = Utils.URShift(b, 1);
 				quot = aPos/bPos;
 				rem = aPos%bPos;
-				// double the remainder and add 1 if a is odd
 				rem = (rem << 1) + (a & 1);
 				if ((b & 1) != 0) {
-					// the divisor is odd
 					if (quot <= rem)
 						rem -= quot;
 					else {
@@ -293,15 +226,21 @@ namespace Deveel.Math {
 			return (rem << 32) | (quot & 0xffffffffL);
 		}
 
-		/**
-		 * Computes the quotient and the remainder after a division by an {@code int}
-		 * number.
-		 * 
-		 * @return an array of the form {@code [quotient, remainder]}.
-		 */
-
+		/// <summary>
+		/// Computes the quotient and the remainder after a division by an <c>int</c> number.
+		/// </summary>
+		/// <param name="val">The dividend.</param>
+		/// <param name="divisor">The divisor.</param>
+		/// <param name="divisorSign">The sign of the divisor.</param>
+		/// <returns>An array of the form <c>[quotient, remainder]</c>.</returns>
+		/// <example>
+		/// <code>
+		/// BigInteger value = new BigInteger(100);
+		/// BigInteger[] result = Division.DivideAndRemainderByInteger(value, 7, 1);
+		/// // result[0] == 14, result[1] == 2
+		/// </code>
+		/// </example>
 		public static BigInteger[] DivideAndRemainderByInteger(BigInteger val, int divisor, int divisorSign) {
-			// res[0] is a quotient and res[1] is a remainder:
 			int[] valDigits = val.Digits;
 			int valLen = val.numberLength;
 			int valSign = val.Sign;
@@ -339,18 +278,15 @@ namespace Deveel.Math {
 			return new BigInteger[] {result0, result1};
 		}
 
-		/**
-		 * Multiplies an array by int and subtracts it from a subarray of another
-		 * array.
-		 * 
-		 * @param a the array to subtract from
-		 * @param start the start element of the subarray of a
-		 * @param b the array to be multiplied and subtracted
-		 * @param bLen the length of b
-		 * @param c the multiplier of b
-		 * @return the carry element of subtraction
-		 */
-
+		/// <summary>
+		/// Multiplies an array by int and subtracts it from a subarray of another array.
+		/// </summary>
+		/// <param name="a">The array to subtract from.</param>
+		/// <param name="start">The start element of the subarray of <paramref name="a"/>.</param>
+		/// <param name="b">The array to be multiplied and subtracted.</param>
+		/// <param name="bLen">The length of <paramref name="b"/>.</param>
+		/// <param name="c">The multiplier of <paramref name="b"/>.</param>
+		/// <returns>The carry element of subtraction.</returns>
 		public static int MultiplyAndSubtract(int[] a, int start, int[] b, int bLen, int c) {
 			long carry0 = 0;
 			long carry1 = 0;
@@ -359,34 +295,31 @@ namespace Deveel.Math {
 				carry0 = Multiplication.UnsignedMultAddAdd(b[i], c, (int) carry0, 0);
 				carry1 = (a[start + i] & 0xffffffffL) - (carry0 & 0xffffffffL) + carry1;
 				a[start + i] = (int) carry1;
-				carry1 >>= 32; // -1 or 0
+				carry1 >>= 32;
 				carry0 = Utils.URShift(carry0, 32);
 			}
 
 			carry1 = (a[start + bLen] & 0xffffffffL) - carry0 + carry1;
 			a[start + bLen] = (int) carry1;
-			return (int) (carry1 >> 32); // -1 or 0
+			return (int) (carry1 >> 32);
 		}
 
-		/**
-		 * @param m a positive modulus
-		 * Return the greatest common divisor of op1 and op2,
-		 * 
-		 * @param op1
-		 *            must be greater than zero
-		 * @param op2
-		 *            must be greater than zero
-		 * @see BigInteger#gcd(BigInteger)
-		 * @return {@code GCD(op1, op2)}
-		 */
-
+		/// <summary>
+		/// Returns the greatest common divisor of <paramref name="op1"/> and <paramref name="op2"/>.
+		/// Both must be greater than zero.
+		/// </summary>
+		/// <param name="op1">A positive <see cref="BigInteger"/>.</param>
+		/// <param name="op2">A positive <see cref="BigInteger"/>.</param>
+		/// <returns><c>GCD(op1, op2)</c>.</returns>
+		/// <example>
+		/// <code>
+		/// BigInteger a = new BigInteger(48);
+		/// BigInteger b = new BigInteger(18);
+		/// BigInteger gcd = Division.GcdBinary(a, b);
+		/// // gcd == 6
+		/// </code>
+		/// </example>
 		public static BigInteger GcdBinary(BigInteger op1, BigInteger op2) {
-			// PRE: (op1 > 0) and (op2 > 0)
-
-			/*
-			 * Divide both number the maximal possible times by 2 without rounding
-					 * gcd(2*a, 2*b) = 2 * gcd(a,b)
-			 */
 			int lsb1 = op1.LowestSetBit;
 			int lsb2 = op2.LowestSetBit;
 			int pow2Count = System.Math.Min(lsb1, lsb2);
@@ -395,7 +328,6 @@ namespace Deveel.Math {
 			BitLevel.InplaceShiftRight(op2, lsb2);
 
 			BigInteger swap;
-			// I want op2 > op1
 			if (op1.CompareTo(op2) == BigInteger.GREATER) {
 				swap = op1;
 				op1 = op2;
@@ -403,10 +335,6 @@ namespace Deveel.Math {
 			}
 
 			do {
-				// INV: op2 >= op1 && both are odd unless op1 = 0
-
-				// Optimization for small operands
-				// (op2.bitLength() < 64) implies by INV (op1.bitLength() < 64)
 				if ((op2.numberLength == 1)
 				    || ((op2.numberLength == 2) && (op2.Digits[1] > 0))) {
 					op2 = BigInteger.FromInt64(Division.GcdBinary(op1.ToInt64(),
@@ -414,20 +342,16 @@ namespace Deveel.Math {
 					break;
 				}
 
-				// Implements one step of the Euclidean algorithm
-				// To reduce one operand if it's much smaller than the other one
 				if (op2.numberLength > op1.numberLength*1.2) {
 					op2 = BigMath.Remainder(op2, op1);
 					if (op2.Sign != 0)
 						BitLevel.InplaceShiftRight(op2, op2.LowestSetBit);
 				} else {
-					// Use Knuth's algorithm of successive subtract and shifting
 					do {
-						Elementary.inplaceSubtract(op2, op1); // both are odd
-						BitLevel.InplaceShiftRight(op2, op2.LowestSetBit); // op2 is even
+						Elementary.inplaceSubtract(op2, op1);
+						BitLevel.InplaceShiftRight(op2, op2.LowestSetBit);
 					} while (op2.CompareTo(op1) >= BigInteger.EQUALS);
 				}
-				// now op1 >= op2
 				swap = op2;
 				op2 = op1;
 				op1 = swap;
@@ -435,21 +359,14 @@ namespace Deveel.Math {
 			return op2 << pow2Count;
 		}
 
-		/**
-		 * Performs the same as {@link #gcdBinary(BigInteger, BigInteger)}, but
-		 * with numbers of 63 bits, represented in positives values of {@code long}
-		 * type.
-		 * 
-		 * @param op1
-		 *            a positive number
-		 * @param op2
-		 *            a positive number
-		 * @see #gcdBinary(BigInteger, BigInteger)
-		 * @return <code>GCD(op1, op2)</code>
-		 */
-
+		/// <summary>
+		/// Performs the same as <see cref="GcdBinary(BigInteger, BigInteger)"/> but
+		/// with numbers of 63 bits, represented in positive values of <see cref="long"/> type.
+		/// </summary>
+		/// <param name="op1">A positive number.</param>
+		/// <param name="op2">A positive number.</param>
+		/// <returns><c>GCD(op1, op2)</c>.</returns>
 		public static long GcdBinary(long op1, long op2) {
-			// PRE: (op1 > 0) and (op2 > 0)
 			int lsb1 = Utils.NumberOfTrailingZeros(op1);
 			int lsb2 = Utils.NumberOfTrailingZeros(op2);
 			int pow2Count = System.Math.Min(lsb1, lsb2);
@@ -470,33 +387,30 @@ namespace Deveel.Math {
 			return (op2 << pow2Count);
 		}
 
-		/**
-		 * Calculates a.modInverse(p) Based on: Savas, E; Koc, C "The Montgomery Modular
-		 * Inverse - Revised"
-		 */
-
+		/// <summary>
+		/// Calculates <c>a.modInverse(p)</c> based on Savas, E; Koc, C "The Montgomery
+		/// Modular Inverse - Revised".
+		/// </summary>
+		/// <param name="a">The number to invert.</param>
+		/// <param name="p">The modulus.</param>
+		/// <returns><c>a^(-1) mod p</c>.</returns>
 		public static BigInteger ModInverseMontgomery(BigInteger a, BigInteger p) {
 			if (a.Sign == 0) {
-				// ZERO hasn't inverse
-				// math.19: BigInteger not invertible
 				throw new ArithmeticException(Messages.math19);
 			}
 
 			if (!BigInteger.TestBit(p, 0)) {
-				// montgomery inverse require even modulo
 				return ModInverseLorencz(a, p);
 			}
 
 			int m = p.numberLength*32;
-			// PRE: a \in [1, p - 1]
 			BigInteger u, v, r, s;
-			u = p.Copy(); // make copy to use inplace method
+			u = p.Copy();
 			v = a.Copy();
 			int max = System.Math.Max(v.numberLength, u.numberLength);
 			r = new BigInteger(1, 1, new int[max + 1]);
 			s = new BigInteger(1, 1, new int[max + 1]);
 			s.Digits[0] = 1;
-			// s == 1 && v == 0
 
 			int k = 0;
 
@@ -518,8 +432,6 @@ namespace Deveel.Math {
 
 			r.Sign = 1;
 			while (v.Sign > 0) {
-				// INV v >= 0, u >= 0, v odd, u odd (except last iteration when v is even (0))
-
 				while (u.CompareTo(v) > BigInteger.EQUALS) {
 					Elementary.inplaceSubtract(u, v);
 					toShift = u.LowestSetBit;
@@ -541,8 +453,6 @@ namespace Deveel.Math {
 				}
 			}
 			if (!u.IsOne) {
-				// in u is stored the gcd
-				// math.19: BigInteger not invertible.
 				throw new ArithmeticException(Messages.math19);
 			}
 			if (r.CompareTo(p) >= BigInteger.EQUALS)
@@ -550,7 +460,6 @@ namespace Deveel.Math {
 
 			r = p - r;
 
-			// Have pair: ((BigInteger)r, (Integer)k) where r == a^(-1) * 2^k mod (module)		
 			int n1 = CalcN(p);
 			if (k > m) {
 				r = MonPro(r, BigInteger.One, p, n1);
@@ -561,13 +470,14 @@ namespace Deveel.Math {
 			return r;
 		}
 
-		/**
-		 * Calculate the first digit of the inverse
-		 */
-
+		/// <summary>
+		/// Calculate the first digit of the inverse for Montgomery multiplication.
+		/// </summary>
+		/// <param name="a">The modulus.</param>
+		/// <returns>The first digit of the inverse.</returns>
 		private static int CalcN(BigInteger a) {
 			long m0 = a.Digits[0] & 0xFFFFFFFFL;
-			long n2 = 1L; // this is a'[0]
+			long n2 = 1L;
 			long powerOfTwo = 2L;
 			do {
 				if (((m0*n2) & powerOfTwo) != 0)
@@ -578,10 +488,12 @@ namespace Deveel.Math {
 			return (int) (n2 & 0xFFFFFFFFL);
 		}
 
-		/**
-		 * @return bi == abs(2^exp)
-		 */
-
+		/// <summary>
+		/// Checks whether <paramref name="bi"/> == abs(2^<paramref name="exp"/>).
+		/// </summary>
+		/// <param name="bi">The big integer to test.</param>
+		/// <param name="exp">The exponent.</param>
+		/// <returns><c>true</c> if <paramref name="bi"/> equals 2^<paramref name="exp"/>.</returns>
 		public static bool IsPowerOfTwo(BigInteger bi, int exp) {
 			bool result = false;
 			result = (exp >> 5 == bi.numberLength - 1)
@@ -593,15 +505,13 @@ namespace Deveel.Math {
 			return result;
 		}
 
-		/**
-		 * Calculate how many iteration of Lorencz's algorithm would perform the
-		 * same operation
-		 *
-		 * @param bi
-		 * @param n
-		 * @return
-		 */
-
+		/// <summary>
+		/// Calculates how many iterations of Lorencz's algorithm would perform
+		/// the same operation.
+		/// </summary>
+		/// <param name="bi">The big integer.</param>
+		/// <param name="n">The bit length.</param>
+		/// <returns>The number of iterations.</returns>
 		private static int HowManyIterations(BigInteger bi, int n) {
 			int i = n - 1;
 			if (bi.Sign > 0) {
@@ -615,19 +525,17 @@ namespace Deveel.Math {
 			}
 		}
 
-		/**
-		 *
-		 * Based on "New Algorithm for Classical Modular Inverse" Róbert Lórencz.
-		 * LNCS 2523 (2002)
-		 *
-		 * @return a^(-1) mod m
-		 */
-
+		/// <summary>
+		/// Computes the modular inverse using the Lórencz algorithm.
+		/// Based on "New Algorithm for Classical Modular Inverse" Róbert Lórencz,
+		/// LNCS 2523 (2002).
+		/// </summary>
+		/// <param name="a">The number to invert (coprime with <paramref name="modulo"/>).</param>
+		/// <param name="modulo">The modulus.</param>
+		/// <returns><c>a^(-1) mod m</c>.</returns>
 		private static BigInteger ModInverseLorencz(BigInteger a, BigInteger modulo) {
-			// PRE: a is coprime with modulo, a < modulo
-
 			int max = System.Math.Max(a.numberLength, modulo.numberLength);
-			int[] uDigits = new int[max + 1]; // enough place to make all the inplace operation
+			int[] uDigits = new int[max + 1];
 			int[] vDigits = new int[max + 1];
 			Array.Copy(modulo.Digits, 0, uDigits, 0, modulo.numberLength);
 			Array.Copy(a.Digits, 0, vDigits, 0, a.numberLength);
@@ -636,16 +544,14 @@ namespace Deveel.Math {
 				uDigits);
 			BigInteger v = new BigInteger(a.Sign, a.numberLength, vDigits);
 
-			BigInteger r = new BigInteger(0, 1, new int[max + 1]); // BigInteger.ZERO;
+			BigInteger r = new BigInteger(0, 1, new int[max + 1]);
 			BigInteger s = new BigInteger(1, 1, new int[max + 1]);
 			s.Digits[0] = 1;
-			// r == 0 && s == 1, but with enough place
 
 			int coefU = 0, coefV = 0;
 			int n = modulo.BitLength;
 			int k;
 			while (!IsPowerOfTwo(u, coefU) && !IsPowerOfTwo(v, coefV)) {
-				// modification of original algorithm: I calculate how many times the algorithm will enter in the same branch of if
 				k = HowManyIterations(u, n);
 
 				if (k != 0) {
@@ -691,7 +597,6 @@ namespace Deveel.Math {
 					}
 				}
 				if (v.Sign == 0 || u.Sign == 0) {
-					// math.19: BigInteger not invertible
 					throw new ArithmeticException(Messages.math19);
 				}
 			}
@@ -723,15 +628,11 @@ namespace Deveel.Math {
 			return res;
 		}
 
-		/*Implements the Montgomery modular exponentiation based in <i>The sliding windows algorithm and the Mongomery
-		 *Reduction</i>.
-		 *@ar.org.fitc.ref "A. Menezes,P. van Oorschot, S. Vanstone - Handbook of Applied Cryptography";
-		 *@see #oddModPow(BigInteger, BigInteger,
-		 *                           BigInteger)
-		 */
-
+		/// <summary>
+		/// Implements the Montgomery modular exponentiation based on the sliding windows algorithm
+		/// and the Montgomery Reduction.
+		/// </summary>
 		private static BigInteger SlidingWindow(BigInteger x2, BigInteger a2, BigInteger exponent, BigInteger modulus, int n2) {
-			// fill odd low pows of a2
 			BigInteger[] pows = new BigInteger[8];
 			BigInteger res = x2;
 			int lowexp;
@@ -768,29 +669,30 @@ namespace Deveel.Math {
 			return res;
 		}
 
-		/**
-		 * Performs modular exponentiation using the Montgomery Reduction. It
-		 * requires that all parameters be positive and the modulus be odd. >
-		 * 
-		 * @see BigInteger#modPow(BigInteger, BigInteger)
-		 * @see #monPro(BigInteger, BigInteger, BigInteger, int)
-		 * @see #slidingWindow(BigInteger, BigInteger, BigInteger, BigInteger,
-		 *                      int)
-		 * @see #squareAndMultiply(BigInteger, BigInteger, BigInteger, BigInteger,
-		 *                      int)
-		 */
-
+		/// <summary>
+		/// Performs modular exponentiation using the Montgomery Reduction.
+		/// Requires that all parameters be positive and the modulus be odd.
+		/// </summary>
+		/// <param name="b">The base.</param>
+		/// <param name="exponent">The exponent.</param>
+		/// <param name="modulus">The modulus (must be odd).</param>
+		/// <returns><c>b^exponent mod modulus</c>.</returns>
+		/// <example>
+		/// <code>
+		/// BigInteger result = Division.OddModPow(
+		///     new BigInteger(4),
+		///     new BigInteger(3),
+		///     new BigInteger(7));
+		/// // result == 1  (4^3 mod 7 = 64 mod 7 = 1)
+		/// </code>
+		/// </example>
 		public static BigInteger OddModPow(BigInteger b,
 			BigInteger exponent,
 			BigInteger modulus) {
-			// PRE: (base > 0), (exponent > 0), (modulus > 0) and (odd modulus)
-			int k = (modulus.numberLength << 5); // r = 2^k
-			// n-residue of base [base * r (mod modulus)]
+			int k = (modulus.numberLength << 5);
 			BigInteger a2 = (b << k) % modulus;
-			// n-residue of base [1 * r (mod modulus)]
 			BigInteger x2 = BigInteger.GetPowerOfTwo(k) % modulus;
 			BigInteger res;
-			// Compute (modulus[0]^(-1)) (mod 2^32) for odd modulus
 
 			int n2 = CalcN(modulus);
 			if (modulus.numberLength == 1)
@@ -801,58 +703,44 @@ namespace Deveel.Math {
 			return MonPro(res, BigInteger.One, modulus, n2);
 		}
 
-		/**
-		 * Performs modular exponentiation using the Montgomery Reduction. It
-		 * requires that all parameters be positive and the modulus be even. Based
-		 * <i>The square and multiply algorithm and the Montgomery Reduction C. K.
-		 * Koc - Montgomery Reduction with Even Modulus</i>. The square and
-		 * multiply algorithm and the Montgomery Reduction.
-		 * 
-		 * @ar.org.fitc.ref "C. K. Koc - Montgomery Reduction with Even Modulus"
-		 * @see BigInteger#modPow(BigInteger, BigInteger)
-		 */
-
+		/// <summary>
+		/// Performs modular exponentiation using the Montgomery Reduction with an even modulus.
+		/// Based on the square and multiply algorithm and Koc's "Montgomery Reduction with Even Modulus".
+		/// </summary>
+		/// <param name="b">The base.</param>
+		/// <param name="exponent">The exponent.</param>
+		/// <param name="modulus">The modulus (must be even).</param>
+		/// <returns><c>b^exponent mod modulus</c>.</returns>
 		public static BigInteger EvenModPow(BigInteger b,
 			BigInteger exponent,
 			BigInteger modulus) {
-			// PRE: (base > 0), (exponent > 0), (modulus > 0) and (modulus even)
-			// STEP 1: Obtain the factorization 'modulus'= q * 2^j.
 			int j = modulus.LowestSetBit;
 			BigInteger q = modulus >> j;
 
-			// STEP 2: Compute x1 := base^exponent (mod q).
 			BigInteger x1 = OddModPow(b, exponent, q);
 
-			// STEP 3: Compute x2 := base^exponent (mod 2^j).
 			BigInteger x2 = Pow2ModPow(b, exponent, j);
 
-			// STEP 4: Compute q^(-1) (mod 2^j) and y := (x2-x1) * q^(-1) (mod 2^j)
 			BigInteger qInv = ModPow2Inverse(q, j);
 			BigInteger y = (x2 - x1) * qInv;
 			InplaceModPow2(y, j);
 			if (y.Sign < 0)
 				y += BigInteger.GetPowerOfTwo(j);
-			// STEP 5: Compute and return: x1 + q * y
 			return x1 + (q * y);
 		}
 
-		/**
-		 * It requires that all parameters be positive.
-		 * 
-		 * @return {@code base<sup>exponent</sup> mod (2<sup>j</sup>)}.
-		 * @see BigInteger#modPow(BigInteger, BigInteger)
-		 */
-
+		/// <summary>
+		/// Computes <c>base^exponent mod (2^j)</c>.
+		/// </summary>
+		/// <param name="b">The base.</param>
+		/// <param name="exponent">The exponent.</param>
+		/// <param name="j">The exponent for the power-of-two modulus.</param>
+		/// <returns><c>b^exponent mod (2^j)</c>.</returns>
 		private static BigInteger Pow2ModPow(BigInteger b, BigInteger exponent, int j) {
-			// PRE: (base > 0), (exponent > 0) and (j > 0)
 			BigInteger res = BigInteger.One;
 			BigInteger e = exponent.Copy();
 			BigInteger baseMod2toN = b.Copy();
 			BigInteger res2;
-			/*
-			 * If 'base' is odd then it's coprime with 2^j and phi(2^j) = 2^(j-1);
-			 * so we can reduce reduce the exponent (mod 2^(j-1)).
-			 */
 			if (BigInteger.TestBit(b, 0))
 				InplaceModPow2(e, j - 1);
 			InplaceModPow2(baseMod2toN, j);
@@ -871,7 +759,6 @@ namespace Deveel.Math {
 		}
 
 		private static void MonReduction(int[] res, BigInteger modulus, int n2) {
-			/* res + m*modulus_digits */
 			int[] modulusDigits = modulus.Digits;
 			int modulusLen = modulus.numberLength;
 			long outerCarry = 0;
@@ -892,25 +779,19 @@ namespace Deveel.Math {
 
 			res[modulusLen << 1] = (int) outerCarry;
 
-			/* res / r  */
 			for (int j = 0; j < modulusLen + 1; j++)
 				res[j] = res[j + modulusLen];
 		}
 
-		/**
-		 * Implements the Montgomery Product of two integers represented by
-		 * {@code int} arrays. The arrays are supposed in <i>little
-		 * endian</i> notation.
-		 * 
-		 * @param a The first factor of the product.
-		 * @param b The second factor of the product.
-		 * @param modulus The modulus of the operations. Z<sub>modulus</sub>.
-		 * @param n2 The digit modulus'[0].
-		 * @ar.org.fitc.ref "C. K. Koc - Analyzing and Comparing Montgomery
-		 *                  Multiplication Algorithms"
-		 * @see #modPowOdd(BigInteger, BigInteger, BigInteger)
-		 */
-
+		/// <summary>
+		/// Implements the Montgomery Product of two integers represented by
+		/// <c>int</c> arrays in little-endian notation.
+		/// </summary>
+		/// <param name="a">The first factor.</param>
+		/// <param name="b">The second factor.</param>
+		/// <param name="modulus">The modulus.</param>
+		/// <param name="n2">The digit modulus'[0].</param>
+		/// <returns>The Montgomery product.</returns>
 		private static BigInteger MonPro(BigInteger a, BigInteger b, BigInteger modulus, int n2) {
 			int modulusLen = modulus.numberLength;
 			int[] res = new int[(modulusLen << 1) + 1];
@@ -923,14 +804,13 @@ namespace Deveel.Math {
 			return FinalSubtraction(res, modulus);
 		}
 
-		/**
-		 * Performs the final reduction of the Montgomery algorithm.
-		 * @see monPro(BigInteger, BigInteger, BigInteger, long)
-		 * @see monSquare(BigInteger, BigInteger, long)
-		 */
-
+		/// <summary>
+		/// Performs the final reduction of the Montgomery algorithm.
+		/// </summary>
+		/// <param name="res">The result array.</param>
+		/// <param name="modulus">The modulus.</param>
+		/// <returns>The reduced <see cref="BigInteger"/>.</returns>
 		private static BigInteger FinalSubtraction(int[] res, BigInteger modulus) {
-			// skipping leading zeros
 			int modulusLen = modulus.numberLength;
 			bool doSub = res[modulusLen] != 0;
 			if (!doSub) {
@@ -946,7 +826,6 @@ namespace Deveel.Math {
 
 			BigInteger result = new BigInteger(1, modulusLen + 1, res);
 
-			// if (res >= modulusDigits) compute (res - modulusDigits)
 			if (doSub)
 				Elementary.inplaceSubtract(result, modulus);
 
@@ -954,14 +833,13 @@ namespace Deveel.Math {
 			return result;
 		}
 
-		/**
-		 * @param x an odd positive number.
-		 * @param n the exponent by which 2 is raised.
-		 * @return {@code x<sup>-1</sup> (mod 2<sup>n</sup>)}.
-		 */
-
+		/// <summary>
+		/// Computes <c>x^(-1) mod (2^n)</c> for an odd positive number <paramref name="x"/>.
+		/// </summary>
+		/// <param name="x">An odd positive number.</param>
+		/// <param name="n">The exponent by which 2 is raised.</param>
+		/// <returns><c>x^(-1) mod (2^n)</c>.</returns>
 		private static BigInteger ModPow2Inverse(BigInteger x, int n) {
-			// PRE: (x > 0), (x is odd), and (n > 0)
 			BigInteger y = new BigInteger(1, new int[(n + 31) >> 5]);
 			y.numberLength = 1;
 			y.Digits[0] = 1;
@@ -969,22 +847,18 @@ namespace Deveel.Math {
 
 			for (int i = 1; i < n; i++) {
 				if (BitLevel.TestBit(x * y, i)) {
-					// Adding 2^i to y (setting the i-th bit)
 					y.Digits[i >> 5] |= (1 << (i & 31));
 				}
 			}
 			return y;
 		}
 
-		/**
-		 * Performs {@code x = x mod (2<sup>n</sup>)}.
-		 * 
-		 * @param x a positive number, it will store the result.
-		 * @param n a positive exponent of {@code 2}.
-		 */
-
+		/// <summary>
+		/// Performs <c>x = x mod (2^n)</c>.
+		/// </summary>
+		/// <param name="x">A positive number (will store the result).</param>
+		/// <param name="n">A positive exponent of 2.</param>
 		public static void InplaceModPow2(BigInteger x, int n) {
-			// PRE: (x > 0) and (n >= 0)
 			int fd = n >> 5;
 			int leadingZeros;
 

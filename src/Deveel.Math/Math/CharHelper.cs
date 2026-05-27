@@ -21,14 +21,32 @@ namespace Deveel.Math {
 #else
 	sealed 
 #endif
+	/// <summary>
+	/// Provides helper methods for converting between numeric digits and their
+	/// character representations in various radices (numeral systems),
+	/// mirroring the functionality of Java's <c>java.lang.Character</c>.
+	/// </summary>
 	class CharHelper {
 #if !NET_2_0
 		private CharHelper() {
 		}
 #endif
+		/// <summary>
+		/// The minimum radix supported for digit conversion (2).
+		/// </summary>
 		public const int MIN_RADIX = 2;
+		/// <summary>
+		/// The maximum radix supported for digit conversion (36).
+		/// </summary>
 		public const int MAX_RADIX = 36;
 
+		/// <summary>
+		/// Converts the specified digit to its character representation in the given radix.
+		/// </summary>
+		/// <param name="digit">The numeric digit value to convert (must be non-negative and less than <paramref name="radix"/>).</param>
+		/// <param name="radix">The radix of the numeral system (must be between <see cref="MIN_RADIX"/> and <see cref="MAX_RADIX"/>).</param>
+		/// <returns>The character representation of <paramref name="digit"/> in the given <paramref name="radix"/>.</returns>
+		/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="radix"/> is outside the valid range, or when <paramref name="digit"/> is not valid for the given radix.</exception>
 		public static char forDigit(int digit, int radix) {
 			if (radix < MIN_RADIX || radix > MAX_RADIX)
 				throw new ArgumentOutOfRangeException("radix");
@@ -43,6 +61,12 @@ namespace Deveel.Math {
 		}
 
 
+		/// <summary>
+		/// Converts a character to its corresponding numeric digit value in the given radix.
+		/// </summary>
+		/// <param name="ch">The character to convert (e.g., '0'-'9', 'a'-'z', or 'A'-'Z').</param>
+		/// <param name="radix">The radix of the numeral system (must be between <see cref="MIN_RADIX"/> and <see cref="MAX_RADIX"/>).</param>
+		/// <returns>The numeric value of <paramref name="ch"/> in the given <paramref name="radix"/>, or -1 if the character is not valid for the radix.</returns>
 		public static int toDigit(char ch, int radix) {
 			if (radix < MIN_RADIX || radix > MAX_RADIX)
 				return -1;

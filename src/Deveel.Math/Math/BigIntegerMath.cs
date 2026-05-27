@@ -16,7 +16,18 @@
 using System;
 
 namespace Deveel.Math {
+	/// <summary>
+	/// Provides static mathematical operations for <see cref="BigInteger"/> values,
+	/// including shifting, negation, division, modular arithmetic, exponentiation,
+	/// and greatest common divisor computation.
+	/// </summary>
 	static class BigIntegerMath {
+		/// <summary>
+		/// Shifts the bits of the specified <see cref="BigInteger"/> value to the right.
+		/// </summary>
+		/// <param name="value">The <see cref="BigInteger"/> value to shift.</param>
+		/// <param name="n">The number of bit positions to shift. If negative, the value is shifted to the left instead.</param>
+		/// <returns>A <see cref="BigInteger"/> whose bits have been shifted to the right by <paramref name="n"/> positions.</returns>
 		public static BigInteger ShiftRight(BigInteger value, int n) {
 			if ((n == 0) || (value.Sign == 0)) {
 				return value;
@@ -27,6 +38,12 @@ namespace Deveel.Math {
 					value, -n));
 		}
 
+		/// <summary>
+		/// Shifts the bits of the specified <see cref="BigInteger"/> value to the left.
+		/// </summary>
+		/// <param name="value">The <see cref="BigInteger"/> value to shift.</param>
+		/// <param name="n">The number of bit positions to shift. If negative, the value is shifted to the right instead.</param>
+		/// <returns>A <see cref="BigInteger"/> whose bits have been shifted to the left by <paramref name="n"/> positions.</returns>
 		public static BigInteger ShiftLeft(BigInteger value, int n) {
 			if ((n == 0) || (value.Sign == 0)) {
 				return value;
@@ -34,10 +51,30 @@ namespace Deveel.Math {
 			return ((n > 0) ? BitLevel.ShiftLeft(value, n) : BitLevel.ShiftRight(value, -n));
 		}
 
+		/// <summary>
+		/// Negates the specified <see cref="BigInteger"/> value.
+		/// </summary>
+		/// <param name="value">The <see cref="BigInteger"/> value to negate.</param>
+		/// <returns>A <see cref="BigInteger"/> representing the negation of <paramref name="value"/>.</returns>
 		public static BigInteger Negate(BigInteger value) {
 			return ((value.Sign == 0) ? value : new BigInteger(-value.Sign, value.numberLength, value.digits));
 		}
 
+		/// <summary>
+		/// Divides one <see cref="BigInteger"/> by another, returning the integer quotient.
+		/// </summary>
+		/// <param name="dividend">The <see cref="BigInteger"/> value to be divided.</param>
+		/// <param name="divisor">The <see cref="BigInteger"/> value to divide by.</param>
+		/// <returns>The integer quotient of the division.</returns>
+		/// <exception cref="ArithmeticException">Thrown when <paramref name="divisor"/> is zero.</exception>
+		/// <example>
+		/// <code>
+		/// BigInteger quotient = BigIntegerMath.Divide(
+		///     BigInteger.Parse("100"),
+		///     BigInteger.Parse("3"));
+		/// // quotient is 33
+		/// </code>
+		/// </example>
 		public static BigInteger Divide(BigInteger dividend, BigInteger divisor) {
 			if (divisor.Sign == 0) {
 				// math.17=BigInteger divide by zero
@@ -82,6 +119,13 @@ namespace Deveel.Math {
 			return result;
 		}
 
+		/// <summary>
+		/// Computes the remainder when one <see cref="BigInteger"/> is divided by another.
+		/// </summary>
+		/// <param name="dividend">The <see cref="BigInteger"/> value to be divided.</param>
+		/// <param name="divisor">The <see cref="BigInteger"/> value to divide by.</param>
+		/// <returns>The remainder of the division.</returns>
+		/// <exception cref="ArithmeticException">Thrown when <paramref name="divisor"/> is zero.</exception>
 		public static BigInteger Remainder(BigInteger dividend, BigInteger divisor) {
 			if (divisor.Sign == 0) {
 				// math.17=BigInteger divide by zero
@@ -109,6 +153,24 @@ namespace Deveel.Math {
 			return result;
 		}
 
+		/// <summary>
+		/// Divides one <see cref="BigInteger"/> by another, returning the quotient and the remainder.
+		/// </summary>
+		/// <param name="dividend">The <see cref="BigInteger"/> value to be divided.</param>
+		/// <param name="divisor">The <see cref="BigInteger"/> value to divide by.</param>
+		/// <param name="remainder">When this method returns, contains the remainder of the division.</param>
+		/// <returns>The integer quotient of the division.</returns>
+		/// <exception cref="ArithmeticException">Thrown when <paramref name="divisor"/> is zero.</exception>
+		/// <example>
+		/// <code>
+		/// BigInteger remainder;
+		/// BigInteger quotient = BigIntegerMath.DivideAndRemainder(
+		///     BigInteger.Parse("100"),
+		///     BigInteger.Parse("3"),
+		///     out remainder);
+		/// // quotient is 33, remainder is 1
+		/// </code>
+		/// </example>
 		public static BigInteger DivideAndRemainder(BigInteger dividend, BigInteger divisor, out BigInteger remainder) {
 			int divisorSign = divisor.Sign;
 			if (divisorSign == 0) {
@@ -148,6 +210,13 @@ namespace Deveel.Math {
 			return quotient;
 		}
 
+		/// <summary>
+		/// Computes the mathematical modulus (mod) of the specified <see cref="BigInteger"/> value.
+		/// </summary>
+		/// <param name="value">The <see cref="BigInteger"/> value.</param>
+		/// <param name="m">The modulus, which must be positive.</param>
+		/// <returns>The result of <paramref name="value"/> mod <paramref name="m"/>, always non-negative.</returns>
+		/// <exception cref="ArithmeticException">Thrown when <paramref name="m"/> is less than or equal to zero.</exception>
 		public static BigInteger Mod(BigInteger value, BigInteger m) {
 			if (m.Sign <= 0) {
 				// math.18=BigInteger: modulus not positive
@@ -157,6 +226,13 @@ namespace Deveel.Math {
 			return ((rem.Sign < 0) ? rem + m : rem);
 		}
 
+		/// <summary>
+		/// Computes the modular multiplicative inverse of the specified <see cref="BigInteger"/>.
+		/// </summary>
+		/// <param name="value">The <see cref="BigInteger"/> value to compute the inverse for.</param>
+		/// <param name="m">The modulus, which must be positive.</param>
+		/// <returns>The modular multiplicative inverse of <paramref name="value"/> modulo <paramref name="m"/>.</returns>
+		/// <exception cref="ArithmeticException">Thrown when <paramref name="m"/> is less than or equal to zero, or when the modular inverse does not exist.</exception>
 		public static BigInteger ModInverse(BigInteger value, BigInteger m) {
 			if (m.Sign <= 0) {
 				// math.18=BigInteger: modulus not positive
@@ -183,10 +259,32 @@ namespace Deveel.Math {
 			return res;
 		}
 
+		/// <summary>
+		/// Returns the absolute value of the specified <see cref="BigInteger"/>.
+		/// </summary>
+		/// <param name="value">The <see cref="BigInteger"/> value.</param>
+		/// <returns>The absolute value of <paramref name="value"/>.</returns>
 		public static BigInteger Abs(BigInteger value) {
 			return ((value.Sign < 0) ? new BigInteger(1, value.numberLength, value.digits) : value);
 		}
 
+		/// <summary>
+		/// Computes the modular exponentiation (value^exponent mod m).
+		/// </summary>
+		/// <param name="value">The base <see cref="BigInteger"/> value.</param>
+		/// <param name="exponent">The exponent <see cref="BigInteger"/>.</param>
+		/// <param name="m">The modulus, which must be positive.</param>
+		/// <returns>The result of <paramref name="value"/>^<paramref name="exponent"/> mod <paramref name="m"/>.</returns>
+		/// <exception cref="ArithmeticException">Thrown when <paramref name="m"/> is less than or equal to zero.</exception>
+		/// <example>
+		/// <code>
+		/// BigInteger result = BigIntegerMath.ModPow(
+		///     BigInteger.Parse("5"),
+		///     BigInteger.Parse("3"),
+		///     BigInteger.Parse("13"));
+		/// // result is 8 (5^3 = 125, 125 mod 13 = 8)
+		/// </code>
+		/// </example>
 		public static BigInteger ModPow(BigInteger value, BigInteger exponent, BigInteger m) {
 			if (m.Sign <= 0) {
 				// math.18=BigInteger: modulus not positive
@@ -217,6 +315,13 @@ namespace Deveel.Math {
 			return res;
 		}
 
+		/// <summary>
+		/// Raises the specified <see cref="BigInteger"/> to the specified power.
+		/// </summary>
+		/// <param name="value">The <see cref="BigInteger"/> base value.</param>
+		/// <param name="exp">The exponent, which must be non-negative.</param>
+		/// <returns>The result of <paramref name="value"/> raised to the power of <paramref name="exp"/>.</returns>
+		/// <exception cref="ArithmeticException">Thrown when <paramref name="exp"/> is negative.</exception>
 		public static BigInteger Pow(BigInteger value, int exp) {
 			if (exp < 0) {
 				// math.16=Negative exponent
@@ -243,6 +348,20 @@ namespace Deveel.Math {
 			return Multiplication.Pow(value, exp);
 		}
 
+		/// <summary>
+		/// Computes the greatest common divisor (GCD) of two <see cref="BigInteger"/> values.
+		/// </summary>
+		/// <param name="a">The first <see cref="BigInteger"/> value.</param>
+		/// <param name="b">The second <see cref="BigInteger"/> value.</param>
+		/// <returns>The greatest common divisor of <paramref name="a"/> and <paramref name="b"/>.</returns>
+		/// <example>
+		/// <code>
+		/// BigInteger gcd = BigIntegerMath.Gcd(
+		///     BigInteger.Parse("12"),
+		///     BigInteger.Parse("18"));
+		/// // gcd is 6
+		/// </code>
+		/// </example>
 		public static BigInteger Gcd(BigInteger a, BigInteger b) {
 			BigInteger val1 = Abs(a);
 			BigInteger val2 = Abs(b);

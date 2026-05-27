@@ -16,7 +16,21 @@
 using System;
 
 namespace Deveel.Math {
+	/// <summary>
+	/// Provides static mathematical operations for <see cref="BigDecimal"/> values,
+	/// including division, multiplication, exponentiation, scaling, and addition/subtraction
+	/// with various rounding and precision controls.
+	/// </summary>
 	static class BigDecimalMath {
+		/// <summary>
+		/// Divides two <see cref="BigInteger"/> values representing scaled operands and returns the result
+		/// as a <see cref="BigDecimal"/> with the specified scale and rounding mode.
+		/// </summary>
+		/// <param name="scaledDividend">The scaled dividend <see cref="BigInteger"/>.</param>
+		/// <param name="scaledDivisor">The scaled divisor <see cref="BigInteger"/>.</param>
+		/// <param name="scale">The scale of the resulting <see cref="BigDecimal"/>.</param>
+		/// <param name="roundingMode">The <see cref="RoundingMode"/> to apply when the division has a non-terminating decimal expansion.</param>
+		/// <returns>A <see cref="BigDecimal"/> representing the quotient with the specified scale.</returns>
 		public static BigDecimal DivideBigIntegers(BigInteger scaledDividend, BigInteger scaledDivisor, int scale,
 			RoundingMode roundingMode) {
 			BigInteger remainder;
@@ -52,6 +66,15 @@ namespace Deveel.Math {
 			return new BigDecimal(quotient, scale);
 		}
 
+		/// <summary>
+		/// Divides two <see cref="long"/> values representing scaled operands and returns the result
+		/// as a <see cref="BigDecimal"/> with the specified scale and rounding mode.
+		/// </summary>
+		/// <param name="scaledDividend">The scaled dividend as a <see cref="long"/>.</param>
+		/// <param name="scaledDivisor">The scaled divisor as a <see cref="long"/>.</param>
+		/// <param name="scale">The scale of the resulting <see cref="BigDecimal"/>.</param>
+		/// <param name="roundingMode">The <see cref="RoundingMode"/> to apply when the division has a non-terminating decimal expansion.</param>
+		/// <returns>A <see cref="BigDecimal"/> representing the quotient with the specified scale.</returns>
 		public static BigDecimal DividePrimitiveLongs(long scaledDividend, long scaledDivisor, int scale,
 			RoundingMode roundingMode) {
 			long quotient = scaledDividend / scaledDivisor;
@@ -68,6 +91,23 @@ namespace Deveel.Math {
 			return BigDecimal.Create(quotient, scale);
 		}
 
+		/// <summary>
+		/// Divides one <see cref="BigDecimal"/> by another, returning the exact quotient
+		/// if the division has a terminating decimal expansion.
+		/// </summary>
+		/// <param name="dividend">The <see cref="BigDecimal"/> value to be divided.</param>
+		/// <param name="divisor">The <see cref="BigDecimal"/> value to divide by.</param>
+		/// <returns>The exact quotient as a <see cref="BigDecimal"/>.</returns>
+		/// <exception cref="ArithmeticException">Thrown when <paramref name="divisor"/> is zero, or when the division
+		/// result has a non-terminating decimal expansion.</exception>
+		/// <example>
+		/// <code>
+		/// BigDecimal result = BigDecimalMath.Divide(
+		///     new BigDecimal("10"),
+		///     new BigDecimal("2"));
+		/// // result is 5
+		/// </code>
+		/// </example>
 		public static BigDecimal Divide(BigDecimal dividend, BigDecimal divisor) {
 			BigInteger p = dividend.UnscaledValue;
 			BigInteger q = divisor.UnscaledValue;
@@ -131,6 +171,15 @@ namespace Deveel.Math {
 			return new BigDecimal(p, newScale);
 		}
 
+		/// <summary>
+		/// Divides one <see cref="BigDecimal"/> by another with the precision and rounding specified
+		/// by the given <see cref="MathContext"/>.
+		/// </summary>
+		/// <param name="dividend">The <see cref="BigDecimal"/> value to be divided.</param>
+		/// <param name="divisor">The <see cref="BigDecimal"/> value to divide by.</param>
+		/// <param name="mc">The <see cref="MathContext"/> that specifies the precision and rounding mode.</param>
+		/// <returns>The quotient as a <see cref="BigDecimal"/> rounded according to the specified context.</returns>
+		/// <exception cref="ArithmeticException">Thrown when <paramref name="divisor"/> is zero.</exception>
 		public static BigDecimal Divide(BigDecimal dividend, BigDecimal divisor, MathContext mc) {
 			/* Calculating how many zeros must be append to 'dividend'
 			 * to obtain a  quotient with at least 'mc.precision()' digits */
@@ -186,6 +235,13 @@ namespace Deveel.Math {
 			return new BigDecimal(integerQuot, BigDecimal.ToIntScale(newScale), mc);
 		}
 
+		/// <summary>
+		/// Divides one <see cref="BigDecimal"/> by another, returning the integral part of the quotient.
+		/// </summary>
+		/// <param name="dividend">The <see cref="BigDecimal"/> value to be divided.</param>
+		/// <param name="divisor">The <see cref="BigDecimal"/> value to divide by.</param>
+		/// <returns>The integral part of the quotient as a <see cref="BigDecimal"/>.</returns>
+		/// <exception cref="ArithmeticException">Thrown when <paramref name="divisor"/> is zero.</exception>
 		public static BigDecimal DivideToIntegralValue(BigDecimal dividend, BigDecimal divisor) {
 			BigInteger integralValue; // the integer of result
 			BigInteger powerOfTen; // some power of ten
@@ -239,6 +295,16 @@ namespace Deveel.Math {
 				: new BigDecimal(integralValue, BigDecimal.ToIntScale(newScale)));
 		}
 
+		/// <summary>
+		/// Divides one <see cref="BigDecimal"/> by another, returning the integral part of the quotient
+		/// with the precision specified by the given <see cref="MathContext"/>.
+		/// </summary>
+		/// <param name="dividend">The <see cref="BigDecimal"/> value to be divided.</param>
+		/// <param name="divisor">The <see cref="BigDecimal"/> value to divide by.</param>
+		/// <param name="mc">The <see cref="MathContext"/> that specifies the precision and rounding mode.</param>
+		/// <returns>The integral part of the quotient as a <see cref="BigDecimal"/>.</returns>
+		/// <exception cref="ArithmeticException">Thrown when <paramref name="divisor"/> is zero, or when the quotient
+		/// cannot be represented within the specified precision.</exception>
 		public static BigDecimal DivideToIntegralValue(BigDecimal dividend, BigDecimal divisor, MathContext mc) {
 			int mcPrecision = mc.Precision;
 			int diffPrecision = dividend.Precision - divisor.Precision;
@@ -331,6 +397,25 @@ namespace Deveel.Math {
 		}
 
 
+		/// <summary>
+		/// Divides one <see cref="BigDecimal"/> by another, returning the quotient with the specified scale and rounding mode.
+		/// </summary>
+		/// <param name="dividend">The <see cref="BigDecimal"/> value to be divided.</param>
+		/// <param name="divisor">The <see cref="BigDecimal"/> value to divide by.</param>
+		/// <param name="scale">The scale of the resulting <see cref="BigDecimal"/>.</param>
+		/// <param name="roundingMode">The <see cref="RoundingMode"/> to apply.</param>
+		/// <returns>The quotient as a <see cref="BigDecimal"/> with the specified scale.</returns>
+		/// <exception cref="ArithmeticException">Thrown when <paramref name="divisor"/> is zero.</exception>
+		/// <example>
+		/// <code>
+		/// BigDecimal result = BigDecimalMath.Divide(
+		///     new BigDecimal("10"),
+		///     new BigDecimal("3"),
+		///     2,
+		///     RoundingMode.HalfUp);
+		/// // result is 3.33
+		/// </code>
+		/// </example>
 		public static BigDecimal Divide(BigDecimal dividend, BigDecimal divisor, int scale, RoundingMode roundingMode) {
 			// Let be: this = [u1,s1]  and  divisor = [u2,s2]
 			if (divisor.IsZero) {
@@ -369,30 +454,48 @@ namespace Deveel.Math {
 			return DivideBigIntegers(scaledDividend, scaledDivisor, scale, roundingMode);
 		}
 
+		/// <summary>
+		/// Divides one <see cref="BigDecimal"/> by another, returning the integral quotient and the remainder.
+		/// </summary>
+		/// <param name="dividend">The <see cref="BigDecimal"/> value to be divided.</param>
+		/// <param name="divisor">The <see cref="BigDecimal"/> value to divide by.</param>
+		/// <param name="remainder">When this method returns, contains the <see cref="BigDecimal"/> remainder.</param>
+		/// <returns>The integral part of the quotient as a <see cref="BigDecimal"/>.</returns>
 		public static BigDecimal DivideAndRemainder(BigDecimal dividend, BigDecimal divisor, out BigDecimal remainder) {
 			var quotient = DivideToIntegralValue(dividend, divisor);
 			remainder = Subtract(dividend, Multiply(quotient, divisor));
 			return quotient;
 		}
 
+		/// <summary>
+		/// Divides one <see cref="BigDecimal"/> by another with the specified <see cref="MathContext"/>,
+		/// returning the integral quotient and the remainder.
+		/// </summary>
+		/// <param name="dividend">The <see cref="BigDecimal"/> value to be divided.</param>
+		/// <param name="divisor">The <see cref="BigDecimal"/> value to divide by.</param>
+		/// <param name="mc">The <see cref="MathContext"/> that specifies the precision and rounding mode.</param>
+		/// <param name="remainder">When this method returns, contains the <see cref="BigDecimal"/> remainder.</param>
+		/// <returns>The integral part of the quotient as a <see cref="BigDecimal"/>.</returns>
 		public static BigDecimal DivideAndRemainder(BigDecimal dividend, BigDecimal divisor, MathContext mc, out BigDecimal remainder) {
 			var quotient = DivideToIntegralValue(dividend, divisor, mc);
 			remainder = Subtract(dividend, Multiply(quotient, divisor));
 			return quotient;
 		}
 
-		/**
- * Returns a new {@code BigDecimal} whose value is {@code this *
- * multiplicand}. The scale of the result is the sum of the scales of the
- * two arguments.
- *
- * @param multiplicand
- *            value to be multiplied with {@code this}.
- * @return {@code this * multiplicand}.
- * @throws NullPointerException
- *             if {@code multiplicand == null}.
- */
-
+		/// <summary>
+		/// Multiplies one <see cref="BigDecimal"/> by another. The scale of the result is the sum of the scales of the two operands.
+		/// </summary>
+		/// <param name="value">The first <see cref="BigDecimal"/> value to multiply.</param>
+		/// <param name="multiplicand">The second <see cref="BigDecimal"/> value to multiply.</param>
+		/// <returns>A <see cref="BigDecimal"/> representing the product of the two values.</returns>
+		/// <example>
+		/// <code>
+		/// BigDecimal result = BigDecimalMath.Multiply(
+		///     new BigDecimal("2.5"),
+		///     new BigDecimal("4"));
+		/// // result is 10.0
+		/// </code>
+		/// </example>
 		public static BigDecimal Multiply(BigDecimal value, BigDecimal multiplicand) {
 			long newScale = (long)value.Scale + multiplicand.Scale;
 
@@ -408,6 +511,13 @@ namespace Deveel.Math {
 		}
 
 
+		/// <summary>
+		/// Raises the specified <see cref="BigDecimal"/> to the specified power.
+		/// </summary>
+		/// <param name="number">The <see cref="BigDecimal"/> base value.</param>
+		/// <param name="n">The exponent, which must be between 0 and 999999999 inclusive.</param>
+		/// <returns>The result of <paramref name="number"/> raised to the power of <paramref name="n"/>.</returns>
+		/// <exception cref="ArithmeticException">Thrown when <paramref name="n"/> is negative or exceeds 999999999.</exception>
 		public static BigDecimal Pow(BigDecimal number, int n) {
 			if (n == 0) {
 				return BigDecimal.One;
@@ -423,6 +533,24 @@ namespace Deveel.Math {
 				: new BigDecimal(BigMath.Pow(number.UnscaledValue, n), BigDecimal.ToIntScale(newScale)));
 		}
 
+		/// <summary>
+		/// Raises the specified <see cref="BigDecimal"/> to the specified power with the given <see cref="MathContext"/> precision.
+		/// </summary>
+		/// <param name="number">The <see cref="BigDecimal"/> base value.</param>
+		/// <param name="n">The exponent (can be negative when a <see cref="MathContext"/> is provided).</param>
+		/// <param name="mc">The <see cref="MathContext"/> that specifies the precision and rounding mode.</param>
+		/// <returns>The result of <paramref name="number"/> raised to the power of <paramref name="n"/>, rounded to the specified precision.</returns>
+		/// <exception cref="ArithmeticException">Thrown when the operation is invalid (e.g., exponent exceeds limits or precision is insufficient).</exception>
+		/// <example>
+		/// <code>
+		/// MathContext mc = new MathContext(5, RoundingMode.HalfUp);
+		/// BigDecimal result = BigDecimalMath.Pow(
+		///     new BigDecimal("2"),
+		///     10,
+		///     mc);
+		/// // result is 1024.0
+		/// </code>
+		/// </example>
 		public static BigDecimal Pow(BigDecimal number, int n, MathContext mc) {
 			// The ANSI standard X3.274-1996 algorithm
 			int m = System.Math.Abs(n);
@@ -465,6 +593,13 @@ namespace Deveel.Math {
 			return accum;
 		}
 
+		/// <summary>
+		/// Returns a <see cref="BigDecimal"/> with the specified scale, rounding the unscaled value if necessary.
+		/// </summary>
+		/// <param name="number">The <see cref="BigDecimal"/> value to rescale.</param>
+		/// <param name="newScale">The target scale for the result.</param>
+		/// <param name="roundingMode">The <see cref="RoundingMode"/> to apply when scaling down (i.e., reducing the scale).</param>
+		/// <returns>A <see cref="BigDecimal"/> with the specified scale, rounded as necessary.</returns>
 		public static BigDecimal Scale(BigDecimal number, int newScale, RoundingMode roundingMode) {
 			long diffScale = newScale - (long)number.Scale;
 			// Let be:  'number' = [u,s]        
@@ -488,6 +623,12 @@ namespace Deveel.Math {
 			return DivideBigIntegers(number.UnscaledValue, Multiplication.PowerOf10(-diffScale), newScale, roundingMode);
 		}
 
+		/// <summary>
+		/// Moves the decimal point of the specified <see cref="BigDecimal"/> to a new scale.
+		/// </summary>
+		/// <param name="number">The <see cref="BigDecimal"/> value.</param>
+		/// <param name="newScale">The new scale for the result (negative values move the decimal point to the right).</param>
+		/// <returns>A <see cref="BigDecimal"/> with the decimal point moved to the specified scale.</returns>
 		public static BigDecimal MovePoint(BigDecimal number, long newScale) {
 			if (number.IsZero) {
 				return BigDecimal.GetZeroScaledBy(System.Math.Max(newScale, 0));
@@ -507,6 +648,12 @@ namespace Deveel.Math {
 			return new BigDecimal(Multiplication.MultiplyByTenPow(number.UnscaledValue, (int)-newScale), 0);
 		}
 
+		/// <summary>
+		/// Adds two <see cref="BigDecimal"/> values together.
+		/// </summary>
+		/// <param name="value">The first <see cref="BigDecimal"/> summand.</param>
+		/// <param name="augend">The second <see cref="BigDecimal"/> summand.</param>
+		/// <returns>A <see cref="BigDecimal"/> representing the sum of the two values.</returns>
 		public static BigDecimal Add(BigDecimal value, BigDecimal augend) {
 			int diffScale = value.Scale - augend.Scale;
 			// Fast return when some operand is zero
@@ -535,6 +682,13 @@ namespace Deveel.Math {
 			return AddAndMult10(augend, value, -diffScale);
 		}
 
+		/// <summary>
+		/// Adds two <see cref="BigDecimal"/> values after scaling the second by a power of ten.
+		/// </summary>
+		/// <param name="thisValue">The first <see cref="BigDecimal"/> value (the one with the larger scale).</param>
+		/// <param name="augend">The second <see cref="BigDecimal"/> value to scale and add.</param>
+		/// <param name="diffScale">The difference in scale between the two values.</param>
+		/// <returns>A <see cref="BigDecimal"/> representing the sum.</returns>
 		private static BigDecimal AddAndMult10(BigDecimal thisValue, BigDecimal augend, int diffScale) {
 			if (diffScale < BigDecimal.LongTenPow.Length &&
 			    System.Math.Max(thisValue.BitLength, augend.BitLength + BigDecimal.LongTenPowBitLength[diffScale]) + 1 < 64) {
@@ -545,6 +699,13 @@ namespace Deveel.Math {
 				thisValue.Scale);
 		}
 
+		/// <summary>
+		/// Adds two <see cref="BigDecimal"/> values with the precision specified by the given <see cref="MathContext"/>.
+		/// </summary>
+		/// <param name="value">The first <see cref="BigDecimal"/> summand.</param>
+		/// <param name="augend">The second <see cref="BigDecimal"/> summand.</param>
+		/// <param name="mc">The <see cref="MathContext"/> that specifies the precision and rounding mode.</param>
+		/// <returns>A <see cref="BigDecimal"/> representing the sum, rounded to the specified precision.</returns>
 		public static BigDecimal Add(BigDecimal value, BigDecimal augend, MathContext mc) {
 			BigDecimal larger; // operand with the largest unscaled value
 			BigDecimal smaller; // operand with the smallest unscaled value
@@ -586,6 +747,21 @@ namespace Deveel.Math {
 			return BigMath.Round(larger, mc);
 		}
 
+		/// <summary>
+		/// Subtracts one <see cref="BigDecimal"/> from another.
+		/// </summary>
+		/// <param name="value">The <see cref="BigDecimal"/> value to subtract from (minuend).</param>
+		/// <param name="subtrahend">The <see cref="BigDecimal"/> value to subtract (subtrahend).</param>
+		/// <returns>A <see cref="BigDecimal"/> representing the difference.</returns>
+		/// <exception cref="ArgumentNullException">Thrown when <paramref name="subtrahend"/> is <c>null</c>.</exception>
+		/// <example>
+		/// <code>
+		/// BigDecimal result = BigDecimalMath.Subtract(
+		///     new BigDecimal("5.5"),
+		///     new BigDecimal("2.3"));
+		/// // result is 3.2
+		/// </code>
+		/// </example>
 		public static BigDecimal Subtract(BigDecimal value, BigDecimal subtrahend) {
 			if (subtrahend == null)
 				throw new ArgumentNullException("subtrahend");
@@ -635,6 +811,14 @@ namespace Deveel.Math {
 			                      subtrahend.UnscaledValue, subtrahend.Scale);
 		}
 
+		/// <summary>
+		/// Subtracts one <see cref="BigDecimal"/> from another with the precision specified by the given <see cref="MathContext"/>.
+		/// </summary>
+		/// <param name="value">The <see cref="BigDecimal"/> value to subtract from (minuend).</param>
+		/// <param name="subtrahend">The <see cref="BigDecimal"/> value to subtract (subtrahend).</param>
+		/// <param name="mc">The <see cref="MathContext"/> that specifies the precision and rounding mode.</param>
+		/// <returns>A <see cref="BigDecimal"/> representing the difference, rounded to the specified precision.</returns>
+		/// <exception cref="ArgumentNullException">Thrown when <paramref name="subtrahend"/> or <paramref name="mc"/> is <c>null</c>.</exception>
 		public static BigDecimal Subtract(BigDecimal value, BigDecimal subtrahend, MathContext mc) {
 			if (subtrahend == null)
 				throw new ArgumentNullException("subtrahend");

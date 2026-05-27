@@ -40,6 +40,15 @@ namespace Deveel.Math {
     /// </para>
     /// </remarks>
     internal static class BitLevel {
+		/// <summary>
+		/// Returns the number of bits in the minimal two's-complement representation
+		/// of the specified <see cref="BigInteger"/>, excluding the sign bit.
+		/// </summary>
+		/// <param name="val">The <see cref="BigInteger"/> whose bit length is to be computed.</param>
+		/// <returns>
+		/// Returns the number of bits in the minimal two's-complement representation,
+		/// or 0 if the value is zero.
+		/// </returns>
 		public static int BitLength(BigInteger val) {
 			if (val.Sign == 0) {
 				return 0;
@@ -59,6 +68,15 @@ namespace Deveel.Math {
 			return bLength;
 		}
 
+		/// <summary>
+		/// Returns the number of bits in the two's complement representation of
+		/// the specified <see cref="BigInteger"/> that differ from its sign bit.
+		/// </summary>
+		/// <param name="val">The <see cref="BigInteger"/> whose bit count is to be computed.</param>
+		/// <returns>
+		/// Returns the number of bits in the two's complement representation
+		/// that differ from the sign bit.
+		/// </returns>
 		public static int BitCount(BigInteger val) {
 			int bCount = 0;
 
@@ -115,6 +133,16 @@ namespace Deveel.Math {
 			return ((i != intCount) || (digits[i] << (32 - bitCount) != 0));
 		}
 
+		/// <summary>
+		/// Shifts the specified <see cref="BigInteger"/> to the left by the given
+		/// number of bits.
+		/// </summary>
+		/// <param name="source">The <see cref="BigInteger"/> to shift.</param>
+		/// <param name="count">The number of bits to shift left.</param>
+		/// <returns>
+		/// Returns a new <see cref="BigInteger"/> that represents the value after
+		/// the left shift operation.
+		/// </returns>
 		public static BigInteger ShiftLeft(BigInteger source, int count) {
 			int intCount = count >> 5;
 			count &= 31; // %= 32
@@ -175,19 +203,20 @@ namespace Deveel.Math {
 			}
 		}
 
-		/**
-		 * Shifts the source digits left one bit, creating a value whose magnitude
-		 * is doubled.
-		 *
-		 * @param result an array of digits that will hold the computed result when
-		 *      this method returns. The size of this array is {@code srcLen + 1},
-		 *      and the format is the same as {@link BigInteger#digits}.
-		 * @param source the array of digits to shift left, in the same format as
-		 *      {@link BigInteger#digits}.
-		 * @param srcLen the length of {@code source}; may be less than {@code
-		 *      source.length}
-		 */
-
+		/// <summary>
+		/// Shifts the source digits left one bit, creating a value whose magnitude
+		/// is doubled.
+		/// </summary>
+		/// <param name="result">
+		/// An array of digits that will hold the computed result when this method returns.
+		/// The size of this array must be <c>srcLen + 1</c>.
+		/// </param>
+		/// <param name="source">
+		/// The array of digits to shift left.
+		/// </param>
+		/// <param name="srcLen">
+		/// The length of <paramref name="source"/>; may be less than <c>source.Length</c>.
+		/// </param>
 		public static void ShiftLeftOneBit(int[] result, int[] source, int srcLen) {
 			int carry = 0;
 			for (int i = 0; i < srcLen; i++) {
@@ -200,6 +229,15 @@ namespace Deveel.Math {
 			}
 		}
 
+		/// <summary>
+		/// Shifts the specified <see cref="BigInteger"/> left by one bit,
+		/// creating a value whose magnitude is doubled.
+		/// </summary>
+		/// <param name="source">The <see cref="BigInteger"/> to shift.</param>
+		/// <returns>
+		/// Returns a new <see cref="BigInteger"/> that represents the value
+		/// after shifting left by one bit.
+		/// </returns>
 		public static BigInteger ShiftLeftOneBit(BigInteger source) {
 			int srcLen = source.numberLength;
 			int resLen = srcLen + 1;
@@ -210,8 +248,17 @@ namespace Deveel.Math {
 			return result;
 		}
 
-		/** @see BigInteger#shiftRight(int) */
-
+		/// <summary>
+		/// Shifts the specified <see cref="BigInteger"/> to the right by the given
+		/// number of bits.
+		/// </summary>
+		/// <param name="source">The <see cref="BigInteger"/> to shift.</param>
+		/// <param name="count">The number of bits to shift right.</param>
+		/// <returns>
+		/// Returns a new <see cref="BigInteger"/> that represents the value after
+		/// the right shift operation.
+		/// </returns>
+		/// <seealso cref="BigInteger.ShiftRight(int)"/>
 		public static BigInteger ShiftRight(BigInteger source, int count) {
 			int intCount = count >> 5; // count of integers
 			count &= 31; // count of remaining bits
@@ -246,10 +293,11 @@ namespace Deveel.Math {
 			return result;
 		}
 
-		/**
-		 * Performs {@code val >>= count} where {@code val} is a positive number.
-		 */
-
+		/// <summary>
+		/// Performs an in-place right shift of the specified <see cref="BigInteger"/>.
+		/// </summary>
+		/// <param name="val">The <see cref="BigInteger"/> to shift in place.</param>
+		/// <param name="count">The number of bits to shift right.</param>
 		public static void InplaceShiftRight(BigInteger val, int count) {
 			int sign = val.Sign;
 			if (count == 0 || val.Sign == 0)
@@ -272,23 +320,19 @@ namespace Deveel.Math {
 			val.UnCache();
 		}
 
-		/**
-		 * Shifts right an array of integers. Total shift distance in bits is
-		 * intCount * 32 + count.
-		 * 
-		 * @param result
-		 *            the destination array
-		 * @param resultLen
-		 *            the destination array's length
-		 * @param source
-		 *            the source array
-		 * @param intCount
-		 *            the number of elements to be shifted
-		 * @param count
-		 *            the number of bits to be shifted
-		 * @return dropped bit's are all zero (i.e. remaider is zero)
-		 */
-
+		/// <summary>
+		/// Shifts right an array of integers. Total shift distance in bits is
+		/// <c>intCount * 32 + count</c>.
+		/// </summary>
+		/// <param name="result">The destination array.</param>
+		/// <param name="resultLen">The destination array's length.</param>
+		/// <param name="source">The source array.</param>
+		/// <param name="intCount">The number of elements to be shifted.</param>
+		/// <param name="count">The number of bits to be shifted.</param>
+		/// <returns>
+		/// Returns <c>true</c> if the dropped bits are all zero (i.e. remainder is zero);
+		/// otherwise <c>false</c>.
+		/// </returns>
 		public static bool ShiftRight(int[] result, int resultLen, int[] source, int intCount, int count) {
 			int i;
 			bool allZero = true;
@@ -313,13 +357,14 @@ namespace Deveel.Math {
 		}
 
 
-		/**
-		 * Performs a flipBit on the BigInteger, returning a BigInteger with the the
-		 * specified bit flipped.
-		 * @param intCount: the index of the element of the digits array where the operation will be performed
-		 * @param bitNumber: the bit's position in the intCount element
-		 */
-
+		/// <summary>
+		/// Returns a <see cref="BigInteger"/> with the specified bit flipped.
+		/// </summary>
+		/// <param name="val">The <see cref="BigInteger"/> whose bit is to be flipped.</param>
+		/// <param name="n">The index of the bit to flip.</param>
+		/// <returns>
+		/// Returns a new <see cref="BigInteger"/> that has the specified bit flipped.
+		/// </returns>
 		public static BigInteger FlipBit(BigInteger val, int n) {
 			int resSign = (val.Sign == 0) ? 1 : val.Sign;
 			int intCount = n >> 5;
