@@ -14,6 +14,7 @@
 //    limitations under the License.
 
 using System;
+using System.Buffers;
 
 namespace Deveel.Math {
 	/// <summary>
@@ -27,6 +28,7 @@ namespace Deveel.Math {
 	/// </list>
 	/// </summary>
 	static class Logical {
+		private const int StackAllocMax = 256;
 
 		/// <summary>
 		/// Computes the bitwise NOT of <paramref name="val"/>.
@@ -47,33 +49,45 @@ namespace Deveel.Math {
 			if (val.Equals(BigInteger.MinusOne)) {
 				return BigInteger.Zero;
 			}
-			int[] resDigits = new int[val.numberLength + 1];
-			int i;
+			int resLength = val.numberLength + 1;
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			if (val.Sign > 0) {
-				if (val.Digits[val.numberLength - 1] != -1) {
-					for (i = 0; val.Digits[i] == -1; i++) {
-						;
-					}
-				} else {
-					for (i = 0; (i < val.numberLength) && (val.Digits[i] == -1); i++) {
-						;
-					}
+			try {
+				int i;
+
+				if (val.Sign > 0) {
+					if (val.Digits[val.numberLength - 1] != -1) {
+						for (i = 0; val.Digits[i] == -1; i++) {
+							;
+						}
+					} else {
+						for (i = 0; (i < val.numberLength) && (val.Digits[i] == -1); i++) {
+							;
+						}
 					if (i == val.numberLength) {
 						resDigits[i] = 1;
-						return new BigInteger(-val.Sign, i + 1, resDigits);
+						return new BigInteger(-val.Sign, i + 1, resDigits.Slice(0, i + 1));
+					}
+					}
+				} else {
+					for (i = 0; val.Digits[i] == 0; i++) {
+						resDigits[i] = -1;
 					}
 				}
-			} else {
-				for (i = 0; val.Digits[i] == 0; i++) {
-					resDigits[i] = -1;
+				resDigits[i] = val.Digits[i] + val.Sign;
+				for (i++; i < val.numberLength; i++) {
+					resDigits[i] = val.Digits[i];
 				}
+			BigInteger result = new BigInteger(-val.Sign, i, resDigits.Slice(0, i));
+			return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
 			}
-			resDigits[i] = val.Digits[i] + val.Sign;
-			for (i++; i < val.numberLength; i++) {
-				resDigits[i] = val.Digits[i];
-			}
-			return new BigInteger(-val.Sign, i, resDigits);
 		}
 
 		/// <summary>

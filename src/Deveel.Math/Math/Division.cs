@@ -14,6 +14,7 @@
 //    limitations under the License.
 
 using System;
+using System.Buffers;
 
 namespace Deveel.Math {
 	/// <summary>
@@ -27,6 +28,7 @@ namespace Deveel.Math {
 	/// </list>
 	/// </summary>
 	internal static class Division {
+		private const int StackAllocMax = 256;
 		/// <summary>
 		/// Divides the array 'a' by the array 'b' and gets the quotient and the
 		/// remainder. Implements the Knuth's division algorithm (see D. Knuth,

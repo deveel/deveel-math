@@ -316,6 +316,23 @@ namespace Deveel.Math {
 		}
 
 		/// <summary>
+		/// Constructs a number by copying from a span.
+		/// </summary>
+		/// <param name="sign">The sign of the number</param>
+		/// <param name="numberLength">The length of the number</param>
+		/// <param name="digits">The source span to copy from</param>
+		/// <remarks>
+		/// This constructor copies the data from the span, allowing efficient creation
+		/// from temporary buffers like stackalloc or ArrayPool.
+		/// </remarks>
+		internal BigInteger(int sign, int numberLength, ReadOnlySpan<int> digits) {
+			this.sign = sign;
+			this.numberLength = numberLength;
+			this.digits = new int[numberLength];
+			digits.CopyTo(this.digits);
+		}
+
+		/// <summary>
 		/// Creates a new <see cref="BigInteger"/> whose value is equal to the 
 		/// specified <see cref="long"/>.
 		/// </summary>

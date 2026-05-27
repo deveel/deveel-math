@@ -1,7 +1,9 @@
 using System;
+using System.Buffers;
 
 namespace Deveel.Math {
 	internal static class BitLevel {
+		private const int StackAllocMax = 256;
 		public static int BitLength(BigInteger val) {
 			if (val.Sign == 0) {
 				return 0;
@@ -59,12 +61,21 @@ namespace Deveel.Math {
 			int intCount = count >> 5;
 			count &= 31;
 			int resLength = source.numberLength + intCount + ((count == 0) ? 0 : 1);
-			int[] resDigits = new int[resLength];
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			ShiftLeft(resDigits.AsSpan(), source.Digits.AsSpan(), intCount, count);
-			var result = new BigInteger(source.Sign, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
+			try {
+				ShiftLeft(resDigits, source.Digits.AsSpan(), intCount, count);
+				var result = new BigInteger(source.Sign, resLength, resDigits.Slice(0, resLength));
+				result.CutOffLeadingZeroes();
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		public static void InplaceShiftLeft(BigInteger val, int count) {
@@ -112,11 +123,21 @@ namespace Deveel.Math {
 		public static BigInteger ShiftLeftOneBit(BigInteger source) {
 			int srcLen = source.numberLength;
 			int resLen = srcLen + 1;
-			int[] resDigits = new int[resLen];
-			ShiftLeftOneBit(resDigits.AsSpan(), source.Digits.AsSpan(0, srcLen), srcLen);
-			BigInteger result = new BigInteger(source.Sign, resLen, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
+			int[]? resArray = null;
+			Span<int> resDigits = resLen <= StackAllocMax
+				? stackalloc int[resLen]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLen));
+			resDigits = resDigits.Slice(0, resLen);
+
+			try {
+				ShiftLeftOneBit(resDigits, source.Digits.AsSpan(0, srcLen), srcLen);
+				BigInteger result = new BigInteger(source.Sign, resLen, resDigits.Slice(0, resLen));
+				result.CutOffLeadingZeroes();
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		public static BigInteger ShiftRight(BigInteger source, int count) {
@@ -127,26 +148,39 @@ namespace Deveel.Math {
 			}
 			int i;
 			int resLength = source.numberLength - intCount;
-			int[] resDigits = new int[resLength + 1];
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			ShiftRight(resDigits.AsSpan(), resLength, source.Digits.AsSpan(), intCount, count);
-			if (source.Sign < 0) {
-				for (i = 0; (i < intCount) && (source.Digits[i] == 0); i++) {
-				}
-				if ((i < intCount)
-					|| ((count > 0) && ((source.Digits[i] << (32 - count)) != 0))) {
-					for (i = 0; (i < resLength) && (resDigits[i] == -1); i++) {
-						resDigits[i] = 0;
+			try {
+				ShiftRight(resDigits, resLength, source.Digits.AsSpan(), intCount, count);
+				if (source.Sign < 0) {
+					for (i = 0; (i < intCount) && (source.Digits[i] == 0); i++) {
 					}
-					if (i == resLength) {
-						resLength++;
+					if ((i < intCount)
+						|| ((count > 0) && ((source.Digits[i] << (32 - count)) != 0))) {
+						for (i = 0; (i < resLength) && (resDigits[i] == -1); i++) {
+							resDigits[i] = 0;
+						}
+						if (i == resLength) {
+							resLength++;
+							// Need to expand since we're using a span
+							int[] newArray = new int[resLength];
+							resDigits.CopyTo(newArray);
+							resDigits = newArray;
+						}
+						resDigits[i]++;
 					}
-					resDigits[i]++;
 				}
+				BigInteger result = new BigInteger(source.Sign, resLength, resDigits.Slice(0, resLength));
+				result.CutOffLeadingZeroes();
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
 			}
-			BigInteger result = new BigInteger(source.Sign, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
 		}
 
 		public static void InplaceShiftRight(BigInteger val, int count) {
@@ -198,43 +232,53 @@ namespace Deveel.Math {
 			int intCount = n >> 5;
 			int bitN = n & 31;
 			int resLength = System.Math.Max(intCount + 1, val.numberLength) + 1;
-			int[] resDigits = new int[resLength];
-			int i;
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			int bitNumber = 1 << bitN;
-			Array.Copy(val.Digits, 0, resDigits, 0, val.numberLength);
+			try {
+				int i;
 
-			if (val.Sign < 0) {
-				if (intCount >= val.numberLength) {
-					resDigits[intCount] = bitNumber;
-				} else {
-					int firstNonZeroDigit = val.FirstNonZeroDigit;
-					if (intCount > firstNonZeroDigit) {
-						resDigits[intCount] ^= bitNumber;
-					} else if (intCount < firstNonZeroDigit) {
-						resDigits[intCount] = -bitNumber;
-						for (i = intCount + 1; i < firstNonZeroDigit; i++) {
-							resDigits[i] = -1;
-						}
-						resDigits[i] = resDigits[i]--;
+				int bitNumber = 1 << bitN;
+				val.Digits.AsSpan(0, val.numberLength).CopyTo(resDigits);
+
+				if (val.Sign < 0) {
+					if (intCount >= val.numberLength) {
+						resDigits[intCount] = bitNumber;
 					} else {
-						i = intCount;
-						resDigits[i] = -((-resDigits[intCount]) ^ bitNumber);
-						if (resDigits[i] == 0) {
-							for (i++; resDigits[i] == -1; i++) {
-								resDigits[i] = 0;
+						int firstNonZeroDigit = val.FirstNonZeroDigit;
+						if (intCount > firstNonZeroDigit) {
+							resDigits[intCount] ^= bitNumber;
+						} else if (intCount < firstNonZeroDigit) {
+							resDigits[intCount] = -bitNumber;
+							for (i = intCount + 1; i < firstNonZeroDigit; i++) {
+								resDigits[i] = -1;
 							}
-							resDigits[i]++;
+							resDigits[i] = resDigits[i]--;
+						} else {
+							i = intCount;
+							resDigits[i] = -((-resDigits[intCount]) ^ bitNumber);
+							if (resDigits[i] == 0) {
+								for (i++; resDigits[i] == -1; i++) {
+									resDigits[i] = 0;
+								}
+								resDigits[i]++;
+							}
 						}
 					}
+				} else {
+					resDigits[intCount] ^= bitNumber;
 				}
-			} else {
-				resDigits[intCount] ^= bitNumber;
-			}
 
-			var result = new BigInteger(resSign, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
+				var result = new BigInteger(resSign, resLength, resDigits.Slice(0, resLength));
+				result.CutOffLeadingZeroes();
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 	}
 }

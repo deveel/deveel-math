@@ -89,7 +89,7 @@ namespace Deveel.Math {
 
 			try {
 				MultArraysPap(aDigits, aLen, bDigits, bLen, resDigits);
-				BigInteger result = new BigInteger(resSign, resLength, resDigits.ToArray());
+				BigInteger result = new BigInteger(resSign, resLength, resDigits.Slice(0, resLength));
 				result.CutOffLeadingZeroes();
 				return result;
 			} finally {
@@ -173,7 +173,7 @@ namespace Deveel.Math {
 
 			try {
 				resDigits[aNumberLength] = MultiplyByInt(resDigits, aDigits, aNumberLength, factor);
-				BigInteger result = new BigInteger(resSign, resLength, resDigits.ToArray());
+				BigInteger result = new BigInteger(resSign, resLength, resDigits.Slice(0, resLength));
 				result.CutOffLeadingZeroes();
 				return result;
 			} finally {
@@ -202,7 +202,7 @@ namespace Deveel.Math {
 
 					try {
 						Square(acc.Digits, acc.numberLength, squareDigits);
-						acc = new BigInteger(1, newLen, squareDigits.ToArray());
+						acc = new BigInteger(1, newLen, squareDigits);
 					} finally {
 						if (resArray != null)
 							ArrayPool<int>.Shared.Return(resArray);
