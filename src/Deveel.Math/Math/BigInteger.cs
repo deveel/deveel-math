@@ -14,6 +14,7 @@
 //    limitations under the License.
 
 using System;
+using System.Buffers;
 using System.Globalization;
 using System.IO;
 #if !NETSTANDARD2_0
@@ -118,6 +119,7 @@ namespace Deveel.Math {
 		};
 
 		static readonly BigInteger[] TwoPows;
+		private const int StackAllocMax = 256;
 
 		static BigInteger() {
 			TwoPows = new BigInteger[32];
@@ -606,9 +608,21 @@ namespace Deveel.Math {
 			}
 			int intCount = exp >> 5;
 			int bitN = exp & 31;
-			int[] resDigits = new int[intCount + 1];
-			resDigits[intCount] = 1 << bitN;
-			return new BigInteger(1, intCount + 1, resDigits);
+			int resLength = intCount + 1;
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
+
+			try {
+				resDigits.Clear();
+				resDigits[intCount] = 1 << bitN;
+				return new BigInteger(1, resLength, resDigits);
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		#region Conversions

@@ -340,22 +340,6 @@ namespace Deveel.Math {
 		}
 
 		/// <summary>
-		/// Adds the value represented by <paramref name="b"/> to the value represented by
-		/// <paramref name="a"/>. It is assumed the magnitude of <paramref name="a"/> is not
-		/// less than the magnitude of <paramref name="b"/>.
-		/// </summary>
-		/// <param name="a">The first addend array.</param>
-		/// <param name="aSize">The number of elements in <paramref name="a"/>.</param>
-		/// <param name="b">The second addend array.</param>
-		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
-		/// <returns><c>a + b</c> as a new array.</returns>
-		private static int[] add(ReadOnlySpan<int> a, int aSize, ReadOnlySpan<int> b, int bSize) {
-			int[] res = new int[aSize + 1];
-			add(res.AsSpan(), a, aSize, b, bSize);
-			return res;
-		}
-
-		/// <summary>
 		/// Performs <c>op1 += op2</c>. <paramref name="op1"/> must have enough place to store
 		/// the result (i.e. <c>op1.bitLength() &gt;= op2.bitLength()</c>). Both
 		/// should be positive (i.e. <c>op1 &gt;= op2</c>).
@@ -451,22 +435,6 @@ namespace Deveel.Math {
 				}
 			}
 
-		}
-
-		/// <summary>
-		/// Subtracts the value represented by <paramref name="b"/> from the value represented
-		/// by <paramref name="a"/>. It is assumed the magnitude of <paramref name="a"/> is not
-		/// less than the magnitude of <paramref name="b"/>.
-		/// </summary>
-		/// <param name="a">The minuend array.</param>
-		/// <param name="aSize">The number of elements in <paramref name="a"/>.</param>
-		/// <param name="b">The subtrahend array.</param>
-		/// <param name="bSize">The number of elements in <paramref name="b"/>.</param>
-		/// <returns><c>a - b</c> as a new array.</returns>
-		private static int[] subtract(ReadOnlySpan<int> a, int aSize, ReadOnlySpan<int> b, int bSize) {
-			int[] res = new int[aSize];
-			subtract(res.AsSpan(), a, aSize, b, bSize);
-			return res;
 		}
 
 		/// <summary>

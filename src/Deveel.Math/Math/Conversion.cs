@@ -14,6 +14,7 @@
 //    limitations under the License.
 
 using System;
+using System.Buffers;
 using System.Text;
 
 namespace Deveel.Math {
@@ -22,6 +23,7 @@ namespace Deveel.Math {
 	/// integer represented in a <see cref="string"/>.
 	/// </summary>
 	static class Conversion {
+		private const int StackAllocMax = 256;
 		/// <summary>
 		/// Holds the maximal exponent for each radix, so that radix<sup>digitFitInInt[radix]</sup>
 		/// fits in an <c>int</c> (32 bits).
@@ -82,34 +84,43 @@ namespace Deveel.Math {
 			int resLengthInChars = (int)(BigMath.Abs(val).BitLength / bitsForRadixDigit + ((sign < 0) ? 1
 					: 0)) + 1;
 
-			char[] result = new char[resLengthInChars];
+		char[] result = new char[resLengthInChars];
 			int currentChar = resLengthInChars;
 			int resDigit;
 			if (radix != 16) {
-				int[] temp = new int[numberLength];
-				Array.Copy(digits, 0, temp, 0, numberLength);
-				int tempLen = numberLength;
-				int charsPerInt = digitFitInInt[radix];
-				int i;
-				int bigRadix = bigRadices[radix - 2];
-				while (true) {
-					resDigit = Division.DivideArrayByInt(temp, temp, tempLen, bigRadix);
-					int previous = currentChar;
-					do {
-                        result[--currentChar] = CharHelper.forDigit(
-								resDigit % radix, radix);
-					} while (((resDigit /= radix) != 0) && (currentChar != 0));
-					int delta = charsPerInt - previous + currentChar;
-					for (i = 0; i < delta && currentChar > 0; i++) {
-						result[--currentChar] = '0';
+				int[]? tempArray = null;
+				Span<int> temp = numberLength <= StackAllocMax
+					? stackalloc int[numberLength]
+					: (tempArray = ArrayPool<int>.Shared.Rent(numberLength)).AsSpan(0, numberLength);
+
+				try {
+					new Span<int>(digits, 0, numberLength).CopyTo(temp);
+					int tempLen = numberLength;
+					int charsPerInt = digitFitInInt[radix];
+					int i;
+					int bigRadix = bigRadices[radix - 2];
+					while (true) {
+						resDigit = Division.DivideArrayByInt(temp, temp, tempLen, bigRadix);
+						int previous = currentChar;
+						do {
+							result[--currentChar] = CharHelper.forDigit(
+									resDigit % radix, radix);
+						} while (((resDigit /= radix) != 0) && (currentChar != 0));
+						int delta = charsPerInt - previous + currentChar;
+						for (i = 0; i < delta && currentChar > 0; i++) {
+							result[--currentChar] = '0';
+						}
+						for (i = tempLen - 1; (i > 0) && (temp[i] == 0); i--) {
+							;
+						}
+						tempLen = i + 1;
+						if ((tempLen == 1) && (temp[0] == 0)) {
+							break;
+						}
 					}
-					for (i = tempLen - 1; (i > 0) && (temp[i] == 0); i--) {
-						;
-					}
-					tempLen = i + 1;
-					if ((tempLen == 1) && (temp[0] == 0)) {
-						break;
-					}
+				} finally {
+					if (tempArray != null)
+						ArrayPool<int>.Shared.Return(tempArray);
 				}
 			} else {
 				for (int i = 0; i < numberLength; i++) {
@@ -199,38 +210,47 @@ namespace Deveel.Math {
 					} while (v != 0);
 				}
 			} else {
-				int[] temp = new int[numberLength];
-				int tempLen = numberLength;
-				Array.Copy(digits, 0, temp, 0, tempLen);
-				while (true) {
-					long result11 = 0;
-					for (int i1 = tempLen - 1; i1 >= 0; i1--) {
-						long temp1 = (result11 << 32)
-								+ (temp[i1] & 0xFFFFFFFFL);
-						long res = DivideLongByBillion(temp1);
-						temp[i1] = (int)res;
-						result11 = (int)(res >> 32);
-					}
-					int resDigit = (int)result11;
-					int previous = currentChar;
-					do {
-						result[--currentChar] = (char)(0x0030 + (resDigit % 10));
-					} while (((resDigit /= 10) != 0) && (currentChar != 0));
-					int delta = 9 - previous + currentChar;
-					for (int i = 0; (i < delta) && (currentChar > 0); i++) {
-						result[--currentChar] = '0';
-					}
-					int j = tempLen - 1;
-					for (; temp[j] == 0; j--) {
-						if (j == 0) {
-							goto BIG_LOOP;
+				int[]? tempArray = null;
+				Span<int> temp = numberLength <= StackAllocMax
+					? stackalloc int[numberLength]
+					: (tempArray = ArrayPool<int>.Shared.Rent(numberLength)).AsSpan(0, numberLength);
+
+				try {
+					int tempLen = numberLength;
+					new Span<int>(digits, 0, numberLength).CopyTo(temp);
+					while (true) {
+						long result11 = 0;
+						for (int i1 = tempLen - 1; i1 >= 0; i1--) {
+							long temp1 = (result11 << 32)
+									+ (temp[i1] & 0xFFFFFFFFL);
+							long res = DivideLongByBillion(temp1);
+							temp[i1] = (int)res;
+							result11 = (int)(res >> 32);
 						}
+						int resDigit = (int)result11;
+						int previous = currentChar;
+						do {
+							result[--currentChar] = (char)(0x0030 + (resDigit % 10));
+						} while (((resDigit /= 10) != 0) && (currentChar != 0));
+						int delta = 9 - previous + currentChar;
+						for (int i = 0; (i < delta) && (currentChar > 0); i++) {
+							result[--currentChar] = '0';
+						}
+						int j = tempLen - 1;
+						for (; temp[j] == 0; j--) {
+							if (j == 0) {
+								goto BIG_LOOP;
+							}
+						}
+						tempLen = j + 1;
 					}
-					tempLen = j + 1;
-				}
-			BIG_LOOP:
-				while (result[currentChar] == '0') {
-					currentChar++;
+				BIG_LOOP:
+					while (result[currentChar] == '0') {
+						currentChar++;
+					}
+				} finally {
+					if (tempArray != null)
+						ArrayPool<int>.Shared.Return(tempArray);
 				}
 			}
 			bool negNumber = (sign < 0);

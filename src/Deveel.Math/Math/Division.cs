@@ -42,77 +42,92 @@ namespace Deveel.Math {
 		/// <param name="bLength">The divisor's length.</param>
 		/// <returns>The remainder array.</returns>
 		public static int[] Divide(Span<int> quot, int quotLength, ReadOnlySpan<int> a, int aLength, ReadOnlySpan<int> b, int bLength) {
-			int[] normA = new int[aLength + 1];
-			int[] normB = new int[bLength + 1];
-			int normBLength = bLength;
-			int divisorShift = Utils.NumberOfLeadingZeros(b[bLength - 1]);
-			if (divisorShift != 0) {
-				BitLevel.ShiftLeft(normB.AsSpan(), b, 0, divisorShift);
-				BitLevel.ShiftLeft(normA.AsSpan(), a, 0, divisorShift);
-			} else {
-				a.Slice(0, aLength).CopyTo(normA.AsSpan());
-				b.Slice(0, bLength).CopyTo(normB.AsSpan());
-			}
-			int firstDivisorDigit = normB[normBLength - 1];
-			int i = quotLength - 1;
-			int j = aLength;
+			int totalLen = aLength + bLength + 2;
+			int[]? poolArray = totalLen > StackAllocMax ? ArrayPool<int>.Shared.Rent(totalLen) : null;
+			Span<int> workBuffer = totalLen <= StackAllocMax
+				? stackalloc int[totalLen]
+				: poolArray.AsSpan(0, totalLen);
 
-			while (i >= 0) {
-				int guessDigit = 0;
-				if (normA[j] == firstDivisorDigit) {
-					guessDigit = -1;
+			try {
+				Span<int> normA = workBuffer.Slice(0, aLength + 1);
+				Span<int> normB = workBuffer.Slice(aLength + 1, bLength + 1);
+				int normBLength = bLength;
+				int divisorShift = Utils.NumberOfLeadingZeros(b[bLength - 1]);
+				if (divisorShift != 0) {
+					BitLevel.ShiftLeft(normB, b, 0, divisorShift);
+					BitLevel.ShiftLeft(normA, a, 0, divisorShift);
 				} else {
-					long product = (((normA[j] & 0xffffffffL) << 32) + (normA[j - 1] & 0xffffffffL));
-					long res = Division.DivideLongByInt(product, firstDivisorDigit);
-					guessDigit = (int) res;
-					int rem = (int) (res >> 32);
-					if (guessDigit != 0) {
-						long leftHand = 0;
-						long rightHand = 0;
-						bool rOverflowed = false;
-						guessDigit++;
-						do {
-							guessDigit--;
-							if (rOverflowed)
-								break;
-							leftHand = (guessDigit & 0xffffffffL)
-							           *(normB[normBLength - 2] & 0xffffffffL);
-							rightHand = ((long) rem << 32)
-							            + (normA[j - 2] & 0xffffffffL);
-							long longR = (rem & 0xffffffffL)
-							             + (firstDivisorDigit & 0xffffffffL);
-							if (Utils.NumberOfLeadingZeros((int) Utils.URShift(longR, 32)) < 32)
-								rOverflowed = true;
-							else
-								rem = (int) longR;
-						} while ((leftHand ^ Int64.MinValue) > (rightHand ^ Int64.MinValue));
-
-					}
+					a.Slice(0, aLength).CopyTo(normA);
+					b.Slice(0, bLength).CopyTo(normB);
 				}
-				if (guessDigit != 0) {
-					int borrow = Division.MultiplyAndSubtract(normA, j - normBLength, normB, normBLength, guessDigit);
-					if (borrow != 0) {
-						guessDigit--;
-						long carry = 0;
-						for (int k = 0; k < normBLength; k++) {
-							carry += (normA[j - normBLength + k] & 0xffffffffL)
-							         + (normB[k] & 0xffffffffL);
-							normA[j - normBLength + k] = (int) carry;
-							carry = Utils.URShift(carry, 32);
+				int firstDivisorDigit = normB[normBLength - 1];
+				int i = quotLength - 1;
+				int j = aLength;
+
+				while (i >= 0) {
+					int guessDigit = 0;
+					if (normA[j] == firstDivisorDigit) {
+						guessDigit = -1;
+					} else {
+						long product = (((normA[j] & 0xffffffffL) << 32) + (normA[j - 1] & 0xffffffffL));
+						long res = Division.DivideLongByInt(product, firstDivisorDigit);
+						guessDigit = (int) res;
+						int rem = (int) (res >> 32);
+						if (guessDigit != 0) {
+							long leftHand = 0;
+							long rightHand = 0;
+							bool rOverflowed = false;
+							guessDigit++;
+							do {
+								guessDigit--;
+								if (rOverflowed)
+									break;
+								leftHand = (guessDigit & 0xffffffffL)
+								           *(normB[normBLength - 2] & 0xffffffffL);
+								rightHand = ((long) rem << 32)
+								            + (normA[j - 2] & 0xffffffffL);
+								long longR = (rem & 0xffffffffL)
+								             + (firstDivisorDigit & 0xffffffffL);
+								if (Utils.NumberOfLeadingZeros((int) Utils.URShift(longR, 32)) < 32)
+									rOverflowed = true;
+								else
+									rem = (int) longR;
+							} while ((leftHand ^ Int64.MinValue) > (rightHand ^ Int64.MinValue));
+
 						}
 					}
+					if (guessDigit != 0) {
+						int borrow = Division.MultiplyAndSubtract(normA, j - normBLength, normB, normBLength, guessDigit);
+						if (borrow != 0) {
+							guessDigit--;
+							long carry = 0;
+							for (int k = 0; k < normBLength; k++) {
+								carry += (normA[j - normBLength + k] & 0xffffffffL)
+								         + (normB[k] & 0xffffffffL);
+								normA[j - normBLength + k] = (int) carry;
+								carry = Utils.URShift(carry, 32);
+							}
+						}
+					}
+					if (quot != null)
+						quot[i] = guessDigit;
+					j--;
+					i--;
 				}
-				if (quot != null)
-					quot[i] = guessDigit;
-				j--;
-				i--;
+
+				int[] result = new int[bLength];
+				if (divisorShift != 0) {
+					Span<int> tempRem = stackalloc int[bLength];
+					BitLevel.ShiftRight(tempRem, bLength, normA, 0, divisorShift);
+					tempRem.Slice(0, bLength).CopyTo(result);
+				} else {
+					normA.Slice(0, bLength).CopyTo(result);
+				}
+				return result;
+			} finally {
+				if (poolArray != null)
+					ArrayPool<int>.Shared.Return(poolArray);
 			}
-			if (divisorShift != 0) {
-				BitLevel.ShiftRight(normB.AsSpan(), normBLength, normA.AsSpan(), 0, divisorShift);
-				return normB;
-			}
-			normA.AsSpan(0, bLength).CopyTo(normB.AsSpan());
-			return normA;
 		}
 
 		/// <summary>
@@ -262,22 +277,28 @@ namespace Deveel.Math {
 			}
 			int quotientLength = valLen;
 			int quotientSign = ((valSign == divisorSign) ? 1 : -1);
-			int[] quotientDigits = new int[quotientLength];
-			int[] remainderDigits;
-			remainderDigits = new int[] {
-				Division.DivideArrayByInt(
+			int[]? quotientArray = null;
+			Span<int> quotientDigits = quotientLength <= StackAllocMax
+				? stackalloc int[quotientLength]
+				: (quotientArray = ArrayPool<int>.Shared.Rent(quotientLength));
+			quotientDigits = quotientDigits.Slice(0, quotientLength);
+
+			try {
+				int remainder = Division.DivideArrayByInt(
 					quotientDigits,
 					valDigits,
 					valLen,
-					divisor)
-			};
-			BigInteger result0 = new BigInteger(quotientSign,
-				quotientLength,
-				quotientDigits);
-			BigInteger result1 = new BigInteger(valSign, 1, remainderDigits);
-			result0.CutOffLeadingZeroes();
-			result1.CutOffLeadingZeroes();
-			return new BigInteger[] {result0, result1};
+					divisor);
+				BigInteger result0 = new BigInteger(quotientSign,
+					quotientLength,
+					quotientDigits);
+				BigInteger result1 = BigInteger.FromInt64(valSign * (long)remainder);
+				result0.CutOffLeadingZeroes();
+				return new BigInteger[] {result0, result1};
+			} finally {
+				if (quotientArray != null)
+					ArrayPool<int>.Shared.Return(quotientArray);
+			}
 		}
 
 		/// <summary>

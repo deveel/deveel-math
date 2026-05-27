@@ -148,11 +148,12 @@ namespace Deveel.Math {
 			}
 			int i;
 			int resLength = source.numberLength - intCount;
+			int allocLength = resLength + 1;
 			int[]? resArray = null;
-			Span<int> resDigits = resLength <= StackAllocMax
-				? stackalloc int[resLength]
-				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
-			resDigits = resDigits.Slice(0, resLength);
+			Span<int> resDigits = allocLength <= StackAllocMax
+				? stackalloc int[allocLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(allocLength));
+			resDigits = resDigits.Slice(0, allocLength);
 
 			try {
 				ShiftRight(resDigits, resLength, source.Digits.AsSpan(), intCount, count);
@@ -165,11 +166,8 @@ namespace Deveel.Math {
 							resDigits[i] = 0;
 						}
 						if (i == resLength) {
+							resDigits[i] = 0;
 							resLength++;
-							// Need to expand since we're using a span
-							int[] newArray = new int[resLength];
-							resDigits.CopyTo(newArray);
-							resDigits = newArray;
 						}
 						resDigits[i]++;
 					}
