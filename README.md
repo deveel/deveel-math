@@ -1,6 +1,7 @@
- [![NuGet](https://img.shields.io/nuget/v/dmath.svg?label=dmath&logo=nuget)](https://www.nuget.org/packages/dmath/) ![NuGet Downloads](https://img.shields.io/nuget/dt/dmath?logo=nuget&label=downloads) ![Coverage](https://img.shields.io/codecov/c/github/deveel/deveel-math?logo=codecov)
-
-
+[![NuGet](https://img.shields.io/nuget/v/dmath.svg?label=dmath&logo=nuget)](https://www.nuget.org/packages/dmath/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/dmath?logo=nuget&label=downloads)](https://www.nuget.org/packages/dmath/)
+[![Coverage](https://img.shields.io/codecov/c/github/deveel/deveel-math?logo=codecov)](https://codecov.io/gh/deveel/deveel-math)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/tsutomi)
 
 # Deveel Math
 
@@ -21,6 +22,58 @@ This is a little effort to address this gap, providing the community with a libr
 It doesn't have any ambition to replace the `System.Numerics` namespace, but it can be used as a complement to it, especially when dealing with big decimals.
 
 Given the limited knowledge of the author in the field of numerical analysis, the library is subject to reviews and any contribution to improve the quality of the code is welcome.
+
+## Quick Examples
+
+### Financial Calculation with BigDecimal
+
+```csharp
+using Deveel.Math;
+
+// Precise currency calculation with controlled rounding
+var price = BigDecimal.Parse("19.99");
+var quantity = new BigDecimal(3);
+var taxRate = BigDecimal.Parse("0.0875"); // 8.75% tax
+
+var subtotal = price * quantity;
+var tax = (subtotal * taxRate).ScaleTo(2, RoundingMode.HalfUp); // Round tax to 2 decimals
+var total = subtotal + tax;
+
+Console.WriteLine($"Subtotal: {subtotal.ToString("P")}");  // 59.97
+Console.WriteLine($"Tax: {tax.ToString("P")}");            // 5.25
+Console.WriteLine($"Total: {total.ToString("P")}");        // 65.22
+```
+
+### Large Number Arithmetic with BigInteger
+
+```csharp
+using Deveel.Math;
+
+// Working with numbers beyond long.MaxValue
+var a = BigInteger.Parse("123456789012345678901234567890");
+var b = BigInteger.Parse("987654321098765432109876543210");
+
+var product = a * b;
+var gcd = BigMath.Gcd(a, b);
+var isPrime = BigInteger.IsProbablePrime(a, 100);
+
+Console.WriteLine($"Product: {product}");
+Console.WriteLine($"GCD: {gcd}");
+Console.WriteLine($"Is 'a' probably prime? {isPrime}");
+```
+
+## Documentation
+
+For detailed documentation, see the [docs](docs/index.md) folder:
+
+| Topic | Description |
+|-------|-------------|
+| [Getting Started](docs/index.md) | Overview, installation, and quick start |
+| [BigDecimal](docs/bigdecimal.md) | Creation, parsing, conversion, operators, arithmetic, scale & precision, formatting |
+| [BigInteger](docs/biginteger.md) | Creation, parsing, conversion, operators, arithmetic, modular math, bit operations, primality |
+| [MathContext & RoundingMode](docs/math-context.md) | Precision control, rounding strategies, predefined contexts |
+| [Advanced Math Operations](docs/advanced-math.md) | BigMath static class, advanced division, powers, random generation |
+| [Interoperability](docs/interop.md) | BigInteger vs System.Numerics, type conversions, primitive conversions, parsing |
 
 ## How to Install It
 
@@ -44,6 +97,36 @@ or rather using the `dotnet` CLI:
 ```
 $ dotnet add package dmath
 ```
+
+## BigInteger vs System.Numerics
+
+Deveel Math includes its own `BigInteger` implementation alongside `BigDecimal`. While .NET provides `System.Numerics.BigInteger`, Deveel.Math's `BigInteger` exists primarily to support `BigDecimal` (which .NET does not provide) and to maintain Java-compatible behavior.
+
+**Key differences:**
+
+- **Internal representation**: Deveel.Math uses sign + magnitude; `System.Numerics` uses two's complement
+- **BigDecimal integration**: Deveel.Math.BigInteger is the native unscaled value type for BigDecimal
+- **Java compatibility**: Results match Java's `java.math` package semantics
+- **Additional features**: Primality testing (`IsProbablePrime`, `NextProbablePrime`), modular inverse (`ModInverse`), radix-based parsing (base 2-36)
+
+**When to use which:**
+
+- Use **Deveel.Math.BigInteger** when working with `BigDecimal`, when you need Java-compatible results, or when using Deveel ecosystem libraries
+- Use **System.Numerics.BigInteger** when your codebase already uses it or when interoperating with third-party libraries that expect it
+
+**Converting between them is straightforward:**
+
+```csharp
+// Deveel.Math -> System.Numerics (implicit)
+System.Numerics.BigInteger sys = deveelMathBI;
+
+// System.Numerics -> Deveel.Math (explicit)
+var deveel = (BigInteger)sys;
+// or
+var deveel = BigInteger.FromSystemBigInteger(sys);
+```
+
+For a complete guide, see the [Interoperability documentation](docs/interop.md).
 
 ## Project Structure
 
@@ -129,6 +212,12 @@ The project uses GitHub Actions for continuous integration:
 If you want to contribute to the development of this library, you can fork the repository and submit a pull request with your changes.
 
 Please make sure to follow the coding style and conventions used in the project, and to provide a clear description of the changes you are proposing.
+
+## Contributors
+
+Thanks to everyone who has contributed to Deveel Math:
+
+[![Contributors](https://contrib.rocks/image?repo=deveel/deveel-math)](https://github.com/deveel/deveel-math/graphs/contributors)
 
 ## License
 
