@@ -10,9 +10,9 @@ namespace Deveel.Math.Benchmarks.Benchmarks;
 [MemoryDiagnoser]
 public class BigIntegerModPowBench
 {
-    private DMathBigInt _dBase = null!;
-    private DMathBigInt _dExp = null!;
-    private DMathBigInt _dMod = null!;
+    private DMathBigInt _dBase;
+    private DMathBigInt _dExp;
+    private DMathBigInt _dMod;
     private SysBigInt _sBase;
     private SysBigInt _sExp;
     private SysBigInt _sMod;

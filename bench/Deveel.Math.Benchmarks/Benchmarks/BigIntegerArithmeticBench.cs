@@ -9,8 +9,8 @@ namespace Deveel.Math.Benchmarks.Benchmarks;
 [MemoryDiagnoser]
 public class BigIntegerArithmeticBench
 {
-    private DMathBigInt _dA = null!;
-    private DMathBigInt _dB = null!;
+    private DMathBigInt _dA;
+    private DMathBigInt _dB;
     private SysBigInt _sA;
     private SysBigInt _sB;
 
