@@ -121,7 +121,7 @@ namespace Deveel.Math {
 					divisor.digits, divisorLen);
 			}
 			BigInteger result = new BigInteger(resSign, resLength, resDigits);
-			result.CutOffLeadingZeroes();
+			return result.WithCutOffLeadingZeroes();
 
 			if (resArray != null)
 				ArrayPool<int>.Shared.Return(resArray);
@@ -158,7 +158,7 @@ namespace Deveel.Math {
 				int[] resDigits = Division.Divide(null, qLen, dividend.digits, thisLen,
 					divisor.digits, divisorLen);
 				BigInteger result = new BigInteger(dividend.Sign, resLength, resDigits);
-				result.CutOffLeadingZeroes();
+				return result.WithCutOffLeadingZeroes();
 				return result;
 			}
 		}
@@ -220,8 +220,8 @@ namespace Deveel.Math {
 
 				var quotient = new BigInteger(quotientSign, quotientLength, quotientDigits);
 				remainder = new BigInteger(thisSign, remainderLength, remainderDigits);
-				quotient.CutOffLeadingZeroes();
-				remainder.CutOffLeadingZeroes();
+				quotient = quotient.WithCutOffLeadingZeroes();
+				remainder = remainder.WithCutOffLeadingZeroes();
 
 				return quotient;
 			} finally {
@@ -399,7 +399,7 @@ namespace Deveel.Math {
 				return BigInteger.FromInt64(Division.GcdBinary(val1.ToInt64(), val2.ToInt64()));
 			}
 
-			return Division.GcdBinary(val1.Copy(), val2.Copy());
+			return Division.GcdBinary(val1, val2);
 
 		}
 	}

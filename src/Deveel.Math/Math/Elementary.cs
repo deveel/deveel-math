@@ -109,7 +109,7 @@ namespace Deveel.Math {
 					add(resDigits, op1.Digits.AsSpan(0, op1Len), op1Len,
 					    op2.Digits.AsSpan(0, op2Len), op2Len);
 					BigInteger result = new BigInteger(resSign, resLength, resDigits.Slice(0, resLength));
-					result.CutOffLeadingZeroes();
+					return result.WithCutOffLeadingZeroes();
 					return result;
 				} finally {
 					if (resArray != null)
@@ -135,7 +135,7 @@ namespace Deveel.Math {
 					try {
 						subtract(resDigits, op1.Digits.AsSpan(0, op1Len), op1Len, op2.Digits.AsSpan(0, op2Len), op2Len);
 						BigInteger result = new BigInteger(resSign, resLength, resDigits.Slice(0, resLength));
-						result.CutOffLeadingZeroes();
+						return result.WithCutOffLeadingZeroes();
 						return result;
 					} finally {
 						if (resArray != null)
@@ -153,7 +153,7 @@ namespace Deveel.Math {
 					try {
 						subtract(resDigits, op2.Digits.AsSpan(0, op2Len), op2Len, op1.Digits.AsSpan(0, op1Len), op1Len);
 						BigInteger result = new BigInteger(resSign, resLength, resDigits.Slice(0, resLength));
-						result.CutOffLeadingZeroes();
+						return result.WithCutOffLeadingZeroes();
 						return result;
 					} finally {
 						if (resArray != null)
@@ -265,7 +265,7 @@ namespace Deveel.Math {
 						    op1.Digits.AsSpan(0, op1Len), op1Len);
 					}
 					BigInteger res = new BigInteger(resSign, resLength, resDigits.Slice(0, resLength));
-					res.CutOffLeadingZeroes();
+					return res.WithCutOffLeadingZeroes();
 					return res;
 				} finally {
 					if (resArray != null)
@@ -287,7 +287,7 @@ namespace Deveel.Math {
 					try {
 						subtract(resDigits, op1.Digits.AsSpan(0, op1Len), op1Len, op2.Digits.AsSpan(0, op2Len), op2Len);
 						BigInteger res = new BigInteger(resSign, resLength, resDigits.Slice(0, resLength));
-						res.CutOffLeadingZeroes();
+						return res.WithCutOffLeadingZeroes();
 						return res;
 					} finally {
 						if (resArray != null)
@@ -304,7 +304,7 @@ namespace Deveel.Math {
 					try {
 						add(resDigits, op1.Digits.AsSpan(0, op1Len), op1Len, op2.Digits.AsSpan(0, op2Len), op2Len);
 						BigInteger res = new BigInteger(resSign, resLength, resDigits.Slice(0, resLength));
-						res.CutOffLeadingZeroes();
+						return res.WithCutOffLeadingZeroes();
 						return res;
 					} finally {
 						if (resArray != null)
@@ -344,14 +344,26 @@ namespace Deveel.Math {
 		/// the result (i.e. <c>op1.bitLength() &gt;= op2.bitLength()</c>). Both
 		/// should be positive (i.e. <c>op1 &gt;= op2</c>).
 		/// </summary>
-		/// <param name="op1">The input minuend and the output result.</param>
+		/// <param name="op1">The input minuend.</param>
 		/// <param name="op2">The addend.</param>
-		internal static void inplaceAdd(BigInteger op1, BigInteger op2) {
-			add(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.Digits.AsSpan(0, op2.numberLength),
-					op2.numberLength);
-			op1.numberLength = System.Math.Min(System.Math.Max(op1.numberLength, op2.numberLength) + 1, op1.Digits.Length);
-			op1.CutOffLeadingZeroes();
-			op1.UnCache();
+		/// <returns>The result of op1 + op2.</returns>
+		internal static BigInteger inplaceAdd(BigInteger op1, BigInteger op2) {
+			int newLength = System.Math.Max(op1.numberLength, op2.numberLength) + 1;
+			int[]? resArray = null;
+			Span<int> resDigits = newLength <= StackAllocMax
+				? stackalloc int[newLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(newLength));
+			resDigits = resDigits.Slice(0, newLength);
+
+			try {
+				op1.digits.AsSpan(0, op1.numberLength).CopyTo(resDigits);
+				add(resDigits, op1.digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.digits.AsSpan(0, op2.numberLength), op2.numberLength);
+				var result = new BigInteger(op1.sign, newLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -377,13 +389,28 @@ namespace Deveel.Math {
 		/// </summary>
 		/// <param name="op1">The big integer to modify.</param>
 		/// <param name="addend">The integer to add.</param>
-		internal static void inplaceAdd(BigInteger op1, int addend) {
-			int carry = inplaceAdd(op1.Digits, op1.numberLength, addend);
-			if (carry == 1) {
-				op1.Digits[op1.numberLength] = 1;
-				op1.numberLength++;
+		/// <returns>The result of op1 + addend.</returns>
+		internal static BigInteger inplaceAdd(BigInteger op1, int addend) {
+			int newLength = op1.numberLength + 1;
+			int[]? resArray = null;
+			Span<int> resDigits = newLength <= StackAllocMax
+				? stackalloc int[newLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(newLength));
+			resDigits = resDigits.Slice(0, newLength);
+
+			try {
+				op1.digits.AsSpan(0, op1.numberLength).CopyTo(resDigits);
+				int carry = inplaceAdd(resDigits, op1.numberLength, addend);
+				int nl = op1.numberLength + (carry == 1 ? 1 : 0);
+				if (carry == 1) {
+					resDigits[op1.numberLength] = 1;
+				}
+				var result = new BigInteger(op1.sign, nl, resDigits);
+				return result.WithCutOffLeadingZeroes();
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
 			}
-			op1.UnCache();
 		}
 
 		/// <summary>
@@ -391,13 +418,25 @@ namespace Deveel.Math {
 		/// the result (i.e. <c>op1.bitLength() &gt;= op2.bitLength()</c>). Both
 		/// should be positive (what implies that <c>op1 &gt;= op2</c>).
 		/// </summary>
-		/// <param name="op1">The input minuend and the output result.</param>
+		/// <param name="op1">The input minuend.</param>
 		/// <param name="op2">The subtrahend.</param>
-		internal static void inplaceSubtract(BigInteger op1, BigInteger op2) {
-			subtract(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.Digits.AsSpan(0, op2.numberLength),
-					op2.numberLength);
-			op1.CutOffLeadingZeroes();
-			op1.UnCache();
+		/// <returns>The result of op1 - op2.</returns>
+		internal static BigInteger inplaceSubtract(BigInteger op1, BigInteger op2) {
+			int[]? resArray = null;
+			Span<int> resDigits = op1.numberLength <= StackAllocMax
+				? stackalloc int[op1.numberLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(op1.numberLength));
+			resDigits = resDigits.Slice(0, op1.numberLength);
+
+			try {
+				op1.digits.AsSpan(0, op1.numberLength).CopyTo(resDigits);
+				subtract(resDigits, op1.digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.digits.AsSpan(0, op2.numberLength), op2.numberLength);
+				var result = new BigInteger(op1.sign, op1.numberLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -441,32 +480,56 @@ namespace Deveel.Math {
 		/// Same as <see cref="inplaceSubtract(BigInteger, BigInteger)"/> but without the
 		/// restriction of non-positive values.
 		/// </summary>
-		/// <param name="op1">Should have enough space to save the result.</param>
+		/// <param name="op1">The first operand.</param>
 		/// <param name="op2">The number to subtract.</param>
-		internal static void completeInPlaceSubtract(BigInteger op1, BigInteger op2) {
+		/// <returns>The result of op1 - op2.</returns>
+		internal static BigInteger completeInPlaceSubtract(BigInteger op1, BigInteger op2) {
 			int resultSign = op1.CompareTo(op2);
-			if (op1.Sign == 0) {
-				Array.Copy(op2.Digits, 0, op1.Digits, 0, op2.numberLength);
-				op1.Sign = -op2.Sign;
-			} else if (op1.Sign != op2.Sign) {
-				add(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.Digits.AsSpan(0, op2.numberLength),
-					op2.numberLength);
-				op1.Sign = resultSign;
+			if (op1.sign == 0) {
+				var result = new BigInteger(-op2.sign, op2.numberLength, op2.digits);
+				return result.WithCutOffLeadingZeroes();
+			} else if (op1.sign != op2.sign) {
+				int newLength = System.Math.Max(op1.numberLength, op2.numberLength) + 1;
+				int[]? resArray = null;
+				Span<int> resDigits = newLength <= StackAllocMax
+					? stackalloc int[newLength]
+					: (resArray = ArrayPool<int>.Shared.Rent(newLength));
+				resDigits = resDigits.Slice(0, newLength);
+
+				try {
+					op1.digits.AsSpan(0, op1.numberLength).CopyTo(resDigits);
+					add(resDigits, op1.digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.digits.AsSpan(0, op2.numberLength), op2.numberLength);
+					var result = new BigInteger(resultSign, newLength, resDigits);
+					return result.WithCutOffLeadingZeroes();
+				} finally {
+					if (resArray != null)
+						ArrayPool<int>.Shared.Return(resArray);
+				}
 			} else {
-				int sign = unsignedArraysCompare(op1.Digits,
-						op2.Digits, op1.numberLength, op2.numberLength);
-				if (sign > 0) {
-					subtract(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.Digits.AsSpan(0, op2.numberLength),
-							op2.numberLength);
-				} else {
-					inverseSubtract(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength,
-							op2.Digits.AsSpan(0, op2.numberLength), op2.numberLength);
-					op1.Sign = -op1.Sign;
+				int sign = unsignedArraysCompare(op1.digits, op2.digits, op1.numberLength, op2.numberLength);
+				int newLength = System.Math.Max(op1.numberLength, op2.numberLength) + 1;
+				int[]? resArray = null;
+				Span<int> resDigits = newLength <= StackAllocMax
+					? stackalloc int[newLength]
+					: (resArray = ArrayPool<int>.Shared.Rent(newLength));
+				resDigits = resDigits.Slice(0, newLength);
+
+				try {
+					op1.digits.AsSpan(0, op1.numberLength).CopyTo(resDigits);
+					int finalSign = op1.sign;
+					if (sign > 0) {
+						subtract(resDigits, op1.digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.digits.AsSpan(0, op2.numberLength), op2.numberLength);
+					} else {
+						inverseSubtract(resDigits, op1.digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.digits.AsSpan(0, op2.numberLength), op2.numberLength);
+						finalSign = -op1.sign;
+					}
+					var result = new BigInteger(finalSign, newLength, resDigits);
+					return result.WithCutOffLeadingZeroes();
+				} finally {
+					if (resArray != null)
+						ArrayPool<int>.Shared.Return(resArray);
 				}
 			}
-			op1.numberLength = System.Math.Max(op1.numberLength, op2.numberLength) + 1;
-			op1.CutOffLeadingZeroes();
-			op1.UnCache();
 		}
 
 		/// <summary>
@@ -475,29 +538,54 @@ namespace Deveel.Math {
 		/// </summary>
 		/// <param name="op1">Any number.</param>
 		/// <param name="op2">Any number.</param>
-		internal static void completeInPlaceAdd(BigInteger op1, BigInteger op2) {
-			if (op1.Sign == 0)
-				Array.Copy(op2.Digits, 0, op1.Digits, 0, op2.numberLength);
-			else if (op2.Sign == 0)
-				return;
-			else if (op1.Sign == op2.Sign)
-				add(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.Digits.AsSpan(0, op2.numberLength),
-						op2.numberLength);
-			else {
-				int sign = unsignedArraysCompare(op1.Digits,
-						op2.Digits, op1.numberLength, op2.numberLength);
-				if (sign > 0)
-					subtract(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.Digits.AsSpan(0, op2.numberLength),
-							op2.numberLength);
-				else {
-					inverseSubtract(op1.Digits.AsSpan(), op1.Digits.AsSpan(0, op1.numberLength), op1.numberLength,
-							op2.Digits.AsSpan(0, op2.numberLength), op2.numberLength);
-					op1.Sign = -op1.Sign;
+		/// <returns>The result of op1 + op2.</returns>
+		internal static BigInteger completeInPlaceAdd(BigInteger op1, BigInteger op2) {
+			if (op1.sign == 0) {
+				return op2;
+			} else if (op2.sign == 0) {
+				return op1;
+			} else if (op1.sign == op2.sign) {
+				int newLength = System.Math.Max(op1.numberLength, op2.numberLength) + 1;
+				int[]? resArray = null;
+				Span<int> resDigits = newLength <= StackAllocMax
+					? stackalloc int[newLength]
+					: (resArray = ArrayPool<int>.Shared.Rent(newLength));
+				resDigits = resDigits.Slice(0, newLength);
+
+				try {
+					op1.digits.AsSpan(0, op1.numberLength).CopyTo(resDigits);
+					add(resDigits, op1.digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.digits.AsSpan(0, op2.numberLength), op2.numberLength);
+					var result = new BigInteger(op1.sign, newLength, resDigits);
+					return result.WithCutOffLeadingZeroes();
+				} finally {
+					if (resArray != null)
+						ArrayPool<int>.Shared.Return(resArray);
+				}
+			} else {
+				int sign = unsignedArraysCompare(op1.digits, op2.digits, op1.numberLength, op2.numberLength);
+				int newLength = System.Math.Max(op1.numberLength, op2.numberLength) + 1;
+				int[]? resArray = null;
+				Span<int> resDigits = newLength <= StackAllocMax
+					? stackalloc int[newLength]
+					: (resArray = ArrayPool<int>.Shared.Rent(newLength));
+				resDigits = resDigits.Slice(0, newLength);
+
+				try {
+					op1.digits.AsSpan(0, op1.numberLength).CopyTo(resDigits);
+					int finalSign = op1.sign;
+					if (sign > 0) {
+						subtract(resDigits, op1.digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.digits.AsSpan(0, op2.numberLength), op2.numberLength);
+					} else {
+						inverseSubtract(resDigits, op1.digits.AsSpan(0, op1.numberLength), op1.numberLength, op2.digits.AsSpan(0, op2.numberLength), op2.numberLength);
+						finalSign = -op1.sign;
+					}
+					var result = new BigInteger(finalSign, newLength, resDigits);
+					return result.WithCutOffLeadingZeroes();
+				} finally {
+					if (resArray != null)
+						ArrayPool<int>.Shared.Return(resArray);
 				}
 			}
-			op1.numberLength = System.Math.Max(op1.numberLength, op2.numberLength) + 1;
-			op1.CutOffLeadingZeroes();
-			op1.UnCache();
 		}
 
 		/// <summary>

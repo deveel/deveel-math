@@ -156,7 +156,7 @@ namespace Deveel.Math {
 				}
 
 				BigInteger result = new BigInteger(1, resLength, resDigits);
-				result.CutOffLeadingZeroes();
+				return result.WithCutOffLeadingZeroes();
 				return result;
 			} finally {
 				if (resArray != null)
@@ -199,7 +199,7 @@ namespace Deveel.Math {
 				}
 
 				BigInteger result = new BigInteger(1, resLength, resDigits);
-				result.CutOffLeadingZeroes();
+				return result.WithCutOffLeadingZeroes();
 				return result;
 			} finally {
 				if (resArray != null)
@@ -334,7 +334,7 @@ namespace Deveel.Math {
 				}
 
 				BigInteger result = new BigInteger(1, resLength, resDigits);
-				result.CutOffLeadingZeroes();
+				return result.WithCutOffLeadingZeroes();
 				return result;
 			} finally {
 				if (resArray != null)
@@ -375,7 +375,7 @@ namespace Deveel.Math {
 				}
 
 				BigInteger result = new BigInteger(1, resLength, resDigits);
-				result.CutOffLeadingZeroes();
+				return result.WithCutOffLeadingZeroes();
 				return result;
 			} finally {
 				if (resArray != null)
@@ -512,7 +512,7 @@ namespace Deveel.Math {
 				}
 
 				BigInteger result = new BigInteger(1, resLength, resDigits);
-				result.CutOffLeadingZeroes();
+				return result.WithCutOffLeadingZeroes();
 				return result;
 			} finally {
 				if (resArray != null)
@@ -633,7 +633,7 @@ namespace Deveel.Math {
 				}
 
 				BigInteger result = new BigInteger(-1, resLength, resDigits);
-				result.CutOffLeadingZeroes();
+				return result.WithCutOffLeadingZeroes();
 				return result;
 			} finally {
 				if (resArray != null)
@@ -696,7 +696,7 @@ namespace Deveel.Math {
 				}
 
 				BigInteger result = new BigInteger(-1, resLength, resDigits);
-				result.CutOffLeadingZeroes();
+				return result.WithCutOffLeadingZeroes();
 				return result;
 			} finally {
 				if (resArray != null)
@@ -775,7 +775,7 @@ namespace Deveel.Math {
 				}
 
 				BigInteger result = new BigInteger(1, resLength, resDigits);
-				result.CutOffLeadingZeroes();
+				return result.WithCutOffLeadingZeroes();
 				return result;
 			} finally {
 				if (resArray != null)
@@ -831,7 +831,7 @@ namespace Deveel.Math {
 				}
 
 				BigInteger result = new BigInteger(1, resLength, resDigits);
-				result.CutOffLeadingZeroes();
+				return result.WithCutOffLeadingZeroes();
 				return result;
 			} finally {
 				if (resArray != null)
@@ -926,7 +926,7 @@ namespace Deveel.Math {
 				}
 
 				BigInteger result = new BigInteger(-1, resLength, resDigits.Slice(0, resLength));
-				result.CutOffLeadingZeroes();
+				return result.WithCutOffLeadingZeroes();
 				return result;
 			} finally {
 				if (resArray != null)

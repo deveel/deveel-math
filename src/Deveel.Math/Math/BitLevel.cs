@@ -70,24 +70,34 @@ namespace Deveel.Math {
 			try {
 				ShiftLeft(resDigits, source.Digits.AsSpan(), intCount, count);
 				var result = new BigInteger(source.Sign, resLength, resDigits.Slice(0, resLength));
-				result.CutOffLeadingZeroes();
-				return result;
+				return result.WithCutOffLeadingZeroes();
 			} finally {
 				if (resArray != null)
 					ArrayPool<int>.Shared.Return(resArray);
 			}
 		}
 
-		public static void InplaceShiftLeft(BigInteger val, int count) {
+		public static BigInteger InplaceShiftLeft(BigInteger val, int count) {
 			int intCount = count >> 5;
-			val.numberLength += intCount
-								+ (Utils.NumberOfLeadingZeros(val.Digits[val.numberLength - 1])
+			int newLength = val.numberLength + intCount
+								+ (Utils.NumberOfLeadingZeros(val.digits[val.numberLength - 1])
 								   - (count & 31) >= 0
 										? 0
 										: 1);
-			ShiftLeft(val.Digits.AsSpan(), val.Digits.AsSpan(), intCount, count & 31);
-			val.CutOffLeadingZeroes();
-			val.UnCache();
+			int[]? resArray = null;
+			Span<int> resDigits = newLength <= StackAllocMax
+				? stackalloc int[newLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(newLength));
+			resDigits = resDigits.Slice(0, newLength);
+
+			try {
+				ShiftLeft(resDigits, val.digits.AsSpan(0, val.numberLength), intCount, count & 31);
+				var result = new BigInteger(val.sign, newLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		public static void ShiftLeft(Span<int> result, ReadOnlySpan<int> source, int intCount, int count) {
@@ -132,8 +142,7 @@ namespace Deveel.Math {
 			try {
 				ShiftLeftOneBit(resDigits, source.Digits.AsSpan(0, srcLen), srcLen);
 				BigInteger result = new BigInteger(source.Sign, resLen, resDigits.Slice(0, resLen));
-				result.CutOffLeadingZeroes();
-				return result;
+				return result.WithCutOffLeadingZeroes();
 			} finally {
 				if (resArray != null)
 					ArrayPool<int>.Shared.Return(resArray);
@@ -173,33 +182,43 @@ namespace Deveel.Math {
 					}
 				}
 				BigInteger result = new BigInteger(source.Sign, resLength, resDigits.Slice(0, resLength));
-				result.CutOffLeadingZeroes();
-				return result;
+				return result.WithCutOffLeadingZeroes();
 			} finally {
 				if (resArray != null)
 					ArrayPool<int>.Shared.Return(resArray);
 			}
 		}
 
-		public static void InplaceShiftRight(BigInteger val, int count) {
-			int sign = val.Sign;
-			if (count == 0 || val.Sign == 0)
-				return;
+		public static BigInteger InplaceShiftRight(BigInteger val, int count) {
+			int sign = val.sign;
+			if (count == 0 || val.sign == 0)
+				return val;
 			int intCount = count >> 5;
-			val.numberLength -= intCount;
-			if (!ShiftRight(val.Digits.AsSpan(), val.numberLength, val.Digits.AsSpan(), intCount, count & 31)
-				&& sign < 0) {
-				int i;
-				for (i = 0; (i < val.numberLength) && (val.Digits[i] == -1); i++) {
-					val.Digits[i] = 0;
+			int newLength = val.numberLength - intCount;
+			int[]? resArray = null;
+			Span<int> resDigits = newLength <= StackAllocMax
+				? stackalloc int[newLength + 1]
+				: (resArray = ArrayPool<int>.Shared.Rent(newLength + 1));
+			resDigits = resDigits.Slice(0, newLength + 1);
+
+			try {
+				bool needsAdjust = !ShiftRight(resDigits, newLength, val.digits.AsSpan(0, val.numberLength), intCount, count & 31);
+				if (needsAdjust && sign < 0) {
+					int i;
+					for (i = 0; (i < newLength) && (resDigits[i] == -1); i++) {
+						resDigits[i] = 0;
+					}
+					if (i == newLength) {
+						newLength++;
+					}
+					resDigits[i]++;
 				}
-				if (i == val.numberLength) {
-					val.numberLength++;
-				}
-				val.Digits[i]++;
+				var result = new BigInteger(sign, newLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
 			}
-			val.CutOffLeadingZeroes();
-			val.UnCache();
 		}
 
 		public static bool ShiftRight(Span<int> result, int resultLen, ReadOnlySpan<int> source, int intCount, int count) {
@@ -271,8 +290,7 @@ namespace Deveel.Math {
 				}
 
 				var result = new BigInteger(resSign, resLength, resDigits.Slice(0, resLength));
-				result.CutOffLeadingZeroes();
-				return result;
+				return result.WithCutOffLeadingZeroes();
 			} finally {
 				if (resArray != null)
 					ArrayPool<int>.Shared.Return(resArray);

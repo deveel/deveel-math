@@ -90,7 +90,7 @@ namespace Deveel.Math {
 			try {
 				MultArraysPap(aDigits, aLen, bDigits, bLen, resDigits);
 				BigInteger result = new BigInteger(resSign, resLength, resDigits.Slice(0, resLength));
-				result.CutOffLeadingZeroes();
+				return result.WithCutOffLeadingZeroes();
 				return result;
 			} finally {
 				if (resArray != null)
@@ -174,7 +174,7 @@ namespace Deveel.Math {
 			try {
 				resDigits[aNumberLength] = MultiplyByInt(resDigits, aDigits, aNumberLength, factor);
 				BigInteger result = new BigInteger(resSign, resLength, resDigits.Slice(0, resLength));
-				result.CutOffLeadingZeroes();
+				return result.WithCutOffLeadingZeroes();
 				return result;
 			} finally {
 				if (resArray != null)

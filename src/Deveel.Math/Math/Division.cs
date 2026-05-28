@@ -293,7 +293,7 @@ namespace Deveel.Math {
 					quotientLength,
 					quotientDigits);
 				BigInteger result1 = BigInteger.FromInt64(valSign * (long)remainder);
-				result0.CutOffLeadingZeroes();
+				result0 = result0.WithCutOffLeadingZeroes();
 				return new BigInteger[] {result0, result1};
 			} finally {
 				if (quotientArray != null)
@@ -347,8 +347,8 @@ namespace Deveel.Math {
 			int lsb2 = op2.LowestSetBit;
 			int pow2Count = System.Math.Min(lsb1, lsb2);
 
-			BitLevel.InplaceShiftRight(op1, lsb1);
-			BitLevel.InplaceShiftRight(op2, lsb2);
+			op1 = BitLevel.InplaceShiftRight(op1, lsb1);
+			op2 = BitLevel.InplaceShiftRight(op2, lsb2);
 
 			BigInteger swap;
 			if (op1.CompareTo(op2) == BigInteger.GREATER) {
@@ -368,11 +368,11 @@ namespace Deveel.Math {
 				if (op2.numberLength > op1.numberLength*1.2) {
 					op2 = BigMath.Remainder(op2, op1);
 					if (op2.Sign != 0)
-						BitLevel.InplaceShiftRight(op2, op2.LowestSetBit);
+						op2 = BitLevel.InplaceShiftRight(op2, op2.LowestSetBit);
 				} else {
 					do {
-						Elementary.inplaceSubtract(op2, op1);
-						BitLevel.InplaceShiftRight(op2, op2.LowestSetBit);
+						op2 = Elementary.inplaceSubtract(op2, op1);
+						op2 = BitLevel.InplaceShiftRight(op2, op2.LowestSetBit);
 					} while (op2.CompareTo(op1) >= BigInteger.EQUALS);
 				}
 				swap = op2;
@@ -418,79 +418,36 @@ namespace Deveel.Math {
 		/// <param name="p">The modulus.</param>
 		/// <returns><c>a^(-1) mod p</c>.</returns>
 		public static BigInteger ModInverseMontgomery(BigInteger a, BigInteger p) {
-			if (a.Sign == 0) {
+			if (a.sign == 0) {
 				throw new ArithmeticException(Messages.math19);
 			}
 
-			if (!BigInteger.TestBit(p, 0)) {
-				return ModInverseLorencz(a, p);
+			// Use extended Euclidean algorithm for correctness
+			BigInteger oldR = p, r = a;
+			BigInteger oldS = BigInteger.Zero, s = BigInteger.One;
+			
+			while (r.sign != 0) {
+				BigInteger quotient = oldR / r;
+				BigInteger temp = r;
+				r = oldR - quotient * r;
+				oldR = temp;
+				
+				temp = s;
+				s = oldS - quotient * s;
+				oldS = temp;
 			}
-
-			int m = p.numberLength*32;
-			BigInteger u, v, r, s;
-			u = p.Copy();
-			v = a.Copy();
-			int max = System.Math.Max(v.numberLength, u.numberLength);
-			r = new BigInteger(1, 1, new int[max + 1]);
-			s = new BigInteger(1, 1, new int[max + 1]);
-			s.Digits[0] = 1;
-
-			int k = 0;
-
-			int lsbu = u.LowestSetBit;
-			int lsbv = v.LowestSetBit;
-			int toShift;
-
-			if (lsbu > lsbv) {
-				BitLevel.InplaceShiftRight(u, lsbu);
-				BitLevel.InplaceShiftRight(v, lsbv);
-				BitLevel.InplaceShiftLeft(r, lsbv);
-				k += lsbu - lsbv;
-			} else {
-				BitLevel.InplaceShiftRight(u, lsbu);
-				BitLevel.InplaceShiftRight(v, lsbv);
-				BitLevel.InplaceShiftLeft(s, lsbu);
-				k += lsbv - lsbu;
-			}
-
-			r.Sign = 1;
-			while (v.Sign > 0) {
-				while (u.CompareTo(v) > BigInteger.EQUALS) {
-					Elementary.inplaceSubtract(u, v);
-					toShift = u.LowestSetBit;
-					BitLevel.InplaceShiftRight(u, toShift);
-					Elementary.inplaceAdd(r, s);
-					BitLevel.InplaceShiftLeft(s, toShift);
-					k += toShift;
-				}
-
-				while (u.CompareTo(v) <= BigInteger.EQUALS) {
-					Elementary.inplaceSubtract(v, u);
-					if (v.Sign == 0)
-						break;
-					toShift = v.LowestSetBit;
-					BitLevel.InplaceShiftRight(v, toShift);
-					Elementary.inplaceAdd(s, r);
-					BitLevel.InplaceShiftLeft(r, toShift);
-					k += toShift;
-				}
-			}
-			if (!u.IsOne) {
+			
+			// oldR is the GCD, should be 1 for inverse to exist
+			if (oldR.numberLength > 1 || oldR.digits[0] != 1) {
 				throw new ArithmeticException(Messages.math19);
 			}
-			if (r.CompareTo(p) >= BigInteger.EQUALS)
-				Elementary.inplaceSubtract(r, p);
-
-			r = p - r;
-
-			int n1 = CalcN(p);
-			if (k > m) {
-				r = MonPro(r, BigInteger.One, p, n1);
-				k = k - m;
+			
+			// oldS is the inverse, make it positive
+			if (oldS.sign < 0) {
+				oldS = oldS + p;
 			}
-
-			r = MonPro(r, BigInteger.GetPowerOfTwo(m - k), p, n1);
-			return r;
+			
+			return oldS;
 		}
 
 		/// <summary>
@@ -578,45 +535,45 @@ namespace Deveel.Math {
 				k = HowManyIterations(u, n);
 
 				if (k != 0) {
-					BitLevel.InplaceShiftLeft(u, k);
+					u = BitLevel.InplaceShiftLeft(u, k);
 					if (coefU >= coefV)
-						BitLevel.InplaceShiftLeft(r, k);
+						r = BitLevel.InplaceShiftLeft(r, k);
 					else {
-						BitLevel.InplaceShiftRight(s, System.Math.Min(coefV - coefU, k));
+						s = BitLevel.InplaceShiftRight(s, System.Math.Min(coefV - coefU, k));
 						if (k - (coefV - coefU) > 0)
-							BitLevel.InplaceShiftLeft(r, k - coefV + coefU);
+							r = BitLevel.InplaceShiftLeft(r, k - coefV + coefU);
 					}
 					coefU += k;
 				}
 
 				k = HowManyIterations(v, n);
 				if (k != 0) {
-					BitLevel.InplaceShiftLeft(v, k);
+					v = BitLevel.InplaceShiftLeft(v, k);
 					if (coefV >= coefU)
-						BitLevel.InplaceShiftLeft(s, k);
+						s = BitLevel.InplaceShiftLeft(s, k);
 					else {
-						BitLevel.InplaceShiftRight(r, System.Math.Min(coefU - coefV, k));
+						r = BitLevel.InplaceShiftRight(r, System.Math.Min(coefU - coefV, k));
 						if (k - (coefU - coefV) > 0)
-							BitLevel.InplaceShiftLeft(s, k - coefU + coefV);
+							s = BitLevel.InplaceShiftLeft(s, k - coefU + coefV);
 					}
 					coefV += k;
 				}
 
 				if (u.Sign == v.Sign) {
 					if (coefU <= coefV) {
-						Elementary.completeInPlaceSubtract(u, v);
-						Elementary.completeInPlaceSubtract(r, s);
+						u = Elementary.completeInPlaceSubtract(u, v);
+						r = Elementary.completeInPlaceSubtract(r, s);
 					} else {
-						Elementary.completeInPlaceSubtract(v, u);
-						Elementary.completeInPlaceSubtract(s, r);
+						v = Elementary.completeInPlaceSubtract(v, u);
+						s = Elementary.completeInPlaceSubtract(s, r);
 					}
 				} else {
 					if (coefU <= coefV) {
-						Elementary.completeInPlaceAdd(u, v);
-						Elementary.completeInPlaceAdd(r, s);
+						u = Elementary.completeInPlaceAdd(u, v);
+						r = Elementary.completeInPlaceAdd(r, s);
 					} else {
-						Elementary.completeInPlaceAdd(v, u);
-						Elementary.completeInPlaceAdd(s, r);
+						v = Elementary.completeInPlaceAdd(v, u);
+						s = Elementary.completeInPlaceAdd(s, r);
 					}
 				}
 				if (v.Sign == 0 || u.Sign == 0) {
@@ -746,7 +703,7 @@ namespace Deveel.Math {
 
 			BigInteger qInv = ModPow2Inverse(q, j);
 			BigInteger y = (x2 - x1) * qInv;
-			InplaceModPow2(y, j);
+			y = InplaceModPow2(y, j);
 			if (y.Sign < 0)
 				y += BigInteger.GetPowerOfTwo(j);
 			return x1 + (q * y);
@@ -761,23 +718,23 @@ namespace Deveel.Math {
 		/// <returns><c>b^exponent mod (2^j)</c>.</returns>
 		private static BigInteger Pow2ModPow(BigInteger b, BigInteger exponent, int j) {
 			BigInteger res = BigInteger.One;
-			BigInteger e = exponent.Copy();
-			BigInteger baseMod2toN = b.Copy();
+			BigInteger e = exponent;
+			BigInteger baseMod2toN = b;
 			BigInteger res2;
 			if (BigInteger.TestBit(b, 0))
-				InplaceModPow2(e, j - 1);
-			InplaceModPow2(baseMod2toN, j);
+				e = InplaceModPow2(e, j - 1);
+			baseMod2toN = InplaceModPow2(baseMod2toN, j);
 
 			for (int i = e.BitLength - 1; i >= 0; i--) {
-				res2 = res.Copy();
-				InplaceModPow2(res2, j);
+				res2 = res;
+				res2 = InplaceModPow2(res2, j);
 				res = res * res2;
 				if (BitLevel.TestBit(e, i)) {
 					res = res * baseMod2toN;
-					InplaceModPow2(res, j);
+					res = InplaceModPow2(res, j);
 				}
 			}
-			InplaceModPow2(res, j);
+			res = InplaceModPow2(res, j);
 			return res;
 		}
 
@@ -850,10 +807,9 @@ namespace Deveel.Math {
 			BigInteger result = new BigInteger(1, modulusLen + 1, res);
 
 			if (doSub)
-				Elementary.inplaceSubtract(result, modulus);
+				result = Elementary.inplaceSubtract(result, modulus);
 
-			result.CutOffLeadingZeroes();
-			return result;
+			return result.WithCutOffLeadingZeroes();
 		}
 
 		/// <summary>
@@ -863,34 +819,47 @@ namespace Deveel.Math {
 		/// <param name="n">The exponent by which 2 is raised.</param>
 		/// <returns><c>x^(-1) mod (2^n)</c>.</returns>
 		private static BigInteger ModPow2Inverse(BigInteger x, int n) {
-			BigInteger y = new BigInteger(1, new int[(n + 31) >> 5]);
-			y.numberLength = 1;
-			y.Digits[0] = 1;
-			y.Sign = 1;
+			int[] d = new int[(n + 31) >> 5];
+			d[0] = 1;
+			BigInteger y = new BigInteger(1, 1, d);
 
 			for (int i = 1; i < n; i++) {
 				if (BitLevel.TestBit(x * y, i)) {
-					y.Digits[i >> 5] |= (1 << (i & 31));
+					d[i >> 5] |= (1 << (i & 31));
 				}
 			}
-			return y;
+			return new BigInteger(1, d.Length, d);
 		}
 
 		/// <summary>
 		/// Performs <c>x = x mod (2^n)</c>.
 		/// </summary>
-		/// <param name="x">A positive number (will store the result).</param>
+		/// <param name="x">A positive number.</param>
 		/// <param name="n">A positive exponent of 2.</param>
-		public static void InplaceModPow2(BigInteger x, int n) {
+		/// <returns>x mod (2^n).</returns>
+		public static BigInteger InplaceModPow2(BigInteger x, int n) {
 			int fd = n >> 5;
 			int leadingZeros;
 
 			if ((x.numberLength < fd) || (x.BitLength <= n))
-				return;
+				return x;
 			leadingZeros = 32 - (n & 31);
-			x.numberLength = fd + 1;
-			x.Digits[fd] &= (leadingZeros < 32) ? (Utils.URShift(-1, leadingZeros)) : 0;
-			x.CutOffLeadingZeroes();
+			
+			int[]? resArray = null;
+			Span<int> resDigits = x.numberLength <= StackAllocMax
+				? stackalloc int[x.numberLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(x.numberLength));
+			resDigits = resDigits.Slice(0, x.numberLength);
+
+			try {
+				x.digits.AsSpan(0, x.numberLength).CopyTo(resDigits);
+				resDigits[fd] &= (leadingZeros < 32) ? (Utils.URShift(-1, leadingZeros)) : 0;
+				var result = new BigInteger(x.sign, fd + 1, resDigits);
+				return result.WithCutOffLeadingZeroes();
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 	}
 }

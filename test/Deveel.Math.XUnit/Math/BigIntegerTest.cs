@@ -646,7 +646,7 @@ namespace Deveel.Math {
 				}
 			}
 
-			Assert.Throws<NullReferenceException>(() => BigMath.AndNot(BigInteger.Zero, null));
+			Assert.Equal(BigInteger.Zero, BigMath.AndNot(BigInteger.Zero, default));
 
 			BigInteger bi = new BigInteger(0, new byte[] { });
 			Assert.Equal(BigInteger.Zero, BigMath.AndNot(bi, BigInteger.Zero));

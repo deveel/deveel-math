@@ -874,7 +874,7 @@ namespace Deveel.Math {
 			_precision = mc.Precision;
 			SmallValue = integer;
 			BitLength = CalcBitLength(integer);
-			intVal = null;
+			intVal = default;
         }
 
         /// <summary>
@@ -1032,7 +1032,7 @@ namespace Deveel.Math {
         }
 
         private BigInteger GetUnscaledValue() {
-			if (intVal == null)
+			if (intVal.Digits == null)
 				intVal = BigInteger.FromInt64(SmallValue);
 			return intVal;
 		}
