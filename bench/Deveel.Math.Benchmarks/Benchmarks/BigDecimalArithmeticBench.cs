@@ -22,33 +22,33 @@ public class BigDecimalArithmeticBench
         _sB = 98765.43210987654321m;
     }
 
-    [Benchmark]
+    [Benchmark(Description = "DMath BigDecimal Add")]
     public BigDecimal DMath_Add() => _dA + _dB;
 
-    [Benchmark]
+    [Benchmark(Description = "System decimal Add")]
     public decimal Sys_Add() => _sA + _sB;
 
-    [Benchmark]
+    [Benchmark(Description = "DMath BigDecimal Subtract")]
     public BigDecimal DMath_Subtract() => _dA - _dB;
 
-    [Benchmark]
+    [Benchmark(Description = "System decimal Subtract")]
     public decimal Sys_Subtract() => _sA - _sB;
 
-    [Benchmark]
+    [Benchmark(Description = "DMath BigDecimal Multiply")]
     public BigDecimal DMath_Multiply() => _dA * _dB;
 
-    [Benchmark]
+    [Benchmark(Description = "System decimal Multiply")]
     public decimal Sys_Multiply() => _sA * _sB;
 
-    [Benchmark]
+    [Benchmark(Description = "DMath BigDecimal Divide (HalfUp)")]
     public BigDecimal DMath_Divide() => _dA.Divide(_dB, RoundingMode.HalfUp);
 
-    [Benchmark]
+    [Benchmark(Description = "System decimal Divide")]
     public decimal Sys_Divide() => _sA / _sB;
 
-    [Benchmark]
+    [Benchmark(Description = "DMath BigDecimal Negate")]
     public BigDecimal DMath_Negate() => -_dA;
 
-    [Benchmark]
+    [Benchmark(Description = "System decimal Negate")]
     public decimal Sys_Negate() => -_sA;
 }

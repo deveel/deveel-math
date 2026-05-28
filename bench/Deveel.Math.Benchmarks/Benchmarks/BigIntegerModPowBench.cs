@@ -44,9 +44,9 @@ public class BigIntegerModPowBench
         _sExp = new SysBigInt((byte[])bytes.Clone());
     }
 
-    [Benchmark]
+    [Benchmark(Description = "DMath BigInteger ModPow")]
     public DMathBigInt DMath_ModPow() => BigMath.ModPow(_dBase, _dExp, _dMod);
 
-    [Benchmark]
+    [Benchmark(Description = "System BigInteger ModPow")]
     public SysBigInt Sys_ModPow() => SysBigInt.ModPow(_sBase, _sExp, _sMod);
 }

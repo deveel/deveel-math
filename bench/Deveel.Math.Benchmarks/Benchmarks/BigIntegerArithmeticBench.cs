@@ -34,13 +34,33 @@ public class BigIntegerArithmeticBench
         _sB = new SysBigInt((byte[])bytes.Clone());
     }
 
-    [Benchmark]
+    [Benchmark(Description = "DMath BigInteger Add")]
     public DMathBigInt DMath_Add() => _dA + _dB;
 
-    [Benchmark]
+    [Benchmark(Description = "System BigInteger Add")]
     public SysBigInt Sys_Add() => _sA + _sB;
+
+    [Benchmark(Description = "DMath BigInteger Subtract")]
+    public DMathBigInt DMath_Subtract() => _dA - _dB;
+
+    [Benchmark(Description = "System BigInteger Subtract")]
     public SysBigInt Sys_Subtract() => _sA - _sB;
+
+    [Benchmark(Description = "DMath BigInteger Multiply")]
+    public DMathBigInt DMath_Multiply() => _dA * _dB;
+
+    [Benchmark(Description = "System BigInteger Multiply")]
     public SysBigInt Sys_Multiply() => _sA * _sB;
+
+    [Benchmark(Description = "DMath BigInteger Divide")]
+    public DMathBigInt DMath_Divide() => _dA / _dB;
+
+    [Benchmark(Description = "System BigInteger Divide")]
     public SysBigInt Sys_Divide() => _sA / _sB;
+
+    [Benchmark(Description = "DMath BigInteger Negate")]
+    public DMathBigInt DMath_Negate() => -_dA;
+
+    [Benchmark(Description = "System BigInteger Negate")]
     public SysBigInt Sys_Negate() => -_sA;
 }

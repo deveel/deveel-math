@@ -16,21 +16,21 @@ public class BigDecimalParsingBench
         _largeString = "12345678901234567890.1234567890123456789";
     }
 
-    [Benchmark]
+    [Benchmark(Description = "DMath BigDecimal Parse (small)")]
     public BigDecimal DMath_Parse_Small() => BigDecimal.Parse(_smallString);
 
-    [Benchmark]
+    [Benchmark(Description = "System decimal Parse (small)")]
     public decimal Sys_Parse_Small() => decimal.Parse(_smallString);
 
-    [Benchmark]
+    [Benchmark(Description = "DMath BigDecimal Parse (large)")]
     public BigDecimal DMath_Parse_Large() => BigDecimal.Parse(_largeString);
 
-    [Benchmark]
-    public BigDecimal DMath_ToString_Small() => BigDecimal.Parse(_smallString);
+    [Benchmark(Description = "DMath BigDecimal ToString (small)")]
+    public string DMath_ToString_Small() => BigDecimal.Parse(_smallString).ToString();
 
-    [Benchmark]
+    [Benchmark(Description = "DMath BigDecimal ToString")]
     public string DMath_ToString() => BigDecimal.Parse(_smallString).ToString();
 
-    [Benchmark]
+    [Benchmark(Description = "System decimal ToString")]
     public string Sys_ToString() => decimal.Parse(_smallString).ToString();
 }
