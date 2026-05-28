@@ -395,12 +395,14 @@ namespace Deveel.Math {
             Assert.True(a.CompareTo(BigInteger.FromInt64(43)) < 0);
         }
 
+#if NET8_0_OR_GREATER
         [Fact]
         public void BigInteger_ConvertViaIConvertible() {
             var n = BigInteger.FromInt64(42);
             var conv = (System.IConvertible)n;
             Assert.Equal(TypeCode.Object, conv.GetTypeCode());
         }
+#endif
 
         [Fact]
         public void BigInteger_Explicit_From_SNBigInteger() {
@@ -861,6 +863,7 @@ namespace Deveel.Math {
             Assert.Equal((snA ^ snB).ToString(), result.ToString());
         }
 
+#if NET8_0_OR_GREATER
         [Fact]
         public void BigInteger_Serialization_GetObjectData() {
             var bi = BigInteger.Parse("12345678901234567890");
@@ -941,7 +944,9 @@ namespace Deveel.Math {
             var conv = (System.IConvertible)bi;
             Assert.Equal(1234567890123456789L, conv.ToInt64(null));
         }
+#endif
 
+#if NET8_0_OR_GREATER
         [Fact]
         public void BigInteger_IConvertible_ToUInt64_Throws() {
             var bi = BigInteger.FromInt64(42);
@@ -1025,6 +1030,7 @@ namespace Deveel.Math {
             var conv = (System.IConvertible)bi;
             Assert.Throws<InvalidCastException>(() => conv.ToInt16(null));
         }
+#endif
 
         [Fact]
         public void BigInteger_Constructor_FromString() {
