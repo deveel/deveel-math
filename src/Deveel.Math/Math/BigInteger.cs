@@ -14,12 +14,12 @@
 //    limitations under the License.
 
 using System;
-using System.Buffers;
 using System.Globalization;
-using System.IO;
-#if !NETSTANDARD2_0
+using System.Text;
+using System.Buffers;
 using System.Runtime.Serialization;
-#endif
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Deveel.Math {
 	/// <summary>
@@ -42,6 +42,7 @@ namespace Deveel.Math {
 #if !NETSTANDARD2_0
 	[Serializable]
 #endif
+	[StructLayout(LayoutKind.Sequential, Pack = 4)]
 	public readonly struct BigInteger : IComparable<BigInteger>, IEquatable<BigInteger>
 #if !NETSTANDARD2_0
 		, ISerializable, IConvertible

@@ -15,6 +15,7 @@
 
 using System;
 using System.Buffers;
+using System.Numerics;
 
 namespace Deveel.Math {
 	/// <summary>
@@ -151,13 +152,28 @@ namespace Deveel.Math {
 			resDigits = resDigits.Slice(0, resLength);
 
 			try {
+				var a = val.DigitsSpan;
+				var b = that.DigitsSpan;
+
+#if !NETSTANDARD2_0
+				if (Vector.IsHardwareAccelerated && resLength - i >= Vector<int>.Count) {
+					int vectorLimit = i + ((resLength - i) / Vector<int>.Count) * Vector<int>.Count;
+					for (; i < vectorLimit; i += Vector<int>.Count) {
+						var va = new Vector<int>(a.Slice(i, Vector<int>.Count).ToArray());
+						var vb = new Vector<int>(b.Slice(i, Vector<int>.Count).ToArray());
+						var vResult = va & vb;
+						for (int j = 0; j < Vector<int>.Count; j++) {
+							resDigits[i + j] = vResult[j];
+						}
+					}
+				}
+#endif
 				for (; i < resLength; i++) {
-					resDigits[i] = val.Digits[i] & that.Digits[i];
+					resDigits[i] = a[i] & b[i];
 				}
 
 				BigInteger result = new BigInteger(1, resLength, resDigits);
 				return result.WithCutOffLeadingZeroes();
-				return result;
 			} finally {
 				if (resArray != null)
 					ArrayPool<int>.Shared.Return(resArray);
@@ -579,12 +595,28 @@ namespace Deveel.Math {
 			resDigits = resDigits.Slice(0, resLength);
 
 			try {
-				int i = System.Math.Min(longer.FirstNonZeroDigit, shorter.FirstNonZeroDigit);
-				for (i = 0; i < shorter.numberLength; i++) {
-					resDigits[i] = longer.Digits[i] | shorter.Digits[i];
+				var a = longer.DigitsSpan;
+				var b = shorter.DigitsSpan;
+
+				int i = 0;
+#if !NETSTANDARD2_0
+				if (Vector.IsHardwareAccelerated && shorter.numberLength >= Vector<int>.Count) {
+					int vectorLimit = (shorter.numberLength / Vector<int>.Count) * Vector<int>.Count;
+					for (; i < vectorLimit; i += Vector<int>.Count) {
+						var va = new Vector<int>(a.Slice(i, Vector<int>.Count).ToArray());
+						var vb = new Vector<int>(b.Slice(i, Vector<int>.Count).ToArray());
+						var vResult = va | vb;
+						for (int j = 0; j < Vector<int>.Count; j++) {
+							resDigits[i + j] = vResult[j];
+						}
+					}
+				}
+#endif
+				for (; i < shorter.numberLength; i++) {
+					resDigits[i] = a[i] | b[i];
 				}
 				for (; i < resLength; i++) {
-					resDigits[i] = longer.Digits[i];
+					resDigits[i] = a[i];
 				}
 
 				BigInteger result = new BigInteger(1, resLength, resDigits);
@@ -766,17 +798,32 @@ namespace Deveel.Math {
 			resDigits = resDigits.Slice(0, resLength);
 
 			try {
+				var a = longer.DigitsSpan;
+				var b = shorter.DigitsSpan;
+
 				int i = System.Math.Min(longer.FirstNonZeroDigit, shorter.FirstNonZeroDigit);
+#if !NETSTANDARD2_0
+				if (Vector.IsHardwareAccelerated && shorter.numberLength - i >= Vector<int>.Count) {
+					int vectorLimit = i + ((shorter.numberLength - i) / Vector<int>.Count) * Vector<int>.Count;
+					for (; i < vectorLimit; i += Vector<int>.Count) {
+						var va = new Vector<int>(a.Slice(i, Vector<int>.Count).ToArray());
+						var vb = new Vector<int>(b.Slice(i, Vector<int>.Count).ToArray());
+						var vResult = va ^ vb;
+						for (int j = 0; j < Vector<int>.Count; j++) {
+							resDigits[i + j] = vResult[j];
+						}
+					}
+				}
+#endif
 				for (; i < shorter.numberLength; i++) {
-					resDigits[i] = longer.Digits[i] ^ shorter.Digits[i];
+					resDigits[i] = a[i] ^ b[i];
 				}
 				for (; i < longer.numberLength; i++) {
-					resDigits[i] = longer.Digits[i];
+					resDigits[i] = a[i];
 				}
 
 				BigInteger result = new BigInteger(1, resLength, resDigits);
 				return result.WithCutOffLeadingZeroes();
-				return result;
 			} finally {
 				if (resArray != null)
 					ArrayPool<int>.Shared.Return(resArray);

@@ -17,6 +17,7 @@ using System;
 using System.Globalization;
 using System.Text;
 using System.Runtime.Serialization;
+using System.Runtime.InteropServices;
 
 namespace Deveel.Math {
 	/// <summary>
@@ -29,6 +30,7 @@ namespace Deveel.Math {
 	/// </remarks>
 	[Serializable]
 	[System.Diagnostics.DebuggerDisplay("{ToString()}")]
+	[StructLayout(LayoutKind.Auto)]
 	public sealed partial class BigDecimal : IComparable<BigDecimal>, IEquatable<BigDecimal>, ISerializable
 	{
 
