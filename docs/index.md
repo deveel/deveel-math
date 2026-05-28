@@ -67,6 +67,7 @@ Console.WriteLine($"GCD: {BigMath.Gcd(a, b)}");
 | [MathContext & RoundingMode](math-context.md) | Precision control, all 8 rounding modes, predefined IEEE 754r contexts |
 | [Advanced Math Operations](advanced-math.md) | BigMath static class, advanced division, powers, random generation, primality testing |
 | [Interoperability](interop.md) | BigInteger vs System.Numerics, type conversion tables, primitive conversions, parsing deep dive |
+| [Performance Benchmarks](performance.md) | Benchmark results vs .NET built-in types across .NET 6.0-10.0 |
 
 ## Building & Testing
 

@@ -75,6 +75,20 @@ For detailed documentation, see the [docs](docs/index.md) folder:
 | [Advanced Math Operations](docs/advanced-math.md) | BigMath static class, advanced division, powers, random generation |
 | [Interoperability](docs/interop.md) | BigInteger vs System.Numerics, type conversions, primitive conversions, parsing |
 
+## Performance
+
+Deveel Math has been benchmarked against .NET built-in types across .NET 6.0 through 10.0. Key results on .NET 10.0:
+
+| Area | Result |
+|------|--------|
+| **BigDecimal arithmetic** | 27-119 ns per operation (vs 1-47 ns for `decimal`), with 46-55% improvement from .NET 6.0 to 10.0 |
+| **BigInteger arithmetic** | Competitive with `System.Numerics.BigInteger`; faster at division and 1024-bit+ multiplication |
+| **BigInteger ModPow** | Up to **5.6x faster** than `System.Numerics` at 512-bit |
+| **BigInteger parsing** | **2.3x faster** for large numbers (500 digits) |
+| **Memory allocations** | Higher than native types (96 B - 24 KB per operation), but acceptable for arbitrary-precision workloads |
+
+For detailed benchmark tables and analysis, see [Performance Benchmarks](docs/performance.md).
+
 ## How to Install It
 
 The library is available as a NuGet package, and it can be installed in any .NET application that supports __.NET 8.0__, __.NET 9.0__, or __.NET 10.0__.
@@ -128,16 +142,7 @@ var deveel = BigInteger.FromSystemBigInteger(sys);
 
 For a complete guide, see the [Interoperability documentation](docs/interop.md).
 
-## Project Structure
-
-The solution contains two projects:
-
-| Project | Description |
-|---------|-------------|
-| `Deveel.Math` | Core library containing `BigDecimal`, `BigInteger`, and related math operations |
-| `Deveel.Math.XUnit` | Unit test suite using xUnit v3 with Microsoft Testing Platform |
-
-### Key Classes
+## Key Classes
 
 #### BigDecimal
 
