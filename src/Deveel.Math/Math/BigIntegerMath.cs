@@ -14,6 +14,7 @@
 //    limitations under the License.
 
 using System;
+using System.Buffers;
 
 namespace Deveel.Math {
 	/// <summary>
@@ -22,6 +23,7 @@ namespace Deveel.Math {
 	/// and greatest common divisor computation.
 	/// </summary>
 	static class BigIntegerMath {
+		private const int StackAllocMax = 256;
 		/// <summary>
 		/// Shifts the bits of the specified <see cref="BigInteger"/> value to the right.
 		/// </summary>
@@ -105,7 +107,11 @@ namespace Deveel.Math {
 				return BigInteger.Zero;
 			}
 			int resLength = thisLen - divisorLen + 1;
-			int[] resDigits = new int[resLength];
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 			int resSign = ((thisSign == divisorSign) ? 1 : -1);
 			if (divisorLen == 1) {
 				Division.DivideArrayByInt(resDigits, dividend.digits, thisLen,
@@ -115,7 +121,11 @@ namespace Deveel.Math {
 					divisor.digits, divisorLen);
 			}
 			BigInteger result = new BigInteger(resSign, resLength, resDigits);
-			result.CutOffLeadingZeroes();
+			return result.WithCutOffLeadingZeroes();
+
+			if (resArray != null)
+				ArrayPool<int>.Shared.Return(resArray);
+
 			return result;
 		}
 
@@ -139,18 +149,18 @@ namespace Deveel.Math {
 				return dividend;
 			}
 			int resLength = divisorLen;
-			int[] resDigits = new int[resLength];
 			if (resLength == 1) {
-				resDigits[0] = Division.RemainderArrayByInt(dividend.digits, thisLen,
+				int remainder = Division.RemainderArrayByInt(dividend.digits, thisLen,
 					divisor.digits[0]);
+				return BigInteger.FromInt64(dividend.Sign * (long)remainder);
 			} else {
 				int qLen = thisLen - divisorLen + 1;
-				resDigits = Division.Divide(null, qLen, dividend.digits, thisLen,
+				int[] resDigits = Division.Divide(null, qLen, dividend.digits, thisLen,
 					divisor.digits, divisorLen);
+				BigInteger result = new BigInteger(dividend.Sign, resLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+				return result;
 			}
-			BigInteger result = new BigInteger(dividend.Sign, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
 		}
 
 		/// <summary>
@@ -198,16 +208,26 @@ namespace Deveel.Math {
 			int quotientLength = thisLen - divisorLen + 1;
 			int remainderLength = divisorLen;
 			int quotientSign = ((thisSign == divisorSign) ? 1 : -1);
-			int[] quotientDigits = new int[quotientLength];
-			int[] remainderDigits = Division.Divide(quotientDigits, quotientLength,
-				thisDigits, thisLen, divisorDigits, divisorLen);
+			int[]? quotientArray = null;
+			Span<int> quotientDigits = quotientLength <= StackAllocMax
+				? stackalloc int[quotientLength]
+				: (quotientArray = ArrayPool<int>.Shared.Rent(quotientLength));
+			quotientDigits = quotientDigits.Slice(0, quotientLength);
 
-			var quotient = new BigInteger(quotientSign, quotientLength, quotientDigits);
-			remainder = new BigInteger(thisSign, remainderLength, remainderDigits);
-			quotient.CutOffLeadingZeroes();
-			remainder.CutOffLeadingZeroes();
+			try {
+				int[] remainderDigits = Division.Divide(quotientDigits, quotientLength,
+					thisDigits, thisLen, divisorDigits, divisorLen);
 
-			return quotient;
+				var quotient = new BigInteger(quotientSign, quotientLength, quotientDigits);
+				remainder = new BigInteger(thisSign, remainderLength, remainderDigits);
+				quotient = quotient.WithCutOffLeadingZeroes();
+				remainder = remainder.WithCutOffLeadingZeroes();
+
+				return quotient;
+			} finally {
+				if (quotientArray != null)
+					ArrayPool<int>.Shared.Return(quotientArray);
+			}
 		}
 
 		/// <summary>
@@ -379,7 +399,7 @@ namespace Deveel.Math {
 				return BigInteger.FromInt64(Division.GcdBinary(val1.ToInt64(), val2.ToInt64()));
 			}
 
-			return Division.GcdBinary(val1.Copy(), val2.Copy());
+			return Division.GcdBinary(val1, val2);
 
 		}
 	}

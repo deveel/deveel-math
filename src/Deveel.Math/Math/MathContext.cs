@@ -14,7 +14,7 @@
 //    limitations under the License.
 
 using System;
-#if !PORTABLE
+#if !NETSTANDARD2_0
 using System.Runtime.Serialization;
 #endif
 using System.Text;
@@ -25,7 +25,7 @@ namespace Deveel.Math {
 	/// mode and digit precision for the numerical operations 
 	/// provided by class <see cref="BigDecimal"/>.
 	/// </summary>
-#if !PORTABLE
+#if !NETSTANDARD2_0
 	[Serializable]
 #endif
 	public sealed class MathContext : IEquatable<MathContext> {
@@ -256,7 +256,7 @@ namespace Deveel.Math {
 			return sb.ToString();
 		}
 
-#if !PORTABLE
+#if !NETSTANDARD2_0
 		[OnDeserialized]
 		private void OnDeserialized(StreamingContext context) {
 			if (precision < 0) {

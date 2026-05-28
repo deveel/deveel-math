@@ -15,10 +15,11 @@
 
 using System;
 using System.Globalization;
-using System.IO;
-#if !PORTABLE
+using System.Text;
+using System.Buffers;
 using System.Runtime.Serialization;
-#endif
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Deveel.Math {
 	/// <summary>
@@ -38,11 +39,12 @@ namespace Deveel.Math {
 	/// based on BigInteger.
 	/// </para>
 	/// </remarks>
-#if !PORTABLE
+#if !NETSTANDARD2_0
 	[Serializable]
 #endif
-	public sealed class BigInteger : IComparable<BigInteger>, IEquatable<BigInteger>
-#if !PORTABLE
+	[StructLayout(LayoutKind.Sequential, Pack = 4)]
+	public readonly struct BigInteger : IComparable<BigInteger>, IEquatable<BigInteger>
+#if !NETSTANDARD2_0
 		, ISerializable, IConvertible
 #endif 
 		{
@@ -60,22 +62,15 @@ namespace Deveel.Math {
 		 * The magnitude array may be longer than strictly necessary, which results
 		 * in additional trailing zeros.
 		 */
-#if !PORTABLE
-		[NonSerialized] 
-#endif
-		internal int[] digits;
+		internal readonly int[] digits;
+
+		internal Span<int> DigitsSpan => digits.AsSpan(0, numberLength);
 
 		/** The length of this in measured in ints. Can be less than digits.length(). */
-#if !PORTABLE
-		[NonSerialized]
-#endif
-		internal int numberLength;
+		internal readonly int numberLength;
 
 		/** The sign of this. */
-#if !PORTABLE
-		[NonSerialized] 
-#endif
-		private int sign;
+		internal readonly int sign;
 
 
 		/// <summary>
@@ -116,6 +111,7 @@ namespace Deveel.Math {
 		};
 
 		static readonly BigInteger[] TwoPows;
+		private const int StackAllocMax = 256;
 
 		static BigInteger() {
 			TwoPows = new BigInteger[32];
@@ -124,28 +120,14 @@ namespace Deveel.Math {
 			}
 		}
 
-		private BigInteger() {
-		}
-
-#if !PORTABLE
-		[NonSerialized]
-#endif
-		private int firstNonzeroDigit = -2;
-
-		/** Cache for the hash code. */
-#if !PORTABLE
-		[NonSerialized]
-#endif
-		private int hashCode = 0;
-
-#if !PORTABLE
+#if !NETSTANDARD2_0
 		#region Serializable
 
 		private BigInteger(SerializationInfo info, StreamingContext context) {
-			sign = info.GetInt32("sign");
+			int s = info.GetInt32("sign");
 			byte[] magn = (byte[]) info.GetValue("magnitude", typeof(byte[]));
-			PutBytesPositiveToIntegers(magn);
-			CutOffLeadingZeroes();
+			var tmp = FromBytesPositive(s, magn);
+			this = tmp.WithCutOffLeadingZeroes();
 		}
 
 		void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) {
@@ -169,23 +151,19 @@ namespace Deveel.Math {
 		/// </exception>
 		public BigInteger(int numBits, Random rnd) {
 			if (numBits < 0) {
-				// math.1B=numBits must be non-negative
-				throw new ArgumentException(Messages.math1B); //$NON-NLS-1$
+				throw new ArgumentException(Messages.math1B);
 			}
 			if (numBits == 0) {
-				sign = 0;
-				numberLength = 1;
-				digits = new int[] {0};
+				this = Zero;
 			} else {
-				sign = 1;
-				numberLength = (numBits + 31) >> 5;
-				digits = new int[numberLength];
-				for (int i = 0; i < numberLength; i++) {
-					digits[i] = rnd.Next();
+				int nl = (numBits + 31) >> 5;
+				int[] d = new int[nl];
+				for (int i = 0; i < nl; i++) {
+					d[i] = rnd.Next();
 				}
-				// Using only the necessary bits
-				digits[numberLength - 1] = Utils.URShift(digits[numberLength - 1], (-numBits) & 31);
-				CutOffLeadingZeroes();
+				d[nl - 1] = Utils.URShift(d[nl - 1], (-numBits) & 31);
+				var tmp = new BigInteger(1, nl, d);
+				this = tmp.WithCutOffLeadingZeroes();
 			}
 		}
 
@@ -205,13 +183,9 @@ namespace Deveel.Math {
 		/// </exception>
 		public BigInteger(int bitLength, int certainty, Random random) {
 			if (bitLength < 2) {
-				// math.1C=bitLength < 2
-				throw new ArithmeticException(Messages.math1C); //$NON-NLS-1$
+				throw new ArithmeticException(Messages.math1C);
 			}
-			BigInteger me = Primality.ConsBigInteger(bitLength, certainty, random);
-			sign = me.sign;
-			numberLength = me.numberLength;
-			digits = me.digits;
+			this = Primality.ConsBigInteger(bitLength, certainty, random);
 		}
 
 		/// <summary>
@@ -232,27 +206,21 @@ namespace Deveel.Math {
 				throw new ArgumentNullException("magnitude");
 
 			if ((signum < -1) || (signum > 1))
-				// math.13=Invalid signum value
-				throw new FormatException(Messages.math13); //$NON-NLS-1$
+				throw new FormatException(Messages.math13);
 
 			if (signum == 0) {
 				foreach (byte element in magnitude) {
-
 					if (element != 0) {
-						// math.14=signum-magnitude mismatch
-						throw new FormatException(Messages.math14); //$NON-NLS-1$
+						throw new FormatException(Messages.math14);
 					}
 				}
 			}
 
 			if (magnitude.Length == 0) {
-				sign = 0;
-				numberLength = 1;
-				digits = new int[] {0};
+				this = Zero;
 			} else {
-				sign = signum;
-				PutBytesPositiveToIntegers(magnitude);
-				CutOffLeadingZeroes();
+				var tmp = FromBytesPositive(signum, magnitude);
+				this = tmp.WithCutOffLeadingZeroes();
 			}
 		}
 
@@ -273,17 +241,15 @@ namespace Deveel.Math {
 			if (val == null)
 				throw new ArgumentNullException("val");
 			if (val.Length == 0) {
-				// math.12=Zero length BigInteger
-				throw new FormatException(Messages.math12); //$NON-NLS-1$
+				throw new FormatException(Messages.math12);
 			}
+			BigInteger tmp;
 			if (val[0] > sbyte.MaxValue) {
-				sign = -1;
-				PutBytesNegativeToIntegers(val);
+				tmp = FromBytesNegative(val);
 			} else {
-				sign = 1;
-				PutBytesPositiveToIntegers(val);
+				tmp = FromBytesPositive(1, val);
 			}
-			CutOffLeadingZeroes();
+			this = tmp.WithCutOffLeadingZeroes();
 		}
 
 		/// <summary>
@@ -311,6 +277,23 @@ namespace Deveel.Math {
 			this.sign = sign;
 			this.numberLength = numberLength;
 			this.digits = digits;
+		}
+
+		/// <summary>
+		/// Constructs a number by copying from a span.
+		/// </summary>
+		/// <param name="sign">The sign of the number</param>
+		/// <param name="numberLength">The length of the number</param>
+		/// <param name="digits">The source span to copy from</param>
+		/// <remarks>
+		/// This constructor copies the data from the span, allowing efficient creation
+		/// from temporary buffers like stackalloc or ArrayPool.
+		/// </remarks>
+		internal BigInteger(int sign, int numberLength, ReadOnlySpan<int> digits) {
+			this.sign = sign;
+			this.numberLength = numberLength;
+			this.digits = new int[numberLength];
+			digits.Slice(0, numberLength).CopyTo(this.digits);
 		}
 
 		/// <summary>
@@ -343,14 +326,10 @@ namespace Deveel.Math {
 		/// </remarks>
 		internal BigInteger(int signum, int[] digits) {
 			if (digits.Length == 0) {
-				sign = 0;
-				numberLength = 1;
-				this.digits = new int[] {0};
+				this = Zero;
 			} else {
-				sign = signum;
-				numberLength = digits.Length;
-				this.digits = digits;
-				CutOffLeadingZeroes();
+				var tmp = new BigInteger(signum, digits.Length, digits);
+				this = tmp.WithCutOffLeadingZeroes();
 			}
 		}
 
@@ -358,7 +337,6 @@ namespace Deveel.Math {
 
 		public int Sign {
 			get { return sign; }
-			internal set { sign = value; }
 		}
 
 		public int BitLength {
@@ -398,18 +376,14 @@ namespace Deveel.Math {
 
 		internal int FirstNonZeroDigit {
 			get {
-				if (firstNonzeroDigit == -2) {
-					int i;
-					if (this.sign == 0) {
-						i = -1;
-					} else {
-						for (i = 0; digits[i] == 0; i++) {
-							// Empty
-						}
-					}
-					firstNonzeroDigit = i;
+				if (this.sign == 0) {
+					return -1;
 				}
-				return firstNonzeroDigit;
+				int i;
+				for (i = 0; digits[i] == 0; i++) {
+					// Empty
+				}
+				return i;
 			}
 		}
 
@@ -439,20 +413,15 @@ namespace Deveel.Math {
 
 		/// <inheritdoc cref="object.GetHashCode"/>
 		public override int GetHashCode() {
-			if (hashCode != 0) {
-				return hashCode;
+			int hc = 0;
+			for (int i = 0; i < numberLength; i++) {
+				hc = (int) (hc * 33 + (digits[i] & 0xffffffff));
 			}
-			for (int i = 0; i < digits.Length; i++) {
-				hashCode = (int) (hashCode * 33 + (digits[i] & 0xffffffff));
-			}
-			hashCode = hashCode * sign;
-			return hashCode;
+			return hc * sign;
 		}
 
 		/// <inheritdoc cref="object.Equals(object)"/>
 		public override bool Equals(object obj) {
-			if (ReferenceEquals(this, obj))
-				return true;
 			if (!(obj is BigInteger))
 				return false;
 			return Equals((BigInteger) obj);
@@ -468,7 +437,7 @@ namespace Deveel.Math {
 			       EqualsArrays(other.digits);
 		}
 
-		bool EqualsArrays(int[] b) {
+		bool EqualsArrays(ReadOnlySpan<int> b) {
 			int i;
 			for (i = numberLength - 1; (i >= 0) && (digits[i] == b[i]); i--) {
 				// Empty
@@ -476,15 +445,21 @@ namespace Deveel.Math {
 			return i < 0;
 		}
 
-		// Decreases 'numberLength' if there are zero high elements.
+		// Returns a new BigInteger with zero high elements removed.
 
-		internal void CutOffLeadingZeroes() {
-			while ((numberLength > 0) && (digits[--numberLength] == 0)) {
-				// Empty
+		internal BigInteger WithCutOffLeadingZeroes() {
+			int nl = numberLength;
+			while (nl > 1 && digits[nl - 1] == 0) {
+				nl--;
 			}
-			if (digits[numberLength++] == 0) {
-				sign = 0;
+			int s = sign;
+			if (nl == 1 && digits[0] == 0) {
+				s = 0;
 			}
+			if (nl == numberLength && s == sign) {
+				return this;
+			}
+			return new BigInteger(s, nl, digits);
 		}
 
 		/// <summary>
@@ -496,55 +471,50 @@ namespace Deveel.Math {
 		}
 
 		/**
-		 * Puts a big-endian byte array into a little-endian int array.
+		 * Creates a BigInteger from a big-endian byte array (positive).
 		 */
-		private void PutBytesPositiveToIntegers(byte[] byteValues) {
+		private static BigInteger FromBytesPositive(int sign, byte[] byteValues) {
 			int bytesLen = byteValues.Length;
 			int highBytes = bytesLen & 3;
-			numberLength = (bytesLen >> 2) + ((highBytes == 0) ? 0 : 1);
-			digits = new int[numberLength];
+			int nl = (bytesLen >> 2) + ((highBytes == 0) ? 0 : 1);
+			int[] d = new int[nl];
 			int i = 0;
-			// Put bytes to the int array starting from the end of the byte array
 			while (bytesLen > highBytes) {
-				digits[i++] = (byteValues[--bytesLen] & 0xFF)
-				              | (byteValues[--bytesLen] & 0xFF) << 8
-				              | (byteValues[--bytesLen] & 0xFF) << 16
-				              | (byteValues[--bytesLen] & 0xFF) << 24;
+				d[i++] = (byteValues[--bytesLen] & 0xFF)
+				          | (byteValues[--bytesLen] & 0xFF) << 8
+				          | (byteValues[--bytesLen] & 0xFF) << 16
+				          | (byteValues[--bytesLen] & 0xFF) << 24;
 			}
-			// Put the first bytes in the highest element of the int array
 			for (int j = 0; j < bytesLen; j++) {
-				digits[i] = (digits[i] << 8) | (byteValues[j] & 0xFF);
+				d[i] = (d[i] << 8) | (byteValues[j] & 0xFF);
 			}
+			return new BigInteger(sign, nl, d);
 		}
 
 		/**
-		 * Puts a big-endian byte array into a little-endian applying two
-		 * complement.
+		 * Creates a BigInteger from a big-endian byte array (negative, two's complement).
 		 */
-		private void PutBytesNegativeToIntegers(byte[] byteValues) {
+		private static BigInteger FromBytesNegative(byte[] byteValues) {
 			int bytesLen = byteValues.Length;
 			int highBytes = bytesLen & 3;
-			numberLength = (bytesLen >> 2) + ((highBytes == 0) ? 0 : 1);
-			digits = new int[numberLength];
+			int nl = (bytesLen >> 2) + ((highBytes == 0) ? 0 : 1);
+			int[] d = new int[nl];
 			int i = 0;
-			// Setting the sign
-			digits[numberLength - 1] = -1;
-			// Put bytes to the int array starting from the end of the byte array
+			d[nl - 1] = -1;
 			while (bytesLen > highBytes) {
-				digits[i] = (byteValues[--bytesLen] & 0xFF)
-				            | (byteValues[--bytesLen] & 0xFF) << 8
-				            | (byteValues[--bytesLen] & 0xFF) << 16
-				            | (byteValues[--bytesLen] & 0xFF) << 24;
-				if (digits[i] != 0) {
-					digits[i] = -digits[i];
-					firstNonzeroDigit = i;
+				d[i] = (byteValues[--bytesLen] & 0xFF)
+				        | (byteValues[--bytesLen] & 0xFF) << 8
+				        | (byteValues[--bytesLen] & 0xFF) << 16
+				        | (byteValues[--bytesLen] & 0xFF) << 24;
+				if (d[i] != 0) {
+					d[i] = -d[i];
 					i++;
 					while (bytesLen > highBytes) {
-						digits[i] = (byteValues[--bytesLen] & 0xFF)
-						            | (byteValues[--bytesLen] & 0xFF) << 8
-						            | (byteValues[--bytesLen] & 0xFF) << 16
-						            | (byteValues[--bytesLen] & 0xFF) << 24;
-						digits[i] = ~digits[i];
+						d[i] = (byteValues[--bytesLen] & 0xFF)
+						        | (byteValues[--bytesLen] & 0xFF) << 8
+						        | (byteValues[--bytesLen] & 0xFF) << 16
+						        | (byteValues[--bytesLen] & 0xFF) << 24;
+						d[i] = ~d[i];
 						i++;
 					}
 					break;
@@ -552,33 +522,12 @@ namespace Deveel.Math {
 				i++;
 			}
 			if (highBytes != 0) {
-				// Put the first bytes in the highest element of the int array
-				if (firstNonzeroDigit != -2) {
-					for (int j = 0; j < bytesLen; j++) {
-						digits[i] = (digits[i] << 8) | (byteValues[j] & 0xFF);
-					}
-					digits[i] = ~digits[i];
-				} else {
-					for (int j = 0; j < bytesLen; j++) {
-						digits[i] = (digits[i] << 8) | (byteValues[j] & 0xFF);
-					}
-					digits[i] = -digits[i];
+				for (int j = 0; j < bytesLen; j++) {
+					d[i] = (d[i] << 8) | (byteValues[j] & 0xFF);
 				}
+				d[i] = ~d[i] + 1;
 			}
-		}
-
-		/*
-		 * Returns a copy of the current instance to achieve immutability
-		 */
-
-		internal BigInteger Copy() {
-			int[] copyDigits = new int[numberLength];
-			Array.Copy(digits, 0, copyDigits, 0, numberLength);
-			return new BigInteger(sign, numberLength, copyDigits);
-		}
-
-		internal void UnCache() {
-			firstNonzeroDigit = -2;
+			return new BigInteger(-1, nl, d);
 		}
 
 		internal static BigInteger GetPowerOfTwo(int exp) {
@@ -587,9 +536,21 @@ namespace Deveel.Math {
 			}
 			int intCount = exp >> 5;
 			int bitN = exp & 31;
-			int[] resDigits = new int[intCount + 1];
-			resDigits[intCount] = 1 << bitN;
-			return new BigInteger(1, intCount + 1, resDigits);
+			int resLength = intCount + 1;
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
+
+			try {
+				resDigits.Clear();
+				resDigits[intCount] = 1 << bitN;
+				return new BigInteger(1, resLength, resDigits);
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		#region Conversions
@@ -624,13 +585,13 @@ namespace Deveel.Math {
 		private static bool TryParse(string s, int radix, out BigInteger value, out Exception exception) {
 			if (String.IsNullOrEmpty(s)) {
 				exception = new FormatException(Messages.math11);
-				value = null;
+				value = default;
 				return false;
 			}
 			if ((radix < CharHelper.MIN_RADIX) || (radix > CharHelper.MAX_RADIX)) {
 				// math.11=Radix out of range
 				exception = new FormatException(Messages.math12);
-				value = null;
+				value = default;
 				return false;
 			}
 
@@ -665,13 +626,10 @@ namespace Deveel.Math {
 				if (topChars != 0) {
 					bigRadixDigitsLength++;
 				}
-				digits = new int[bigRadixDigitsLength];
-				// Get the maximal power of radix that fits in int
+				int[] d = new int[bigRadixDigitsLength];
 				int bigRadix = Conversion.bigRadices[radix - 2];
-				// Parse an input string and accumulate the BigInteger's magnitude
-				int digitIndex = 0; // index of digits array
+				int digitIndex = 0;
 				int substrEnd = startChar + ((topChars == 0) ? charsPerInt : topChars);
-				int newDigit;
 
 				for (int substrStart = startChar;
 					substrStart < endChar;
@@ -679,28 +637,24 @@ namespace Deveel.Math {
 					                                     + charsPerInt) {
 					int bigRadixDigit = 0;
 				for (int i = substrStart; i < substrEnd; i++) {
-					int d = CharHelper.toDigit(s[i], radix);
-					if (d < 0) throw new FormatException(Messages.math13);
-					bigRadixDigit = bigRadixDigit * radix + d;
+					int cd = CharHelper.toDigit(s[i], radix);
+					if (cd < 0) throw new FormatException(Messages.math13);
+					bigRadixDigit = bigRadixDigit * radix + cd;
 				}
-					newDigit = Multiplication.MultiplyByInt(digits, digitIndex, bigRadix);
-					newDigit += Elementary.inplaceAdd(digits, digitIndex, bigRadixDigit);
-					digits[digitIndex++] = newDigit;
+					int newDigit = Multiplication.MultiplyByInt(d, digitIndex, bigRadix);
+					newDigit += Elementary.inplaceAdd(d, digitIndex, bigRadixDigit);
+					d[digitIndex++] = newDigit;
 				}
 
-				numberLength = digitIndex;
+				var tmp = new BigInteger(sign, digitIndex, d);
+				value = tmp.WithCutOffLeadingZeroes();
+				exception = null;
+				return true;
 			} catch (Exception ex) {
 				exception = ex;
-				value = null;
+				value = default;
 				return false;
 			}
-
-			value = new BigInteger();
-			value.sign = sign;
-			value.numberLength = numberLength;
-			value.digits = digits;
-			value.CutOffLeadingZeroes();
-			exception = null;
 			return true;
 		}
 
@@ -1053,7 +1007,7 @@ namespace Deveel.Math {
 
 		#region IConvertible
 
-#if !PORTABLE
+#if !NETSTANDARD2_0
 
 		TypeCode IConvertible.GetTypeCode() {
 			return TypeCode.Object;
@@ -1230,10 +1184,11 @@ namespace Deveel.Math {
 			 *
 			 * @return this {@code BigInteger} as a long value.
 			 */
-			public long ToInt64() {
-				long value = (numberLength > 1) ? (((long)digits[1]) << 32) | (digits[0] & 0xFFFFFFFFL) : (digits[0] & 0xFFFFFFFFL);
-				return (sign * value);
-			}
+		public long ToInt64() {
+			if (digits == null || sign == 0) return 0;
+			long value = (numberLength > 1) ? (((long)digits[1]) << 32) | (digits[0] & 0xFFFFFFFFL) : (digits[0] & 0xFFFFFFFFL);
+			return (sign * value);
+		}
 
 			/**
 			 * Returns this {@code BigInteger} as an float value. If {@code this} is too

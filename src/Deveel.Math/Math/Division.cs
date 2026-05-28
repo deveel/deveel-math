@@ -14,6 +14,7 @@
 //    limitations under the License.
 
 using System;
+using System.Buffers;
 
 namespace Deveel.Math {
 	/// <summary>
@@ -27,6 +28,7 @@ namespace Deveel.Math {
 	/// </list>
 	/// </summary>
 	internal static class Division {
+		private const int StackAllocMax = 256;
 		/// <summary>
 		/// Divides the array 'a' by the array 'b' and gets the quotient and the
 		/// remainder. Implements the Knuth's division algorithm (see D. Knuth,
@@ -39,78 +41,93 @@ namespace Deveel.Math {
 		/// <param name="b">The divisor array.</param>
 		/// <param name="bLength">The divisor's length.</param>
 		/// <returns>The remainder array.</returns>
-		public static int[] Divide(int[] quot, int quotLength, int[] a, int aLength, int[] b, int bLength) {
-			int[] normA = new int[aLength + 1];
-			int[] normB = new int[bLength + 1];
-			int normBLength = bLength;
-			int divisorShift = Utils.NumberOfLeadingZeros(b[bLength - 1]);
-			if (divisorShift != 0) {
-				BitLevel.ShiftLeft(normB, b, 0, divisorShift);
-				BitLevel.ShiftLeft(normA, a, 0, divisorShift);
-			} else {
-				Array.Copy(a, 0, normA, 0, aLength);
-				Array.Copy(b, 0, normB, 0, bLength);
-			}
-			int firstDivisorDigit = normB[normBLength - 1];
-			int i = quotLength - 1;
-			int j = aLength;
+		public static int[] Divide(Span<int> quot, int quotLength, ReadOnlySpan<int> a, int aLength, ReadOnlySpan<int> b, int bLength) {
+			int totalLen = aLength + bLength + 2;
+			int[]? poolArray = totalLen > StackAllocMax ? ArrayPool<int>.Shared.Rent(totalLen) : null;
+			Span<int> workBuffer = totalLen <= StackAllocMax
+				? stackalloc int[totalLen]
+				: poolArray.AsSpan(0, totalLen);
 
-			while (i >= 0) {
-				int guessDigit = 0;
-				if (normA[j] == firstDivisorDigit) {
-					guessDigit = -1;
+			try {
+				Span<int> normA = workBuffer.Slice(0, aLength + 1);
+				Span<int> normB = workBuffer.Slice(aLength + 1, bLength + 1);
+				int normBLength = bLength;
+				int divisorShift = Utils.NumberOfLeadingZeros(b[bLength - 1]);
+				if (divisorShift != 0) {
+					BitLevel.ShiftLeft(normB, b, 0, divisorShift);
+					BitLevel.ShiftLeft(normA, a, 0, divisorShift);
 				} else {
-					long product = (((normA[j] & 0xffffffffL) << 32) + (normA[j - 1] & 0xffffffffL));
-					long res = Division.DivideLongByInt(product, firstDivisorDigit);
-					guessDigit = (int) res;
-					int rem = (int) (res >> 32);
-					if (guessDigit != 0) {
-						long leftHand = 0;
-						long rightHand = 0;
-						bool rOverflowed = false;
-						guessDigit++;
-						do {
-							guessDigit--;
-							if (rOverflowed)
-								break;
-							leftHand = (guessDigit & 0xffffffffL)
-							           *(normB[normBLength - 2] & 0xffffffffL);
-							rightHand = ((long) rem << 32)
-							            + (normA[j - 2] & 0xffffffffL);
-							long longR = (rem & 0xffffffffL)
-							             + (firstDivisorDigit & 0xffffffffL);
-							if (Utils.NumberOfLeadingZeros((int) Utils.URShift(longR, 32)) < 32)
-								rOverflowed = true;
-							else
-								rem = (int) longR;
-						} while ((leftHand ^ Int64.MinValue) > (rightHand ^ Int64.MinValue));
-
-					}
+					a.Slice(0, aLength).CopyTo(normA);
+					b.Slice(0, bLength).CopyTo(normB);
 				}
-				if (guessDigit != 0) {
-					int borrow = Division.MultiplyAndSubtract(normA, j - normBLength, normB, normBLength, guessDigit);
-					if (borrow != 0) {
-						guessDigit--;
-						long carry = 0;
-						for (int k = 0; k < normBLength; k++) {
-							carry += (normA[j - normBLength + k] & 0xffffffffL)
-							         + (normB[k] & 0xffffffffL);
-							normA[j - normBLength + k] = (int) carry;
-							carry = Utils.URShift(carry, 32);
+				int firstDivisorDigit = normB[normBLength - 1];
+				int i = quotLength - 1;
+				int j = aLength;
+
+				while (i >= 0) {
+					int guessDigit = 0;
+					if (normA[j] == firstDivisorDigit) {
+						guessDigit = -1;
+					} else {
+						long product = (((normA[j] & 0xffffffffL) << 32) + (normA[j - 1] & 0xffffffffL));
+						long res = Division.DivideLongByInt(product, firstDivisorDigit);
+						guessDigit = (int) res;
+						int rem = (int) (res >> 32);
+						if (guessDigit != 0) {
+							long leftHand = 0;
+							long rightHand = 0;
+							bool rOverflowed = false;
+							guessDigit++;
+							do {
+								guessDigit--;
+								if (rOverflowed)
+									break;
+								leftHand = (guessDigit & 0xffffffffL)
+								           *(normB[normBLength - 2] & 0xffffffffL);
+								rightHand = ((long) rem << 32)
+								            + (normA[j - 2] & 0xffffffffL);
+								long longR = (rem & 0xffffffffL)
+								             + (firstDivisorDigit & 0xffffffffL);
+								if (Utils.NumberOfLeadingZeros((int) Utils.URShift(longR, 32)) < 32)
+									rOverflowed = true;
+								else
+									rem = (int) longR;
+							} while ((leftHand ^ Int64.MinValue) > (rightHand ^ Int64.MinValue));
+
 						}
 					}
+					if (guessDigit != 0) {
+						int borrow = Division.MultiplyAndSubtract(normA, j - normBLength, normB, normBLength, guessDigit);
+						if (borrow != 0) {
+							guessDigit--;
+							long carry = 0;
+							for (int k = 0; k < normBLength; k++) {
+								carry += (normA[j - normBLength + k] & 0xffffffffL)
+								         + (normB[k] & 0xffffffffL);
+								normA[j - normBLength + k] = (int) carry;
+								carry = Utils.URShift(carry, 32);
+							}
+						}
+					}
+					if (quot != null)
+						quot[i] = guessDigit;
+					j--;
+					i--;
 				}
-				if (quot != null)
-					quot[i] = guessDigit;
-				j--;
-				i--;
+
+				int[] result = new int[bLength];
+				if (divisorShift != 0) {
+					Span<int> tempRem = stackalloc int[bLength];
+					BitLevel.ShiftRight(tempRem, bLength, normA, 0, divisorShift);
+					tempRem.Slice(0, bLength).CopyTo(result);
+				} else {
+					normA.Slice(0, bLength).CopyTo(result);
+				}
+				return result;
+			} finally {
+				if (poolArray != null)
+					ArrayPool<int>.Shared.Return(poolArray);
 			}
-			if (divisorShift != 0) {
-				BitLevel.ShiftRight(normB, normBLength, normA, 0, divisorShift);
-				return normB;
-			}
-			Array.Copy(normA, 0, normB, 0, bLength);
-			return normA;
 		}
 
 		/// <summary>
@@ -121,7 +138,7 @@ namespace Deveel.Math {
 		/// <param name="srcLength">The length of the dividend.</param>
 		/// <param name="divisor">The divisor.</param>
 		/// <returns>The remainder.</returns>
-		public static int DivideArrayByInt(int[] dest, int[] src, int srcLength, int divisor) {
+		public static int DivideArrayByInt(Span<int> dest, ReadOnlySpan<int> src, int srcLength, int divisor) {
 			long rem = 0;
 			long bLong = divisor & 0xffffffffL;
 
@@ -164,7 +181,7 @@ namespace Deveel.Math {
 		/// <param name="srcLength">The length of the dividend.</param>
 		/// <param name="divisor">The divisor.</param>
 		/// <returns>The remainder.</returns>
-		public static int RemainderArrayByInt(int[] src, int srcLength, int divisor) {
+		public static int RemainderArrayByInt(ReadOnlySpan<int> src, int srcLength, int divisor) {
 			long result = 0;
 
 			for (int i = srcLength - 1; i >= 0; i--) {
@@ -241,7 +258,7 @@ namespace Deveel.Math {
 		/// </code>
 		/// </example>
 		public static BigInteger[] DivideAndRemainderByInteger(BigInteger val, int divisor, int divisorSign) {
-			int[] valDigits = val.Digits;
+			ReadOnlySpan<int> valDigits = val.Digits.AsSpan(0, val.numberLength);
 			int valLen = val.numberLength;
 			int valSign = val.Sign;
 			if (valLen == 1) {
@@ -260,22 +277,28 @@ namespace Deveel.Math {
 			}
 			int quotientLength = valLen;
 			int quotientSign = ((valSign == divisorSign) ? 1 : -1);
-			int[] quotientDigits = new int[quotientLength];
-			int[] remainderDigits;
-			remainderDigits = new int[] {
-				Division.DivideArrayByInt(
+			int[]? quotientArray = null;
+			Span<int> quotientDigits = quotientLength <= StackAllocMax
+				? stackalloc int[quotientLength]
+				: (quotientArray = ArrayPool<int>.Shared.Rent(quotientLength));
+			quotientDigits = quotientDigits.Slice(0, quotientLength);
+
+			try {
+				int remainder = Division.DivideArrayByInt(
 					quotientDigits,
 					valDigits,
 					valLen,
-					divisor)
-			};
-			BigInteger result0 = new BigInteger(quotientSign,
-				quotientLength,
-				quotientDigits);
-			BigInteger result1 = new BigInteger(valSign, 1, remainderDigits);
-			result0.CutOffLeadingZeroes();
-			result1.CutOffLeadingZeroes();
-			return new BigInteger[] {result0, result1};
+					divisor);
+				BigInteger result0 = new BigInteger(quotientSign,
+					quotientLength,
+					quotientDigits);
+				BigInteger result1 = BigInteger.FromInt64(valSign * (long)remainder);
+				result0 = result0.WithCutOffLeadingZeroes();
+				return new BigInteger[] {result0, result1};
+			} finally {
+				if (quotientArray != null)
+					ArrayPool<int>.Shared.Return(quotientArray);
+			}
 		}
 
 		/// <summary>
@@ -287,7 +310,7 @@ namespace Deveel.Math {
 		/// <param name="bLen">The length of <paramref name="b"/>.</param>
 		/// <param name="c">The multiplier of <paramref name="b"/>.</param>
 		/// <returns>The carry element of subtraction.</returns>
-		public static int MultiplyAndSubtract(int[] a, int start, int[] b, int bLen, int c) {
+		public static int MultiplyAndSubtract(Span<int> a, int start, ReadOnlySpan<int> b, int bLen, int c) {
 			long carry0 = 0;
 			long carry1 = 0;
 
@@ -324,8 +347,8 @@ namespace Deveel.Math {
 			int lsb2 = op2.LowestSetBit;
 			int pow2Count = System.Math.Min(lsb1, lsb2);
 
-			BitLevel.InplaceShiftRight(op1, lsb1);
-			BitLevel.InplaceShiftRight(op2, lsb2);
+			op1 = BitLevel.InplaceShiftRight(op1, lsb1);
+			op2 = BitLevel.InplaceShiftRight(op2, lsb2);
 
 			BigInteger swap;
 			if (op1.CompareTo(op2) == BigInteger.GREATER) {
@@ -345,11 +368,11 @@ namespace Deveel.Math {
 				if (op2.numberLength > op1.numberLength*1.2) {
 					op2 = BigMath.Remainder(op2, op1);
 					if (op2.Sign != 0)
-						BitLevel.InplaceShiftRight(op2, op2.LowestSetBit);
+						op2 = BitLevel.InplaceShiftRight(op2, op2.LowestSetBit);
 				} else {
 					do {
-						Elementary.inplaceSubtract(op2, op1);
-						BitLevel.InplaceShiftRight(op2, op2.LowestSetBit);
+						op2 = Elementary.inplaceSubtract(op2, op1);
+						op2 = BitLevel.InplaceShiftRight(op2, op2.LowestSetBit);
 					} while (op2.CompareTo(op1) >= BigInteger.EQUALS);
 				}
 				swap = op2;
@@ -395,79 +418,36 @@ namespace Deveel.Math {
 		/// <param name="p">The modulus.</param>
 		/// <returns><c>a^(-1) mod p</c>.</returns>
 		public static BigInteger ModInverseMontgomery(BigInteger a, BigInteger p) {
-			if (a.Sign == 0) {
+			if (a.sign == 0) {
 				throw new ArithmeticException(Messages.math19);
 			}
 
-			if (!BigInteger.TestBit(p, 0)) {
-				return ModInverseLorencz(a, p);
+			// Use extended Euclidean algorithm for correctness
+			BigInteger oldR = p, r = a;
+			BigInteger oldS = BigInteger.Zero, s = BigInteger.One;
+			
+			while (r.sign != 0) {
+				BigInteger quotient = oldR / r;
+				BigInteger temp = r;
+				r = oldR - quotient * r;
+				oldR = temp;
+				
+				temp = s;
+				s = oldS - quotient * s;
+				oldS = temp;
 			}
-
-			int m = p.numberLength*32;
-			BigInteger u, v, r, s;
-			u = p.Copy();
-			v = a.Copy();
-			int max = System.Math.Max(v.numberLength, u.numberLength);
-			r = new BigInteger(1, 1, new int[max + 1]);
-			s = new BigInteger(1, 1, new int[max + 1]);
-			s.Digits[0] = 1;
-
-			int k = 0;
-
-			int lsbu = u.LowestSetBit;
-			int lsbv = v.LowestSetBit;
-			int toShift;
-
-			if (lsbu > lsbv) {
-				BitLevel.InplaceShiftRight(u, lsbu);
-				BitLevel.InplaceShiftRight(v, lsbv);
-				BitLevel.InplaceShiftLeft(r, lsbv);
-				k += lsbu - lsbv;
-			} else {
-				BitLevel.InplaceShiftRight(u, lsbu);
-				BitLevel.InplaceShiftRight(v, lsbv);
-				BitLevel.InplaceShiftLeft(s, lsbu);
-				k += lsbv - lsbu;
-			}
-
-			r.Sign = 1;
-			while (v.Sign > 0) {
-				while (u.CompareTo(v) > BigInteger.EQUALS) {
-					Elementary.inplaceSubtract(u, v);
-					toShift = u.LowestSetBit;
-					BitLevel.InplaceShiftRight(u, toShift);
-					Elementary.inplaceAdd(r, s);
-					BitLevel.InplaceShiftLeft(s, toShift);
-					k += toShift;
-				}
-
-				while (u.CompareTo(v) <= BigInteger.EQUALS) {
-					Elementary.inplaceSubtract(v, u);
-					if (v.Sign == 0)
-						break;
-					toShift = v.LowestSetBit;
-					BitLevel.InplaceShiftRight(v, toShift);
-					Elementary.inplaceAdd(s, r);
-					BitLevel.InplaceShiftLeft(r, toShift);
-					k += toShift;
-				}
-			}
-			if (!u.IsOne) {
+			
+			// oldR is the GCD, should be 1 for inverse to exist
+			if (oldR.numberLength > 1 || oldR.digits[0] != 1) {
 				throw new ArithmeticException(Messages.math19);
 			}
-			if (r.CompareTo(p) >= BigInteger.EQUALS)
-				Elementary.inplaceSubtract(r, p);
-
-			r = p - r;
-
-			int n1 = CalcN(p);
-			if (k > m) {
-				r = MonPro(r, BigInteger.One, p, n1);
-				k = k - m;
+			
+			// oldS is the inverse, make it positive
+			if (oldS.sign < 0) {
+				oldS = oldS + p;
 			}
-
-			r = MonPro(r, BigInteger.GetPowerOfTwo(m - k), p, n1);
-			return r;
+			
+			return oldS;
 		}
 
 		/// <summary>
@@ -555,45 +535,45 @@ namespace Deveel.Math {
 				k = HowManyIterations(u, n);
 
 				if (k != 0) {
-					BitLevel.InplaceShiftLeft(u, k);
+					u = BitLevel.InplaceShiftLeft(u, k);
 					if (coefU >= coefV)
-						BitLevel.InplaceShiftLeft(r, k);
+						r = BitLevel.InplaceShiftLeft(r, k);
 					else {
-						BitLevel.InplaceShiftRight(s, System.Math.Min(coefV - coefU, k));
+						s = BitLevel.InplaceShiftRight(s, System.Math.Min(coefV - coefU, k));
 						if (k - (coefV - coefU) > 0)
-							BitLevel.InplaceShiftLeft(r, k - coefV + coefU);
+							r = BitLevel.InplaceShiftLeft(r, k - coefV + coefU);
 					}
 					coefU += k;
 				}
 
 				k = HowManyIterations(v, n);
 				if (k != 0) {
-					BitLevel.InplaceShiftLeft(v, k);
+					v = BitLevel.InplaceShiftLeft(v, k);
 					if (coefV >= coefU)
-						BitLevel.InplaceShiftLeft(s, k);
+						s = BitLevel.InplaceShiftLeft(s, k);
 					else {
-						BitLevel.InplaceShiftRight(r, System.Math.Min(coefU - coefV, k));
+						r = BitLevel.InplaceShiftRight(r, System.Math.Min(coefU - coefV, k));
 						if (k - (coefU - coefV) > 0)
-							BitLevel.InplaceShiftLeft(s, k - coefU + coefV);
+							s = BitLevel.InplaceShiftLeft(s, k - coefU + coefV);
 					}
 					coefV += k;
 				}
 
 				if (u.Sign == v.Sign) {
 					if (coefU <= coefV) {
-						Elementary.completeInPlaceSubtract(u, v);
-						Elementary.completeInPlaceSubtract(r, s);
+						u = Elementary.completeInPlaceSubtract(u, v);
+						r = Elementary.completeInPlaceSubtract(r, s);
 					} else {
-						Elementary.completeInPlaceSubtract(v, u);
-						Elementary.completeInPlaceSubtract(s, r);
+						v = Elementary.completeInPlaceSubtract(v, u);
+						s = Elementary.completeInPlaceSubtract(s, r);
 					}
 				} else {
 					if (coefU <= coefV) {
-						Elementary.completeInPlaceAdd(u, v);
-						Elementary.completeInPlaceAdd(r, s);
+						u = Elementary.completeInPlaceAdd(u, v);
+						r = Elementary.completeInPlaceAdd(r, s);
 					} else {
-						Elementary.completeInPlaceAdd(v, u);
-						Elementary.completeInPlaceAdd(s, r);
+						v = Elementary.completeInPlaceAdd(v, u);
+						s = Elementary.completeInPlaceAdd(s, r);
 					}
 				}
 				if (v.Sign == 0 || u.Sign == 0) {
@@ -618,57 +598,6 @@ namespace Deveel.Math {
 			return r;
 		}
 
-		private static BigInteger SquareAndMultiply(BigInteger x2, BigInteger a2, BigInteger exponent, BigInteger modulus, int n2) {
-			BigInteger res = x2;
-			for (int i = exponent.BitLength - 1; i >= 0; i--) {
-				res = MonPro(res, res, modulus, n2);
-				if (BitLevel.TestBit(exponent, i))
-					res = MonPro(res, a2, modulus, n2);
-			}
-			return res;
-		}
-
-		/// <summary>
-		/// Implements the Montgomery modular exponentiation based on the sliding windows algorithm
-		/// and the Montgomery Reduction.
-		/// </summary>
-		private static BigInteger SlidingWindow(BigInteger x2, BigInteger a2, BigInteger exponent, BigInteger modulus, int n2) {
-			BigInteger[] pows = new BigInteger[8];
-			BigInteger res = x2;
-			int lowexp;
-			BigInteger x3;
-			int acc3;
-			pows[0] = a2;
-
-			x3 = MonPro(a2, a2, modulus, n2);
-			for (int i = 1; i <= 7; i++)
-				pows[i] = MonPro(pows[i - 1], x3, modulus, n2);
-
-			for (int i = exponent.BitLength - 1; i >= 0; i--) {
-				if (BitLevel.TestBit(exponent, i)) {
-					lowexp = 1;
-					acc3 = i;
-
-					for (int j = System.Math.Max(i - 3, 0); j <= i - 1; j++) {
-						if (BitLevel.TestBit(exponent, j)) {
-							if (j < acc3) {
-								acc3 = j;
-								lowexp = (lowexp << (i - j)) ^ 1;
-							} else
-								lowexp = lowexp ^ (1 << (j - acc3));
-						}
-					}
-
-					for (int j = acc3; j <= i; j++)
-						res = MonPro(res, res, modulus, n2);
-					res = MonPro(pows[(lowexp - 1) >> 1], res, modulus, n2);
-					i = acc3;
-				} else
-					res = MonPro(res, res, modulus, n2);
-			}
-			return res;
-		}
-
 		/// <summary>
 		/// Performs modular exponentiation using the Montgomery Reduction.
 		/// Requires that all parameters be positive and the modulus be odd.
@@ -689,18 +618,258 @@ namespace Deveel.Math {
 		public static BigInteger OddModPow(BigInteger b,
 			BigInteger exponent,
 			BigInteger modulus) {
-			int k = (modulus.numberLength << 5);
-			BigInteger a2 = (b << k) % modulus;
-			BigInteger x2 = BigInteger.GetPowerOfTwo(k) % modulus;
-			BigInteger res;
-
+			int n = modulus.numberLength;
+			int k = n << 5;
 			int n2 = CalcN(modulus);
-			if (modulus.numberLength == 1)
-				res = SquareAndMultiply(x2, a2, exponent, modulus, n2);
-			else
-				res = SlidingWindow(x2, a2, exponent, modulus, n2);
 
-			return MonPro(res, BigInteger.One, modulus, n2);
+			// Fast path for single-digit modulus
+			if (n == 1) {
+				int modDigit = modulus.digits[0];
+				int bRem = Division.RemainderArrayByInt(b.digits, b.numberLength, modDigit);
+				int a2 = (int)(((long)bRem << k) % modDigit);
+				// x2 = 2^k % modulus, where k = 32 for n=1
+				int x2 = (int)(0x100000000UL % (uint)modDigit);
+				return SquareAndMultiplyBufSingle(x2, a2, exponent, modDigit, n2);
+			}
+
+			int resSize = n + 1;
+			int workSize = (n << 1) + 1;
+
+			int[]? a2Array = ArrayPool<int>.Shared.Rent(resSize);
+			int[]? x2Array = ArrayPool<int>.Shared.Rent(resSize);
+			int shiftedLen = n + b.numberLength;
+			int[]? workArray = ArrayPool<int>.Shared.Rent(System.Math.Max(workSize, shiftedLen));
+			int[]? quotArray = ArrayPool<int>.Shared.Rent(workSize);
+			try {
+				Span<int> a2 = a2Array.AsSpan(0, resSize);
+				Span<int> x2 = x2Array.AsSpan(0, resSize);
+				Span<int> work = workArray.AsSpan(0, workArray.Length);
+				Span<int> quot = quotArray.AsSpan(0, workSize);
+				Span<int> modDigits = modulus.digits.AsSpan(0, n);
+
+				// a2 = (b << k) % modulus
+				work.Slice(0, shiftedLen).Clear();
+				b.digits.AsSpan(0, b.numberLength).CopyTo(work.Slice(n));
+				Division.Divide(quot, shiftedLen - n + 1, work.Slice(0, shiftedLen), shiftedLen, modDigits, n);
+				work.Slice(0, n).CopyTo(a2);
+				a2[n] = 0;
+
+				// x2 = 2^k % modulus
+				work.Slice(0, n + 1).Clear();
+				work[n] = 1;
+				Division.Divide(quot, 2, work.Slice(0, n + 1), n + 1, modDigits, n);
+				work.Slice(0, n).CopyTo(x2);
+				x2[n] = 0;
+
+				BigInteger res = SlidingWindowBuf(x2, a2, exponent, modulus, n2);
+				return res;
+			} finally {
+				ArrayPool<int>.Shared.Return(a2Array);
+				ArrayPool<int>.Shared.Return(x2Array);
+				ArrayPool<int>.Shared.Return(workArray);
+				ArrayPool<int>.Shared.Return(quotArray);
+			}
+		}
+
+		private static BigInteger SquareAndMultiplyBufSingle(int x2, int a2, BigInteger exponent, int modulus, int n2) {
+			int res = x2;
+			for (int i = exponent.BitLength - 1; i >= 0; i--) {
+				res = MonProSingle(res, res, modulus, n2);
+				if (BitLevel.TestBit(exponent, i))
+					res = MonProSingle(res, a2, modulus, n2);
+			}
+			// Final Montgomery conversion
+			res = MonProSingle(res, 1, modulus, n2);
+			return BigInteger.FromInt64(res);
+		}
+
+		private static int MonProSingle(int a, int b, int modulus, int n2) {
+			ulong ua = (uint)a;
+			ulong ub = (uint)b;
+			ulong um = (uint)modulus;
+			ulong un2 = (uint)n2;
+			ulong product = ua * ub;
+			ulong mVal = (product * un2) & 0xFFFFFFFFUL;
+			ulong t = product + mVal * um;
+			uint result = (uint)(t >> 32);
+			if (result >= (uint)um) result -= (uint)um;
+			return (int)result;
+		}
+
+		private static BigInteger SquareAndMultiplyBuf(ReadOnlySpan<int> x2, ReadOnlySpan<int> a2, BigInteger exponent, BigInteger modulus, int n2) {
+			int n = modulus.numberLength;
+			int resSize = n + 1;
+			int workSize = (n << 1) + 1;
+
+			int[][] buffers = new int[3][];
+			buffers[0] = ArrayPool<int>.Shared.Rent(resSize);
+			buffers[1] = ArrayPool<int>.Shared.Rent(resSize);
+			buffers[2] = ArrayPool<int>.Shared.Rent(workSize);
+			try {
+				int resIdx = 0;
+				Span<int> res = buffers[0].AsSpan(0, resSize);
+				res.Clear();
+				x2.Slice(0, n).CopyTo(res);
+
+				Span<int> a2Buf = buffers[2].AsSpan(0, resSize);
+				a2Buf.Clear();
+				a2.Slice(0, n).CopyTo(a2Buf);
+
+				Span<int> work = buffers[2].AsSpan(0, workSize);
+
+				for (int i = exponent.BitLength - 1; i >= 0; i--) {
+					// Square: res = res * res
+					int nextIdx = 1 - resIdx;
+					Span<int> next = buffers[nextIdx].AsSpan(0, resSize);
+					Multiplication.MultArraysPap(res.Slice(0, n), n, res.Slice(0, n), n, work);
+					work[workSize - 1] = 0;
+					MonReduction(work, modulus, n2);
+					FinalSubtractionInPlace(work.Slice(0, resSize), modulus);
+					work.Slice(0, resSize).CopyTo(next);
+					resIdx = nextIdx;
+					res = buffers[resIdx].AsSpan(0, resSize);
+
+					if (BitLevel.TestBit(exponent, i)) {
+						// Multiply: res = res * a2
+						nextIdx = 1 - resIdx;
+						next = buffers[nextIdx].AsSpan(0, resSize);
+						Multiplication.MultArraysPap(res.Slice(0, n), n, a2Buf.Slice(0, n), n, work);
+						work[workSize - 1] = 0;
+						MonReduction(work, modulus, n2);
+						FinalSubtractionInPlace(work.Slice(0, resSize), modulus);
+						work.Slice(0, resSize).CopyTo(next);
+						resIdx = nextIdx;
+						res = buffers[resIdx].AsSpan(0, resSize);
+					}
+				}
+
+				// Final Montgomery conversion in-place
+				work.Slice(0, workSize).Clear();
+				res.CopyTo(work);
+				MonReduction(work, modulus, n2);
+				FinalSubtractionInPlace(work.Slice(0, resSize), modulus);
+
+				// Compute actual length and handle zero
+				int actualLen = resSize;
+				while (actualLen > 1 && work[actualLen - 1] == 0) actualLen--;
+				int finalSign = (actualLen == 1 && work[0] == 0) ? 0 : 1;
+				int[] resultDigits = new int[actualLen];
+				work.Slice(0, actualLen).CopyTo(resultDigits);
+				return new BigInteger(finalSign, actualLen, resultDigits);
+			} finally {
+				ArrayPool<int>.Shared.Return(buffers[0]);
+				ArrayPool<int>.Shared.Return(buffers[1]);
+				ArrayPool<int>.Shared.Return(buffers[2]);
+			}
+		}
+
+		private static BigInteger SlidingWindowBuf(ReadOnlySpan<int> x2, ReadOnlySpan<int> a2, BigInteger exponent, BigInteger modulus, int n2) {
+			int n = modulus.numberLength;
+			int resSize = n + 1;
+			int workSize = (n << 1) + 1;
+
+			int[][] powsArrays = new int[8][];
+			for (int i = 0; i < 8; i++)
+				powsArrays[i] = ArrayPool<int>.Shared.Rent(resSize);
+
+			int[]? resArray = ArrayPool<int>.Shared.Rent(resSize);
+			int[]? mainWorkArray = ArrayPool<int>.Shared.Rent(workSize);
+
+			try {
+				// pows[0] = a2
+				a2.CopyTo(powsArrays[0]);
+
+				// x3 = MonPro(a2, a2)
+				int[]? x3Array = ArrayPool<int>.Shared.Rent(resSize);
+				int[]? preWorkArray = ArrayPool<int>.Shared.Rent(workSize);
+				Span<int> work = preWorkArray.AsSpan(0, workSize);
+
+				Multiplication.MultArraysPap(powsArrays[0].AsSpan(0, n), n, powsArrays[0].AsSpan(0, n), n, work);
+				work[workSize - 1] = 0;
+				MonReduction(work, modulus, n2);
+				FinalSubtractionInPlace(work.Slice(0, resSize), modulus);
+				work.Slice(0, resSize).CopyTo(x3Array);
+
+				// pows[i] = MonPro(pows[i-1], x3)
+				Span<int> x3Span = x3Array.AsSpan(0, resSize);
+				for (int i = 1; i <= 7; i++) {
+					Multiplication.MultArraysPap(powsArrays[i - 1].AsSpan(0, n), n, x3Span.Slice(0, n), n, work);
+					work[workSize - 1] = 0;
+					MonReduction(work, modulus, n2);
+					FinalSubtractionInPlace(work.Slice(0, resSize), modulus);
+					work.Slice(0, resSize).CopyTo(powsArrays[i]);
+				}
+
+				ArrayPool<int>.Shared.Return(x3Array);
+				ArrayPool<int>.Shared.Return(preWorkArray);
+
+				// Main loop
+				Span<int> res = resArray.AsSpan(0, resSize);
+				Span<int> mainWork = mainWorkArray.AsSpan(0, workSize);
+
+				res.Clear();
+				x2.CopyTo(res);
+
+				int lowexp;
+				int acc3;
+
+				for (int i = exponent.BitLength - 1; i >= 0; i--) {
+					if (BitLevel.TestBit(exponent, i)) {
+						lowexp = 1;
+						acc3 = i;
+
+						for (int j = System.Math.Max(i - 3, 0); j <= i - 1; j++) {
+							if (BitLevel.TestBit(exponent, j)) {
+								if (j < acc3) {
+									acc3 = j;
+									lowexp = (lowexp << (i - j)) ^ 1;
+								} else
+									lowexp = lowexp ^ (1 << (j - acc3));
+							}
+						}
+
+						for (int j = acc3; j <= i; j++) {
+							Multiplication.MultArraysPap(res.Slice(0, n), n, res.Slice(0, n), n, mainWork);
+							mainWork[workSize - 1] = 0;
+							MonReduction(mainWork, modulus, n2);
+							FinalSubtractionInPlace(mainWork.Slice(0, resSize), modulus);
+							mainWork.Slice(0, resSize).CopyTo(res);
+						}
+
+						Multiplication.MultArraysPap(powsArrays[(lowexp - 1) >> 1].AsSpan(0, n), n, res.Slice(0, n), n, mainWork);
+						mainWork[workSize - 1] = 0;
+						MonReduction(mainWork, modulus, n2);
+						FinalSubtractionInPlace(mainWork.Slice(0, resSize), modulus);
+						mainWork.Slice(0, resSize).CopyTo(res);
+						i = acc3;
+					} else {
+						Multiplication.MultArraysPap(res.Slice(0, n), n, res.Slice(0, n), n, mainWork);
+						mainWork[workSize - 1] = 0;
+						MonReduction(mainWork, modulus, n2);
+						FinalSubtractionInPlace(mainWork.Slice(0, resSize), modulus);
+						mainWork.Slice(0, resSize).CopyTo(res);
+					}
+				}
+
+				// Final Montgomery conversion in-place
+				mainWork.Slice(0, workSize).Clear();
+				res.CopyTo(mainWork);
+				MonReduction(mainWork, modulus, n2);
+				FinalSubtractionInPlace(mainWork.Slice(0, resSize), modulus);
+
+				// Compute actual length and handle zero
+				int actualLen = resSize;
+				while (actualLen > 1 && mainWork[actualLen - 1] == 0) actualLen--;
+				int finalSign = (actualLen == 1 && mainWork[0] == 0) ? 0 : 1;
+				int[] resultDigits = new int[actualLen];
+				mainWork.Slice(0, actualLen).CopyTo(resultDigits);
+				return new BigInteger(finalSign, actualLen, resultDigits);
+			} finally {
+				ArrayPool<int>.Shared.Return(resArray);
+				ArrayPool<int>.Shared.Return(mainWorkArray);
+				for (int i = 0; i < 8; i++)
+					ArrayPool<int>.Shared.Return(powsArrays[i]);
+			}
 		}
 
 		/// <summary>
@@ -723,7 +892,7 @@ namespace Deveel.Math {
 
 			BigInteger qInv = ModPow2Inverse(q, j);
 			BigInteger y = (x2 - x1) * qInv;
-			InplaceModPow2(y, j);
+			y = InplaceModPow2(y, j);
 			if (y.Sign < 0)
 				y += BigInteger.GetPowerOfTwo(j);
 			return x1 + (q * y);
@@ -738,27 +907,27 @@ namespace Deveel.Math {
 		/// <returns><c>b^exponent mod (2^j)</c>.</returns>
 		private static BigInteger Pow2ModPow(BigInteger b, BigInteger exponent, int j) {
 			BigInteger res = BigInteger.One;
-			BigInteger e = exponent.Copy();
-			BigInteger baseMod2toN = b.Copy();
+			BigInteger e = exponent;
+			BigInteger baseMod2toN = b;
 			BigInteger res2;
 			if (BigInteger.TestBit(b, 0))
-				InplaceModPow2(e, j - 1);
-			InplaceModPow2(baseMod2toN, j);
+				e = InplaceModPow2(e, j - 1);
+			baseMod2toN = InplaceModPow2(baseMod2toN, j);
 
 			for (int i = e.BitLength - 1; i >= 0; i--) {
-				res2 = res.Copy();
-				InplaceModPow2(res2, j);
+				res2 = res;
+				res2 = InplaceModPow2(res2, j);
 				res = res * res2;
 				if (BitLevel.TestBit(e, i)) {
 					res = res * baseMod2toN;
-					InplaceModPow2(res, j);
+					res = InplaceModPow2(res, j);
 				}
 			}
-			InplaceModPow2(res, j);
+			res = InplaceModPow2(res, j);
 			return res;
 		}
 
-		private static void MonReduction(int[] res, BigInteger modulus, int n2) {
+		private static void MonReduction(Span<int> res, BigInteger modulus, int n2) {
 			int[] modulusDigits = modulus.Digits;
 			int modulusLen = modulus.numberLength;
 			long outerCarry = 0;
@@ -794,14 +963,20 @@ namespace Deveel.Math {
 		/// <returns>The Montgomery product.</returns>
 		private static BigInteger MonPro(BigInteger a, BigInteger b, BigInteger modulus, int n2) {
 			int modulusLen = modulus.numberLength;
-			int[] res = new int[(modulusLen << 1) + 1];
-			Multiplication.MultArraysPap(a.Digits,
-				System.Math.Min(modulusLen, a.numberLength),
-				b.Digits,
-				System.Math.Min(modulusLen, b.numberLength),
-				res);
-			MonReduction(res, modulus, n2);
-			return FinalSubtraction(res, modulus);
+			int resLen = (modulusLen << 1) + 1;
+			int[]? resArray = ArrayPool<int>.Shared.Rent(resLen);
+			Span<int> res = resArray.AsSpan(0, resLen);
+			try {
+				Multiplication.MultArraysPap(a.Digits,
+					System.Math.Min(modulusLen, a.numberLength),
+					b.Digits,
+					System.Math.Min(modulusLen, b.numberLength),
+					res);
+				MonReduction(res, modulus, n2);
+				return FinalSubtraction(res, modulus);
+			} finally {
+				ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -810,7 +985,7 @@ namespace Deveel.Math {
 		/// <param name="res">The result array.</param>
 		/// <param name="modulus">The modulus.</param>
 		/// <returns>The reduced <see cref="BigInteger"/>.</returns>
-		private static BigInteger FinalSubtraction(int[] res, BigInteger modulus) {
+		private static BigInteger FinalSubtraction(Span<int> res, BigInteger modulus) {
 			int modulusLen = modulus.numberLength;
 			bool doSub = res[modulusLen] != 0;
 			if (!doSub) {
@@ -824,13 +999,50 @@ namespace Deveel.Math {
 				}
 			}
 
-			BigInteger result = new BigInteger(1, modulusLen + 1, res);
+			if (doSub) {
+				long borrow = 0;
+				int[] modulusDigits = modulus.Digits;
+				for (int i = 0; i < modulusLen; i++) {
+					long diff = (res[i] & 0xFFFFFFFFL) - (modulusDigits[i] & 0xFFFFFFFFL) - borrow;
+					res[i] = (int)diff;
+					borrow = diff < 0 ? 1 : 0;
+				}
+			}
+			res[modulusLen] = 0;
 
-			if (doSub)
-				Elementary.inplaceSubtract(result, modulus);
+			// Compute actual length and handle zero
+			int actualLen = modulusLen + 1;
+			while (actualLen > 1 && res[actualLen - 1] == 0) actualLen--;
+			int finalSign = (actualLen == 1 && res[0] == 0) ? 0 : 1;
+			int[] resultDigits = new int[actualLen];
+			res.Slice(0, actualLen).CopyTo(resultDigits);
+			return new BigInteger(finalSign, actualLen, resultDigits);
+		}
 
-			result.CutOffLeadingZeroes();
-			return result;
+		private static void FinalSubtractionInPlace(Span<int> res, BigInteger modulus) {
+			int modulusLen = modulus.numberLength;
+			bool doSub = res[modulusLen] != 0;
+			if (!doSub) {
+				int[] modulusDigits = modulus.Digits;
+				doSub = true;
+				for (int i = modulusLen - 1; i >= 0; i--) {
+					if (res[i] != modulusDigits[i]) {
+						doSub = (res[i] != 0) && ((res[i] & 0xFFFFFFFFL) > (modulusDigits[i] & 0xFFFFFFFFL));
+						break;
+					}
+				}
+			}
+
+			if (doSub) {
+				long borrow = 0;
+				int[] modulusDigits = modulus.Digits;
+				for (int i = 0; i < modulusLen; i++) {
+					long diff = (res[i] & 0xFFFFFFFFL) - (modulusDigits[i] & 0xFFFFFFFFL) - borrow;
+					res[i] = (int)diff;
+					borrow = diff < 0 ? 1 : 0;
+				}
+			}
+			res[modulusLen] = 0;
 		}
 
 		/// <summary>
@@ -840,34 +1052,47 @@ namespace Deveel.Math {
 		/// <param name="n">The exponent by which 2 is raised.</param>
 		/// <returns><c>x^(-1) mod (2^n)</c>.</returns>
 		private static BigInteger ModPow2Inverse(BigInteger x, int n) {
-			BigInteger y = new BigInteger(1, new int[(n + 31) >> 5]);
-			y.numberLength = 1;
-			y.Digits[0] = 1;
-			y.Sign = 1;
+			int[] d = new int[(n + 31) >> 5];
+			d[0] = 1;
+			BigInteger y = new BigInteger(1, 1, d);
 
 			for (int i = 1; i < n; i++) {
 				if (BitLevel.TestBit(x * y, i)) {
-					y.Digits[i >> 5] |= (1 << (i & 31));
+					d[i >> 5] |= (1 << (i & 31));
 				}
 			}
-			return y;
+			return new BigInteger(1, d.Length, d);
 		}
 
 		/// <summary>
 		/// Performs <c>x = x mod (2^n)</c>.
 		/// </summary>
-		/// <param name="x">A positive number (will store the result).</param>
+		/// <param name="x">A positive number.</param>
 		/// <param name="n">A positive exponent of 2.</param>
-		public static void InplaceModPow2(BigInteger x, int n) {
+		/// <returns>x mod (2^n).</returns>
+		public static BigInteger InplaceModPow2(BigInteger x, int n) {
 			int fd = n >> 5;
 			int leadingZeros;
 
 			if ((x.numberLength < fd) || (x.BitLength <= n))
-				return;
+				return x;
 			leadingZeros = 32 - (n & 31);
-			x.numberLength = fd + 1;
-			x.Digits[fd] &= (leadingZeros < 32) ? (Utils.URShift(-1, leadingZeros)) : 0;
-			x.CutOffLeadingZeroes();
+			
+			int[]? resArray = null;
+			Span<int> resDigits = x.numberLength <= StackAllocMax
+				? stackalloc int[x.numberLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(x.numberLength));
+			resDigits = resDigits.Slice(0, x.numberLength);
+
+			try {
+				x.digits.AsSpan(0, x.numberLength).CopyTo(resDigits);
+				resDigits[fd] &= (leadingZeros < 32) ? (Utils.URShift(-1, leadingZeros)) : 0;
+				var result = new BigInteger(x.sign, fd + 1, resDigits);
+				return result.WithCutOffLeadingZeroes();
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 	}
 }

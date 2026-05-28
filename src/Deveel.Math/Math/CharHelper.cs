@@ -16,7 +16,7 @@
 using System;
 
 namespace Deveel.Math {
-#if NET_2_0
+#if NETSTANDARD2_0
 	static
 #else
 	sealed 
@@ -27,7 +27,7 @@ namespace Deveel.Math {
 	/// mirroring the functionality of Java's <c>java.lang.Character</c>.
 	/// </summary>
 	class CharHelper {
-#if !NET_2_0
+#if !NETSTANDARD2_0
 		private CharHelper() {
 		}
 #endif

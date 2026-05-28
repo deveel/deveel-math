@@ -14,6 +14,8 @@
 //    limitations under the License.
 
 using System;
+using System.Buffers;
+using System.Numerics;
 
 namespace Deveel.Math {
 	/// <summary>
@@ -27,6 +29,7 @@ namespace Deveel.Math {
 	/// </list>
 	/// </summary>
 	static class Logical {
+		private const int StackAllocMax = 256;
 
 		/// <summary>
 		/// Computes the bitwise NOT of <paramref name="val"/>.
@@ -47,33 +50,45 @@ namespace Deveel.Math {
 			if (val.Equals(BigInteger.MinusOne)) {
 				return BigInteger.Zero;
 			}
-			int[] resDigits = new int[val.numberLength + 1];
-			int i;
+			int resLength = val.numberLength + 1;
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			if (val.Sign > 0) {
-				if (val.Digits[val.numberLength - 1] != -1) {
-					for (i = 0; val.Digits[i] == -1; i++) {
-						;
-					}
-				} else {
-					for (i = 0; (i < val.numberLength) && (val.Digits[i] == -1); i++) {
-						;
-					}
+			try {
+				int i;
+
+				if (val.Sign > 0) {
+					if (val.Digits[val.numberLength - 1] != -1) {
+						for (i = 0; val.Digits[i] == -1; i++) {
+							;
+						}
+					} else {
+						for (i = 0; (i < val.numberLength) && (val.Digits[i] == -1); i++) {
+							;
+						}
 					if (i == val.numberLength) {
 						resDigits[i] = 1;
-						return new BigInteger(-val.Sign, i + 1, resDigits);
+						return new BigInteger(-val.Sign, i + 1, resDigits.Slice(0, i + 1));
+					}
+					}
+				} else {
+					for (i = 0; val.Digits[i] == 0; i++) {
+						resDigits[i] = -1;
 					}
 				}
-			} else {
-				for (i = 0; val.Digits[i] == 0; i++) {
-					resDigits[i] = -1;
+				resDigits[i] = val.Digits[i] + val.Sign;
+				for (i++; i < val.numberLength; i++) {
+					resDigits[i] = val.Digits[i];
 				}
+			BigInteger result = new BigInteger(-val.Sign, i, resDigits.Slice(0, i));
+			return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
 			}
-			resDigits[i] = val.Digits[i] + val.Sign;
-			for (i++; i < val.numberLength; i++) {
-				resDigits[i] = val.Digits[i];
-			}
-			return new BigInteger(-val.Sign, i, resDigits);
 		}
 
 		/// <summary>
@@ -130,14 +145,39 @@ namespace Deveel.Math {
 				return BigInteger.Zero;
 			}
 
-			int[] resDigits = new int[resLength];
-			for (; i < resLength; i++) {
-				resDigits[i] = val.Digits[i] & that.Digits[i];
-			}
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			BigInteger result = new BigInteger(1, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
+			try {
+				var a = val.DigitsSpan;
+				var b = that.DigitsSpan;
+
+#if !NETSTANDARD2_0
+				if (Vector.IsHardwareAccelerated && resLength - i >= Vector<int>.Count) {
+					int vectorLimit = i + ((resLength - i) / Vector<int>.Count) * Vector<int>.Count;
+					for (; i < vectorLimit; i += Vector<int>.Count) {
+						var va = new Vector<int>(a.Slice(i, Vector<int>.Count).ToArray());
+						var vb = new Vector<int>(b.Slice(i, Vector<int>.Count).ToArray());
+						var vResult = va & vb;
+						for (int j = 0; j < Vector<int>.Count; j++) {
+							resDigits[i + j] = vResult[j];
+						}
+					}
+				}
+#endif
+				for (; i < resLength; i++) {
+					resDigits[i] = a[i] & b[i];
+				}
+
+				BigInteger result = new BigInteger(1, resLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -152,26 +192,35 @@ namespace Deveel.Math {
 				return BigInteger.Zero;
 			}
 			int resLength = positive.numberLength;
-			int[] resDigits = new int[resLength];
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			int i = System.Math.Max(iPos, iNeg);
-			if (i == iNeg) {
-				resDigits[i] = -negative.Digits[i] & positive.Digits[i];
-				i++;
-			}
-			int limit = System.Math.Min(negative.numberLength, positive.numberLength);
-			for (; i < limit; i++) {
-				resDigits[i] = ~negative.Digits[i] & positive.Digits[i];
-			}
-			if (i >= negative.numberLength) {
-				for (; i < positive.numberLength; i++) {
-					resDigits[i] = positive.Digits[i];
+			try {
+				int i = System.Math.Max(iPos, iNeg);
+				if (i == iNeg) {
+					resDigits[i] = -negative.Digits[i] & positive.Digits[i];
+					i++;
 				}
-			}
+				int limit = System.Math.Min(negative.numberLength, positive.numberLength);
+				for (; i < limit; i++) {
+					resDigits[i] = ~negative.Digits[i] & positive.Digits[i];
+				}
+				if (i >= negative.numberLength) {
+					for (; i < positive.numberLength; i++) {
+						resDigits[i] = positive.Digits[i];
+					}
+				}
 
-			BigInteger result = new BigInteger(1, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
+				BigInteger result = new BigInteger(1, resLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -186,44 +235,53 @@ namespace Deveel.Math {
 				return longer;
 			}
 
-			int resLength;
-			int[] resDigits;
-			int i = System.Math.Max(iShorter, iLonger);
-			int digit;
-			if (iShorter > iLonger) {
-				digit = -shorter.Digits[i] & ~longer.Digits[i];
-			} else if (iShorter < iLonger) {
-				digit = ~shorter.Digits[i] & -longer.Digits[i];
-			} else {
-				digit = -shorter.Digits[i] & -longer.Digits[i];
-			}
-			if (digit == 0) {
-				for (i++; i < shorter.numberLength && (digit = ~(longer.Digits[i] | shorter.Digits[i])) == 0; i++)
-					;
+			int maxResLength = longer.numberLength + 1;
+			int[]? resArray = null;
+			Span<int> resDigits = maxResLength <= StackAllocMax
+				? stackalloc int[maxResLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(maxResLength));
+			resDigits = resDigits.Slice(0, maxResLength);
+
+			try {
+				int i = System.Math.Max(iShorter, iLonger);
+				int digit;
+				if (iShorter > iLonger) {
+					digit = -shorter.Digits[i] & ~longer.Digits[i];
+				} else if (iShorter < iLonger) {
+					digit = ~shorter.Digits[i] & -longer.Digits[i];
+				} else {
+					digit = -shorter.Digits[i] & -longer.Digits[i];
+				}
 				if (digit == 0) {
-					for (; i < longer.numberLength && (digit = ~longer.Digits[i]) == 0; i++)
+					for (i++; i < shorter.numberLength && (digit = ~(longer.Digits[i] | shorter.Digits[i])) == 0; i++)
 						;
 					if (digit == 0) {
-						resLength = longer.numberLength + 1;
-						resDigits = new int[resLength];
-						resDigits[resLength - 1] = 1;
+						for (; i < longer.numberLength && (digit = ~longer.Digits[i]) == 0; i++)
+							;
+						if (digit == 0) {
+							int finalLength = longer.numberLength + 1;
+							resDigits.Slice(0, finalLength).Clear();
+							resDigits[finalLength - 1] = 1;
 
-						return new BigInteger(-1, resLength, resDigits);
+							return new BigInteger(-1, finalLength, resDigits.Slice(0, finalLength));
+						}
 					}
 				}
-			}
-			resLength = longer.numberLength;
-			resDigits = new int[resLength];
-			resDigits[i] = -digit;
-			for (i++; i < shorter.numberLength; i++) {
-				resDigits[i] = longer.Digits[i] | shorter.Digits[i];
-			}
-			for (; i < longer.numberLength; i++) {
-				resDigits[i] = longer.Digits[i];
-			}
+				int resLength = longer.numberLength;
+				resDigits[i] = -digit;
+				for (i++; i < shorter.numberLength; i++) {
+					resDigits[i] = longer.Digits[i] | shorter.Digits[i];
+				}
+				for (; i < longer.numberLength; i++) {
+					resDigits[i] = longer.Digits[i];
+				}
 
-			BigInteger result = new BigInteger(-1, resLength, resDigits);
-			return result;
+				BigInteger result = new BigInteger(-1, resLength, resDigits.Slice(0, resLength));
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -274,20 +332,30 @@ namespace Deveel.Math {
 		/// </summary>
 		/// <returns>Sign = 1, magnitude = val.magnitude &amp; ~that.magnitude.</returns>
 		private static BigInteger AndNotPositive(BigInteger val, BigInteger that) {
-			int[] resDigits = new int[val.numberLength];
+			int resLength = val.numberLength;
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			int limit = System.Math.Min(val.numberLength, that.numberLength);
-			int i;
-			for (i = val.FirstNonZeroDigit; i < limit; i++) {
-				resDigits[i] = val.Digits[i] & ~that.Digits[i];
-			}
-			for (; i < val.numberLength; i++) {
-				resDigits[i] = val.Digits[i];
-			}
+			try {
+				int limit = System.Math.Min(val.numberLength, that.numberLength);
+				int i;
+				for (i = val.FirstNonZeroDigit; i < limit; i++) {
+					resDigits[i] = val.Digits[i] & ~that.Digits[i];
+				}
+				for (; i < val.numberLength; i++) {
+					resDigits[i] = val.Digits[i];
+				}
 
-			BigInteger result = new BigInteger(1, val.numberLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
+				BigInteger result = new BigInteger(1, resLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -303,23 +371,32 @@ namespace Deveel.Math {
 			}
 
 			int resLength = System.Math.Min(positive.numberLength, negative.numberLength);
-			int[] resDigits = new int[resLength];
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			int i = iPos;
-			for (; i < iNeg; i++) {
-				resDigits[i] = positive.Digits[i];
-			}
-			if (i == iNeg) {
-				resDigits[i] = positive.Digits[i] & (negative.Digits[i] - 1);
-				i++;
-			}
-			for (; i < resLength; i++) {
-				resDigits[i] = positive.Digits[i] & negative.Digits[i];
-			}
+			try {
+				int i = iPos;
+				for (; i < iNeg; i++) {
+					resDigits[i] = positive.Digits[i];
+				}
+				if (i == iNeg) {
+					resDigits[i] = positive.Digits[i] & (negative.Digits[i] - 1);
+					i++;
+				}
+				for (; i < resLength; i++) {
+					resDigits[i] = positive.Digits[i] & negative.Digits[i];
+				}
 
-			BigInteger result = new BigInteger(1, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
+				BigInteger result = new BigInteger(1, resLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -327,11 +404,6 @@ namespace Deveel.Math {
 		/// </summary>
 		/// <returns>Sign = -1, magnitude = -(-negative.magnitude &amp; ~positive.magnitude).</returns>
 		private static BigInteger AndNotNegativePositive(BigInteger negative, BigInteger positive) {
-			int resLength;
-			int[] resDigits;
-			int limit;
-			int digit;
-
 			int iNeg = negative.FirstNonZeroDigit;
 			int iPos = positive.FirstNonZeroDigit;
 
@@ -339,57 +411,70 @@ namespace Deveel.Math {
 				return negative;
 			}
 
-			resLength = System.Math.Max(negative.numberLength, positive.numberLength);
-			int i = iNeg;
-			if (iPos > iNeg) {
-				resDigits = new int[resLength];
-				limit = System.Math.Min(negative.numberLength, iPos);
-				for (; i < limit; i++) {
-					resDigits[i] = negative.Digits[i];
-				}
-				if (i == negative.numberLength) {
-					for (i = iPos; i < positive.numberLength; i++) {
-						resDigits[i] = positive.Digits[i];
-					}
-				}
-			} else {
-				digit = -negative.Digits[i] & ~positive.Digits[i];
-				if (digit == 0) {
-					limit = System.Math.Min(positive.numberLength, negative.numberLength);
-					for (i++; i < limit && (digit = ~(negative.Digits[i] | positive.Digits[i])) == 0; i++)
-						;
-					if (digit == 0) {
-						for (; i < positive.numberLength && (digit = ~positive.Digits[i]) == 0; i++)
-							;
-						for (; i < negative.numberLength && (digit = ~negative.Digits[i]) == 0; i++)
-							;
-						if (digit == 0) {
-							resLength++;
-							resDigits = new int[resLength];
-							resDigits[resLength - 1] = 1;
+			int maxResLength = System.Math.Max(negative.numberLength, positive.numberLength) + 1;
+			int[]? resArray = null;
+			Span<int> resDigits = maxResLength <= StackAllocMax
+				? stackalloc int[maxResLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(maxResLength));
+			resDigits = resDigits.Slice(0, maxResLength);
 
-							return new BigInteger(-1, resLength, resDigits);
+			try {
+				int resLength = maxResLength - 1;
+				int limit;
+				int digit;
+				int i = iNeg;
+				if (iPos > iNeg) {
+					resDigits.Slice(0, resLength).Clear();
+					limit = System.Math.Min(negative.numberLength, iPos);
+					for (; i < limit; i++) {
+						resDigits[i] = negative.Digits[i];
+					}
+					if (i == negative.numberLength) {
+						for (i = iPos; i < positive.numberLength; i++) {
+							resDigits[i] = positive.Digits[i];
 						}
 					}
+				} else {
+					digit = -negative.Digits[i] & ~positive.Digits[i];
+					if (digit == 0) {
+						limit = System.Math.Min(positive.numberLength, negative.numberLength);
+						for (i++; i < limit && (digit = ~(negative.Digits[i] | positive.Digits[i])) == 0; i++)
+							;
+						if (digit == 0) {
+							for (; i < positive.numberLength && (digit = ~positive.Digits[i]) == 0; i++)
+								;
+							for (; i < negative.numberLength && (digit = ~negative.Digits[i]) == 0; i++)
+								;
+							if (digit == 0) {
+								resLength++;
+								resDigits.Slice(0, resLength).Clear();
+								resDigits[resLength - 1] = 1;
+
+								return new BigInteger(-1, resLength, resDigits.Slice(0, resLength));
+							}
+						}
+					}
+					resDigits[i] = -digit;
+					i++;
 				}
-				resDigits = new int[resLength];
-				resDigits[i] = -digit;
-				i++;
-			}
 
-			limit = System.Math.Min(positive.numberLength, negative.numberLength);
-			for (; i < limit; i++) {
-				resDigits[i] = negative.Digits[i] | positive.Digits[i];
-			}
-			for (; i < negative.numberLength; i++) {
-				resDigits[i] = negative.Digits[i];
-			}
-			for (; i < positive.numberLength; i++) {
-				resDigits[i] = positive.Digits[i];
-			}
+				limit = System.Math.Min(positive.numberLength, negative.numberLength);
+				for (; i < limit; i++) {
+					resDigits[i] = negative.Digits[i] | positive.Digits[i];
+				}
+				for (; i < negative.numberLength; i++) {
+					resDigits[i] = negative.Digits[i];
+				}
+				for (; i < positive.numberLength; i++) {
+					resDigits[i] = positive.Digits[i];
+				}
 
-			BigInteger result = new BigInteger(-1, resLength, resDigits);
-			return result;
+				BigInteger result = new BigInteger(-1, resLength, resDigits.Slice(0, resLength));
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -405,40 +490,50 @@ namespace Deveel.Math {
 			}
 
 			int resLength = that.numberLength;
-			int[] resDigits = new int[resLength];
-			int limit;
-			int i = iVal;
-			if (iVal < iThat) {
-				resDigits[i] = -val.Digits[i];
-				limit = System.Math.Min(val.numberLength, iThat);
-				for (i++; i < limit; i++) {
-					resDigits[i] = ~val.Digits[i];
-				}
-				if (i == val.numberLength) {
-					for (; i < iThat; i++) {
-						resDigits[i] = -1;
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
+
+			try {
+				int limit;
+				int i = iVal;
+				if (iVal < iThat) {
+					resDigits[i] = -val.Digits[i];
+					limit = System.Math.Min(val.numberLength, iThat);
+					for (i++; i < limit; i++) {
+						resDigits[i] = ~val.Digits[i];
 					}
-					resDigits[i] = that.Digits[i] - 1;
+					if (i == val.numberLength) {
+						for (; i < iThat; i++) {
+							resDigits[i] = -1;
+						}
+						resDigits[i] = that.Digits[i] - 1;
+					} else {
+						resDigits[i] = ~val.Digits[i] & (that.Digits[i] - 1);
+					}
+				} else if (iThat < iVal) {
+					resDigits[i] = -val.Digits[i] & that.Digits[i];
 				} else {
-					resDigits[i] = ~val.Digits[i] & (that.Digits[i] - 1);
+					resDigits[i] = -val.Digits[i] & (that.Digits[i] - 1);
 				}
-			} else if (iThat < iVal) {
-				resDigits[i] = -val.Digits[i] & that.Digits[i];
-			} else {
-				resDigits[i] = -val.Digits[i] & (that.Digits[i] - 1);
-			}
 
-			limit = System.Math.Min(val.numberLength, that.numberLength);
-			for (i++; i < limit; i++) {
-				resDigits[i] = ~val.Digits[i] & that.Digits[i];
-			}
-			for (; i < that.numberLength; i++) {
-				resDigits[i] = that.Digits[i];
-			}
+				limit = System.Math.Min(val.numberLength, that.numberLength);
+				for (i++; i < limit; i++) {
+					resDigits[i] = ~val.Digits[i] & that.Digits[i];
+				}
+				for (; i < that.numberLength; i++) {
+					resDigits[i] = that.Digits[i];
+				}
 
-			BigInteger result = new BigInteger(1, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
+				BigInteger result = new BigInteger(1, resLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -493,18 +588,43 @@ namespace Deveel.Math {
 		/// <returns>Sign = 1, magnitude = longer.magnitude | shorter.magnitude.</returns>
 		private static BigInteger OrPositive(BigInteger longer, BigInteger shorter) {
 			int resLength = longer.numberLength;
-			int[] resDigits = new int[resLength];
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			int i = System.Math.Min(longer.FirstNonZeroDigit, shorter.FirstNonZeroDigit);
-			for (i = 0; i < shorter.numberLength; i++) {
-				resDigits[i] = longer.Digits[i] | shorter.Digits[i];
-			}
-			for (; i < resLength; i++) {
-				resDigits[i] = longer.Digits[i];
-			}
+			try {
+				var a = longer.DigitsSpan;
+				var b = shorter.DigitsSpan;
 
-			BigInteger result = new BigInteger(1, resLength, resDigits);
-			return result;
+				int i = 0;
+#if !NETSTANDARD2_0
+				if (Vector.IsHardwareAccelerated && shorter.numberLength >= Vector<int>.Count) {
+					int vectorLimit = (shorter.numberLength / Vector<int>.Count) * Vector<int>.Count;
+					for (; i < vectorLimit; i += Vector<int>.Count) {
+						var va = new Vector<int>(a.Slice(i, Vector<int>.Count).ToArray());
+						var vb = new Vector<int>(b.Slice(i, Vector<int>.Count).ToArray());
+						var vResult = va | vb;
+						for (int j = 0; j < Vector<int>.Count; j++) {
+							resDigits[i + j] = vResult[j];
+						}
+					}
+				}
+#endif
+				for (; i < shorter.numberLength; i++) {
+					resDigits[i] = a[i] | b[i];
+				}
+				for (; i < resLength; i++) {
+					resDigits[i] = a[i];
+				}
+
+				BigInteger result = new BigInteger(1, resLength, resDigits);
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -523,25 +643,34 @@ namespace Deveel.Math {
 			}
 
 			int resLength = System.Math.Min(val.numberLength, that.numberLength);
-			int[] resDigits = new int[resLength];
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			if (iThat == iVal) {
-				resDigits[iVal] = -(-val.Digits[iVal] | -that.Digits[iVal]);
-				i = iVal;
-			} else {
-				for (i = iThat; i < iVal; i++) {
-					resDigits[i] = that.Digits[i];
+			try {
+				if (iThat == iVal) {
+					resDigits[iVal] = -(-val.Digits[iVal] | -that.Digits[iVal]);
+					i = iVal;
+				} else {
+					for (i = iThat; i < iVal; i++) {
+						resDigits[i] = that.Digits[i];
+					}
+					resDigits[i] = that.Digits[i] & (val.Digits[i] - 1);
 				}
-				resDigits[i] = that.Digits[i] & (val.Digits[i] - 1);
-			}
 
-			for (i++; i < resLength; i++) {
-				resDigits[i] = val.Digits[i] & that.Digits[i];
-			}
+				for (i++; i < resLength; i++) {
+					resDigits[i] = val.Digits[i] & that.Digits[i];
+				}
 
-			BigInteger result = new BigInteger(-1, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
+				BigInteger result = new BigInteger(-1, resLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -558,44 +687,53 @@ namespace Deveel.Math {
 				return negative;
 			}
 			int resLength = negative.numberLength;
-			int[] resDigits = new int[resLength];
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			if (iNeg < iPos) {
-				for (i = iNeg; i < iPos; i++) {
+			try {
+				if (iNeg < iPos) {
+					for (i = iNeg; i < iPos; i++) {
+						resDigits[i] = negative.Digits[i];
+					}
+				} else if (iPos < iNeg) {
+					i = iPos;
+					resDigits[i] = -positive.Digits[i];
+					limit = System.Math.Min(positive.numberLength, iNeg);
+					for (i++; i < limit; i++) {
+						resDigits[i] = ~positive.Digits[i];
+					}
+					if (i != positive.numberLength) {
+						resDigits[i] = ~(-negative.Digits[i] | positive.Digits[i]);
+					} else {
+						for (; i < iNeg; i++) {
+							resDigits[i] = -1;
+						}
+						resDigits[i] = negative.Digits[i] - 1;
+					}
+					i++;
+				} else {
+					i = iPos;
+					resDigits[i] = -(-negative.Digits[i] | positive.Digits[i]);
+					i++;
+				}
+				limit = System.Math.Min(negative.numberLength, positive.numberLength);
+				for (; i < limit; i++) {
+					resDigits[i] = negative.Digits[i] & ~positive.Digits[i];
+				}
+				for (; i < negative.numberLength; i++) {
 					resDigits[i] = negative.Digits[i];
 				}
-			} else if (iPos < iNeg) {
-				i = iPos;
-				resDigits[i] = -positive.Digits[i];
-				limit = System.Math.Min(positive.numberLength, iNeg);
-				for (i++; i < limit; i++) {
-					resDigits[i] = ~positive.Digits[i];
-				}
-				if (i != positive.numberLength) {
-					resDigits[i] = ~(-negative.Digits[i] | positive.Digits[i]);
-				} else {
-					for (; i < iNeg; i++) {
-						resDigits[i] = -1;
-					}
-					resDigits[i] = negative.Digits[i] - 1;
-				}
-				i++;
-			} else {
-				i = iPos;
-				resDigits[i] = -(-negative.Digits[i] | positive.Digits[i]);
-				i++;
-			}
-			limit = System.Math.Min(negative.numberLength, positive.numberLength);
-			for (; i < limit; i++) {
-				resDigits[i] = negative.Digits[i] & ~positive.Digits[i];
-			}
-			for (; i < negative.numberLength; i++) {
-				resDigits[i] = negative.Digits[i];
-			}
 
-			BigInteger result = new BigInteger(-1, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
+				BigInteger result = new BigInteger(-1, resLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -653,18 +791,43 @@ namespace Deveel.Math {
 		/// <returns>Sign = 0, magnitude = longer.magnitude ^ shorter.magnitude.</returns>
 		private static BigInteger XorPositive(BigInteger longer, BigInteger shorter) {
 			int resLength = longer.numberLength;
-			int[] resDigits = new int[resLength];
-			int i = System.Math.Min(longer.FirstNonZeroDigit, shorter.FirstNonZeroDigit);
-			for (; i < shorter.numberLength; i++) {
-				resDigits[i] = longer.Digits[i] ^ shorter.Digits[i];
-			}
-			for (; i < longer.numberLength; i++) {
-				resDigits[i] = longer.Digits[i];
-			}
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			BigInteger result = new BigInteger(1, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
+			try {
+				var a = longer.DigitsSpan;
+				var b = shorter.DigitsSpan;
+
+				int i = System.Math.Min(longer.FirstNonZeroDigit, shorter.FirstNonZeroDigit);
+#if !NETSTANDARD2_0
+				if (Vector.IsHardwareAccelerated && shorter.numberLength - i >= Vector<int>.Count) {
+					int vectorLimit = i + ((shorter.numberLength - i) / Vector<int>.Count) * Vector<int>.Count;
+					for (; i < vectorLimit; i += Vector<int>.Count) {
+						var va = new Vector<int>(a.Slice(i, Vector<int>.Count).ToArray());
+						var vb = new Vector<int>(b.Slice(i, Vector<int>.Count).ToArray());
+						var vResult = va ^ vb;
+						for (int j = 0; j < Vector<int>.Count; j++) {
+							resDigits[i + j] = vResult[j];
+						}
+					}
+				}
+#endif
+				for (; i < shorter.numberLength; i++) {
+					resDigits[i] = a[i] ^ b[i];
+				}
+				for (; i < longer.numberLength; i++) {
+					resDigits[i] = a[i];
+				}
+
+				BigInteger result = new BigInteger(1, resLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -673,44 +836,54 @@ namespace Deveel.Math {
 		/// <returns>Sign = 0, magnitude = -val.magnitude ^ -that.magnitude.</returns>
 		private static BigInteger XorNegative(BigInteger val, BigInteger that) {
 			int resLength = System.Math.Max(val.numberLength, that.numberLength);
-			int[] resDigits = new int[resLength];
-			int iVal = val.FirstNonZeroDigit;
-			int iThat = that.FirstNonZeroDigit;
-			int i = iThat;
-			int limit;
+			int[]? resArray = null;
+			Span<int> resDigits = resLength <= StackAllocMax
+				? stackalloc int[resLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(resLength));
+			resDigits = resDigits.Slice(0, resLength);
 
-			if (iVal == iThat) {
-				resDigits[i] = -val.Digits[i] ^ -that.Digits[i];
-			} else {
-				resDigits[i] = -that.Digits[i];
-				limit = System.Math.Min(that.numberLength, iVal);
-				for (i++; i < limit; i++) {
-					resDigits[i] = ~that.Digits[i];
-				}
-				if (i == that.numberLength) {
-					for (; i < iVal; i++) {
-						resDigits[i] = -1;
-					}
-					resDigits[i] = val.Digits[i] - 1;
+			try {
+				int iVal = val.FirstNonZeroDigit;
+				int iThat = that.FirstNonZeroDigit;
+				int i = iThat;
+				int limit;
+
+				if (iVal == iThat) {
+					resDigits[i] = -val.Digits[i] ^ -that.Digits[i];
 				} else {
-					resDigits[i] = -val.Digits[i] ^ ~that.Digits[i];
+					resDigits[i] = -that.Digits[i];
+					limit = System.Math.Min(that.numberLength, iVal);
+					for (i++; i < limit; i++) {
+						resDigits[i] = ~that.Digits[i];
+					}
+					if (i == that.numberLength) {
+						for (; i < iVal; i++) {
+							resDigits[i] = -1;
+						}
+						resDigits[i] = val.Digits[i] - 1;
+					} else {
+						resDigits[i] = -val.Digits[i] ^ ~that.Digits[i];
+					}
 				}
-			}
 
-			limit = System.Math.Min(val.numberLength, that.numberLength);
-			for (i++; i < limit; i++) {
-				resDigits[i] = val.Digits[i] ^ that.Digits[i];
-			}
-			for (; i < val.numberLength; i++) {
-				resDigits[i] = val.Digits[i];
-			}
-			for (; i < that.numberLength; i++) {
-				resDigits[i] = that.Digits[i];
-			}
+				limit = System.Math.Min(val.numberLength, that.numberLength);
+				for (i++; i < limit; i++) {
+					resDigits[i] = val.Digits[i] ^ that.Digits[i];
+				}
+				for (; i < val.numberLength; i++) {
+					resDigits[i] = val.Digits[i];
+				}
+				for (; i < that.numberLength; i++) {
+					resDigits[i] = that.Digits[i];
+				}
 
-			BigInteger result = new BigInteger(1, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
+				BigInteger result = new BigInteger(1, resLength, resDigits);
+				return result.WithCutOffLeadingZeroes();
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 
 		/// <summary>
@@ -718,86 +891,94 @@ namespace Deveel.Math {
 		/// </summary>
 		/// <returns>Sign = 1, magnitude = -(positive.magnitude ^ -negative.magnitude).</returns>
 		private static BigInteger XorDiffSigns(BigInteger positive, BigInteger negative) {
-			int resLength = System.Math.Max(negative.numberLength, positive.numberLength);
-			int[] resDigits;
-			int iNeg = negative.FirstNonZeroDigit;
-			int iPos = positive.FirstNonZeroDigit;
-			int i;
-			int limit;
+			int maxResLength = System.Math.Max(negative.numberLength, positive.numberLength) + 1;
+			int[]? resArray = null;
+			Span<int> resDigits = maxResLength <= StackAllocMax
+				? stackalloc int[maxResLength]
+				: (resArray = ArrayPool<int>.Shared.Rent(maxResLength));
+			resDigits = resDigits.Slice(0, maxResLength);
 
-			if (iNeg < iPos) {
-				resDigits = new int[resLength];
-				i = iNeg;
-				resDigits[i] = negative.Digits[i];
-				limit = System.Math.Min(negative.numberLength, iPos);
-				for (i++; i < limit; i++) {
+			try {
+				int iNeg = negative.FirstNonZeroDigit;
+				int iPos = positive.FirstNonZeroDigit;
+				int i;
+				int limit;
+				int resLength = maxResLength - 1;
+
+				if (iNeg < iPos) {
+					i = iNeg;
 					resDigits[i] = negative.Digits[i];
-				}
-				if (i == negative.numberLength) {
-					for (; i < positive.numberLength; i++) {
-						resDigits[i] = positive.Digits[i];
-					}
-				}
-			} else if (iPos < iNeg) {
-				resDigits = new int[resLength];
-				i = iPos;
-				resDigits[i] = -positive.Digits[i];
-				limit = System.Math.Min(positive.numberLength, iNeg);
-				for (i++; i < limit; i++) {
-					resDigits[i] = ~positive.Digits[i];
-				}
-				if (i == iNeg) {
-					resDigits[i] = ~(positive.Digits[i] ^ -negative.Digits[i]);
-					i++;
-				} else {
-					for (; i < iNeg; i++) {
-						resDigits[i] = -1;
-					}
-					for (; i < negative.numberLength; i++) {
+					limit = System.Math.Min(negative.numberLength, iPos);
+					for (i++; i < limit; i++) {
 						resDigits[i] = negative.Digits[i];
 					}
-				}
-			} else {
-				int digit;
-				i = iNeg;
-				digit = positive.Digits[i] ^ -negative.Digits[i];
-				if (digit == 0) {
-					limit = System.Math.Min(positive.numberLength, negative.numberLength);
-					for (i++; i < limit && (digit = positive.Digits[i] ^ ~negative.Digits[i]) == 0; i++)
-						;
-					if (digit == 0) {
-						for (; i < positive.numberLength && (digit = ~positive.Digits[i]) == 0; i++)
-							;
-						for (; i < negative.numberLength && (digit = ~negative.Digits[i]) == 0; i++)
-							;
-						if (digit == 0) {
-							resLength = resLength + 1;
-							resDigits = new int[resLength];
-							resDigits[resLength - 1] = 1;
-
-							return new BigInteger(-1, resLength, resDigits);
+					if (i == negative.numberLength) {
+						for (; i < positive.numberLength; i++) {
+							resDigits[i] = positive.Digits[i];
 						}
 					}
+				} else if (iPos < iNeg) {
+					i = iPos;
+					resDigits[i] = -positive.Digits[i];
+					limit = System.Math.Min(positive.numberLength, iNeg);
+					for (i++; i < limit; i++) {
+						resDigits[i] = ~positive.Digits[i];
+					}
+					if (i == iNeg) {
+						resDigits[i] = ~(positive.Digits[i] ^ -negative.Digits[i]);
+						i++;
+					} else {
+						for (; i < iNeg; i++) {
+							resDigits[i] = -1;
+						}
+						for (; i < negative.numberLength; i++) {
+							resDigits[i] = negative.Digits[i];
+						}
+					}
+				} else {
+					int digit;
+					i = iNeg;
+					digit = positive.Digits[i] ^ -negative.Digits[i];
+					if (digit == 0) {
+						limit = System.Math.Min(positive.numberLength, negative.numberLength);
+						for (i++; i < limit && (digit = positive.Digits[i] ^ ~negative.Digits[i]) == 0; i++)
+							;
+						if (digit == 0) {
+							for (; i < positive.numberLength && (digit = ~positive.Digits[i]) == 0; i++)
+								;
+							for (; i < negative.numberLength && (digit = ~negative.Digits[i]) == 0; i++)
+								;
+							if (digit == 0) {
+								resLength = resLength + 1;
+								resDigits.Slice(0, resLength).Clear();
+								resDigits[resLength - 1] = 1;
+
+								return new BigInteger(-1, resLength, resDigits.Slice(0, resLength));
+							}
+						}
+					}
+					resDigits[i] = -digit;
+					i++;
 				}
-				resDigits = new int[resLength];
-				resDigits[i] = -digit;
-				i++;
-			}
 
-			limit = System.Math.Min(negative.numberLength, positive.numberLength);
-			for (; i < limit; i++) {
-				resDigits[i] = ~(~negative.Digits[i] ^ positive.Digits[i]);
-			}
-			for (; i < positive.numberLength; i++) {
-				resDigits[i] = positive.Digits[i];
-			}
-			for (; i < negative.numberLength; i++) {
-				resDigits[i] = negative.Digits[i];
-			}
+				limit = System.Math.Min(negative.numberLength, positive.numberLength);
+				for (; i < limit; i++) {
+					resDigits[i] = ~(~negative.Digits[i] ^ positive.Digits[i]);
+				}
+				for (; i < positive.numberLength; i++) {
+					resDigits[i] = positive.Digits[i];
+				}
+				for (; i < negative.numberLength; i++) {
+					resDigits[i] = negative.Digits[i];
+				}
 
-			BigInteger result = new BigInteger(-1, resLength, resDigits);
-			result.CutOffLeadingZeroes();
-			return result;
+				BigInteger result = new BigInteger(-1, resLength, resDigits.Slice(0, resLength));
+				return result.WithCutOffLeadingZeroes();
+				return result;
+			} finally {
+				if (resArray != null)
+					ArrayPool<int>.Shared.Return(resArray);
+			}
 		}
 	}
 }

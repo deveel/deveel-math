@@ -116,7 +116,7 @@ namespace Deveel.Math {
 					new int[n.numberLength + 1]);
 			Array.Copy(n.Digits, 0, startPoint.Digits, 0, n.numberLength);
 			if (BigInteger.TestBit(n, 0)) {
-				Elementary.inplaceAdd(startPoint, 2);
+				startPoint = Elementary.inplaceAdd(startPoint, 2);
 			} else {
 				startPoint.Digits[0] |= 1;
 			}
@@ -140,15 +140,14 @@ namespace Deveel.Math {
 				}
 				for (j = 0; j < gapSize; j++) {
 					if (!isDivisible[j]) {
-						probPrime = startPoint.Copy();
-						Elementary.inplaceAdd(probPrime, j);
+						probPrime = Elementary.inplaceAdd(startPoint, j);
 
 						if (MillerRabin(probPrime, certainty)) {
 							return probPrime;
 						}
 					}
 				}
-				Elementary.inplaceAdd(startPoint, gapSize);
+				startPoint = Elementary.inplaceAdd(startPoint, gapSize);
 			}
 		}
 
